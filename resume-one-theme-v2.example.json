@@ -1,0 +1,48 @@
+{
+  "formatVersion": 2,
+  "id": "qinghe-sidebar",
+  "name": "青禾 · 侧栏示例",
+  "description": "v2 声明式主题结构示例",
+  "version": "0.1.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#52756B",
+    "seal": "#A14F40",
+    "paper": "#FFFEFA",
+    "canvas": "#F6F3ED",
+    "ink": "#252B28",
+    "muted": "#68736D",
+    "border": "#DDE5DE",
+    "sidebar": "#EFF4EF"
+  },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": {
+    "size": "A4",
+    "marginsMm": { "top": 17, "right": 16, "bottom": 17, "left": 16 },
+    "sectionGapMm": 6,
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": { "family": "cjk-sans", "sizePt": 10, "weight": 400, "lineHeight": 1.4 },
+    "name": { "family": "cjk-serif", "sizePt": 27, "weight": 600, "lineHeight": 1.15 },
+    "sectionTitle": { "family": "cjk-serif", "sizePt": 13, "weight": 600, "trackingEm": 0.03 },
+    "meta": { "family": "cjk-sans", "sizePt": 8.5, "weight": 400 }
+  },
+  "composition": {
+    "preset": "sidebar-right",
+    "sidebarWidthPct": 30,
+    "gapMm": 7,
+    "header": "stacked",
+    "contact": "inline",
+    "placements": { "skills": "sidebar", "languages": "sidebar", "interests": "sidebar" }
+  },
+  "sections": {
+    "work": { "heading": "accent-line", "items": "timeline", "date": "left" },
+    "education": { "heading": "accent-line", "items": "compact", "date": "right" },
+    "skills": { "heading": "plain", "items": "chips" }
+  },
+  "decorations": { "headerMark": "seal", "sectionRule": "hairline", "cornerRadiusMm": 0 },
+  "provenance": { "fidelity": "native" }
+}

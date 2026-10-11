@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/resume-one-core"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+rust-version = "1.88"
+
+[workspace.dependencies]
+serde_json = { version = "1.0", features = ["preserve_order"] }
+jsonschema = { version = "0.56", default-features = false }
+sha2 = "0.10"

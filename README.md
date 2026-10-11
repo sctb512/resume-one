@@ -4,9 +4,11 @@
 
 ## 当前实现状态
 
-仓库正在按功能逐项实现和验收。首个功能是共享的、**不执行代码**的声明式主题 v1/v2 校验与 v1 内存适配。桌面应用、正式导出、CLI 和迁移器尚未完成；`prototype-v3/` 只是历史浏览器原型，不是发布产品。请勿把当前源码当成已发布的 macOS/Windows 安装包。
+仓库正在按功能逐项实现和验收。已完成共享的、**不执行代码**的声明式主题 v1/v2 校验、v1 内存适配，以及只读 JSON Resume 内容校验和字节级 revision。桌面应用、正式导出、CLI 和迁移器尚未完成；`prototype-v3/` 只是历史浏览器原型，不是发布产品。请勿把当前源码当成已发布的 macOS/Windows 安装包。
 
-运行已实现的检查：`cargo test --workspace`。主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
+运行已实现的检查：`cargo test --workspace`。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
+
+JSON Resume Schema 来自 `@jsonresume/schema@1.3.1`，其原始包声明 MIT 许可证，Copyright © 2024 JSON Resume；原文件 SHA-256 为 `a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd`。许可全文与随附声明见 [第三方许可](./spec/THIRD_PARTY_LICENSES.md)。
 
 ## 文档
 

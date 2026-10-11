@@ -12,6 +12,8 @@ use jsonschema::Validator;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
+pub mod resume;
+
 const MAX_THEME_BYTES: usize = 1_048_576;
 const MAX_FONT_BYTES: usize = 8_388_608;
 const V1_SCHEMA: &str = include_str!("../../../resume-one-theme-v1.schema.json");

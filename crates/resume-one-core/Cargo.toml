@@ -13,3 +13,5 @@ json-patch.workspace = true
 atomic-write-file.workspace = true
 tempfile.workspace = true
 docx-rs.workspace = true
+printpdf.workspace = true
+ttf-parser.workspace = true

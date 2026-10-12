@@ -370,3 +370,27 @@ fn exports_editable_docx_with_chinese_content() {
     assert!(document.json().contains("李明"));
     assert_eq!(fs::read_to_string(&file).unwrap(), source);
 }
+
+#[test]
+fn exports_pdf_with_unicode_and_keeps_source_unchanged() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    let out = root.path().join("简历.pdf");
+    let source = r#"{"basics":{"name":"李明","summary":"跨平台设计"},"work":[{"name":"示例公司","position":"设计师"}]}"#;
+    fs::write(&file, source).unwrap();
+    let (output, result) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "pdf",
+        "--out",
+        path(&out),
+        "--json",
+    ]);
+    assert!(output.status.success());
+    assert_eq!(result["result"]["format"], "pdf");
+    let bytes = fs::read(&out).unwrap();
+    assert!(bytes.starts_with(b"%PDF-"));
+    assert_eq!(fs::read_to_string(&file).unwrap(), source);
+}

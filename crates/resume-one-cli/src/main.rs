@@ -7,6 +7,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use resume_one_core::Diagnostic;
 use resume_one_core::docx;
 use resume_one_core::export::write_export;
+use resume_one_core::pdf;
 use resume_one_core::render::{Language, markdown, plain_text};
 use resume_one_core::resume::{
     JSON_RESUME_SCHEMA, JSON_RESUME_SCHEMA_VERSION, load_resume, read_pointer,
@@ -69,7 +70,7 @@ enum Command {
         #[arg(long)]
         dry_run: bool,
     },
-    /// 导出 UTF-8 纯文本、Markdown 或可编辑 DOCX
+    /// 导出 PDF、DOCX、UTF-8 纯文本或 Markdown
     Export {
         #[arg(long)]
         file: PathBuf,
@@ -91,6 +92,7 @@ enum ExportFormat {
     Txt,
     Md,
     Docx,
+    Pdf,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -375,6 +377,11 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 ExportFormat::Docx => (
                     "docx",
                     docx::render(&content, language)
+                        .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
+                ),
+                ExportFormat::Pdf => (
+                    "pdf",
+                    pdf::render(&content, language)
                         .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
                 ),
             };

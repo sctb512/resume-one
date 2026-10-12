@@ -14,6 +14,7 @@ use sha2::{Digest, Sha256};
 
 pub mod docx;
 pub mod export;
+pub mod pdf;
 pub mod render;
 pub mod resume;
 pub mod semantic;

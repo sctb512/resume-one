@@ -23,3 +23,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Noto Sans SC 字体
+
+PDF 导出随程序嵌入 [Noto Sans SC Regular](../assets/fonts/NotoSansSC-Regular.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notosanssc) 的 `NotoSansSC[wght].ttf`，在 `wght=400` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`eeb06b8a64fd04a2744d95579db1571b51027cda61ed78c62e4b730791525461`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSansSC.txt](../assets/fonts/OFL-NotoSansSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。

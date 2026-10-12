@@ -1,0 +1,274 @@
+use std::fs;
+use std::path::Path;
+use std::process::{Command, Output, Stdio};
+
+use serde_json::{Value, json};
+
+fn call(args: &[&str]) -> (Output, Value) {
+    let output = Command::new(env!("CARGO_BIN_EXE_resume-one"))
+        .args(args)
+        .output()
+        .unwrap();
+    assert!(output.stderr.is_empty(), "stderr: {:?}", output.stderr);
+    let stdout = String::from_utf8(output.stdout.clone()).unwrap();
+    assert_eq!(stdout.lines().count(), 1, "stdout: {stdout}");
+    let value = serde_json::from_str(&stdout).unwrap();
+    (output, value)
+}
+
+fn path(path: &Path) -> &str {
+    path.to_str().unwrap()
+}
+
+#[test]
+fn init_inspect_read_and_schema_are_agent_safe() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("简历 one.json");
+    let (created, init) = call(&["init", "--file", path(&file), "--json"]);
+    assert!(created.status.success());
+    assert_eq!(init["result"]["valid"], true);
+    let original = fs::read(&file).unwrap();
+    let (again, existing) = call(&["init", "--file", path(&file), "--json"]);
+    assert_eq!(again.status.code(), Some(5));
+    assert_eq!(existing["error"]["code"], "FILE_EXISTS");
+    assert_eq!(fs::read(&file).unwrap(), original);
+
+    fs::write(
+        &file,
+        r#"{"basics":{"name":"Sensitive Name"},"custom":{"a/b":"secret"},"work":[{}]}"#,
+    )
+    .unwrap();
+    let (_, inspect) = call(&["inspect", "--file", path(&file), "--json"]);
+    assert_eq!(inspect["result"]["sections"]["work"], 1);
+    assert_eq!(inspect["result"]["sections"]["basics"], 1);
+    assert!(!inspect.to_string().contains("Sensitive Name"));
+    assert!(!inspect.to_string().contains("secret"));
+    let (_, selected) = call(&[
+        "read",
+        "--file",
+        path(&file),
+        "--pointer",
+        "/custom/a~1b",
+        "--json",
+    ]);
+    assert_eq!(selected["result"]["value"], "secret");
+    let (_, schema) = call(&["schema", "--json"]);
+    assert_eq!(schema["result"]["schemaVersion"], "1.3.1");
+    assert!(schema["result"]["schema"].is_object());
+}
+
+#[test]
+fn list_does_not_read_files_or_recurse() {
+    let root = tempfile::tempdir().unwrap();
+    fs::write(root.path().join("a.json"), "not JSON").unwrap();
+    fs::write(root.path().join("b.txt"), "x").unwrap();
+    fs::create_dir(root.path().join("nested")).unwrap();
+    fs::write(root.path().join("nested/c.json"), "x").unwrap();
+    let (_, value) = call(&["list", "--dir", path(root.path()), "--json"]);
+    assert_eq!(value["result"]["files"].as_array().unwrap().len(), 1);
+    assert_eq!(value["result"]["files"][0]["name"], "a.json");
+}
+
+#[test]
+fn patch_dry_run_commit_conflict_and_rollback() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("履历.json");
+    let patch = root.path().join("change.json");
+    fs::write(&file, r#"{"basics":{"name":"甲"},"custom":{"keep":true}}"#).unwrap();
+    fs::write(
+        &patch,
+        r#"[{"op":"replace","path":"/basics/name","value":"乙"}]"#,
+    )
+    .unwrap();
+    let (_, inspect) = call(&["inspect", "--file", path(&file), "--json"]);
+    let revision = inspect["result"]["revision"].as_str().unwrap();
+    let old = fs::read(&file).unwrap();
+    let (_, preview) = call(&[
+        "patch",
+        "--file",
+        path(&file),
+        "--patch",
+        path(&patch),
+        "--if-match",
+        revision,
+        "--dry-run",
+        "--json",
+    ]);
+    assert_eq!(preview["result"]["dryRun"], true);
+    assert_eq!(preview["result"]["changedPaths"], json!(["/basics/name"]));
+    assert!(!preview.to_string().contains("乙"));
+    assert_eq!(fs::read(&file).unwrap(), old);
+    assert_eq!(fs::read_dir(root.path()).unwrap().count(), 2);
+    let (_, committed) = call(&[
+        "patch",
+        "--file",
+        path(&file),
+        "--patch",
+        path(&patch),
+        "--if-match",
+        revision,
+        "--json",
+    ]);
+    assert_eq!(
+        committed["result"]["revision"],
+        preview["result"]["revision"]
+    );
+    let parsed: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+    assert_eq!(parsed["basics"]["name"], "乙");
+    assert_eq!(parsed["custom"]["keep"], true);
+
+    let (conflict, value) = call(&[
+        "patch",
+        "--file",
+        path(&file),
+        "--patch",
+        path(&patch),
+        "--if-match",
+        revision,
+        "--json",
+    ]);
+    assert_eq!(conflict.status.code(), Some(4));
+    assert_eq!(value["error"]["code"], "REVISION_CONFLICT");
+    assert_eq!(value["revision"], committed["result"]["revision"]);
+
+    let after = fs::read(&file).unwrap();
+    fs::write(
+        &patch,
+        r#"[{"op":"replace","path":"/basics/name","value":42}]"#,
+    )
+    .unwrap();
+    let current = committed["result"]["revision"].as_str().unwrap();
+    let (invalid, value) = call(&[
+        "patch",
+        "--file",
+        path(&file),
+        "--patch",
+        path(&patch),
+        "--if-match",
+        current,
+        "--json",
+    ]);
+    assert_eq!(invalid.status.code(), Some(3));
+    assert_eq!(value["error"]["code"], "RESUME_INVALID");
+    assert_eq!(fs::read(&file).unwrap(), after);
+}
+
+#[test]
+fn validates_errors_and_json_arguments_without_leaking_body() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("invalid.json");
+    fs::write(&file, r#"{"basics":{"email":"private but invalid"}}"#).unwrap();
+    let (invalid, value) = call(&["validate", "--file", path(&file), "--json"]);
+    assert_eq!(invalid.status.code(), Some(3));
+    assert_eq!(value["error"]["code"], "RESUME_INVALID");
+    assert_eq!(value["error"]["diagnostics"][0]["path"], "/basics/email");
+    assert!(!value.to_string().contains("private but invalid"));
+    let (missing, value) = call(&["inspect", "--json"]);
+    assert_eq!(missing.status.code(), Some(2));
+    assert_eq!(value["error"]["code"], "ARGUMENT_ERROR");
+    let (relative, value) = call(&["inspect", "--file", "resume.json", "--json"]);
+    assert_eq!(relative.status.code(), Some(2));
+    assert_eq!(value["error"]["code"], "PATH_NOT_ABSOLUTE");
+}
+
+#[test]
+fn patch_from_stdin_is_supported() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    fs::write(&file, r#"{"basics":{"name":"A"}}"#).unwrap();
+    let (_, inspect) = call(&["inspect", "--file", path(&file), "--json"]);
+    let revision = inspect["result"]["revision"].as_str().unwrap();
+    let mut child = Command::new(env!("CARGO_BIN_EXE_resume-one"))
+        .args([
+            "patch",
+            "--file",
+            path(&file),
+            "--patch",
+            "-",
+            "--if-match",
+            revision,
+            "--json",
+        ])
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    use std::io::Write;
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(br#"[{"op":"replace","path":"/basics/name","value":"B"}]"#)
+        .unwrap();
+    let output = child.wait_with_output().unwrap();
+    assert!(output.status.success());
+    assert!(output.stderr.is_empty());
+    let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(value["result"]["changedPaths"], json!(["/basics/name"]));
+}
+
+#[test]
+fn two_cli_processes_cannot_commit_the_same_revision() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    let first_patch = root.path().join("first.json");
+    let second_patch = root.path().join("second.json");
+    fs::write(&file, r#"{"basics":{"name":"Before"}}"#).unwrap();
+    fs::write(
+        &first_patch,
+        r#"[{"op":"replace","path":"/basics/name","value":"First"}]"#,
+    )
+    .unwrap();
+    fs::write(
+        &second_patch,
+        r#"[{"op":"replace","path":"/basics/name","value":"Second"}]"#,
+    )
+    .unwrap();
+    let (_, inspect) = call(&["inspect", "--file", path(&file), "--json"]);
+    let revision = inspect["result"]["revision"].as_str().unwrap();
+    let children: Vec<_> = [&first_patch, &second_patch]
+        .into_iter()
+        .map(|patch| {
+            Command::new(env!("CARGO_BIN_EXE_resume-one"))
+                .args([
+                    "patch",
+                    "--file",
+                    path(&file),
+                    "--patch",
+                    path(patch),
+                    "--if-match",
+                    revision,
+                    "--json",
+                ])
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap()
+        })
+        .collect();
+    let outcomes: Vec<_> = children
+        .into_iter()
+        .map(|child| child.wait_with_output().unwrap())
+        .collect();
+    assert_eq!(
+        outcomes
+            .iter()
+            .filter(|output| output.status.success())
+            .count(),
+        1
+    );
+    assert_eq!(
+        outcomes
+            .iter()
+            .filter(|output| output.status.code() == Some(4))
+            .count(),
+        1
+    );
+    let final_name = serde_json::from_slice::<Value>(&fs::read(&file).unwrap()).unwrap()["basics"]
+        ["name"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert!(final_name == "First" || final_name == "Second");
+}

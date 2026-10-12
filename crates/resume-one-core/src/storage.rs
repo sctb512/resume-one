@@ -114,7 +114,7 @@ pub fn patch_resume(
     })?;
     let prior_value = document.value.clone();
     json_patch::patch(&mut document.value, &patch)
-        .map_err(|err| error("PATCH_FAILED", format!("补丁未应用：{err}")))?;
+        .map_err(|_| error("PATCH_FAILED", "补丁未应用；请检查操作路径和 test 条件"))?;
     if document.value == prior_value {
         return Ok(PatchOutcome {
             previous_revision: actual.clone(),

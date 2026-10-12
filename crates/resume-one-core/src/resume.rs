@@ -75,7 +75,7 @@ pub fn parse_resume(bytes: &[u8]) -> Result<ResumeDocument, Vec<Diagnostic>> {
             issue(
                 "RESUME_SCHEMA",
                 error.instance_path().to_string(),
-                error.to_string(),
+                format!("字段不符合 Schema 的 {} 规则", error.kind().keyword()),
             )
         })
         .collect();

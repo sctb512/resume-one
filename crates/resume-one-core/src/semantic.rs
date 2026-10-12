@@ -190,10 +190,13 @@ pub fn project(document: &ResumeDocument) -> ResumeContent {
             );
         }
     }
-    let sections = IDS
+    let sections = value
+        .as_object()
         .into_iter()
-        .filter_map(|id| {
-            let items = value.get(id)?.as_array()?;
+        .flat_map(|fields| fields.iter())
+        .filter_map(|(key, section)| {
+            let id = IDS.into_iter().find(|id| *id == key)?;
+            let items = section.as_array()?;
             if items.is_empty() {
                 return None;
             }
@@ -227,5 +230,19 @@ mod tests {
         assert_eq!(content.sections[0].items[0].bullets, ["Built it"]);
         assert!(content.contacts[0].contains("GitHub"));
         assert_eq!(doc.source, source);
+    }
+
+    #[test]
+    fn preserves_resume_module_order_for_all_exports() {
+        let source = br#"{"basics":{},"projects":[{"name":"One"}],"education":[{"institution":"Two"}],"work":[{"name":"Three"}]}"#;
+        let content = project(&parse_resume(source).unwrap());
+        assert_eq!(
+            content
+                .sections
+                .iter()
+                .map(|section| section.id)
+                .collect::<Vec<_>>(),
+            ["projects", "education", "work"]
+        );
     }
 }

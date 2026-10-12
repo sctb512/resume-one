@@ -394,3 +394,65 @@ fn exports_pdf_with_unicode_and_keeps_source_unchanged() {
     assert!(bytes.starts_with(b"%PDF-"));
     assert_eq!(fs::read_to_string(&file).unwrap(), source);
 }
+
+#[test]
+fn exports_pdf_with_validated_theme_and_rejects_unsupported_layout() {
+    let root = tempfile::tempdir().unwrap();
+    let resume = root.path().join("resume.json");
+    let theme = root.path().join("night.theme.json");
+    let pdf = root.path().join("resume.pdf");
+    let untouched = r#"{"basics":{"name":"李明","summary":"跨平台产品设计"},"work":[{"position":"设计师","name":"示例公司"}]}"#;
+    fs::write(&resume, untouched).unwrap();
+    fs::write(&theme, r##"{"formatVersion":2,"id":"night","name":"夜纸","version":"1.0.0","license":"MIT","layout":"minimal","colors":{"accent":"#C9AC77","seal":"#A14F40","paper":"#172426","canvas":"#101A1B"},"modules":["basics","work"],"page":{"size":"Letter","marginsMm":{"top":14,"right":17,"bottom":14,"left":17}},"typography":{"name":{"sizePt":30},"body":{"sizePt":11}}}"##).unwrap();
+    let (status, response) = call(&[
+        "export",
+        "--file",
+        path(&resume),
+        "--format",
+        "pdf",
+        "--out",
+        path(&pdf),
+        "--theme",
+        path(&theme),
+        "--json",
+    ]);
+    assert!(status.status.success(), "{response}");
+    assert!(fs::read(&pdf).unwrap().starts_with(b"%PDF-"));
+    assert_eq!(fs::read_to_string(&resume).unwrap(), untouched);
+
+    let unsupported = root.path().join("sidebar.theme.json");
+    fs::write(&unsupported, r##"{"formatVersion":2,"id":"sidebar","name":"Side","version":"1.0.0","license":"MIT","layout":"classic","colors":{"accent":"#345678","seal":"#AA5544","paper":"#FFFFFF","canvas":"#F7F7F7"},"modules":["basics","work"],"composition":{"preset":"sidebar-left","placements":{"work":"sidebar"}}}"##).unwrap();
+    let old_pdf = fs::read(&pdf).unwrap();
+    let (status, response) = call(&[
+        "export",
+        "--file",
+        path(&resume),
+        "--format",
+        "pdf",
+        "--out",
+        path(&pdf),
+        "--theme",
+        path(&unsupported),
+        "--overwrite",
+        "--json",
+    ]);
+    assert_eq!(status.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "EXPORT_RENDER");
+    assert_eq!(fs::read(&pdf).unwrap(), old_pdf);
+
+    let (status, response) = call(&[
+        "export",
+        "--file",
+        path(&resume),
+        "--format",
+        "md",
+        "--out",
+        path(&pdf),
+        "--theme",
+        path(&theme),
+        "--json",
+    ]);
+    assert_eq!(status.status.code(), Some(2));
+    assert_eq!(response["error"]["code"], "THEME_FORMAT_UNSUPPORTED");
+    assert_eq!(fs::read(&pdf).unwrap(), old_pdf);
+}

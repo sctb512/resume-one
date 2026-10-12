@@ -7,6 +7,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use resume_one_core::Diagnostic;
 use resume_one_core::docx;
 use resume_one_core::export::write_export;
+use resume_one_core::load_theme;
 use resume_one_core::pdf;
 use resume_one_core::render::{Language, markdown, plain_text};
 use resume_one_core::resume::{
@@ -80,6 +81,9 @@ enum Command {
         format: ExportFormat,
         #[arg(long, value_enum, default_value = "zh")]
         lang: ExportLanguage,
+        /// PDF 主题清单的绝对路径（根目录 *.theme.json 或子目录 theme.json）
+        #[arg(long)]
+        theme: Option<PathBuf>,
         #[arg(long)]
         overwrite: bool,
     },
@@ -215,6 +219,26 @@ fn absolute(path: &Path) -> Result<(), AppError> {
 fn load(path: &Path) -> Result<resume_one_core::resume::ResumeDocument, AppError> {
     absolute(path)?;
     load_resume(path).map_err(|issues| from_diagnostics(path, &issues))
+}
+
+fn load_pdf_theme(path: &Path) -> Result<resume_one_core::ThemeManifest, AppError> {
+    absolute(path)?;
+    let parent = path
+        .parent()
+        .ok_or_else(|| AppError::new(2, "THEME_PATH", "主题路径缺少目录"))?;
+    let root = if path.file_name().is_some_and(|name| name == "theme.json") {
+        parent
+            .parent()
+            .ok_or_else(|| AppError::new(2, "THEME_PATH", "主题路径缺少源目录"))?
+    } else {
+        parent
+    };
+    let relative = path.strip_prefix(root).expect("root is an ancestor");
+    load_theme(root, relative).map_err(|issues| {
+        AppError::new(3, "THEME_INVALID", "主题文件校验失败")
+            .file(path)
+            .diagnostics(&issues)
+    })
 }
 
 fn from_diagnostics(path: &Path, issues: &[Diagnostic]) -> AppError {
@@ -362,9 +386,17 @@ fn execute(command: Command) -> Result<Value, AppError> {
             out,
             format,
             lang,
+            theme,
             overwrite,
         } => {
             absolute(&out)?;
+            if theme.is_some() && !matches!(format, ExportFormat::Pdf) {
+                return Err(AppError::new(
+                    2,
+                    "THEME_FORMAT_UNSUPPORTED",
+                    "--theme 当前仅适用于 PDF 导出",
+                ));
+            }
             let document = load(&file)?;
             let content = project(&document);
             let language = match lang {
@@ -381,8 +413,14 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 ),
                 ExportFormat::Pdf => (
                     "pdf",
-                    pdf::render(&content, language)
-                        .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
+                    match theme.as_deref() {
+                        Some(path) => {
+                            let manifest = load_pdf_theme(path)?;
+                            pdf::render_with_theme(&content, language, &manifest)
+                        }
+                        None => pdf::render(&content, language),
+                    }
+                    .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
                 ),
             };
             write_export(&file, &out, &rendered, overwrite)

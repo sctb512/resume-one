@@ -5,6 +5,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use resume_one_core::Diagnostic;
+use resume_one_core::docx;
 use resume_one_core::export::write_export;
 use resume_one_core::render::{Language, markdown, plain_text};
 use resume_one_core::resume::{
@@ -68,14 +69,14 @@ enum Command {
         #[arg(long)]
         dry_run: bool,
     },
-    /// 导出 UTF-8 纯文本或 Markdown
+    /// 导出 UTF-8 纯文本、Markdown 或可编辑 DOCX
     Export {
         #[arg(long)]
         file: PathBuf,
         #[arg(long)]
         out: PathBuf,
         #[arg(long, value_enum)]
-        format: TextFormat,
+        format: ExportFormat,
         #[arg(long, value_enum, default_value = "zh")]
         lang: ExportLanguage,
         #[arg(long)]
@@ -86,9 +87,10 @@ enum Command {
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
-enum TextFormat {
+enum ExportFormat {
     Txt,
     Md,
+    Docx,
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -368,10 +370,15 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 ExportLanguage::En => Language::En,
             };
             let (format_name, rendered) = match format {
-                TextFormat::Txt => ("txt", plain_text(&content, language)),
-                TextFormat::Md => ("md", markdown(&content, language)),
+                ExportFormat::Txt => ("txt", plain_text(&content, language).into_bytes()),
+                ExportFormat::Md => ("md", markdown(&content, language).into_bytes()),
+                ExportFormat::Docx => (
+                    "docx",
+                    docx::render(&content, language)
+                        .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
+                ),
             };
-            write_export(&file, &out, rendered.as_bytes(), overwrite)
+            write_export(&file, &out, &rendered, overwrite)
                 .map_err(|err| AppError::new(6, err.code, err.message).file(&out))?;
             Ok(
                 json!({"file": file, "revision": document.revision, "out": out, "format": format_name, "bytes": rendered.len()}),

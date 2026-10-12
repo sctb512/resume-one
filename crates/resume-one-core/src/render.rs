@@ -8,7 +8,7 @@ pub enum Language {
     En,
 }
 
-fn title(id: &str, language: Language) -> &'static str {
+pub(crate) fn title(id: &str, language: Language) -> &'static str {
     match (id, language) {
         ("work", Language::Zh) => "工作经历",
         ("volunteer", Language::Zh) => "志愿经历",

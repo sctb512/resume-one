@@ -344,3 +344,29 @@ fn exports_text_and_markdown_without_changing_json_or_overwriting_by_default() {
     assert!(markdown.contains("- Improved UX"));
     assert!(!markdown.contains("SECRET"));
 }
+
+#[test]
+fn exports_editable_docx_with_chinese_content() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    let out = root.path().join("简历.docx");
+    let source = r#"{"basics":{"name":"李明"},"work":[{"name":"示例公司","position":"设计师"}]}"#;
+    fs::write(&file, source).unwrap();
+    let (output, result) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "docx",
+        "--out",
+        path(&out),
+        "--json",
+    ]);
+    assert!(output.status.success());
+    assert_eq!(result["result"]["format"], "docx");
+    let bytes = fs::read(&out).unwrap();
+    assert!(bytes.starts_with(b"PK"));
+    let document = docx_rs::read_docx(&bytes).unwrap();
+    assert!(document.json().contains("李明"));
+    assert_eq!(fs::read_to_string(&file).unwrap(), source);
+}

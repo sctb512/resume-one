@@ -12,3 +12,4 @@ sha2.workspace = true
 json-patch.workspace = true
 atomic-write-file.workspace = true
 tempfile.workspace = true
+docx-rs.workspace = true

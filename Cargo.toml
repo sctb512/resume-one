@@ -16,3 +16,4 @@ json-patch = "4.2"
 atomic-write-file = "0.3.1"
 clap = { version = "4.5", features = ["derive"] }
 tempfile = "3.27"
+docx-rs = "0.4.22"

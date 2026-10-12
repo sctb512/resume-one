@@ -1,0 +1,70 @@
+{
+  "basics": {
+    "name": "林一鸣",
+    "label": "产品设计负责人 · Product Design Lead",
+    "email": "sample@example.com",
+    "phone": "+86 138 0000 0000",
+    "url": "https://example.com/portfolio",
+    "location": { "city": "上海", "countryCode": "CN" },
+    "summary": "专注复杂产品的简洁表达，兼顾系统思考与细节打磨。曾带领跨职能团队设计从 0 到 1 的桌面应用与设计系统。Experienced in turning complex workflows into calm, useful interfaces."
+  },
+  "work": [
+    {
+      "name": "纸舟科技",
+      "position": "产品设计负责人",
+      "startDate": "2022-06",
+      "endDate": "2026-09",
+      "location": "上海",
+      "summary": "负责跨平台生产力产品的体验策略、交互设计与设计系统建设。与工程、研究和产品团队共同制定可衡量的质量标准。",
+      "highlights": [
+        "重构桌面端信息架构，让重要内容始终保持在视线中心，并减少重复操作。",
+        "建立组件与动效规范，在 macOS 和 Windows 上保持一致的体验，同时尊重平台习惯。",
+        "设计可访问性审查流程，覆盖键盘导航、焦点状态、色彩对比与屏幕阅读器语义。"
+      ]
+    },
+    {
+      "name": "木行工作室",
+      "position": "高级交互设计师",
+      "startDate": "2019-03",
+      "endDate": "2022-05",
+      "summary": "为协作工具设计可伸缩的编辑体验，重点处理实时状态、冲突提示与导出流程。",
+      "highlights": [
+        "将多步导出流程收敛为清晰的单页操作，并提供可恢复的失败提示。",
+        "与研究团队完成多轮可用性测试，持续减少认知负担。"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "简里 · Resume One",
+      "description": "本地优先的 JSON Resume 编辑和预览工具，帮助用户保持内容与视觉主题相互独立。",
+      "startDate": "2026-01",
+      "highlights": [
+        "设计轻量的预览与原始 JSON 切换，让编辑不中断阅读。",
+        "探索声明式主题规范，在安全边界内实现快速预览与一致导出。"
+      ],
+      "keywords": ["Rust", "GPUI", "JSON Resume"],
+      "url": "https://example.com/resume-one"
+    }
+  ],
+  "education": [
+    {
+      "institution": "江南设计学院",
+      "area": "交互设计",
+      "studyType": "硕士",
+      "startDate": "2016-09",
+      "endDate": "2019-06"
+    }
+  ],
+  "skills": [
+    { "name": "交互设计", "keywords": ["信息架构", "设计系统", "原型设计", "动效"] },
+    { "name": "工程协作", "keywords": ["Rust", "跨平台桌面", "可访问性", "文档规范"] }
+  ],
+  "languages": [
+    { "language": "中文", "fluency": "母语" },
+    { "language": "English", "fluency": "Professional" }
+  ],
+  "awards": [
+    { "title": "年度体验设计奖", "date": "2024", "awarder": "示例设计协会" }
+  ]
+}

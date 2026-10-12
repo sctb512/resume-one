@@ -11,16 +11,18 @@ use resume_one_core::{Diagnostic, parse_theme};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
+mod static_source;
+
 const MAX_SOURCE_BYTES: u64 = 1_048_576;
 
 #[derive(Parser)]
 #[command(
     name = "resume-one-theme-migrate",
     version,
-    about = "将 Resume One v1 主题升级为待审核的 v2 候选文件"
+    about = "以纯静态方式生成待审核的 Resume One v2 主题候选文件"
 )]
 struct Cli {
-    /// v1 声明式主题文件的绝对路径
+    /// v1 声明式主题文件、第三方主题目录或静态源码文件的绝对路径
     #[arg(long)]
     source: PathBuf,
     /// 新 v2 主题文件的绝对路径；不得覆盖来源
@@ -137,6 +139,73 @@ fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+struct SourceCandidate {
+    manifest: Value,
+    source_sha256: String,
+    source_version: Option<u64>,
+    source_kind: &'static str,
+    fidelity: &'static str,
+    extraction: Option<Value>,
+    suggested_license: Option<String>,
+}
+
+fn source_candidate(path: &Path) -> Result<SourceCandidate, AppError> {
+    if path.is_dir() {
+        let extracted = static_source::extract(path)
+            .map_err(|error| AppError::new(3, error.code, error.message))?;
+        return Ok(SourceCandidate {
+            manifest: extracted.manifest,
+            source_sha256: extracted.source_sha256,
+            source_version: None,
+            source_kind: "third-party-static",
+            fidelity: "inspired",
+            extraction: Some(extracted.report),
+            suggested_license: extracted.suggested_license,
+        });
+    }
+    if !path.is_file() {
+        return Err(AppError::new(2, "SOURCE_TYPE", "来源必须是主题文件或目录"));
+    }
+    let theme_file = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .is_some_and(|name| name.ends_with(".theme.json") || name == "theme.json");
+    if !theme_file {
+        let extracted = static_source::extract(path)
+            .map_err(|error| AppError::new(3, error.code, error.message))?;
+        return Ok(SourceCandidate {
+            manifest: extracted.manifest,
+            source_sha256: extracted.source_sha256,
+            source_version: None,
+            source_kind: "third-party-static",
+            fidelity: "inspired",
+            extraction: Some(extracted.report),
+            suggested_license: extracted.suggested_license,
+        });
+    }
+    let mut bytes = Vec::new();
+    File::open(path)
+        .and_then(|file| file.take(MAX_SOURCE_BYTES + 1).read_to_end(&mut bytes))
+        .map_err(|error| AppError::new(5, "SOURCE_IO", error.to_string()))?;
+    let theme = parse_theme(&bytes).map_err(AppError::from_theme)?;
+    if theme.source_version != 1 {
+        return Err(AppError::new(
+            3,
+            "ALREADY_V2",
+            "来源已经是 v2 主题，无需迁移",
+        ));
+    }
+    Ok(SourceCandidate {
+        manifest: theme.normalized,
+        source_sha256: sha256(&bytes),
+        source_version: Some(1),
+        source_kind: "resume-one-v1",
+        fidelity: "adapted",
+        extraction: None,
+        suggested_license: None,
+    })
+}
+
 fn migrate(cli: Cli) -> Result<Value, AppError> {
     absolute(&cli.source)?;
     absolute(&cli.out)?;
@@ -154,9 +223,6 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
     }
     let source_path = fs::canonicalize(&cli.source)
         .map_err(|error| AppError::new(5, "SOURCE_IO", error.to_string()))?;
-    if !source_path.is_file() {
-        return Err(AppError::new(2, "SOURCE_NOT_FILE", "v1 来源必须是普通文件"));
-    }
     if cli.out.exists() {
         let output_path = fs::canonicalize(&cli.out)
             .map_err(|error| AppError::new(5, "OUTPUT_IO", error.to_string()))?;
@@ -164,27 +230,21 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
             return Err(AppError::new(2, "SAME_FILE", "目标不能是来源文件"));
         }
     }
-    let mut bytes = Vec::new();
-    File::open(&source_path)
-        .and_then(|file| file.take(MAX_SOURCE_BYTES + 1).read_to_end(&mut bytes))
-        .map_err(|error| AppError::new(5, "SOURCE_IO", error.to_string()))?;
-    let theme = parse_theme(&bytes).map_err(AppError::from_theme)?;
-    if theme.source_version != 1 {
-        return Err(AppError::new(
-            3,
-            "ALREADY_V2",
-            "来源已经是 v2 主题，无需迁移",
-        ));
+    let source = source_candidate(&source_path)?;
+    let mut candidate = source.manifest;
+    if let Some(license) = &cli.license {
+        candidate["license"] = json!(license);
     }
-    let mut candidate = theme.normalized;
-    candidate["license"] = json!(cli.license.unwrap_or_else(|| "NOASSERTION".into()));
     let mut provenance = Map::new();
     provenance.insert("migratedBy".into(), json!("resume-one-theme-migrate"));
-    provenance.insert("fidelity".into(), json!("adapted"));
-    if let Some(url) = cli.upstream_url {
+    provenance.insert("fidelity".into(), json!(source.fidelity));
+    if let Some(license) = &source.suggested_license {
+        provenance.insert("upstreamLicense".into(), json!(license));
+    }
+    if let Some(url) = &cli.upstream_url {
         provenance.insert("upstreamUrl".into(), json!(url));
     }
-    if let Some(revision) = cli.upstream_revision {
+    if let Some(revision) = &cli.upstream_revision {
         provenance.insert("upstreamRevision".into(), json!(revision));
     }
     candidate["provenance"] = Value::Object(provenance);
@@ -199,16 +259,18 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
     Ok(json!({
         "source": cli.source,
         "out": cli.out,
-        "sourceVersion": 1,
+        "sourceKind": source.source_kind,
+        "sourceVersion": source.source_version,
         "targetVersion": 2,
-        "sourceSha256": sha256(&bytes),
+        "sourceSha256": source.source_sha256,
         "candidateSha256": sha256(&serialized),
         "written": !cli.dry_run,
         "licenseDeclared": candidate["license"] != "NOASSERTION",
         "licenseVerified": false,
         "visualVerified": false,
         "requiresReview": true,
-        "reviewChecklist": ["人工核验来源许可与再分发条件", "使用中英文、短长简历和多页样例比对视觉效果"],
+        "reviewChecklist": ["人工核验来源许可与再分发条件", "使用中英文、短长简历和多页样例比对视觉效果", "第三方主题需人工重建未映射的布局、字体与模块构件"],
+        "extraction": source.extraction,
         "candidate": candidate
     }))
 }

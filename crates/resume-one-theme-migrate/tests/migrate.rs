@@ -141,3 +141,95 @@ fn does_not_rewrite_already_v2_or_invalid_theme() {
     assert_eq!(error["error"]["code"], "THEME_INVALID");
     assert!(!out.exists());
 }
+
+#[test]
+fn extracts_third_party_package_without_executing_its_code() {
+    let root = tempfile::tempdir().unwrap();
+    let source = root.path().join("external-theme");
+    fs::create_dir(&source).unwrap();
+    fs::create_dir(source.join("src")).unwrap();
+    fs::write(
+        source.join("package.json"),
+        r#"{"name":"@people/jsonresume-theme-moss","version":"2.3.4","license":"MIT"}"#,
+    )
+    .unwrap();
+    fs::write(
+        source.join("src/style.css"),
+        "body { background: #fff; color: #456A5D } h1 { color: #456A5D } a { color: #123456 }",
+    )
+    .unwrap();
+    fs::write(
+        source.join("index.js"),
+        "require('fs').writeFileSync('EXECUTED', 'bad'); const color = '#ABC';",
+    )
+    .unwrap();
+    let out = root.path().join("moss.theme.json");
+    let (status, report) = call(&["--source", path(&source), "--out", path(&out)]);
+    assert!(status.status.success(), "{report}");
+    assert_eq!(report["result"]["sourceKind"], "third-party-static");
+    assert!(report["result"]["sourceVersion"].is_null());
+    assert_eq!(report["result"]["licenseDeclared"], true);
+    assert_eq!(report["result"]["licenseVerified"], false);
+    assert_eq!(report["result"]["visualVerified"], false);
+    assert_eq!(report["result"]["extraction"]["confidence"], "low");
+    assert_eq!(report["result"]["extraction"]["executedSourceCode"], false);
+    assert_eq!(
+        report["result"]["extraction"]["executableSourcePresent"],
+        true
+    );
+    assert_eq!(report["result"]["extraction"]["selectedAccent"], "#456A5D");
+    assert!(!source.join("EXECUTED").exists());
+    assert!(!root.path().join("EXECUTED").exists());
+    let theme = parse_theme(&fs::read(&out).unwrap()).unwrap();
+    assert_eq!(theme.id, "moss");
+    assert_eq!(theme.normalized["version"], "2.3.4");
+    assert_eq!(theme.normalized["license"], "MIT");
+    assert_eq!(theme.normalized["provenance"]["fidelity"], "inspired");
+    assert_eq!(theme.normalized["provenance"]["upstreamLicense"], "MIT");
+}
+
+#[test]
+fn static_extraction_skips_untrusted_links_and_oversized_files() {
+    let root = tempfile::tempdir().unwrap();
+    let source = root.path().join("source");
+    fs::create_dir(&source).unwrap();
+    fs::write(source.join("base.css"), "h1 { color: #235E6A; }").unwrap();
+    fs::write(source.join("huge.css"), vec![b'x'; 524_289]).unwrap();
+    #[cfg(unix)]
+    std::os::unix::fs::symlink(root.path().join("outside.css"), source.join("escape.css")).unwrap();
+    fs::write(root.path().join("outside.css"), "body { color: #FF0000; }").unwrap();
+    let out = root.path().join("safe.theme.json");
+    let (status, report) = call(&["--source", path(&source), "--out", path(&out), "--dry-run"]);
+    assert!(status.status.success(), "{report}");
+    assert_eq!(report["result"]["written"], false);
+    assert!(!out.exists());
+    assert_eq!(report["result"]["extraction"]["selectedAccent"], "#235E6A");
+    assert_eq!(
+        report["result"]["extraction"]["filesScanned"],
+        serde_json::json!(["base.css"])
+    );
+    assert!(
+        !report["result"]["extraction"]["filesSkipped"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert_eq!(report["result"]["candidate"]["license"], "NOASSERTION");
+}
+
+#[test]
+fn static_extraction_requires_real_style_files_and_valid_package_json() {
+    let root = tempfile::tempdir().unwrap();
+    let source = root.path().join("source");
+    fs::create_dir(&source).unwrap();
+    let out = root.path().join("candidate.theme.json");
+    let (status, error) = call(&["--source", path(&source), "--out", path(&out)]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(error["error"]["code"], "NO_STYLE_FILES");
+    fs::write(source.join("theme.css"), "h1 { color: #123456 }").unwrap();
+    fs::write(source.join("package.json"), "not json").unwrap();
+    let (status, error) = call(&["--source", path(&source), "--out", path(&out)]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(error["error"]["code"], "PACKAGE_JSON");
+    assert!(!out.exists());
+}

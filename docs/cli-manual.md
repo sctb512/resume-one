@@ -1,6 +1,6 @@
 # Resume One CLI 手册
 
-状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 支持主题的单栏基础视觉参数；独立迁移工具已支持 v1→v2，第三方主题静态提取和完整主题排版仍在开发。
+状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 支持主题的单栏基础视觉参数；独立迁移工具支持 v1→v2 及第三方主题低置信度静态提取。完整主题排版仍在开发。
 
 `resume-one` 是独立本地程序，不依赖桌面应用运行，不会自动读取 GUI 当前打开的简历。所有文件操作都需要显式的**绝对路径** `--file` 或 `--dir`。从仓库运行时可使用 `cargo run -p resume-one-cli -- <命令>`；构建后的程序名为 `resume-one`。Windows PowerShell 中路径应加引号，例如 `--file 'C:\Users\Me\Documents\resume.json'`。
 
@@ -23,10 +23,18 @@
 
 Agent 修改文件的流程为：先用 `inspect --file ... --json` 获取 revision，必要时用 `read --pointer ...` 读取字段，再用 `patch --if-match REV --dry-run --json` 预检，最后在 revision 不变时提交。数组按位置寻址时，建议在补丁中先加 `test` 操作确认条目身份；冲突后应重新读取，不可盲目重放旧补丁。
 
-迁移主题的独立程序名为 `resume-one-theme-migrate`，**不属于**这个 CLI；它只处理主题文件，不处理用户的 `resume.json`。当前可运行的用法是：
+迁移主题的独立程序名为 `resume-one-theme-migrate`，**不属于**这个 CLI；它只处理主题文件，不处理用户的 `resume.json`。从源码可用 `cargo run -p resume-one-theme-migrate -- <参数>`。v1 声明式主题升级用法：
 
 ```sh
 resume-one-theme-migrate --source /absolute/old.theme.json --out /absolute/new.theme.json --license MIT --upstream-url https://example.com/theme --upstream-revision abc123 --dry-run
 ```
 
-去掉 `--dry-run` 才写入。来源必须是 v1 声明式主题；目标为新的 `*.theme.json` 或 `theme.json`，默认不覆盖，`--overwrite` 也绝不覆盖来源。`--license`、`--upstream-url` 和 `--upstream-revision` 只记录用户提供的声明，迁移器不会联网核实；没有许可声明时使用 `NOASSERTION`。程序始终返回单行 JSON，含 v2 `candidate`、来源/候选 SHA-256、`written` 和人工审核清单；`licenseVerified`、`visualVerified` 均为 `false`。升级仅转换数据结构，不执行来源代码，也不构成视觉或再分发许可验收。npm/HTML/CSS 主题的静态提取尚未实现，不能把它们交给当前版本直接迁移。
+第三方主题包的静态提取用法：
+
+```sh
+resume-one-theme-migrate --source /absolute/jsonresume-theme-example --out /absolute/example.theme.json --upstream-url https://github.com/owner/jsonresume-theme-example --dry-run
+```
+
+`--source` 可指向主题目录或单个 CSS/HTML/JS/TS 等静态源码文件。工具只读取 `package.json` 和浅层样式源码，不运行 JS、模板或安装依赖，也不读取任何简历；从目录提取时最多扫描两层子目录、64 个样式文件、每文件 512 KiB、总共 4 MiB，跳过符号链接和超限文件。候选只包含可识别的十六进制配色、包名、版本与许可声明；布局固定为安全的单栏保底样式，字体、模块构件、条件逻辑和原视觉效果**没有自动迁移**。报告中的 `extraction.confidence` 为 `low`，`unmapped` 列出差异；缺少可信配色时使用保底色。该候选可供人工继续编辑，不能直接收入默认在线主题仓库。
+
+去掉 `--dry-run` 才写入。目标为新的 `*.theme.json` 或 `theme.json`，默认不覆盖，`--overwrite` 也绝不覆盖来源。`--license`、`--upstream-url` 和 `--upstream-revision` 只记录声明，迁移器不会联网核实；没有许可声明时使用 `NOASSERTION`。程序始终返回单行 JSON，含 v2 `candidate`、来源/候选 SHA-256、`written` 和人工审核清单；`licenseVerified`、`visualVerified` 均为 `false`。目录来源的 SHA-256 是本次实际读取文件的有序内容指纹，不代表未扫描或被跳过文件。v1 升级仅转换数据结构；第三方提取仅为人工移植起点，都不构成视觉或再分发许可验收。

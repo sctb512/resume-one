@@ -9,6 +9,8 @@ rust-version.workspace = true
 serde_json.workspace = true
 jsonschema.workspace = true
 sha2.workspace = true
+json-patch.workspace = true
+atomic-write-file.workspace = true
 
 [dev-dependencies]
 tempfile = "3"

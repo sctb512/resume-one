@@ -13,6 +13,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
 pub mod resume;
+pub mod storage;
 
 const MAX_THEME_BYTES: usize = 1_048_576;
 const MAX_FONT_BYTES: usize = 8_388_608;

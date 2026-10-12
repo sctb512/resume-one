@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "linquan",
+  "name": "林泉",
+  "description": "林间深绿，适度宽松。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "classic",
+  "colors": { "accent": "#3B6255", "seal": "#9F5D4B", "paper": "#FFFFFF", "canvas": "#EFF5F0" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6.5 },
+  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13.5 } },
+  "provenance": { "fidelity": "native" }
+}

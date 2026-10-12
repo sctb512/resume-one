@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "yuebai",
+  "name": "月白",
+  "description": "浅蓝白纸，适合英文与科技背景。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": { "accent": "#3D6373", "seal": "#8C6757", "paper": "#FAFCFD", "canvas": "#F0F5F7" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "Letter", "sectionGapMm": 6 },
+  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 12.5 } },
+  "provenance": { "fidelity": "native" }
+}

@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "xingye",
+  "name": "行野",
+  "description": "暖色强调，现代而不喧闹。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "modern",
+  "colors": { "accent": "#93523B", "seal": "#93523B", "paper": "#FFFCF8", "canvas": "#F8F2EC" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6 },
+  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13.5 } },
+  "provenance": { "fidelity": "native" }
+}

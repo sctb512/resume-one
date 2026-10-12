@@ -491,4 +491,40 @@ mod tests {
             "UNSAFE_THEME_PATH"
         );
     }
+
+    #[test]
+    fn bundled_themes_are_real_valid_unique_declarative_files() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/themes");
+        let mut paths = fs::read_dir(&root)
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .collect::<Vec<_>>();
+        paths.sort();
+        assert_eq!(paths.len(), 20, "expected twenty bundled theme files");
+        let mut ids = HashSet::new();
+        let mut names = HashSet::new();
+        for path in paths {
+            let filename = path.file_name().unwrap();
+            let theme = load_theme(&root, Path::new(filename)).unwrap();
+            assert_eq!(theme.source_version, 2);
+            assert!(theme.has_declared_license);
+            assert_eq!(theme.modules.len(), 12);
+            assert_eq!(
+                filename.to_str().unwrap(),
+                format!("{}.theme.json", theme.id)
+            );
+            assert!(ids.insert(theme.id.clone()), "duplicate id: {}", theme.id);
+            assert!(
+                names.insert(theme.name.clone()),
+                "duplicate name: {}",
+                theme.name
+            );
+            let style = theme_style::ThemeStyle::from_manifest(&theme);
+            assert!(style.colors.ink.contrast(style.colors.paper) >= 4.5);
+            assert!(style.colors.accent.contrast(style.colors.paper) >= 4.5);
+            assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
+            assert_eq!(style.composition_preset, "single-column");
+            assert!(theme.normalized.get("assets").is_none());
+        }
+    }
 }

@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "zhuqing",
+  "name": "竹青",
+  "description": "清雅绿意与松弛的行距。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "classic",
+  "colors": { "accent": "#3D6450", "seal": "#9B6048", "paper": "#F9FBF7", "canvas": "#EEF3EA" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 7 },
+  "typography": { "body": { "lineHeight": 1.5 }, "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

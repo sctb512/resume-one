@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "songyan",
+  "name": "松烟",
+  "description": "沉稳的墨绿与清晰的细则。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": { "accent": "#3F5650", "seal": "#83594C", "paper": "#FFFFFF", "canvas": "#F0F3F1" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 5 },
+  "typography": { "name": { "sizePt": 24 }, "sectionTitle": { "sizePt": 12 } },
+  "provenance": { "fidelity": "native" }
+}

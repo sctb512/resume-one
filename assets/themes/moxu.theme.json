@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "moxu",
+  "name": "墨序",
+  "description": "深墨线条，层次分明。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": { "accent": "#344E55", "seal": "#344E55", "paper": "#FFFFFF", "canvas": "#F1F3F2" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 5 },
+  "typography": { "name": { "sizePt": 25 }, "sectionTitle": { "sizePt": 12.5 } },
+  "provenance": { "fidelity": "native" }
+}

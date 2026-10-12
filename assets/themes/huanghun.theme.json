@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "huanghun",
+  "name": "黄昏",
+  "description": "纸张的暖意与暮色金棕。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "classic",
+  "colors": { "accent": "#95643E", "seal": "#9B5445", "paper": "#FFFBF6", "canvas": "#F8F0E6" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6.5 },
+  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "zhimo",
+  "name": "纸墨",
+  "description": "纯白黑字，以信息为中心。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": { "accent": "#3F4444", "seal": "#895548", "paper": "#FFFFFF", "canvas": "#F4F4F3" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 5.5, "marginsMm": { "top": 15, "right": 15, "bottom": 15, "left": 15 } },
+  "typography": { "name": { "family": "cjk-sans", "weight": 400, "sizePt": 25 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12 } },
+  "provenance": { "fidelity": "native" }
+}

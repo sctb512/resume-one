@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "zhibai",
+  "name": "知白",
+  "description": "克制无饰，以排版和留白为主。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": { "accent": "#4E5757", "seal": "#8C5B4C", "paper": "#FFFFFF", "canvas": "#F7F7F5" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 7 },
+  "typography": { "name": { "sizePt": 29 }, "sectionTitle": { "sizePt": 12 } },
+  "provenance": { "fidelity": "native" }
+}

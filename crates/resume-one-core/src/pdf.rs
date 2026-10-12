@@ -192,6 +192,16 @@ impl<'a> PageWriter<'a> {
                 current.push(character);
                 continue;
             }
+            if "，。、；：！？）》」』".contains(character)
+                && current.chars().count() > 1
+                && let Some(previous) = current.pop()
+            {
+                lines.push(current.trim_end().to_owned());
+                current.clear();
+                current.push(previous);
+                current.push(character);
+                continue;
+            }
             // Prefer a recent word boundary for Latin text; CJK falls back to a character break.
             if let Some(boundary) = current.rfind(char::is_whitespace)
                 && boundary > current.len() / 2
@@ -576,7 +586,7 @@ fn render_with_style(
             _ => (style.colors.border, 0.7),
         };
         add_rule(&mut page, rule_color, thickness);
-        page.gap(9.0);
+        page.gap(body.size_pt * 1.2 + 4.0);
     }
     if !content.summary.is_empty() {
         page.wrapped(
@@ -725,6 +735,13 @@ mod tests {
             lines
                 .iter()
                 .all(|line| writer.text_width(line, 10.0, FontKind::Sans) <= 120.0)
+        );
+        let cjk_lines = writer.wrap("汉汉汉汉汉汉。继续", 10.0, 60.0, FontKind::Sans);
+        assert!(cjk_lines.iter().all(|line| !line.starts_with('。')));
+        assert!(
+            cjk_lines
+                .iter()
+                .all(|line| writer.text_width(line, 10.0, FontKind::Sans) <= 60.0)
         );
     }
 

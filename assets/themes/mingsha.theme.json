@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "mingsha",
+  "name": "明砂",
+  "description": "淡砂纸面，适度强调。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "modern",
+  "colors": { "accent": "#75504A", "seal": "#A76450", "paper": "#FBF6F0", "canvas": "#F3EAE2" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6.5 },
+  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

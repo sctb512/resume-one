@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "xuanmu",
+  "name": "玄木",
+  "description": "沉静的玄色与温金线条。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": { "accent": "#D4B98C", "seal": "#B78C79", "paper": "#252322", "canvas": "#1C1B1A" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "Letter", "sectionGapMm": 5.5 },
+  "typography": { "name": { "sizePt": 26 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

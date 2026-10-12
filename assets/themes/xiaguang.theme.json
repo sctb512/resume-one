@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "xiaguang",
+  "name": "霞光",
+  "description": "柔和赭粉，适合创意履历。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "modern",
+  "colors": { "accent": "#955C58", "seal": "#955C58", "paper": "#FFF9F7", "canvas": "#F9EFEC" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6 },
+  "typography": { "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13.5 } },
+  "provenance": { "fidelity": "native" }
+}

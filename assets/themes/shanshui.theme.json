@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "shanshui",
+  "name": "山水",
+  "description": "山青水远，舒展的传统纸面。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "classic",
+  "colors": { "accent": "#476B65", "seal": "#9A5C49", "paper": "#FBFAF5", "canvas": "#F0EFE9" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 7, "marginsMm": { "top": 18, "right": 19, "bottom": 18, "left": 19 } },
+  "typography": { "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

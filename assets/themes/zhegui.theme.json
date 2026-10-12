@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "zhegui",
+  "name": "折桂",
+  "description": "古铜与米纸，细节克制。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": { "accent": "#71663F", "seal": "#8A624D", "paper": "#FCFAF3", "canvas": "#F5F1E5" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 5 },
+  "typography": { "name": { "sizePt": 26 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

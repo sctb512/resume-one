@@ -1,0 +1,14 @@
+{
+  "formatVersion": 2,
+  "id": "yehe",
+  "name": "夜河",
+  "description": "深色纸面与柔和青金。",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": { "accent": "#A8CAC2", "seal": "#D3A47F", "paper": "#1A282C", "canvas": "#111B1E" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6 },
+  "typography": { "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13 } },
+  "provenance": { "fidelity": "native" }
+}

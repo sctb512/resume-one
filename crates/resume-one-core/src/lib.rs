@@ -12,7 +12,10 @@ use jsonschema::Validator;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
+pub mod export;
+pub mod render;
 pub mod resume;
+pub mod semantic;
 pub mod storage;
 
 const MAX_THEME_BYTES: usize = 1_048_576;

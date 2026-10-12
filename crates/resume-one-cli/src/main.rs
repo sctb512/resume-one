@@ -3,11 +3,14 @@ use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use resume_one_core::Diagnostic;
+use resume_one_core::export::write_export;
+use resume_one_core::render::{Language, markdown, plain_text};
 use resume_one_core::resume::{
     JSON_RESUME_SCHEMA, JSON_RESUME_SCHEMA_VERSION, load_resume, read_pointer,
 };
+use resume_one_core::semantic::project;
 use resume_one_core::storage::patch_resume;
 use serde_json::{Value, json};
 use tempfile::Builder;
@@ -65,8 +68,33 @@ enum Command {
         #[arg(long)]
         dry_run: bool,
     },
+    /// 导出 UTF-8 纯文本或 Markdown
+    Export {
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long)]
+        out: PathBuf,
+        #[arg(long, value_enum)]
+        format: TextFormat,
+        #[arg(long, value_enum, default_value = "zh")]
+        lang: ExportLanguage,
+        #[arg(long)]
+        overwrite: bool,
+    },
     /// 输出当前内置 Schema 的身份和内容
     Schema,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+enum TextFormat {
+    Txt,
+    Md,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+enum ExportLanguage {
+    Zh,
+    En,
 }
 
 #[derive(Debug)]
@@ -324,6 +352,30 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 "valid": true,
                 "dryRun": outcome.dry_run
             }))
+        }
+        Command::Export {
+            file,
+            out,
+            format,
+            lang,
+            overwrite,
+        } => {
+            absolute(&out)?;
+            let document = load(&file)?;
+            let content = project(&document);
+            let language = match lang {
+                ExportLanguage::Zh => Language::Zh,
+                ExportLanguage::En => Language::En,
+            };
+            let (format_name, rendered) = match format {
+                TextFormat::Txt => ("txt", plain_text(&content, language)),
+                TextFormat::Md => ("md", markdown(&content, language)),
+            };
+            write_export(&file, &out, rendered.as_bytes(), overwrite)
+                .map_err(|err| AppError::new(6, err.code, err.message).file(&out))?;
+            Ok(
+                json!({"file": file, "revision": document.revision, "out": out, "format": format_name, "bytes": rendered.len()}),
+            )
         }
         Command::Schema => {
             let schema: Value =

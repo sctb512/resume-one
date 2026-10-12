@@ -272,3 +272,75 @@ fn two_cli_processes_cannot_commit_the_same_revision() {
         .to_owned();
     assert!(final_name == "First" || final_name == "Second");
 }
+
+#[test]
+fn exports_text_and_markdown_without_changing_json_or_overwriting_by_default() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("简历.json");
+    let txt = root.path().join("简历.txt");
+    let md = root.path().join("resume.md");
+    let source = br#"{"basics":{"name":"Li Ming","summary":"Design lead"},"work":[{"position":"Designer","name":"Studio","highlights":["Improved UX"]}],"custom":{"private":"SECRET"}}"#;
+    fs::write(&file, source).unwrap();
+    let (output, result) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "txt",
+        "--out",
+        path(&txt),
+        "--json",
+    ]);
+    assert!(output.status.success());
+    assert_eq!(result["result"]["format"], "txt");
+    let text = fs::read_to_string(&txt).unwrap();
+    assert!(text.contains("工作经历"));
+    assert!(text.contains("Improved UX"));
+    assert!(!text.contains("SECRET"));
+    assert_eq!(fs::read(&file).unwrap(), source);
+    let (exists, response) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "txt",
+        "--out",
+        path(&txt),
+        "--json",
+    ]);
+    assert_eq!(exists.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "FILE_EXISTS");
+    assert_eq!(fs::read_to_string(&txt).unwrap(), text);
+    let (same, response) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "md",
+        "--out",
+        path(&file),
+        "--overwrite",
+        "--json",
+    ]);
+    assert_eq!(same.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "SAME_FILE");
+    assert_eq!(fs::read(&file).unwrap(), source);
+    let (output, _) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "md",
+        "--out",
+        path(&md),
+        "--lang",
+        "en",
+        "--json",
+    ]);
+    assert!(output.status.success());
+    let markdown = fs::read_to_string(&md).unwrap();
+    assert!(markdown.contains("# Li Ming"));
+    assert!(markdown.contains("## Work"));
+    assert!(markdown.contains("- Improved UX"));
+    assert!(!markdown.contains("SECRET"));
+}

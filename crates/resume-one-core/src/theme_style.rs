@@ -1,0 +1,310 @@
+//! Resolved, bounded presentation tokens shared by print and desktop renderers.
+
+use serde_json::Value;
+
+use crate::ThemeManifest;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Rgb {
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
+}
+
+impl Rgb {
+    fn parse(hex: &str) -> Self {
+        let bytes = hex.as_bytes();
+        Self {
+            r: u8::from_str_radix(std::str::from_utf8(&bytes[1..3]).unwrap(), 16).unwrap(),
+            g: u8::from_str_radix(std::str::from_utf8(&bytes[3..5]).unwrap(), 16).unwrap(),
+            b: u8::from_str_radix(std::str::from_utf8(&bytes[5..7]).unwrap(), 16).unwrap(),
+        }
+    }
+
+    pub fn hex(self) -> String {
+        format!("#{:02X}{:02X}{:02X}", self.r, self.g, self.b)
+    }
+
+    pub fn mix(self, other: Self, weight: f32) -> Self {
+        let mix = |a: u8, b: u8| (a as f32 * (1.0 - weight) + b as f32 * weight).round() as u8;
+        Self {
+            r: mix(self.r, other.r),
+            g: mix(self.g, other.g),
+            b: mix(self.b, other.b),
+        }
+    }
+
+    pub fn contrast(self, other: Self) -> f32 {
+        fn channel(value: u8) -> f32 {
+            let value = value as f32 / 255.0;
+            if value <= 0.04045 {
+                value / 12.92
+            } else {
+                ((value + 0.055) / 1.055).powf(2.4)
+            }
+        }
+        let luminance = |color: Self| {
+            0.2126 * channel(color.r) + 0.7152 * channel(color.g) + 0.0722 * channel(color.b)
+        };
+        let a = luminance(self);
+        let b = luminance(other);
+        (a.max(b) + 0.05) / (a.min(b) + 0.05)
+    }
+
+    fn readable(self, paper: Self, fallback: Self, minimum: f32) -> Self {
+        if self.contrast(paper) >= minimum {
+            return self;
+        }
+        for step in 1..=20 {
+            let candidate = self.mix(fallback, step as f32 / 20.0);
+            if candidate.contrast(paper) >= minimum {
+                return candidate;
+            }
+        }
+        let black = Self { r: 0, g: 0, b: 0 };
+        let white = Self {
+            r: 255,
+            g: 255,
+            b: 255,
+        };
+        if black.contrast(paper) >= white.contrast(paper) {
+            black
+        } else {
+            white
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Colors {
+    pub accent: Rgb,
+    pub seal: Rgb,
+    pub paper: Rgb,
+    pub canvas: Rgb,
+    pub ink: Rgb,
+    pub muted: Rgb,
+    pub border: Rgb,
+    pub sidebar: Rgb,
+    pub chrome: Rgb,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct MarginsMm {
+    pub top: f32,
+    pub right: f32,
+    pub bottom: f32,
+    pub left: f32,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct PageStyle {
+    pub width_mm: f32,
+    pub height_mm: f32,
+    pub margins: MarginsMm,
+    pub section_gap_mm: f32,
+    pub avoid_split_items: bool,
+    pub keep_heading_with_first_item: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct TextStyle {
+    pub family: String,
+    pub size_pt: f32,
+    pub weight: u16,
+    pub line_height: f32,
+    pub tracking_em: f32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Typography {
+    pub body: TextStyle,
+    pub name: TextStyle,
+    pub section_title: TextStyle,
+    pub meta: TextStyle,
+}
+
+#[derive(Debug, Clone)]
+pub struct ThemeStyle {
+    pub id: String,
+    pub layout: String,
+    pub colors: Colors,
+    pub page: PageStyle,
+    pub typography: Typography,
+    pub composition_preset: String,
+}
+
+fn optional_color(value: &Value, key: &str) -> Option<Rgb> {
+    value.get(key).and_then(Value::as_str).map(Rgb::parse)
+}
+
+fn number(value: &Value, key: &str, default: f32) -> f32 {
+    value
+        .get(key)
+        .and_then(Value::as_f64)
+        .map_or(default, |value| value as f32)
+}
+
+fn text_style(
+    value: Option<&Value>,
+    family: &str,
+    size_pt: f32,
+    weight: u16,
+    line_height: f32,
+) -> TextStyle {
+    let value = value.unwrap_or(&Value::Null);
+    TextStyle {
+        family: value
+            .get("family")
+            .and_then(Value::as_str)
+            .unwrap_or(family)
+            .to_owned(),
+        size_pt: number(value, "sizePt", size_pt),
+        weight: value
+            .get("weight")
+            .and_then(Value::as_u64)
+            .map_or(weight, |value| value as u16),
+        line_height: number(value, "lineHeight", line_height),
+        tracking_em: number(value, "trackingEm", 0.0),
+    }
+}
+
+impl ThemeStyle {
+    pub fn from_manifest(theme: &ThemeManifest) -> Self {
+        let manifest = &theme.normalized;
+        let colors = &manifest["colors"];
+        let paper = Rgb::parse(colors["paper"].as_str().expect("validated paper"));
+        let canvas = Rgb::parse(colors["canvas"].as_str().expect("validated canvas"));
+        let fallback = if paper.contrast(Rgb {
+            r: 24,
+            g: 35,
+            b: 34,
+        }) >= 4.5
+        {
+            Rgb {
+                r: 24,
+                g: 35,
+                b: 34,
+            }
+        } else {
+            Rgb {
+                r: 246,
+                g: 249,
+                b: 247,
+            }
+        };
+        let ink = optional_color(colors, "ink")
+            .unwrap_or(fallback)
+            .readable(paper, fallback, 4.5);
+        let accent = Rgb::parse(colors["accent"].as_str().expect("validated accent"))
+            .readable(paper, ink, 4.5);
+        let muted = optional_color(colors, "muted")
+            .unwrap_or(ink.mix(paper, 0.25))
+            .readable(paper, ink, 4.5);
+        let border = optional_color(colors, "border").unwrap_or(accent.mix(paper, 0.65));
+        let sidebar = optional_color(colors, "sidebar").unwrap_or(canvas.mix(paper, 0.5));
+        let chrome = canvas.mix(paper, 0.28);
+        let page = manifest.get("page").unwrap_or(&Value::Null);
+        let margins = page.get("marginsMm").unwrap_or(&Value::Null);
+        let typography = manifest.get("typography").unwrap_or(&Value::Null);
+        let size = page.get("size").and_then(Value::as_str).unwrap_or("A4");
+        Self {
+            id: theme.id.clone(),
+            layout: manifest["layout"]
+                .as_str()
+                .expect("validated layout")
+                .to_owned(),
+            colors: Colors {
+                accent,
+                seal: Rgb::parse(colors["seal"].as_str().expect("validated seal")),
+                paper,
+                canvas,
+                ink,
+                muted,
+                border,
+                sidebar,
+                chrome,
+            },
+            page: PageStyle {
+                width_mm: if size == "Letter" { 215.9 } else { 210.0 },
+                height_mm: if size == "Letter" { 279.4 } else { 297.0 },
+                margins: MarginsMm {
+                    top: number(margins, "top", 16.0),
+                    right: number(margins, "right", 16.0),
+                    bottom: number(margins, "bottom", 16.0),
+                    left: number(margins, "left", 16.0),
+                },
+                section_gap_mm: number(page, "sectionGapMm", 6.0),
+                avoid_split_items: page
+                    .get("avoidSplitItems")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(true),
+                keep_heading_with_first_item: page
+                    .get("keepHeadingWithFirstItem")
+                    .and_then(Value::as_bool)
+                    .unwrap_or(true),
+            },
+            typography: Typography {
+                body: text_style(typography.get("body"), "cjk-sans", 10.0, 400, 1.4),
+                name: text_style(typography.get("name"), "cjk-serif", 26.0, 600, 1.2),
+                section_title: text_style(
+                    typography.get("sectionTitle"),
+                    "cjk-serif",
+                    13.0,
+                    600,
+                    1.3,
+                ),
+                meta: text_style(typography.get("meta"), "cjk-sans", 8.5, 400, 1.3),
+            },
+            composition_preset: manifest
+                .get("composition")
+                .and_then(|value| value.get("preset"))
+                .and_then(Value::as_str)
+                .unwrap_or("single-column")
+                .to_owned(),
+        }
+    }
+
+    pub fn built_in_fallback() -> Self {
+        let theme = crate::parse_theme(r##"{"formatVersion":2,"id":"resume-one-default","name":"简里","version":"1.0.0","license":"Apache-2.0","layout":"classic","colors":{"accent":"#57766C","seal":"#A14F40","paper":"#FFFFFF","canvas":"#F5F3EE"},"modules":["basics","work","volunteer","education","awards","certificates","publications","skills","languages","interests","references","projects"]}"##.as_bytes())
+            .expect("bundled fallback theme must validate");
+        Self::from_manifest(&theme)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn derives_readable_colors_and_schema_defaults() {
+        let source = br##"{"formatVersion":2,"id":"pale","name":"Pale","version":"1.0.0","license":"MIT","layout":"classic","colors":{"accent":"#FFFFCC","seal":"#AA5544","paper":"#FFFFFF","canvas":"#F7F7F7"},"modules":["basics","work"]}"##;
+        let theme = crate::parse_theme(source).unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert!(style.colors.accent.contrast(style.colors.paper) >= 4.5);
+        assert!(style.colors.ink.contrast(style.colors.paper) >= 4.5);
+        assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
+        assert_eq!(style.page.margins.top, 16.0);
+        assert_eq!(style.typography.body.size_pt, 10.0);
+    }
+
+    #[test]
+    fn reads_letter_and_explicit_typography() {
+        let source = br##"{"formatVersion":2,"id":"letter","name":"Letter","version":"1.0.0","license":"MIT","layout":"rules","colors":{"accent":"#112233","seal":"#AA5544","paper":"#FDFDFD","canvas":"#EEEEEE"},"modules":["basics"],"page":{"size":"Letter","marginsMm":{"top":12,"right":13,"bottom":14,"left":15}},"typography":{"body":{"sizePt":11,"lineHeight":1.5}}}"##;
+        let theme = crate::parse_theme(source).unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert_eq!(style.page.height_mm, 279.4);
+        assert_eq!(style.page.margins.left, 15.0);
+        assert_eq!(style.typography.body.size_pt, 11.0);
+        assert_eq!(style.typography.body.line_height, 1.5);
+    }
+
+    #[test]
+    fn keeps_dark_paper_text_readable() {
+        let source = br##"{"formatVersion":2,"id":"night","name":"Night","version":"1.0.0","license":"MIT","layout":"minimal","colors":{"accent":"#203020","seal":"#AA5544","paper":"#152123","canvas":"#101719","ink":"#888888","muted":"#777777"},"modules":["basics"]}"##;
+        let theme = crate::parse_theme(source).unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert!(style.colors.ink.contrast(style.colors.paper) >= 4.5);
+        assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
+        assert!(style.colors.accent.contrast(style.colors.paper) >= 4.5);
+    }
+}

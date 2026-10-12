@@ -1,6 +1,6 @@
 # Resume One 声明式主题规范 v2
 
-状态：v2 文件结构及校验规则在 Rust 共享核心中实现；PDF 已支持单栏基础视觉参数，其余主题排版、桌面排版器与迁移器仍在开发。配套文件：[JSON Schema](./resume-one-theme-v2.schema.json)与[结构示例](./resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
+状态：v2 文件结构及校验规则在 Rust 共享核心中实现；PDF 已支持单栏基础视觉参数，独立迁移器已支持 v1→v2 候选文件。第三方代码主题静态提取、其余主题排版与桌面排版器仍在开发。配套文件：[JSON Schema](./resume-one-theme-v2.schema.json)与[结构示例](./resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
 
 ## 1. 为什么要自定规范
 

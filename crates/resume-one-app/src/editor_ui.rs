@@ -148,7 +148,7 @@ impl ResumeOne {
         let Some(editor) = &mut self.editor else {
             return;
         };
-        let Ok(buffer) = ResumeBuffer::new(self.model.document.source.clone()) else {
+        let Ok(buffer) = ResumeBuffer::new(self.model.opened_source.clone()) else {
             return;
         };
         let display = buffer
@@ -203,9 +203,8 @@ impl ResumeOne {
                         editor.generation += 1;
                         match editor.store.clear_if_newer(editor.generation) {
                             Ok(_) => {
-                                editor.buffer =
-                                    ResumeBuffer::new(this.model.document.source.clone())
-                                        .expect("last valid preview");
+                                editor.buffer = ResumeBuffer::new(this.model.opened_source.clone())
+                                    .expect("opened source is UTF-8");
                                 window.remove_window();
                             }
                             Err(message) => {
@@ -407,6 +406,8 @@ impl ResumeOne {
         }
         match result {
             Ok(_) => {
+                self.model.opened_source = snapshot.source.clone();
+                self.model.preview_ready = true;
                 if create {
                     let old = self
                         .editor
@@ -468,7 +469,7 @@ impl ResumeOne {
                     return;
                 }
             };
-            let buffer = match ResumeBuffer::new(self.model.document.source.clone()) {
+            let buffer = match ResumeBuffer::new(self.model.opened_source.clone()) {
                 Ok(buffer) => buffer,
                 Err(issue) => {
                     self.editor_warning("无法进入编辑", &issue.message, window, cx);
@@ -548,7 +549,7 @@ impl ResumeOne {
         let Some(editor) = &mut self.editor else {
             return;
         };
-        match ResumeBuffer::restore(self.model.document.source.clone(), &draft) {
+        match ResumeBuffer::restore(self.model.opened_source.clone(), &draft) {
             Ok(buffer) => {
                 editor.buffer = buffer;
                 editor.last_display = draft.source.clone();
@@ -625,6 +626,7 @@ impl ResumeOne {
         {
             self.model.content = project(&document);
             self.model.document = document;
+            self.model.preview_ready = true;
         }
     }
 

@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use resume_one_core::resume::{ResumeDocument, load_resume, parse_resume};
+use resume_one_core::resume::{ResumeDocument, parse_resume};
 use resume_one_core::semantic::{ResumeContent, project};
 use resume_one_core::theme_style::ThemeStyle;
 use resume_one_core::{ThemeManifest, parse_theme};
@@ -58,6 +58,8 @@ pub struct BuiltinTheme {
 pub struct AppModel {
     pub document: ResumeDocument,
     pub content: ResumeContent,
+    pub opened_source: Vec<u8>,
+    pub preview_ready: bool,
     pub document_label: String,
     pub document_path: Option<PathBuf>,
     pub folder: Option<LocalFolder>,
@@ -67,15 +69,23 @@ pub struct AppModel {
 
 impl AppModel {
     pub fn load(path: Option<&Path>) -> Result<Self, String> {
-        let document = if let Some(path) = path.filter(|path| !path.is_dir()) {
-            load_resume(path).map_err(|issues| format!("无法打开简历：{issues:?}"))?
-        } else {
-            parse_resume(EXAMPLE_RESUME).map_err(|issues| format!("内置示例无效：{issues:?}"))?
-        };
-        let document_path = path
+        let example =
+            parse_resume(EXAMPLE_RESUME).map_err(|issues| format!("内置示例无效：{issues:?}"))?;
+        let opened = path
             .filter(|path| !path.is_dir())
-            .map(|path| path.canonicalize().map_err(|error| error.to_string()))
+            .map(OpenedFile::read)
             .transpose()?;
+        let preview_ready = opened
+            .as_ref()
+            .is_none_or(|opened| opened.document.is_some());
+        let opened_source = opened
+            .as_ref()
+            .map_or_else(|| example.source.clone(), |opened| opened.source.clone());
+        let document = opened
+            .as_ref()
+            .and_then(|opened| opened.document.clone())
+            .unwrap_or(example);
+        let document_path = opened.as_ref().map(|opened| opened.path.clone());
         let folder = path
             .filter(|path| path.is_dir())
             .map(LocalFolder::scan)
@@ -98,6 +108,8 @@ impl AppModel {
         Ok(Self {
             document,
             content,
+            opened_source,
+            preview_ready,
             document_label,
             document_path,
             folder,
@@ -118,8 +130,12 @@ impl AppModel {
             .to_string_lossy()
             .into_owned();
         self.document_path = Some(opened.path);
-        self.document = opened.document;
-        self.content = opened.content;
+        self.opened_source = opened.source;
+        self.preview_ready = opened.document.is_some();
+        if let (Some(document), Some(content)) = (opened.document, opened.content) {
+            self.document = document;
+            self.content = content;
+        }
     }
 
     pub fn select_theme(&mut self, index: usize) {
@@ -160,12 +176,15 @@ mod tests {
     }
 
     #[test]
-    fn invalid_user_resume_is_rejected_without_rewriting_it() {
+    fn invalid_user_resume_opens_for_repair_without_rewriting_it() {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("invalid.json");
         let bytes = br#"{"work":[{"name":42}]}"#;
         std::fs::write(&path, bytes).unwrap();
-        assert!(AppModel::load(Some(&path)).is_err());
+        let model = AppModel::load(Some(&path)).unwrap();
+        assert!(!model.preview_ready);
+        assert_eq!(model.opened_source, bytes);
+        assert_eq!(model.document_path, Some(path.canonicalize().unwrap()));
         assert_eq!(std::fs::read(path).unwrap(), bytes);
     }
 }

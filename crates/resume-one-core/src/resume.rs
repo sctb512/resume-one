@@ -15,7 +15,7 @@ use crate::Diagnostic;
 
 pub const JSON_RESUME_SCHEMA_VERSION: &str = "1.3.1";
 pub const JSON_RESUME_SCHEMA: &str = include_str!("../../../spec/json-resume-1.3.1.schema.json");
-pub(crate) const MAX_RESUME_BYTES: usize = 16 * 1024 * 1024;
+pub const MAX_RESUME_BYTES: usize = 16 * 1024 * 1024;
 static RESUME_VALIDATOR: OnceLock<Validator> = OnceLock::new();
 
 const SECTION_IDS: [&str; 12] = [

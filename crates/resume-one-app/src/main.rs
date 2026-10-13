@@ -306,7 +306,11 @@ impl ResumeOne {
             .flex_1()
             .min_h_0()
             .overflow_y_scroll();
-        let sections = self.model.document.sections();
+        let sections = if self.model.preview_ready {
+            self.model.document.sections()
+        } else {
+            Vec::new()
+        };
         for (id, title) in SECTION_LABELS {
             let count = sections
                 .iter()
@@ -486,7 +490,20 @@ impl Render for ResumeOne {
                                         .py_8()
                                         .flex()
                                         .justify_center()
-                                        .child(self.resume_page()),
+                                        .when(self.model.preview_ready, |view| {
+                                            view.child(self.resume_page())
+                                        })
+                                        .when(!self.model.preview_ready, |view| {
+                                            view.child(
+                                        div().w(px(style.page.width_mm * 3.0))
+                                            .min_h(px(style.page.height_mm * 3.0))
+                                            .flex().items_center().justify_center()
+                                            .bg(color(style.colors.paper)).shadow_lg()
+                                            .text_size(px(14.0))
+                                            .text_color(color(style.colors.muted))
+                                            .child("简历尚未通过校验，请切换到 JSON 编辑修复。"),
+                                    )
+                                        }),
                                 ),
                         )
                     })
@@ -537,6 +554,7 @@ fn main() {
             },
             move |window, cx| {
                 window.set_window_title("Resume One · 简里");
+                let needs_repair = !model.preview_ready;
                 let view = cx.new(|cx| ResumeOne::new(model, cx));
                 window.focus(&view.read(cx).focus);
                 *quit_target.borrow_mut() = Some(view.downgrade());
@@ -544,7 +562,15 @@ fn main() {
                 window.on_window_should_close(cx, move |window, cx| {
                     close_view.update(cx, |app, cx| app.confirm_close(window, cx))
                 });
-                cx.new(|cx| gpui_component::Root::new(view, window, cx))
+                let root = cx.new(|cx| gpui_component::Root::new(view.clone(), window, cx));
+                if needs_repair {
+                    window.defer(cx, move |window, cx| {
+                        view.update(cx, |app, cx| {
+                            app.toggle_source(&editor_ui::ToggleSource, window, cx)
+                        });
+                    });
+                }
+                root
             },
         )
         .expect("failed to open Resume One window");
@@ -561,7 +587,11 @@ mod tests {
     #[gpui::test]
     fn json_openers_pair_and_undo_as_one_edit(cx: &mut TestAppContext) {
         cx.update(gpui_component::init);
-        let model = AppModel::load(None).unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("pair-test.json");
+        let original_disk = br#"{"basics":{"name":"Pair Test"}}"#;
+        std::fs::write(&path, original_disk).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
         let child = Rc::new(RefCell::new(None));
         let child_for_window = child.clone();
         let (_, cx) = cx.add_window_view(|window, cx| {
@@ -597,6 +627,21 @@ mod tests {
         cx.simulate_keystrokes("cmd-z");
         cx.run_until_parked();
         cx.update(|_, cx| assert_eq!(input.read(cx).value().as_str(), original));
+        cx.update(|window, cx| {
+            input.update(cx, |state, cx| {
+                state.set_value(
+                    String::from_utf8(original_disk.to_vec()).unwrap(),
+                    window,
+                    cx,
+                )
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let editor = view.read(cx).editor.as_ref().unwrap();
+            assert!(!editor.buffer.is_dirty());
+            assert!(editor.store.load().unwrap().is_none());
+        });
     }
 
     #[gpui::test]

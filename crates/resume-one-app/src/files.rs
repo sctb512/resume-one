@@ -243,6 +243,9 @@ impl ResumeOne {
             .set_offset(gpui::point(px(0.0), px(0.0)));
         self.model.apply_opened(opened);
         self.reset_editor_for_document(window, cx);
+        if !self.model.preview_ready && !self.source_mode {
+            self.toggle_source(&ToggleSource, window, cx);
+        }
         window.set_window_title(&format!(
             "{} — Resume One · 简里",
             self.model.document_label

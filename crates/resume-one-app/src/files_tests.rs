@@ -14,6 +14,60 @@ fn click_center(cx: &mut gpui::VisualTestContext, selector: &'static str) {
 }
 
 #[gpui::test]
+fn invalid_file_opens_for_repair_and_saves_only_after_becoming_valid(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("broken.json");
+    let broken = b"{\"basics\": ";
+    std::fs::write(&path, broken).unwrap();
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let child_for_window = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        *child_for_window.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, cx| view.update(cx, |app, cx| app.load_path(path.clone(), window, cx)));
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert!(app.source_mode);
+        assert!(!app.model.preview_ready);
+        assert_eq!(
+            app.editor.as_ref().unwrap().buffer.issues()[0].code,
+            "INVALID_JSON"
+        );
+        assert_eq!(
+            app.editor.as_ref().unwrap().buffer.source().as_bytes(),
+            broken
+        );
+    });
+    assert_eq!(std::fs::read(&path).unwrap(), broken);
+
+    let valid = r#"{"basics":{"name":"已修复"}}"#;
+    cx.update(|window, cx| {
+        let input = view.read(cx).editor.as_ref().unwrap().input.clone();
+        input.update(cx, |state, cx| state.set_value(valid, window, cx));
+    });
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert!(app.model.preview_ready);
+        assert_eq!(app.model.content.name, "已修复");
+        assert!(app.editor.as_ref().unwrap().buffer.is_dirty());
+    });
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.save_json(&crate::editor_ui::Save, window, cx)
+        });
+    });
+    cx.run_until_parked();
+    assert_eq!(std::fs::read(&path).unwrap(), valid.as_bytes());
+    cx.update(|_, cx| assert!(!view.read(cx).editor.as_ref().unwrap().buffer.is_dirty()));
+}
+
+#[gpui::test]
 fn file_trigger_and_open_button_toggle_their_own_menu(cx: &mut TestAppContext) {
     let directory = tempfile::tempdir().unwrap();
     let model = AppModel::load(Some(directory.path())).unwrap();
@@ -38,6 +92,7 @@ fn file_trigger_and_open_button_toggle_their_own_menu(cx: &mut TestAppContext) {
 
 #[gpui::test]
 fn folder_keyboard_selection_and_failed_open_keep_document_and_theme(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
     let directory = tempfile::tempdir().unwrap();
     let first = directory.path().join("a.json");
     let second = directory.path().join("b.json");
@@ -47,12 +102,16 @@ fn folder_keyboard_selection_and_failed_open_keep_document_and_theme(cx: &mut Te
     std::fs::write(&second, second_bytes).unwrap();
     std::fs::write(&invalid, b"{invalid").unwrap();
     let model = AppModel::load(None).unwrap();
-    let (view, cx) = cx.add_window_view(|window, cx| {
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let child_for_window = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
         register_bindings(cx);
-        let view = ResumeOne::new(model, cx);
-        window.focus(&view.focus);
-        view
+        let view = cx.new(|cx| ResumeOne::new(model, cx));
+        window.focus(&view.read(cx).focus);
+        *child_for_window.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
     });
+    let view = child.borrow_mut().take().unwrap();
     cx.update(|window, cx| {
         view.update(cx, |app, cx| {
             app.model.select_theme(3);
@@ -85,19 +144,24 @@ fn folder_keyboard_selection_and_failed_open_keep_document_and_theme(cx: &mut Te
     cx.update(|window, _| window.refresh());
     cx.simulate_keystrokes("down enter");
     cx.run_until_parked();
-    assert!(cx.has_pending_prompt());
+    assert!(!cx.has_pending_prompt());
     cx.update(|_, cx| {
         let app = view.read(cx);
         assert_eq!(app.model.content.name, "B");
-        assert_eq!(app.model.document.source, second_bytes);
+        assert!(!app.model.preview_ready);
+        assert!(app.source_mode);
+        assert_eq!(app.model.opened_source, b"{invalid");
+        assert_eq!(
+            app.editor.as_ref().unwrap().buffer.issues()[0].code,
+            "INVALID_JSON"
+        );
         assert_eq!(
             app.model.document_path,
-            Some(second.canonicalize().unwrap())
+            Some(invalid.canonicalize().unwrap())
         );
         assert_eq!(app.model.selected_theme, 3);
         assert!(!app.files.busy);
     });
-    cx.simulate_prompt_answer("确定");
     cx.dispatch_action(ToggleFiles);
     cx.update(|window, _| window.refresh());
     cx.simulate_keystrokes("escape");

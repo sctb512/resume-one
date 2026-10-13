@@ -1,6 +1,8 @@
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
-use resume_one_core::resume::{ResumeDocument, load_resume};
+use resume_one_core::editor::ResumeBuffer;
+use resume_one_core::resume::{MAX_RESUME_BYTES, ResumeDocument};
 use resume_one_core::semantic::{ResumeContent, project};
 
 pub enum OpenedPath {
@@ -20,8 +22,9 @@ impl OpenedPath {
 
 pub struct OpenedFile {
     pub path: PathBuf,
-    pub document: ResumeDocument,
-    pub content: ResumeContent,
+    pub source: Vec<u8>,
+    pub document: Option<ResumeDocument>,
+    pub content: Option<ResumeContent>,
 }
 
 impl OpenedFile {
@@ -35,23 +38,22 @@ impl OpenedFile {
         if !path.is_file() {
             return Err("选择的路径不是文件。".into());
         }
-        let document = load_resume(&path).map_err(|issues| {
-            issues
-                .iter()
-                .take(8)
-                .map(|issue| {
-                    if issue.path.is_empty() {
-                        issue.message.clone()
-                    } else {
-                        format!("{}：{}", issue.path, issue.message)
-                    }
-                })
-                .collect::<Vec<_>>()
-                .join("\n")
-        })?;
-        let content = project(&document);
+        let mut source = Vec::new();
+        std::fs::File::open(&path)
+            .and_then(|file| {
+                file.take(MAX_RESUME_BYTES as u64 + 1)
+                    .read_to_end(&mut source)
+            })
+            .map_err(|error| format!("无法读取文件：{error}"))?;
+        if source.len() > MAX_RESUME_BYTES {
+            return Err("简历文件超过 16 MiB 上限".into());
+        }
+        let buffer = ResumeBuffer::new(source.clone()).map_err(|issue| issue.message)?;
+        let document = buffer.last_valid().cloned();
+        let content = document.as_ref().map(project);
         Ok(Self {
             path,
+            source,
             document,
             content,
         })
@@ -130,8 +132,9 @@ mod tests {
         let source = br#"{ "basics": { "name": "User" }, "custom": [1, 2] }"#;
         std::fs::write(&path, source).unwrap();
         let opened = OpenedFile::read(&path).unwrap();
-        assert_eq!(opened.content.name, "User");
-        assert_eq!(opened.document.source, source);
+        assert_eq!(opened.content.unwrap().name, "User");
+        assert_eq!(opened.document.unwrap().source, source);
+        assert_eq!(opened.source, source);
         assert_eq!(std::fs::read(&path).unwrap(), source);
         assert!(opened.path.is_absolute());
     }
@@ -148,12 +151,10 @@ mod tests {
         assert!(LocalFolder::scan(&directory.path().join("missing")).is_err());
         let invalid = directory.path().join("invalid.json");
         std::fs::write(&invalid, b"{\"work\":[{\"name\":42}]}").unwrap();
-        assert!(
-            OpenedFile::read(&invalid)
-                .err()
-                .unwrap()
-                .contains("/work/0/name")
-        );
+        let opened = OpenedFile::read(&invalid).unwrap();
+        assert!(opened.document.is_none());
+        assert!(opened.content.is_none());
+        assert_eq!(opened.source, b"{\"work\":[{\"name\":42}]}");
         assert!(OpenedFile::read(directory.path()).is_err());
         assert!(OpenedFile::read(&directory.path().join("missing.json")).is_err());
     }

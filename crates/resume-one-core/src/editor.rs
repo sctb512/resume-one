@@ -2,6 +2,7 @@
 //! this layer owns validation, the last valid preview and save snapshots.
 
 use crate::Diagnostic;
+use crate::draft::{RecoveryDraft, valid_revision};
 use crate::resume::{MAX_RESUME_BYTES, ResumeDocument, parse_resume, revision};
 
 #[derive(Debug, Clone)]
@@ -40,12 +41,32 @@ impl ResumeBuffer {
         Ok(buffer)
     }
 
+    /// Restore source text against the revision that was current when the
+    /// draft was made. A later external file change remains a save conflict.
+    pub fn restore(disk_source: Vec<u8>, draft: &RecoveryDraft) -> Result<Self, Diagnostic> {
+        if !valid_revision(&draft.if_match) {
+            return Err(Diagnostic {
+                code: "INVALID_REVISION",
+                path: String::new(),
+                message: "恢复草稿的文件版本无效".into(),
+            });
+        }
+        let mut buffer = Self::new(disk_source)?;
+        buffer.baseline_revision.clone_from(&draft.if_match);
+        buffer.set_source(draft.source.clone());
+        Ok(buffer)
+    }
+
     pub fn source(&self) -> &str {
         &self.source
     }
 
     pub fn is_dirty(&self) -> bool {
         self.source_revision != self.baseline_revision
+    }
+
+    pub fn baseline_revision(&self) -> &str {
+        &self.baseline_revision
     }
 
     pub fn issues(&self) -> &[Diagnostic] {
@@ -225,6 +246,24 @@ mod tests {
             ResumeBuffer::new(vec![0xff]).unwrap_err().code,
             "RESUME_ENCODING"
         );
+    }
+
+    #[test]
+    fn restored_draft_keeps_old_disk_revision_and_valid_preview() {
+        let prior = br#"{"basics":{"name":"A"}}"#;
+        let external = br#"{"basics":{"name":"other"}}"#;
+        let draft = RecoveryDraft {
+            source: "{broken".into(),
+            if_match: revision(prior),
+        };
+        let buffer = ResumeBuffer::restore(external.to_vec(), &draft).unwrap();
+        assert_eq!(buffer.source(), "{broken");
+        assert_eq!(buffer.issues()[0].code, "INVALID_JSON");
+        assert_eq!(
+            buffer.last_valid().unwrap().value["basics"]["name"],
+            "other"
+        );
+        assert_eq!(buffer.baseline_revision, revision(prior));
     }
 
     #[test]

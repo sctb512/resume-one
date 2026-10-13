@@ -12,7 +12,7 @@ JSON Resume Schema 来自 `@jsonresume/schema@1.3.1`，其原始包声明 MIT �
 
 ## 文档
 
-- 共享编辑内核已支持无效输入保留、最近有效预览、无损格式化及带 revision 守卫的全文保存，接口契约见 [编辑缓冲区规范](./spec/editor-buffer.md)；这些接口尚未接入桌面编辑界面，不代表 GUI 保存已交付。
+- 共享编辑内核已支持无效输入保留、最近有效预览、无损格式化、带 revision 守卫的全文保存及独立的本地恢复草稿存储，接口契约见 [编辑缓冲区规范](./spec/editor-buffer.md)；这些接口尚未接入桌面编辑界面，不代表 GUI 保存或草稿恢复交互已交付。
 
 - [用户手册](./docs/user-manual.md)
 - [CLI 手册](./docs/cli-manual.md)

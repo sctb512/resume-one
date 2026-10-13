@@ -13,6 +13,7 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
 pub mod docx;
+pub mod draft;
 pub mod editor;
 pub mod export;
 pub mod pdf;

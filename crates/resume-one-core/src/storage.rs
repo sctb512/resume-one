@@ -122,6 +122,33 @@ pub fn replace_resume(path: &Path, source: &[u8], if_match: &str) -> Result<Stri
     Ok(next_revision)
 }
 
+/// Save As creates a new file only, never overwriting even a symlink.
+pub fn create_resume(path: &Path, source: &[u8]) -> Result<String, StorageError> {
+    parse_resume(source).map_err(|issues| {
+        error(
+            "RESUME_INVALID",
+            format!("简历未保存：{}", issues[0].message),
+        )
+    })?;
+    let parent = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
+    let mut file = tempfile::NamedTempFile::new_in(parent)
+        .map_err(|err| error("RESUME_IO", err.to_string()))?;
+    file.write_all(source)
+        .and_then(|_| file.as_file().sync_all())
+        .map_err(|err| error("RESUME_IO", err.to_string()))?;
+    file.persist_noclobber(path).map_err(|err| {
+        if err.error.kind() == std::io::ErrorKind::AlreadyExists {
+            error("FILE_EXISTS", "文件已经存在；请选择其他名称，原文件未修改")
+        } else {
+            error("RESUME_IO", err.error.to_string())
+        }
+    })?;
+    Ok(revision(source))
+}
+
 /// Apply an RFC 6902 patch only if the exact file bytes still match `if_match`.
 /// Dry-runs perform all checks but never write the resume.
 pub fn patch_resume(
@@ -395,6 +422,77 @@ mod tests {
                 .count(),
             1
         );
+    }
+
+    #[test]
+    fn save_as_creates_exact_source_and_never_clobbers_existing_file() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("新简历.json");
+        let source = "{ \"basics\": {\"name\": \"李明😀\"} }\r\n";
+        assert_eq!(
+            create_resume(&path, source.as_bytes()).unwrap(),
+            revision(source.as_bytes())
+        );
+        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
+        assert_eq!(create_resume(&path, b"{}").unwrap_err().code, "FILE_EXISTS");
+        assert_eq!(fs::read(&path).unwrap(), source.as_bytes());
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn invalid_save_as_creates_no_artifacts() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("invalid.json");
+        assert_eq!(
+            create_resume(&path, b"{").unwrap_err().code,
+            "RESUME_INVALID"
+        );
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 0);
+    }
+
+    #[test]
+    fn competing_save_as_writers_cannot_overwrite_each_other() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("resume.json");
+        let barrier = Arc::new(std::sync::Barrier::new(2));
+        let workers: Vec<_> = (0..2)
+            .map(|index| {
+                let path = path.clone();
+                let barrier = barrier.clone();
+                std::thread::spawn(move || {
+                    barrier.wait();
+                    create_resume(
+                        &path,
+                        format!(r#"{{"basics":{{"name":"{index}"}}}}"#).as_bytes(),
+                    )
+                })
+            })
+            .collect();
+        let results: Vec<_> = workers
+            .into_iter()
+            .map(|worker| worker.join().unwrap())
+            .collect();
+        assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+        assert_eq!(
+            results
+                .iter()
+                .filter(|result| result.as_ref().is_err_and(|err| err.code == "FILE_EXISTS"))
+                .count(),
+            1
+        );
+        assert!(load_resume(&path).is_ok());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn save_as_does_not_follow_even_dangling_symlinks() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("target.json");
+        let link = root.path().join("link.json");
+        std::os::unix::fs::symlink(&target, &link).unwrap();
+        assert_eq!(create_resume(&link, b"{}").unwrap_err().code, "FILE_EXISTS");
+        assert!(link.is_symlink());
+        assert!(!target.exists());
     }
 
     #[cfg(unix)]

@@ -440,6 +440,28 @@ mod tests {
     }
 
     #[test]
+    fn patching_known_field_preserves_unknown_high_precision_numbers() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("precision.json");
+        let source = br#"{"basics":{"name":"A"},"extra":{"big":184467440737095516170123,"decimal":0.12345678901234567890123456789}}"#;
+        fs::write(&path, source).unwrap();
+        let before = load_resume(&path).unwrap();
+        patch_resume(
+            &path,
+            br#"[{"op":"replace","path":"/basics/name","value":"B"}]"#,
+            &before.revision,
+            false,
+        )
+        .unwrap();
+        let after = load_resume(&path).unwrap();
+        assert_eq!(after.value["basics"]["name"], "B");
+        assert_eq!(after.value["extra"], before.value["extra"]);
+        let text = String::from_utf8(after.source).unwrap();
+        assert!(text.contains("184467440737095516170123"));
+        assert!(text.contains("0.12345678901234567890123456789"));
+    }
+
+    #[test]
     fn invalid_save_as_creates_no_artifacts() {
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("invalid.json");

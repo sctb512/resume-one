@@ -236,4 +236,18 @@ mod tests {
         assert!(buffer.save_snapshot().is_err());
         assert_eq!(buffer.last_valid().unwrap().source, b"{}");
     }
+
+    #[test]
+    fn formatting_retains_precision_of_unknown_numeric_fields() {
+        let source = r#"{"basics":{"name":"A"},"extra":{"big":184467440737095516170123,"decimal":0.12345678901234567890123456789,"exponent":1e400}}"#;
+        let buffer = ResumeBuffer::new(source.as_bytes().to_vec()).unwrap();
+        assert!(buffer.issues().is_empty());
+        let text = buffer.formatted().unwrap();
+        assert!(text.contains("184467440737095516170123"));
+        assert!(text.contains("0.12345678901234567890123456789"));
+        assert_eq!(
+            parse_resume(text.as_bytes()).unwrap().value["extra"],
+            buffer.last_valid().unwrap().value["extra"]
+        );
+    }
 }

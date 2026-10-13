@@ -24,6 +24,7 @@ actions!(resume_one, [ToggleSource, FormatJson, Save, SaveAs]);
 pub(super) struct EditorUi {
     pub input: Entity<InputState>,
     pub buffer: ResumeBuffer,
+    last_display: String,
     pub store: DraftStore,
     pub generation: u64,
     pub saving: bool,
@@ -89,6 +90,44 @@ fn drafts_root() -> Result<PathBuf, String> {
         .ok_or_else(|| "无法定位本地应用数据目录，不能安全保存编辑草稿".into())
 }
 
+fn inside_json_string(prefix: &str) -> bool {
+    let mut quoted = false;
+    let mut escaped = false;
+    for byte in prefix.bytes() {
+        if escaped {
+            escaped = false;
+        } else if byte == b'\\' && quoted {
+            escaped = true;
+        } else if byte == b'"' {
+            quoted = !quoted;
+        }
+    }
+    quoted
+}
+
+/// Pair only a single newly inserted opener. Bulk paste, undo, IME replacement
+/// and programmatic full-text changes must not acquire extra punctuation.
+fn automatic_pair(before: &str, after: &str, cursor: usize) -> Option<char> {
+    if cursor == 0 || after.len() != before.len() + 1 {
+        return None;
+    }
+    let opener = *after.as_bytes().get(cursor - 1)?;
+    let closer = match opener {
+        b'{' => '}',
+        b'[' => ']',
+        b'"' => '"',
+        _ => return None,
+    };
+    if before.get(..cursor - 1)? != after.get(..cursor - 1)?
+        || before.get(cursor - 1..)? != after.get(cursor..)?
+        || after.get(cursor..)?.starts_with(closer)
+        || inside_json_string(after.get(..cursor - 1)?)
+    {
+        return None;
+    }
+    Some(closer)
+}
+
 impl ResumeOne {
     pub(super) fn focus_current(&self, window: &mut Window, cx: &mut Context<Self>) {
         if self.source_mode
@@ -115,6 +154,7 @@ impl ResumeOne {
         let display = buffer
             .formatted()
             .unwrap_or_else(|_| buffer.source().into());
+        editor.last_display = display.clone();
         editor.buffer = buffer;
         editor.store = DraftStore::new(
             drafts_root().expect("draft root already checked"),
@@ -438,11 +478,12 @@ impl ResumeOne {
             let display = buffer
                 .formatted()
                 .unwrap_or_else(|_| buffer.source().into());
+            let initial_display = display.clone();
             let input = cx.new(|cx| {
                 InputState::new(window, cx)
                     .code_editor("json")
                     .soft_wrap(true)
-                    .default_value(display)
+                    .default_value(initial_display)
             });
             let subscription = cx.subscribe_in(&input, window, |this, input, event, window, cx| {
                 if matches!(event, InputEvent::Change) {
@@ -453,6 +494,7 @@ impl ResumeOne {
             self.editor = Some(EditorUi {
                 input,
                 buffer,
+                last_display: display,
                 store,
                 generation: 0,
                 saving: false,
@@ -509,6 +551,7 @@ impl ResumeOne {
         match ResumeBuffer::restore(self.model.document.source.clone(), &draft) {
             Ok(buffer) => {
                 editor.buffer = buffer;
+                editor.last_display = draft.source.clone();
                 editor
                     .input
                     .update(cx, |state, cx| state.set_value(draft.source, window, cx));
@@ -522,13 +565,42 @@ impl ResumeOne {
     fn editor_changed(
         &mut self,
         input: &Entity<InputState>,
-        _: &mut Window,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) {
         let Some(editor) = &mut self.editor else {
             return;
         };
-        let source = input.read(cx).value().to_string();
+        let state = input.read(cx);
+        let source = state.value().to_string();
+        let cursor = state.cursor();
+        let closer = automatic_pair(&editor.last_display, &source, cursor);
+        editor.last_display.clone_from(&source);
+        if let Some(closer) = closer {
+            let input = input.clone();
+            let expected = source.clone();
+            let owner = cx.entity().downgrade();
+            window.defer(cx, move |window, cx| {
+                let active = owner.upgrade().is_some_and(|owner| {
+                    owner
+                        .read(cx)
+                        .editor
+                        .as_ref()
+                        .is_some_and(|editor| editor.input == input)
+                });
+                if !active {
+                    return;
+                }
+                input.update(cx, |state, cx| {
+                    if state.value().as_str() != expected || state.cursor() != cursor {
+                        return;
+                    }
+                    let position = state.cursor_position();
+                    state.insert(closer.to_string(), window, cx);
+                    state.set_cursor_position(position, window, cx);
+                });
+            });
+        }
         if !editor.buffer.set_source(source) {
             return;
         }
@@ -671,5 +743,22 @@ impl ResumeOne {
                     })
                     .child(status),
             )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::automatic_pair;
+
+    #[test]
+    fn pairs_only_single_openers_outside_strings() {
+        assert_eq!(automatic_pair("", "{", 1), Some('}'));
+        assert_eq!(automatic_pair("🙂", "🙂[", 5), Some(']'));
+        assert_eq!(automatic_pair("", "\"", 1), Some('"'));
+        assert_eq!(automatic_pair("}", "{}", 1), None);
+        assert_eq!(automatic_pair("", "{}", 1), None);
+        assert_eq!(automatic_pair(r#"{"x":"a"#, r#"{"x":"a{"#, 8), None);
+        assert_eq!(automatic_pair(r#"{"x":"a"#, r#"{"x":"a""#, 8), None);
+        assert_eq!(automatic_pair("中", "中{", 1), None);
     }
 }

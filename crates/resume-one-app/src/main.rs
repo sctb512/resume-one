@@ -74,6 +74,12 @@ impl ResumeOne {
             .map_or_else(|| self.model.selected_style(), |theme| &theme.style)
     }
 
+    fn quit(&mut self, _: &files::Quit, window: &mut Window, cx: &mut Context<Self>) {
+        if self.confirm_close(window, cx) {
+            window.remove_window();
+        }
+    }
+
     fn theme_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
         let mut list = div()
@@ -378,6 +384,7 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::format_json))
             .on_action(cx.listener(Self::save_json))
             .on_action(cx.listener(Self::save_json_as))
+            .on_action(cx.listener(Self::quit))
             .bg(rgb(0xf5f5f1))
             .child(
                 div()
@@ -503,30 +510,6 @@ fn main() {
         files::register(cx);
         editor_ui::register(cx);
         let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
-        let quit_action_target = quit_target.clone();
-        cx.on_action(move |_: &files::Quit, cx| {
-            if let Some(window_handle) = cx.active_window() {
-                let target = quit_action_target
-                    .borrow()
-                    .as_ref()
-                    .and_then(|view| view.upgrade());
-                window_handle
-                    .update(cx, |_, window, cx| {
-                        if let Some(target) = target {
-                            target.update(cx, |app, cx| {
-                                if app.confirm_close(window, cx) {
-                                    window.remove_window();
-                                }
-                            });
-                        } else {
-                            window.remove_window();
-                        }
-                    })
-                    .ok();
-            } else {
-                cx.quit();
-            }
-        });
         let quit_flush_target = quit_target.clone();
         cx.on_app_quit(move |cx| {
             if let Some(view) = quit_flush_target
@@ -573,6 +556,48 @@ fn main() {
 mod tests {
     use super::*;
     use gpui::{Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point};
+    use gpui_component::RopeExt;
+
+    #[gpui::test]
+    fn json_openers_pair_and_undo_as_one_edit(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let model = AppModel::load(None).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            });
+        });
+        let input = cx.update(|_, cx| view.read(cx).editor.as_ref().unwrap().input.clone());
+        let original = cx.update(|_, cx| input.read(cx).value().to_string());
+        cx.update(|window, cx| {
+            input.update(cx, |state, cx| {
+                let end = state.text().offset_to_position(state.value().len());
+                state.set_cursor_position(end, window, cx);
+                state.insert("{", window, cx);
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let state = input.read(cx);
+            assert_eq!(state.value().as_str(), format!("{original}{{}}").as_str());
+            assert_eq!(state.cursor(), original.len() + 1);
+            assert_eq!(
+                view.read(cx).editor.as_ref().unwrap().buffer.source(),
+                state.value().as_str()
+            );
+        });
+        cx.simulate_keystrokes("cmd-z");
+        cx.run_until_parked();
+        cx.update(|_, cx| assert_eq!(input.read(cx).value().as_str(), original));
+    }
 
     #[gpui::test]
     fn source_mode_reclaims_left_pane_without_moving_right_pane(cx: &mut TestAppContext) {

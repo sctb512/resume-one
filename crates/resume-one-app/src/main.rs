@@ -1,12 +1,14 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
+mod files;
 mod model;
+mod workspace;
 
 use std::path::Path;
 
 use gpui::{
-    App, Application, Bounds, Context, FontWeight, IntoElement, Render, Window, WindowBounds,
-    WindowOptions, div, prelude::*, px, rgb, size,
+    App, Application, Bounds, Context, FocusHandle, FontWeight, IntoElement, MouseButton, Render,
+    ScrollHandle, Window, WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
 };
 use model::AppModel;
 use resume_one_core::semantic::{Item, Section};
@@ -41,9 +43,25 @@ fn label(id: &str) -> &str {
 struct ResumeOne {
     model: AppModel,
     hovered_theme: Option<usize>,
+    focus: FocusHandle,
+    files: files::FileUi,
+    preview_scroll: ScrollHandle,
 }
 
 impl ResumeOne {
+    fn new(model: AppModel, cx: &mut Context<Self>) -> Self {
+        let files = files::FileUi {
+            open: model.folder.is_some(),
+            ..Default::default()
+        };
+        Self {
+            model,
+            hovered_theme: None,
+            focus: cx.focus_handle(),
+            files,
+            preview_scroll: ScrollHandle::new(),
+        }
+    }
     fn active_style(&self) -> &ThemeStyle {
         self.hovered_theme
             .and_then(|index| self.model.themes.get(index))
@@ -332,9 +350,24 @@ impl Render for ResumeOne {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
         div()
+            .relative()
             .size_full()
             .flex()
             .flex_col()
+            .track_focus(&self.focus)
+            .key_context(if self.files.open {
+                "ResumeOne FileSwitcher"
+            } else {
+                "ResumeOne"
+            })
+            .on_action(cx.listener(Self::open_file))
+            .on_action(cx.listener(Self::open_directory))
+            .on_action(cx.listener(Self::toggle_files))
+            .on_action(cx.listener(Self::dismiss_files))
+            .on_action(cx.listener(Self::next_file))
+            .on_action(cx.listener(Self::previous_file))
+            .on_action(cx.listener(Self::choose_file))
+            .on_action(cx.listener(Self::refresh_folder))
             .bg(rgb(0xf5f5f1))
             .child(
                 div()
@@ -347,9 +380,17 @@ impl Render for ResumeOne {
                     .border_b_1()
                     .border_color(rgb(0xe4e7e1))
                     .bg(color(style.colors.chrome))
+                    .on_mouse_down(
+                        MouseButton::Left,
+                        cx.listener(|this, _, window, cx| {
+                            this.dismiss_files(&files::DismissFiles, window, cx);
+                        }),
+                    )
                     .child(
                         div()
                             .flex()
+                            .flex_1()
+                            .min_w_0()
                             .items_center()
                             .gap_4()
                             .child(
@@ -360,10 +401,47 @@ impl Render for ResumeOne {
                             )
                             .child(
                                 div()
-                                    .text_size(px(11.0))
+                                    .id("current-file")
+                                    .debug_selector(|| "current-file".into())
+                                    .min_w_0()
+                                    .truncate()
+                                    .cursor_pointer()
+                                    .px_2()
+                                    .py_2()
+                                    .rounded_md()
+                                    .hover(|label| label.bg(color(style.colors.canvas)))
+                                    .text_size(px(12.0))
                                     .text_color(color(style.colors.muted))
-                                    .child(self.model.document_label.clone()),
+                                    .child(self.model.document_label.clone())
+                                    .on_mouse_down(MouseButton::Left, |_, _, cx| {
+                                        cx.stop_propagation()
+                                    })
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.toggle_files(&files::ToggleFiles, window, cx);
+                                    })),
                             ),
+                    )
+                    .child(
+                        div()
+                            .id("open-menu")
+                            .debug_selector(|| "open-menu".into())
+                            .flex_none()
+                            .px_3()
+                            .py_2()
+                            .rounded_md()
+                            .cursor_pointer()
+                            .text_size(px(13.0))
+                            .text_color(color(style.colors.accent))
+                            .hover(|button| button.bg(color(style.colors.canvas)))
+                            .child(if self.files.busy {
+                                "打开中…"
+                            } else {
+                                "打开"
+                            })
+                            .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.toggle_open_menu(window, cx);
+                            })),
                     ),
             )
             .child(
@@ -380,6 +458,7 @@ impl Render for ResumeOne {
                             .min_w_0()
                             .h_full()
                             .overflow_scroll()
+                            .track_scroll(&self.preview_scroll)
                             .bg(color(style.colors.canvas))
                             .child(
                                 div()
@@ -393,6 +472,7 @@ impl Render for ResumeOne {
                     )
                     .child(self.module_sidebar()),
             )
+            .when(self.files.open, |view| view.child(self.file_switcher(cx)))
     }
 }
 
@@ -406,6 +486,13 @@ fn main() {
         }
     };
     Application::new().run(move |cx: &mut App| {
+        files::register(cx);
+        cx.on_window_closed(|cx| {
+            if cx.windows().is_empty() {
+                cx.quit();
+            }
+        })
+        .detach();
         let bounds = Bounds::centered(None, size(px(1120.0), px(780.0)), cx);
         cx.open_window(
             WindowOptions {
@@ -415,10 +502,9 @@ fn main() {
             },
             |window, cx| {
                 window.set_window_title("Resume One · 简里");
-                cx.new(|_| ResumeOne {
-                    model,
-                    hovered_theme: None,
-                })
+                let view = cx.new(|cx| ResumeOne::new(model, cx));
+                window.focus(&view.read(cx).focus);
+                view
             },
         )
         .expect("failed to open Resume One window");
@@ -434,10 +520,7 @@ mod tests {
     #[gpui::test]
     fn preview_window_renders_all_three_panes(cx: &mut TestAppContext) {
         let model = AppModel::load(None).unwrap();
-        let (view, cx) = cx.add_window_view(|_, _| ResumeOne {
-            model,
-            hovered_theme: None,
-        });
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.update(|window, _| window.refresh());
         let theme = cx.debug_bounds("theme-panel").unwrap();
         let preview = cx.debug_bounds("resume-preview").unwrap();

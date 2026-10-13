@@ -1,9 +1,11 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use resume_one_core::resume::{ResumeDocument, load_resume, parse_resume};
 use resume_one_core::semantic::{ResumeContent, project};
 use resume_one_core::theme_style::ThemeStyle;
 use resume_one_core::{ThemeManifest, parse_theme};
+
+use crate::workspace::{LocalFolder, OpenedFile};
 
 const BUILTIN_THEMES: &[&str] = &[
     include_str!("../../../assets/themes/zhibai.theme.json"),
@@ -57,18 +59,29 @@ pub struct AppModel {
     pub document: ResumeDocument,
     pub content: ResumeContent,
     pub document_label: String,
+    pub document_path: Option<PathBuf>,
+    pub folder: Option<LocalFolder>,
     pub themes: Vec<BuiltinTheme>,
     pub selected_theme: usize,
 }
 
 impl AppModel {
     pub fn load(path: Option<&Path>) -> Result<Self, String> {
-        let document = if let Some(path) = path {
+        let document = if let Some(path) = path.filter(|path| !path.is_dir()) {
             load_resume(path).map_err(|issues| format!("无法打开简历：{issues:?}"))?
         } else {
             parse_resume(EXAMPLE_RESUME).map_err(|issues| format!("内置示例无效：{issues:?}"))?
         };
-        let document_label = path
+        let document_path = path
+            .filter(|path| !path.is_dir())
+            .map(|path| path.canonicalize().map_err(|error| error.to_string()))
+            .transpose()?;
+        let folder = path
+            .filter(|path| path.is_dir())
+            .map(LocalFolder::scan)
+            .transpose()?;
+        let document_label = document_path
+            .as_deref()
             .and_then(Path::file_name)
             .map(|name| name.to_string_lossy().into_owned())
             .unwrap_or_else(|| "示例简历 · 未保存".to_string());
@@ -86,6 +99,8 @@ impl AppModel {
             document,
             content,
             document_label,
+            document_path,
+            folder,
             themes,
             selected_theme: 0,
         })
@@ -93,6 +108,18 @@ impl AppModel {
 
     pub fn selected_style(&self) -> &ThemeStyle {
         &self.themes[self.selected_theme].style
+    }
+
+    pub fn apply_opened(&mut self, opened: OpenedFile) {
+        self.document_label = opened
+            .path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .into_owned();
+        self.document_path = Some(opened.path);
+        self.document = opened.document;
+        self.content = opened.content;
     }
 
     pub fn select_theme(&mut self, index: usize) {

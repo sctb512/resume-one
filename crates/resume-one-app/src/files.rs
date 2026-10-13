@@ -5,6 +5,8 @@ use gpui::{
     ScrollStrategy, UniformListScrollHandle, Window, actions, div, prelude::*, px, uniform_list,
 };
 
+use crate::editor_ui::{Save, SaveAs, ToggleSource};
+use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
 
@@ -57,7 +59,6 @@ fn register_bindings(cx: &mut App) {
 
 pub(super) fn register(cx: &mut App) {
     register_bindings(cx);
-    cx.on_action(|_: &Quit, cx| cx.quit());
     cx.set_menus(vec![
         Menu {
             name: "Resume One".into(),
@@ -69,8 +70,12 @@ pub(super) fn register(cx: &mut App) {
                 MenuItem::action("打开 JSON…", OpenFile),
                 MenuItem::action("打开目录…", OpenDirectory),
                 MenuItem::separator(),
+                MenuItem::action("保存", Save),
+                MenuItem::action("另存为…", SaveAs),
+                MenuItem::separator(),
                 MenuItem::action("切换文件", ToggleFiles),
                 MenuItem::action("刷新目录", RefreshFolder),
+                MenuItem::action("切换源码与预览", ToggleSource),
             ],
         },
     ]);
@@ -91,7 +96,7 @@ impl ResumeOne {
     }
 
     fn prompt_path(&mut self, directory: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if self.files.busy {
+        if self.files.busy || self.editor.as_ref().is_some_and(|editor| editor.saving) {
             return;
         }
         self.files.busy = true;
@@ -133,7 +138,7 @@ impl ResumeOne {
     }
 
     pub(super) fn load_path(&mut self, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
-        if self.files.busy {
+        if self.files.busy || self.editor.as_ref().is_some_and(|editor| editor.saving) {
             return;
         }
         self.files.busy = true;
@@ -162,13 +167,7 @@ impl ResumeOne {
         self.files.busy = false;
         match result {
             Some(Ok(OpenedPath::File(opened))) => {
-                self.preview_scroll
-                    .set_offset(gpui::point(px(0.0), px(0.0)));
-                self.model.apply_opened(*opened);
-                window.set_window_title(&format!(
-                    "{} — Resume One · 简里",
-                    self.model.document_label
-                ));
+                self.offer_opened_file(*opened, window, cx);
             }
             Some(Ok(OpenedPath::Folder(folder))) => {
                 self.model.folder = Some(folder);
@@ -189,7 +188,66 @@ impl ResumeOne {
             }
             None => {}
         }
-        window.focus(&self.focus);
+        self.focus_current(window, cx);
+        cx.notify();
+    }
+
+    fn offer_opened_file(
+        &mut self,
+        opened: OpenedFile,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self
+            .editor
+            .as_ref()
+            .is_some_and(|editor| editor.buffer.is_dirty())
+        {
+            let choice = window.prompt(
+                PromptLevel::Warning,
+                "当前简历有未保存的更改",
+                Some("可以先按 ⌘S 或 Ctrl+S 保存。"),
+                &["继续编辑", "丢弃更改并打开"],
+                cx,
+            );
+            cx.spawn_in(window, async move |this, cx| {
+                if choice.await.ok() == Some(1) {
+                    this.update_in(cx, |this, window, cx| {
+                        this.apply_opened_file(opened, window, cx)
+                    })
+                    .ok();
+                }
+            })
+            .detach();
+        } else {
+            self.apply_opened_file(opened, window, cx);
+        }
+    }
+
+    fn apply_opened_file(
+        &mut self,
+        opened: OpenedFile,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(editor) = &mut self.editor
+            && editor.buffer.is_dirty()
+        {
+            editor.generation += 1;
+            if let Err(message) = editor.store.clear_if_newer(editor.generation) {
+                self.editor_warning("无法丢弃草稿", &message, window, cx);
+                return;
+            }
+        }
+        self.preview_scroll
+            .set_offset(gpui::point(px(0.0), px(0.0)));
+        self.model.apply_opened(opened);
+        self.reset_editor_for_document(window, cx);
+        window.set_window_title(&format!(
+            "{} — Resume One · 简里",
+            self.model.document_label
+        ));
+        self.focus_current(window, cx);
         cx.notify();
     }
 

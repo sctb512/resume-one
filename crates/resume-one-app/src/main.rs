@@ -1,10 +1,12 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
+mod editor_ui;
 mod files;
 mod model;
 mod workspace;
 
 use std::path::Path;
+use std::{cell::RefCell, rc::Rc};
 
 use gpui::{
     App, Application, Bounds, Context, FocusHandle, FontWeight, IntoElement, MouseButton, Render,
@@ -46,6 +48,8 @@ struct ResumeOne {
     focus: FocusHandle,
     files: files::FileUi,
     preview_scroll: ScrollHandle,
+    source_mode: bool,
+    editor: Option<editor_ui::EditorUi>,
 }
 
 impl ResumeOne {
@@ -60,6 +64,8 @@ impl ResumeOne {
             focus: cx.focus_handle(),
             files,
             preview_scroll: ScrollHandle::new(),
+            source_mode: false,
+            editor: None,
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -368,6 +374,10 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::previous_file))
             .on_action(cx.listener(Self::choose_file))
             .on_action(cx.listener(Self::refresh_folder))
+            .on_action(cx.listener(Self::toggle_source))
+            .on_action(cx.listener(Self::format_json))
+            .on_action(cx.listener(Self::save_json))
+            .on_action(cx.listener(Self::save_json_as))
             .bg(rgb(0xf5f5f1))
             .child(
                 div()
@@ -449,27 +459,30 @@ impl Render for ResumeOne {
                     .flex()
                     .flex_1()
                     .min_h_0()
-                    .child(self.theme_sidebar(cx))
-                    .child(
-                        div()
-                            .id("resume-preview")
-                            .debug_selector(|| "resume-preview".to_string())
-                            .flex_1()
-                            .min_w_0()
-                            .h_full()
-                            .overflow_scroll()
-                            .track_scroll(&self.preview_scroll)
-                            .bg(color(style.colors.canvas))
-                            .child(
-                                div()
-                                    .w_full()
-                                    .min_w(px(style.page.width_mm * 3.0 + 64.0))
-                                    .py_8()
-                                    .flex()
-                                    .justify_center()
-                                    .child(self.resume_page()),
-                            ),
-                    )
+                    .when(!self.source_mode, |view| view.child(self.theme_sidebar(cx)))
+                    .when(self.source_mode, |view| view.child(self.json_editor()))
+                    .when(!self.source_mode, |view| {
+                        view.child(
+                            div()
+                                .id("resume-preview")
+                                .debug_selector(|| "resume-preview".to_string())
+                                .flex_1()
+                                .min_w_0()
+                                .h_full()
+                                .overflow_scroll()
+                                .track_scroll(&self.preview_scroll)
+                                .bg(color(style.colors.canvas))
+                                .child(
+                                    div()
+                                        .w_full()
+                                        .min_w(px(style.page.width_mm * 3.0 + 64.0))
+                                        .py_8()
+                                        .flex()
+                                        .justify_center()
+                                        .child(self.resume_page()),
+                                ),
+                        )
+                    })
                     .child(self.module_sidebar()),
             )
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
@@ -486,7 +499,46 @@ fn main() {
         }
     };
     Application::new().run(move |cx: &mut App| {
+        gpui_component::init(cx);
         files::register(cx);
+        editor_ui::register(cx);
+        let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
+        let quit_action_target = quit_target.clone();
+        cx.on_action(move |_: &files::Quit, cx| {
+            if let Some(window_handle) = cx.active_window() {
+                let target = quit_action_target
+                    .borrow()
+                    .as_ref()
+                    .and_then(|view| view.upgrade());
+                window_handle
+                    .update(cx, |_, window, cx| {
+                        if let Some(target) = target {
+                            target.update(cx, |app, cx| {
+                                if app.confirm_close(window, cx) {
+                                    window.remove_window();
+                                }
+                            });
+                        } else {
+                            window.remove_window();
+                        }
+                    })
+                    .ok();
+            } else {
+                cx.quit();
+            }
+        });
+        let quit_flush_target = quit_target.clone();
+        cx.on_app_quit(move |cx| {
+            if let Some(view) = quit_flush_target
+                .borrow()
+                .as_ref()
+                .and_then(|view| view.upgrade())
+            {
+                view.update(cx, |app, _| app.flush_draft_on_quit());
+            }
+            async {}
+        })
+        .detach();
         cx.on_window_closed(|cx| {
             if cx.windows().is_empty() {
                 cx.quit();
@@ -500,11 +552,16 @@ fn main() {
                 window_min_size: Some(size(px(800.0), px(600.0))),
                 ..Default::default()
             },
-            |window, cx| {
+            move |window, cx| {
                 window.set_window_title("Resume One · 简里");
                 let view = cx.new(|cx| ResumeOne::new(model, cx));
                 window.focus(&view.read(cx).focus);
-                view
+                *quit_target.borrow_mut() = Some(view.downgrade());
+                let close_view = view.clone();
+                window.on_window_should_close(cx, move |window, cx| {
+                    close_view.update(cx, |app, cx| app.confirm_close(window, cx))
+                });
+                cx.new(|cx| gpui_component::Root::new(view, window, cx))
             },
         )
         .expect("failed to open Resume One window");
@@ -516,6 +573,47 @@ fn main() {
 mod tests {
     use super::*;
     use gpui::{Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point};
+
+    #[gpui::test]
+    fn source_mode_reclaims_left_pane_without_moving_right_pane(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let model = AppModel::load(None).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, _| window.refresh());
+        let module = cx.debug_bounds("module-panel").unwrap();
+        assert!(cx.debug_bounds("theme-panel").is_some());
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            });
+        });
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(view.read(cx).source_mode));
+        let source = cx.debug_bounds("resume-json-editor").unwrap();
+        assert_eq!(source.left(), px(0.0));
+        assert_eq!(source.right(), module.left());
+        assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            });
+        });
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(!view.read(cx).source_mode));
+        let preview = cx.debug_bounds("resume-preview").unwrap();
+        assert_eq!(preview.left(), px(206.0));
+        assert_eq!(preview.right(), module.left());
+        assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
+    }
 
     #[gpui::test]
     fn preview_window_renders_all_three_panes(cx: &mut TestAppContext) {

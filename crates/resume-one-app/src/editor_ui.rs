@@ -1,0 +1,675 @@
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use gpui::{
+    App, Context, Entity, EntityInputHandler as _, IntoElement, KeyBinding, PromptLevel,
+    Subscription, Window, actions, div, prelude::*, px,
+};
+use gpui_component::{
+    Theme,
+    highlighter::{HighlightTheme, SyntaxColors},
+    input::{Input, InputEvent, InputState},
+};
+use resume_one_core::draft::{DraftStore, RecoveryDraft};
+use resume_one_core::editor::ResumeBuffer;
+use resume_one_core::semantic::project;
+use resume_one_core::storage::{create_resume, replace_resume};
+use resume_one_core::theme_style::{Rgb, ThemeStyle};
+use serde_json::json;
+
+use crate::{ResumeOne, color};
+
+actions!(resume_one, [ToggleSource, FormatJson, Save, SaveAs]);
+
+pub(super) struct EditorUi {
+    pub input: Entity<InputState>,
+    pub buffer: ResumeBuffer,
+    pub store: DraftStore,
+    pub generation: u64,
+    pub saving: bool,
+    pub journal_error: Option<String>,
+    _subscription: Subscription,
+}
+
+pub(super) fn register(cx: &mut App) {
+    let modifier = if cfg!(target_os = "macos") {
+        "cmd"
+    } else {
+        "ctrl"
+    };
+    cx.bind_keys([
+        KeyBinding::new(&format!("{modifier}-/"), ToggleSource, Some("ResumeOne")),
+        KeyBinding::new(&format!("{modifier}-s"), Save, Some("ResumeOne")),
+        KeyBinding::new(&format!("{modifier}-shift-s"), SaveAs, Some("ResumeOne")),
+        KeyBinding::new("ctrl-f", FormatJson, Some("Input")),
+        KeyBinding::new("cmd-f", FormatJson, Some("Input")),
+        KeyBinding::new(
+            &format!("shift-{modifier}-f"),
+            gpui_component::input::Search,
+            Some("Input"),
+        ),
+    ]);
+}
+
+fn role(style: &ThemeStyle, tint: Rgb, weight: f32) -> String {
+    let candidate = style.colors.ink.mix(tint, weight);
+    if candidate.contrast(style.colors.paper) >= 4.5 {
+        candidate.hex()
+    } else {
+        style.colors.ink.hex()
+    }
+}
+
+pub(super) fn apply_editor_theme(style: &ThemeStyle, cx: &mut App) {
+    let mut highlight = (*HighlightTheme::default_light()).clone();
+    highlight.style.editor_background = Some(color(style.colors.paper).into());
+    highlight.style.editor_foreground = Some(color(style.colors.ink).into());
+    highlight.style.editor_line_number = Some(color(style.colors.muted).into());
+    highlight.style.editor_active_line_number = Some(color(style.colors.accent).into());
+    highlight.style.syntax = serde_json::from_value::<SyntaxColors>(json!({
+        "property": {"color": role(style, style.colors.accent, 0.75)},
+        "string": {"color": role(style, style.colors.seal, 0.64)},
+        "number": {"color": role(style, style.colors.accent, 0.62)},
+        "boolean": {"color": role(style, style.colors.seal, 0.78)},
+        "constant": {"color": role(style, style.colors.muted, 0.75)},
+        "punctuation": {"color": style.colors.muted.hex()},
+        "string.escape": {"color": style.colors.accent.hex()}
+    }))
+    .expect("constant syntax colors");
+    let theme = Theme::global_mut(cx);
+    theme.highlight_theme = Arc::new(highlight);
+    theme.colors.background = color(style.colors.paper).into();
+    theme.colors.foreground = color(style.colors.ink).into();
+    theme.colors.accent = color(style.colors.accent).into();
+}
+
+fn drafts_root() -> Result<PathBuf, String> {
+    dirs::data_local_dir()
+        .map(|directory| directory.join("Resume One").join("drafts"))
+        .ok_or_else(|| "无法定位本地应用数据目录，不能安全保存编辑草稿".into())
+}
+
+impl ResumeOne {
+    pub(super) fn focus_current(&self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.source_mode
+            && !self.files.open
+            && let Some(editor) = &self.editor
+        {
+            editor.input.update(cx, |input, cx| input.focus(window, cx));
+            return;
+        }
+        window.focus(&self.focus);
+    }
+
+    pub(super) fn reset_editor_for_document(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        let Ok(buffer) = ResumeBuffer::new(self.model.document.source.clone()) else {
+            return;
+        };
+        let display = buffer
+            .formatted()
+            .unwrap_or_else(|_| buffer.source().into());
+        editor.buffer = buffer;
+        editor.store = DraftStore::new(
+            drafts_root().expect("draft root already checked"),
+            self.model.document_path.clone(),
+        );
+        editor.generation = 0;
+        editor.journal_error = None;
+        let input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .code_editor("json")
+                .soft_wrap(true)
+                .default_value(display)
+        });
+        let subscription = cx.subscribe_in(&input, window, |this, input, event, window, cx| {
+            if matches!(event, InputEvent::Change) {
+                this.editor_changed(input, window, cx);
+            }
+        });
+        editor.input = input;
+        editor._subscription = subscription;
+        self.prompt_recovery(window, cx);
+    }
+
+    pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        let Some(editor) = &self.editor else {
+            return true;
+        };
+        if editor.saving {
+            self.editor_warning("保存中", "请等待保存完成再关闭窗口", window, cx);
+            return false;
+        }
+        if !editor.buffer.is_dirty() {
+            return true;
+        }
+        let choice = window.prompt(
+            PromptLevel::Warning,
+            "简历有未保存的更改",
+            Some("可以先按 ⌘S 或 Ctrl+S 保存。"),
+            &["继续编辑", "丢弃更改并关闭"],
+            cx,
+        );
+        cx.spawn_in(window, async move |this, cx| {
+            if choice.await.ok() == Some(1) {
+                this.update_in(cx, |this, window, cx| {
+                    if let Some(editor) = &mut this.editor {
+                        editor.generation += 1;
+                        match editor.store.clear_if_newer(editor.generation) {
+                            Ok(_) => {
+                                editor.buffer =
+                                    ResumeBuffer::new(this.model.document.source.clone())
+                                        .expect("last valid preview");
+                                window.remove_window();
+                            }
+                            Err(message) => {
+                                this.editor_warning("无法丢弃草稿", &message, window, cx)
+                            }
+                        }
+                    }
+                })
+                .ok();
+            }
+        })
+        .detach();
+        false
+    }
+
+    pub(super) fn flush_draft_on_quit(&mut self) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        if editor.buffer.is_dirty() {
+            editor.generation += 1;
+            let draft = RecoveryDraft {
+                source: editor.buffer.source().into(),
+                if_match: editor.buffer.baseline_revision().into(),
+            };
+            if let Err(message) = editor.store.write_if_newer(editor.generation, &draft) {
+                editor.journal_error = Some(message);
+            }
+        }
+    }
+    pub(super) fn format_json(
+        &mut self,
+        _: &FormatJson,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.source_mode {
+            return;
+        }
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        let formatted = match editor.buffer.formatted() {
+            Ok(value) => value,
+            Err(issue) => {
+                self.editor_warning("无法格式化", &issue.message, window, cx);
+                return;
+            }
+        };
+        let input = editor.input.clone();
+        input.update(cx, |state, cx| {
+            let length = state.value().chars().map(char::len_utf16).sum();
+            state.replace_text_in_range(Some(0..length), &formatted, window, cx);
+        });
+        // Entering the editor renders a formatted copy without touching the
+        // original bytes. An explicit Format command makes that copy editable.
+        if let Some(editor) = &mut self.editor
+            && editor.buffer.set_source(formatted)
+        {
+            self.persist_editor_draft(cx);
+        }
+        cx.notify();
+    }
+
+    pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = &self.editor else { return };
+        if editor.saving {
+            return;
+        }
+        let snapshot = match editor.buffer.save_snapshot() {
+            Ok(snapshot) => snapshot,
+            Err(issues) => {
+                self.editor_warning("无法保存", &issues[0].message, window, cx);
+                return;
+            }
+        };
+        if let Some(path) = self.model.document_path.clone() {
+            self.commit_save(path, false, snapshot, window, cx);
+        } else {
+            self.save_json_as(&SaveAs, window, cx);
+        }
+    }
+
+    pub(super) fn save_json_as(&mut self, _: &SaveAs, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = &self.editor else { return };
+        if editor.saving {
+            return;
+        }
+        let snapshot = match editor.buffer.save_snapshot() {
+            Ok(snapshot) => snapshot,
+            Err(issues) => {
+                self.editor_warning("无法另存为", &issues[0].message, window, cx);
+                return;
+            }
+        };
+        let directory = self
+            .model
+            .folder
+            .as_ref()
+            .map(|folder| folder.path.clone())
+            .or_else(|| {
+                self.model
+                    .document_path
+                    .as_ref()
+                    .and_then(|path| path.parent().map(PathBuf::from))
+            })
+            .or_else(dirs::document_dir)
+            .or_else(dirs::home_dir)
+            .unwrap_or_else(|| PathBuf::from("."));
+        let suggested = self
+            .model
+            .document_path
+            .as_ref()
+            .and_then(|path| path.file_name().and_then(|name| name.to_str()))
+            .unwrap_or("resume.json");
+        let choice = cx.prompt_for_new_path(&directory, Some(suggested));
+        if let Some(editor) = &mut self.editor {
+            editor.saving = true;
+        }
+        cx.notify();
+        cx.spawn_in(window, async move |this, cx| {
+            let path = match choice.await {
+                Ok(Ok(path)) => path,
+                Ok(Err(error)) => {
+                    this.update_in(cx, |this, window, cx| {
+                        if let Some(editor) = &mut this.editor {
+                            editor.saving = false;
+                        }
+                        this.editor_warning("无法另存为", &error.to_string(), window, cx);
+                        cx.notify();
+                    })
+                    .ok();
+                    return;
+                }
+                Err(_) => None,
+            };
+            this.update_in(cx, |this, window, cx| {
+                if let Some(editor) = &mut this.editor {
+                    editor.saving = false;
+                }
+                if let Some(path) = path {
+                    if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+                        this.editor_warning("无法另存为", "请选择 .json 文件名", window, cx);
+                    } else {
+                        this.commit_save(path, true, snapshot, window, cx);
+                    }
+                }
+                cx.notify();
+            })
+            .ok();
+        })
+        .detach();
+    }
+
+    fn commit_save(
+        &mut self,
+        path: PathBuf,
+        create: bool,
+        snapshot: resume_one_core::editor::SaveSnapshot,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(editor) = &mut self.editor {
+            editor.saving = true;
+        }
+        cx.notify();
+        let task = cx.background_executor().spawn({
+            let path = path.clone();
+            let snapshot = snapshot.clone();
+            async move {
+                if create {
+                    create_resume(&path, &snapshot.source)
+                } else {
+                    replace_resume(&path, &snapshot.source, &snapshot.if_match)
+                }
+            }
+        });
+        cx.spawn_in(window, async move |this, cx| {
+            let result = task.await;
+            this.update_in(cx, |this, window, cx| {
+                this.finish_save(path, create, snapshot, result, window, cx)
+            })
+            .ok();
+        })
+        .detach();
+    }
+
+    fn finish_save(
+        &mut self,
+        path: PathBuf,
+        create: bool,
+        snapshot: resume_one_core::editor::SaveSnapshot,
+        result: Result<String, resume_one_core::storage::StorageError>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(editor) = &mut self.editor {
+            editor.saving = false;
+        }
+        match result {
+            Ok(_) => {
+                if create {
+                    let old = self
+                        .editor
+                        .as_ref()
+                        .map(|editor| (editor.store.clone(), editor.generation + 1));
+                    if let Some((store, generation)) = old
+                        && let Err(message) = store.clear_if_newer(generation)
+                    {
+                        self.editor_warning("草稿整理失败", &message, window, cx);
+                    }
+                    let path = path.canonicalize().unwrap_or(path);
+                    self.model.document_label = path
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                        .into();
+                    self.model.document_path = Some(path.clone());
+                    if let Some(editor) = &mut self.editor {
+                        editor.store = DraftStore::new(
+                            drafts_root().expect("draft root already checked"),
+                            Some(path),
+                        );
+                        editor.generation = 0;
+                    }
+                }
+                if let Some(editor) = &mut self.editor {
+                    editor.buffer.acknowledge_save(&snapshot);
+                    editor.journal_error = None;
+                }
+                self.persist_editor_draft(cx);
+                window.set_window_title(&format!(
+                    "{} — Resume One · 简里",
+                    self.model.document_label
+                ));
+            }
+            Err(error) => self.editor_warning("保存失败", &error.message, window, cx),
+        }
+        cx.notify();
+    }
+    pub(super) fn toggle_source(
+        &mut self,
+        _: &ToggleSource,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.files.open = false;
+        self.hovered_theme = None;
+        if self.source_mode {
+            self.source_mode = false;
+            window.focus(&self.focus);
+            cx.notify();
+            return;
+        }
+        if self.editor.is_none() {
+            let root = match drafts_root() {
+                Ok(root) => root,
+                Err(message) => {
+                    self.editor_warning("无法进入编辑", &message, window, cx);
+                    return;
+                }
+            };
+            let buffer = match ResumeBuffer::new(self.model.document.source.clone()) {
+                Ok(buffer) => buffer,
+                Err(issue) => {
+                    self.editor_warning("无法进入编辑", &issue.message, window, cx);
+                    return;
+                }
+            };
+            let display = buffer
+                .formatted()
+                .unwrap_or_else(|_| buffer.source().into());
+            let input = cx.new(|cx| {
+                InputState::new(window, cx)
+                    .code_editor("json")
+                    .soft_wrap(true)
+                    .default_value(display)
+            });
+            let subscription = cx.subscribe_in(&input, window, |this, input, event, window, cx| {
+                if matches!(event, InputEvent::Change) {
+                    this.editor_changed(input, window, cx);
+                }
+            });
+            let store = DraftStore::new(root, self.model.document_path.clone());
+            self.editor = Some(EditorUi {
+                input,
+                buffer,
+                store,
+                generation: 0,
+                saving: false,
+                journal_error: None,
+                _subscription: subscription,
+            });
+            self.prompt_recovery(window, cx);
+        }
+        apply_editor_theme(self.model.selected_style(), cx);
+        self.source_mode = true;
+        if let Some(editor) = &self.editor {
+            editor.input.update(cx, |state, cx| state.focus(window, cx));
+        }
+        cx.notify();
+    }
+
+    fn prompt_recovery(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = &self.editor else { return };
+        let input = editor.input.clone();
+        let generation = editor.generation;
+        match editor.store.load() {
+            Ok(Some(draft)) => {
+                let choice = window.prompt(
+                    PromptLevel::Info,
+                    "发现未保存的编辑草稿",
+                    Some("恢复后会保留原文件的版本检查，避免覆盖外部修改。"),
+                    &["恢复草稿", "暂不恢复"],
+                    cx,
+                );
+                cx.spawn_in(window, async move |this, cx| {
+                    let answer = choice.await.ok();
+                    if answer == Some(0) {
+                        this.update_in(cx, |this, window, cx| {
+                            if this.editor.as_ref().is_some_and(|editor| {
+                                editor.input == input && editor.generation == generation
+                            }) {
+                                this.restore_draft(draft, window, cx);
+                            }
+                        })
+                        .ok();
+                    }
+                })
+                .detach();
+            }
+            Ok(None) => {}
+            Err(message) => self.editor_warning("无法读取恢复草稿", &message, window, cx),
+        }
+    }
+
+    fn restore_draft(&mut self, draft: RecoveryDraft, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        match ResumeBuffer::restore(self.model.document.source.clone(), &draft) {
+            Ok(buffer) => {
+                editor.buffer = buffer;
+                editor
+                    .input
+                    .update(cx, |state, cx| state.set_value(draft.source, window, cx));
+                self.refresh_preview_from_buffer();
+                cx.notify();
+            }
+            Err(issue) => self.editor_warning("无法恢复草稿", &issue.message, window, cx),
+        }
+    }
+
+    fn editor_changed(
+        &mut self,
+        input: &Entity<InputState>,
+        _: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        let source = input.read(cx).value().to_string();
+        if !editor.buffer.set_source(source) {
+            return;
+        }
+        self.refresh_preview_from_buffer();
+        self.persist_editor_draft(cx);
+        cx.notify();
+    }
+
+    fn refresh_preview_from_buffer(&mut self) {
+        if let Some(document) = self
+            .editor
+            .as_ref()
+            .and_then(|editor| {
+                editor
+                    .buffer
+                    .issues()
+                    .is_empty()
+                    .then(|| editor.buffer.last_valid())
+                    .flatten()
+            })
+            .cloned()
+        {
+            self.model.content = project(&document);
+            self.model.document = document;
+        }
+    }
+
+    fn persist_editor_draft(&mut self, cx: &mut Context<Self>) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
+        editor.generation += 1;
+        let generation = editor.generation;
+        let store = editor.store.clone();
+        let input = editor.input.clone();
+        let dirty = editor.buffer.is_dirty();
+        let draft = RecoveryDraft {
+            source: editor.buffer.source().into(),
+            if_match: editor.buffer.baseline_revision().into(),
+        };
+        let task = cx.background_executor().spawn(async move {
+            if dirty {
+                store.write_if_newer(generation, &draft)
+            } else {
+                store.clear_if_newer(generation)
+            }
+        });
+        cx.spawn(async move |this, cx| {
+            if let Err(message) = task.await {
+                this.update(cx, |this, cx| {
+                    if let Some(editor) = &mut this.editor
+                        && editor.input == input
+                        && editor.generation == generation
+                    {
+                        editor.journal_error = Some(message);
+                    }
+                    cx.notify();
+                })
+                .ok();
+            }
+        })
+        .detach();
+    }
+
+    pub(super) fn editor_warning(
+        &self,
+        title: &str,
+        message: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let answer = window.prompt(PromptLevel::Warning, title, Some(message), &["确定"], cx);
+        cx.spawn(async move |_, _| {
+            let _ = answer.await;
+        })
+        .detach();
+    }
+
+    pub(super) fn json_editor(&self) -> impl IntoElement {
+        let style = self.active_style();
+        let editor = self.editor.as_ref().expect("source mode has editor");
+        let status = if let Some(error) = &editor.journal_error {
+            format!("草稿备份失败：{error}")
+        } else if let Some(issue) = editor.buffer.issues().first() {
+            if issue.path.is_empty() {
+                issue.message.clone()
+            } else {
+                format!("{} · {}", issue.path, issue.message)
+            }
+        } else if editor.saving {
+            "保存中…".into()
+        } else if editor.buffer.is_dirty() {
+            "未保存".into()
+        } else {
+            "".into()
+        };
+        div()
+            .id("resume-json-editor")
+            .debug_selector(|| "resume-json-editor".into())
+            .flex_1()
+            .min_w_0()
+            .h_full()
+            .flex()
+            .flex_col()
+            .bg(color(style.colors.canvas))
+            .px_5()
+            .pt_5()
+            .pb_2()
+            .child(
+                div()
+                    .flex_1()
+                    .min_h_0()
+                    .rounded_md()
+                    .border_1()
+                    .border_color(color(style.colors.border))
+                    .bg(color(style.colors.paper))
+                    .child(
+                        Input::new(&editor.input)
+                            .appearance(false)
+                            .bordered(false)
+                            .focus_bordered(false)
+                            .h_full()
+                            .w_full()
+                            .px_3()
+                            .pt_3()
+                            .pr_5()
+                            .pb_2(),
+                    ),
+            )
+            .child(
+                div()
+                    .h(px(24.0))
+                    .flex_none()
+                    .px_2()
+                    .text_size(px(11.0))
+                    .text_color(if editor.buffer.issues().is_empty() {
+                        color(style.colors.muted)
+                    } else {
+                        color(style.colors.seal)
+                    })
+                    .child(status),
+            )
+    }
+}

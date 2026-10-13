@@ -1,0 +1,18 @@
+[package]
+name = "resume-one-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "resume-one-app"
+path = "src/main.rs"
+
+[dependencies]
+gpui.workspace = true
+resume-one-core = { path = "../resume-one-core" }
+
+[dev-dependencies]
+tempfile.workspace = true
+gpui = { workspace = true, features = ["test-support"] }

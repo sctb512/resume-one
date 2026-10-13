@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/resume-one-core", "crates/resume-one-cli", "crates/resume-one-theme-migrate"]
+members = ["crates/resume-one-core", "crates/resume-one-cli", "crates/resume-one-theme-migrate", "crates/resume-one-app"]
 
 [workspace.package]
 version = "0.1.0"
@@ -19,3 +19,4 @@ tempfile = "3.27"
 docx-rs = "0.4.22"
 printpdf = { version = "0.12.8", default-features = false }
 ttf-parser = "0.25.1"
+gpui = { version = "0.2.2", default-features = false, features = ["font-kit"] }

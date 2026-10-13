@@ -2,7 +2,7 @@
 
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use atomic_write_file::AtomicWriteFile;
 use serde_json::Value;
@@ -34,6 +34,94 @@ fn error(code: &'static str, message: impl Into<String>) -> StorageError {
     }
 }
 
+fn check_revision(if_match: &str) -> Result<(), StorageError> {
+    if !if_match.starts_with("sha256:")
+        || if_match.len() != 71
+        || !if_match[7..].bytes().all(|c| c.is_ascii_hexdigit())
+    {
+        return Err(error(
+            "INVALID_REVISION",
+            "if-match 必须是 sha256: 后接 64 位十六进制摘要",
+        ));
+    }
+    Ok(())
+}
+
+// Every writer uses the same sidecar lock, including the CLI patch writer.
+fn lock_target(path: &Path, dry_run: bool) -> Result<(PathBuf, Option<File>), StorageError> {
+    let target = fs::canonicalize(path).map_err(|err| error("RESUME_IO", err.to_string()))?;
+    if !target.is_file() {
+        return Err(error("RESUME_IO", "目标不是普通文件"));
+    }
+    let lock = if dry_run {
+        None
+    } else {
+        let file_name = target
+            .file_name()
+            .and_then(|name| name.to_str())
+            .ok_or_else(|| error("RESUME_IO", "文件名必须可表示为 UTF-8"))?;
+        let lock_path = target.with_file_name(format!(".{file_name}.resume-one.lock"));
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(lock_path)
+            .map_err(|err| error("RESUME_IO", err.to_string()))?;
+        lock.lock()
+            .map_err(|err| error("RESUME_IO", format!("无法锁定简历：{err}")))?;
+        Some(lock)
+    };
+    Ok((target, lock))
+}
+
+fn ensure_revision(path: &Path, expected: &str) -> Result<Vec<u8>, StorageError> {
+    let source = read_limited(path, 16 * 1024 * 1024)?;
+    let actual = revision(&source);
+    if actual != expected {
+        return Err(StorageError {
+            code: "REVISION_CONFLICT",
+            message: "文件已被其他进程或同步服务修改；未覆盖外部内容".into(),
+            current_revision: Some(actual),
+        });
+    }
+    Ok(source)
+}
+
+fn commit_source(path: &Path, source: &[u8], expected: &str) -> Result<(), StorageError> {
+    // Sync agents do not obey our lock. This is a best-effort recheck, not a
+    // filesystem CAS: an external writer can still race the atomic replacement.
+    ensure_revision(path, expected)?;
+    let mut writer =
+        AtomicWriteFile::open(path).map_err(|err| error("RESUME_IO", err.to_string()))?;
+    writer
+        .write_all(source)
+        .map_err(|err| error("RESUME_IO", err.to_string()))?;
+    writer
+        .commit()
+        .map_err(|err| error("RESUME_IO", err.to_string()))
+}
+
+/// Save the user's exact UTF-8 JSON bytes, without adding formatting or metadata.
+/// Only existing files are supported; creation/Save As has a separate contract.
+/// The original may be invalid JSON, so a validated repair can replace it.
+pub fn replace_resume(path: &Path, source: &[u8], if_match: &str) -> Result<String, StorageError> {
+    check_revision(if_match)?;
+    parse_resume(source).map_err(|issues| {
+        error(
+            "RESUME_INVALID",
+            format!("简历未保存：{}", issues[0].message),
+        )
+    })?;
+    let (target, _lock) = lock_target(path, false)?;
+    let original = ensure_revision(&target, if_match)?;
+    let next_revision = revision(source);
+    if original != source {
+        commit_source(&target, source, if_match)?;
+    }
+    Ok(next_revision)
+}
+
 /// Apply an RFC 6902 patch only if the exact file bytes still match `if_match`.
 /// Dry-runs perform all checks but never write the resume.
 pub fn patch_resume(
@@ -42,15 +130,7 @@ pub fn patch_resume(
     if_match: &str,
     dry_run: bool,
 ) -> Result<PatchOutcome, StorageError> {
-    if !if_match.starts_with("sha256:")
-        || if_match.len() != 71
-        || !if_match[7..].bytes().all(|c| c.is_ascii_hexdigit())
-    {
-        return Err(error(
-            "INVALID_REVISION",
-            "--if-match 必须是 sha256: 后接 64 位十六进制摘要",
-        ));
-    }
+    check_revision(if_match)?;
     if patch_bytes.len() > MAX_PATCH_BYTES {
         return Err(error("PATCH_TOO_LARGE", "补丁超过 1 MiB 上限"));
     }
@@ -72,40 +152,10 @@ pub fn patch_resume(
             paths
         });
 
-    let target = fs::canonicalize(path).map_err(|err| error("RESUME_IO", err.to_string()))?;
-    if !target.is_file() {
-        return Err(error("RESUME_IO", "目标不是普通文件"));
-    }
-    // A dry-run is strictly read-only: it must not create even a lock sidecar.
-    let _lock = if dry_run {
-        None
-    } else {
-        let file_name = target
-            .file_name()
-            .and_then(|name| name.to_str())
-            .ok_or_else(|| error("RESUME_IO", "文件名必须可表示为 UTF-8"))?;
-        let lock_path = target.with_file_name(format!(".{file_name}.resume-one.lock"));
-        let lock = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .open(lock_path)
-            .map_err(|err| error("RESUME_IO", err.to_string()))?;
-        lock.lock()
-            .map_err(|err| error("RESUME_IO", format!("无法锁定简历：{err}")))?;
-        Some(lock)
-    };
-
-    let original = read_limited(&target, 16 * 1024 * 1024)?;
+    // A dry-run is strictly read-only, including sidecar creation.
+    let (target, _lock) = lock_target(path, dry_run)?;
+    let original = ensure_revision(&target, if_match)?;
     let actual = revision(&original);
-    if actual != if_match {
-        return Err(StorageError {
-            code: "REVISION_CONFLICT",
-            message: "文件已被其他进程或同步服务修改".into(),
-            current_revision: Some(actual),
-        });
-    }
     let mut document = parse_resume(&original).map_err(|issues| {
         error(
             "RESUME_INVALID",
@@ -142,23 +192,7 @@ pub fn patch_resume(
         return Ok(outcome);
     }
 
-    // External sync agents do not obey our lock. Recheck immediately before replacement.
-    let just_before_write = revision(&read_limited(&target, 16 * 1024 * 1024)?);
-    if just_before_write != outcome.previous_revision {
-        return Err(StorageError {
-            code: "REVISION_CONFLICT",
-            message: "写入前文件发生变化".into(),
-            current_revision: Some(just_before_write),
-        });
-    }
-    let mut writer =
-        AtomicWriteFile::open(&target).map_err(|err| error("RESUME_IO", err.to_string()))?;
-    writer
-        .write_all(&next)
-        .map_err(|err| error("RESUME_IO", err.to_string()))?;
-    writer
-        .commit()
-        .map_err(|err| error("RESUME_IO", err.to_string()))?;
+    commit_source(&target, &next, &outcome.previous_revision)?;
     Ok(outcome)
 }
 
@@ -279,6 +313,104 @@ mod tests {
                     .is_some_and(|error| error.code == "REVISION_CONFLICT"))
                 .count(),
             1
+        );
+    }
+
+    #[test]
+    fn replacement_keeps_exact_text_and_rejects_invalid_input_before_writing() {
+        let (_root, path, before) = fixture();
+        let original = fs::read(&path).unwrap();
+        assert_eq!(
+            replace_resume(&path, br#"{"basics":{"name":42}}"#, &before)
+                .unwrap_err()
+                .code,
+            "RESUME_INVALID"
+        );
+        assert_eq!(fs::read(&path).unwrap(), original);
+        assert_eq!(fs::read_dir(path.parent().unwrap()).unwrap().count(), 1);
+        assert_eq!(
+            replace_resume(&path, b"{}", "bad").unwrap_err().code,
+            "INVALID_REVISION"
+        );
+        let next = "{ \"basics\": {\"name\": \"乙😀\"}, \"custom\": {\"keep\": true} }\r\n";
+        assert_eq!(
+            replace_resume(&path, next.as_bytes(), &before).unwrap(),
+            revision(next.as_bytes())
+        );
+        assert_eq!(fs::read(&path).unwrap(), next.as_bytes());
+    }
+
+    #[test]
+    fn replacement_cannot_overwrite_external_change_or_recreate_deleted_file() {
+        let (_root, path, before) = fixture();
+        let external = b"{broken external input";
+        fs::write(&path, external).unwrap();
+        let conflict = replace_resume(&path, b"{}", &before).unwrap_err();
+        assert_eq!(conflict.code, "REVISION_CONFLICT");
+        assert_eq!(conflict.current_revision, Some(revision(external)));
+        assert_eq!(fs::read(&path).unwrap(), external);
+        fs::remove_file(&path).unwrap();
+        assert_eq!(
+            replace_resume(&path, b"{}", &before).unwrap_err().code,
+            "RESUME_IO"
+        );
+        assert!(!path.exists());
+    }
+
+    #[test]
+    fn editor_and_cli_cannot_both_commit_the_same_baseline() {
+        let (_root, path, before) = fixture();
+        let barrier = Arc::new(std::sync::Barrier::new(2));
+        let patch_worker = {
+            let path = path.clone();
+            let before = before.clone();
+            let barrier = barrier.clone();
+            std::thread::spawn(move || {
+                barrier.wait();
+                patch_resume(
+                    &path,
+                    br#"[{"op":"replace","path":"/basics/name","value":"CLI"}]"#,
+                    &before,
+                    false,
+                )
+                .map(|outcome| outcome.revision)
+            })
+        };
+        let replace_worker = std::thread::spawn(move || {
+            barrier.wait();
+            replace_resume(
+                &path,
+                br#"{"basics":{"name":"editor"},"custom":{"keep":true}}"#,
+                &before,
+            )
+        });
+        let results = [patch_worker.join().unwrap(), replace_worker.join().unwrap()];
+        assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+        assert_eq!(
+            results
+                .iter()
+                .filter(|result| result
+                    .as_ref()
+                    .is_err_and(|err| err.code == "REVISION_CONFLICT"))
+                .count(),
+            1
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn replacement_preserves_permissions_and_symlink_identity() {
+        use std::os::unix::fs::{PermissionsExt, symlink};
+        let (root, path, before) = fixture();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o640)).unwrap();
+        let link = root.path().join("linked.json");
+        symlink(&path, &link).unwrap();
+        replace_resume(&link, b"{}", &before).unwrap();
+        assert!(link.is_symlink());
+        assert_eq!(fs::read(&path).unwrap(), b"{}");
+        assert_eq!(
+            fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o640
         );
     }
 }

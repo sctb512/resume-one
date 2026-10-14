@@ -612,6 +612,131 @@ impl ResumeOne {
         page
     }
 
+    fn source_module_add(
+        &self,
+        id: &str,
+        present: bool,
+        count: usize,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let id = id.to_owned();
+        let selector = format!("source-add-module-{id}");
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .cursor_pointer()
+            .px_1()
+            .text_size(px(15.0))
+            .text_color(color(self.active_style().colors.accent))
+            .child("+")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                cx.stop_propagation();
+                let edit = if present {
+                    StructureEdit::InsertItem {
+                        id: id.clone(),
+                        index: count,
+                    }
+                } else {
+                    StructureEdit::InsertSection {
+                        id: id.clone(),
+                        before: None,
+                    }
+                };
+                this.apply_visual_structure(edit, window, cx);
+            }))
+    }
+
+    fn source_module_remove(&self, id: &str, cx: &mut Context<Self>) -> impl IntoElement {
+        let id = id.to_owned();
+        let selector = format!("source-remove-module-{id}");
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .cursor_pointer()
+            .px_1()
+            .text_size(px(15.0))
+            .text_color(color(self.active_style().colors.seal))
+            .child("−")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                cx.stop_propagation();
+                this.apply_visual_structure(
+                    StructureEdit::RemoveSection { id: id.clone() },
+                    window,
+                    cx,
+                );
+            }))
+    }
+
+    fn source_item_insert(
+        &self,
+        id: &str,
+        index: usize,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let id = id.to_owned();
+        let selector = format!("source-add-item-{id}-{index}");
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .ml_4()
+            .px_2()
+            .py_1()
+            .cursor_pointer()
+            .text_size(px(10.0))
+            .text_color(color(self.active_style().colors.accent))
+            .child("+ 在此插入条目")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.apply_visual_structure(
+                    StructureEdit::InsertItem {
+                        id: id.clone(),
+                        index,
+                    },
+                    window,
+                    cx,
+                );
+            }))
+    }
+
+    fn source_item_remove(
+        &self,
+        id: &str,
+        index: usize,
+        heading: &str,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let id = id.to_owned();
+        let selector = format!("source-remove-item-{id}-{index}");
+        let title = if heading.is_empty() {
+            format!("条目 {}", index + 1)
+        } else {
+            heading.to_owned()
+        };
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .ml_4()
+            .px_2()
+            .py_1()
+            .rounded_sm()
+            .flex()
+            .justify_between()
+            .text_size(px(11.0))
+            .text_color(rgb(0x68716a))
+            .child(div().min_w_0().truncate().child(title))
+            .child("−")
+            .cursor_pointer()
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.apply_visual_structure(
+                    StructureEdit::RemoveItem {
+                        id: id.clone(),
+                        index,
+                    },
+                    window,
+                    cx,
+                );
+            }))
+    }
+
     fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
         let mut list = div()
@@ -629,11 +754,33 @@ impl ResumeOne {
         };
         for (id, title) in SECTION_LABELS {
             let existing = sections.iter().find(|section| section.id == *id);
+            let present = existing.is_some();
             let count = existing.map_or(0, |section| section.count);
             let id = (*id).to_owned();
             let selector = format!("module-{id}");
             let selected = self.selected_module.as_deref() == Some(id.as_str())
                 || self.selected_item_module.as_deref() == Some(id.as_str());
+            let mut controls = div().flex().items_center().gap_2();
+            if present {
+                controls = controls.child(
+                    div()
+                        .text_size(px(10.0))
+                        .text_color(accent)
+                        .child(count.to_string()),
+                );
+            }
+            if self.source_mode {
+                if id != "basics" || !present {
+                    controls = controls.child(self.source_module_add(&id, present, count, cx));
+                }
+                if present {
+                    controls = controls.child(self.source_module_remove(&id, cx));
+                }
+            } else if !present {
+                controls = controls.child(div().text_size(px(10.0)).text_color(accent).child("+"));
+            }
+            let source_mode = self.source_mode;
+            let row_id = id.clone();
             list = list.child(
                 div()
                     .id(gpui::SharedString::from(selector.clone()))
@@ -653,16 +800,33 @@ impl ResumeOne {
                     .text_size(px(12.0))
                     .text_color(rgb(0x464e47))
                     .child((*title).to_string())
-                    .child(div().text_size(px(10.0)).text_color(accent).child(
-                        if existing.is_some() {
-                            count.to_string()
-                        } else {
-                            "+".to_owned()
-                        },
-                    ))
+                    .child(controls)
                     .on_click(cx.listener(move |this, _, window, cx| {
-                        if this.model.document.value.get(&id).is_some() {
-                            this.selected_item_module = (id != "basics").then_some(id.clone());
+                        if source_mode {
+                            if present {
+                                this.selected_item_module = if row_id == "basics"
+                                    || this.selected_item_module.as_deref() == Some(row_id.as_str())
+                                {
+                                    None
+                                } else {
+                                    Some(row_id.clone())
+                                };
+                                cx.notify();
+                            } else {
+                                this.apply_visual_structure(
+                                    StructureEdit::InsertSection {
+                                        id: row_id.clone(),
+                                        before: None,
+                                    },
+                                    window,
+                                    cx,
+                                );
+                            }
+                            return;
+                        }
+                        if this.model.document.value.get(&row_id).is_some() {
+                            this.selected_item_module =
+                                (row_id != "basics").then_some(row_id.clone());
                             this.selected_module = None;
                             this.insertion_before = None;
                             cx.notify();
@@ -671,19 +835,39 @@ impl ResumeOne {
                         if let Some(before) = this.insertion_before.clone() {
                             this.apply_visual_structure(
                                 StructureEdit::InsertSection {
-                                    id: id.clone(),
+                                    id: row_id.clone(),
                                     before,
                                 },
                                 window,
                                 cx,
                             );
                         } else {
-                            this.selected_module = Some(id.clone());
+                            this.selected_module = Some(row_id.clone());
                             this.selected_item_module = None;
                             cx.notify();
                         }
                     })),
             );
+            if self.source_mode
+                && present
+                && id != "basics"
+                && self.selected_item_module.as_deref() == Some(id.as_str())
+            {
+                for index in 0..=count {
+                    list = list.child(self.source_item_insert(&id, index, cx));
+                    if index < count {
+                        let heading = self
+                            .model
+                            .content
+                            .sections
+                            .iter()
+                            .find(|section| section.id == id)
+                            .and_then(|section| section.items.get(index))
+                            .map_or("", |item| item.heading.as_str());
+                        list = list.child(self.source_item_remove(&id, index, heading, cx));
+                    }
+                }
+            }
         }
         div()
             .id("module-panel")
@@ -1123,6 +1307,98 @@ mod tests {
             );
         });
         assert_eq!(sidebar, cx.debug_bounds("module-panel").unwrap());
+    }
+
+    #[gpui::test]
+    fn source_sidebar_edits_are_undoable_in_json_editor(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("source-structure.json");
+        let disk = br#"{"basics":{"name":"\u6797\u6e05"},"work":[{"name":"B"}]}"#;
+        std::fs::write(&path, disk).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            });
+            window.refresh();
+        });
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let add = cx.debug_bounds("source-add-module-skills").unwrap();
+        cx.simulate_click(
+            point(
+                add.origin.x + add.size.width / 2.0,
+                add.origin.y + add.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.document.value["skills"], serde_json::json!([]));
+            let input = app.editor.as_ref().unwrap().input.read(cx);
+            assert!(input.value().contains("\"skills\""));
+            assert_eq!(input.cursor_position().line, 0);
+        });
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        cx.simulate_keystrokes("cmd-z");
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.model.document.value.get("skills").is_none());
+            assert!(!app.editor.as_ref().unwrap().buffer.is_dirty());
+            let display = app
+                .editor
+                .as_ref()
+                .unwrap()
+                .input
+                .read(cx)
+                .value()
+                .to_string();
+            assert!(display.contains("林清"));
+            assert!(!display.contains("\\u6797"));
+        });
+        cx.update(|window, _| window.refresh());
+        let work = cx.debug_bounds("module-work").unwrap();
+        cx.simulate_click(
+            point(
+                work.origin.x + work.size.width / 3.0,
+                work.origin.y + work.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.update(|window, _| window.refresh());
+        let remove = cx.debug_bounds("source-remove-item-work-0").unwrap();
+        cx.simulate_click(
+            point(
+                remove.origin.x + remove.size.width / 2.0,
+                remove.origin.y + remove.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            assert_eq!(
+                view.read(cx).model.document.value["work"],
+                serde_json::json!([])
+            )
+        });
+        cx.simulate_keystrokes("cmd-z");
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.document.value["work"][0]["name"], "B");
+        });
+        assert_eq!(std::fs::read(&path).unwrap(), disk);
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
     }
 
     #[gpui::test]

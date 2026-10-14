@@ -47,6 +47,9 @@ impl ResumeOne {
                 return;
             }
         };
+        let retained_item_module = self.selected_item_module.as_ref().and_then(|id| {
+            (self.source_mode && result.value.get(id).is_some()).then_some(id.clone())
+        });
         let after = String::from_utf8(result.source).expect("validated JSON is UTF-8");
         if self
             .visual_undo
@@ -60,16 +63,33 @@ impl ResumeOne {
         self.replace_editor_source(&after, window, cx);
         self.insertion_before = None;
         self.selected_module = None;
-        self.selected_item_module = None;
+        self.selected_item_module = retained_item_module;
+        if self.source_mode
+            && let Some(editor) = &self.editor
+        {
+            editor.input.update(cx, |input, cx| input.focus(window, cx));
+        }
         cx.notify();
     }
 
     fn replace_editor_source(&mut self, source: &str, window: &mut Window, cx: &mut Context<Self>) {
         let Some(editor) = &self.editor else { return };
         let input = editor.input.clone();
+        let display_source = editor
+            .display_alias
+            .as_ref()
+            .and_then(|(display, original)| {
+                (!self.source_mode && source == original).then_some(display.as_str())
+            })
+            .unwrap_or(source);
+        let preserve_cursor = self.source_mode;
         input.update(cx, |state, cx| {
+            let cursor = preserve_cursor.then(|| state.cursor_position());
             let length = state.value().chars().map(char::len_utf16).sum();
-            state.replace_text_in_range(Some(0..length), source, window, cx);
+            state.replace_text_in_range(Some(0..length), display_source, window, cx);
+            if let Some(cursor) = cursor {
+                state.set_cursor_position(cursor, window, cx);
+            }
         });
         // InputEvent::Change updates the shared buffer, preview and recovery draft.
     }

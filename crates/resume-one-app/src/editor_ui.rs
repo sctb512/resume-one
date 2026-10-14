@@ -25,6 +25,7 @@ pub(super) struct EditorUi {
     pub input: Entity<InputState>,
     pub buffer: ResumeBuffer,
     last_display: String,
+    pub display_alias: Option<(String, String)>,
     pub store: DraftStore,
     pub generation: u64,
     pub saving: bool,
@@ -160,6 +161,8 @@ impl ResumeOne {
         let display = buffer
             .formatted()
             .unwrap_or_else(|_| buffer.source().into());
+        editor.display_alias =
+            (display != buffer.source()).then(|| (display.clone(), buffer.source().into()));
         editor.last_display = display.clone();
         editor.buffer = buffer;
         editor.store = DraftStore::new(
@@ -264,6 +267,7 @@ impl ResumeOne {
                 return;
             }
         };
+        editor.display_alias = None;
         let input = editor.input.clone();
         input.update(cx, |state, cx| {
             let length = state.value().chars().map(char::len_utf16).sum();
@@ -476,6 +480,8 @@ impl ResumeOne {
             let display = buffer
                 .formatted()
                 .unwrap_or_else(|_| buffer.source().into());
+            let display_alias =
+                (display != buffer.source()).then(|| (display.clone(), buffer.source().into()));
             let initial_display = display.clone();
             let input = cx.new(|cx| {
                 InputState::new(window, cx)
@@ -493,6 +499,7 @@ impl ResumeOne {
                 input,
                 buffer,
                 last_display: display,
+                display_alias,
                 store,
                 generation: 0,
                 saving: false,
@@ -571,6 +578,7 @@ impl ResumeOne {
         match ResumeBuffer::restore(self.model.opened_source.clone(), &draft) {
             Ok(buffer) => {
                 editor.buffer = buffer;
+                editor.display_alias = None;
                 editor.last_display = draft.source.clone();
                 editor
                     .input
@@ -621,7 +629,12 @@ impl ResumeOne {
                 });
             });
         }
-        if !editor.buffer.set_source(source) {
+        let stored_source = editor
+            .display_alias
+            .as_ref()
+            .and_then(|(display, original)| (source == *display).then(|| original.clone()))
+            .unwrap_or(source);
+        if !editor.buffer.set_source(stored_source) {
             return;
         }
         self.refresh_preview_from_buffer();

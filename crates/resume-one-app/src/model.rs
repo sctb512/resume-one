@@ -7,7 +7,7 @@ use resume_one_core::{ThemeManifest, parse_theme};
 
 use crate::workspace::{LocalFolder, OpenedFile};
 
-const BUILTIN_THEMES: &[&str] = &[
+pub(crate) const BUILTIN_THEMES: &[&str] = &[
     include_str!("../../../assets/themes/zhibai.theme.json"),
     include_str!("../../../assets/themes/moxu.theme.json"),
     include_str!("../../../assets/themes/songyan.theme.json"),
@@ -53,6 +53,7 @@ const EXAMPLE_RESUME: &[u8] = br#"{
 pub struct BuiltinTheme {
     pub manifest: ThemeManifest,
     pub style: ThemeStyle,
+    pub path: Option<PathBuf>,
 }
 
 pub struct AppModel {
@@ -101,7 +102,11 @@ impl AppModel {
                 let manifest = parse_theme(source.as_bytes())
                     .map_err(|issues| format!("内置主题无效：{issues:?}"))?;
                 let style = ThemeStyle::from_manifest(&manifest);
-                Ok(BuiltinTheme { manifest, style })
+                Ok(BuiltinTheme {
+                    manifest,
+                    style,
+                    path: None,
+                })
             })
             .collect::<Result<Vec<_>, String>>()?;
         let content = project(&document);
@@ -120,6 +125,17 @@ impl AppModel {
 
     pub fn selected_style(&self) -> &ThemeStyle {
         &self.themes[self.selected_theme].style
+    }
+
+    pub fn replace_themes(&mut self, themes: Vec<BuiltinTheme>) {
+        let selected_id = self
+            .themes
+            .get(self.selected_theme)
+            .map(|theme| &theme.manifest.id);
+        self.selected_theme = selected_id
+            .and_then(|id| themes.iter().position(|theme| &theme.manifest.id == id))
+            .unwrap_or(0);
+        self.themes = themes;
     }
 
     pub fn apply_opened(&mut self, opened: OpenedFile) {

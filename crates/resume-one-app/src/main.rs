@@ -4,6 +4,7 @@ mod editor_ui;
 mod export_ui;
 mod files;
 mod model;
+mod theme_local;
 mod workspace;
 
 use std::path::Path;
@@ -52,6 +53,7 @@ struct ResumeOne {
     source_mode: bool,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
+    theme_store: Option<theme_local::ThemeStore>,
 }
 
 impl ResumeOne {
@@ -69,6 +71,7 @@ impl ResumeOne {
             source_mode: false,
             editor: None,
             export_busy: false,
+            theme_store: None,
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -85,6 +88,10 @@ impl ResumeOne {
 
     fn theme_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
+        let warnings = self
+            .theme_store
+            .as_ref()
+            .map_or_else(Vec::new, |store| store.warnings.clone());
         let mut list = div()
             .id("theme-list")
             .flex()
@@ -152,7 +159,13 @@ impl ResumeOne {
                 .on_click(cx.listener(move |this, _, _, cx| {
                     this.model.select_theme(index);
                     cx.notify();
-                }));
+                }))
+                .on_mouse_down(
+                    MouseButton::Right,
+                    cx.listener(move |this, _, window, cx| {
+                        this.reveal_theme(index, window, cx);
+                    }),
+                );
             list = list.child(row);
         }
         div()
@@ -178,8 +191,22 @@ impl ResumeOne {
                     .text_size(px(11.0))
                     .text_color(rgb(0x758078))
                     .child("主题")
-                    .child("内置 · 20"),
+                    .child(format!("本地 · {}", self.model.themes.len())),
             )
+            .when(!warnings.is_empty(), |panel| {
+                panel.child(
+                    div()
+                        .id("theme-warnings")
+                        .px_2()
+                        .text_size(px(10.0))
+                        .text_color(rgb(0x9b6045))
+                        .cursor_pointer()
+                        .child(format!("跳过 {} 个无效主题 · 查看", warnings.len()))
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.editor_warning("主题加载提示", &warnings.join("\n"), window, cx);
+                        })),
+                )
+            })
             .child(list)
     }
 
@@ -395,6 +422,8 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::export_docx))
             .on_action(cx.listener(Self::export_text))
             .on_action(cx.listener(Self::export_markdown))
+            .on_action(cx.listener(Self::choose_theme_directory))
+            .on_action(cx.listener(Self::reset_theme_directory))
             .on_action(cx.listener(Self::quit))
             .bg(rgb(0xf5f5f1))
             .child(
@@ -522,13 +551,27 @@ impl Render for ResumeOne {
 
 fn main() {
     let path = std::env::args_os().nth(1);
-    let model = match AppModel::load(path.as_deref().map(Path::new)) {
+    let mut model = match AppModel::load(path.as_deref().map(Path::new)) {
         Ok(model) => model,
         Err(message) => {
             eprintln!("{message}");
             std::process::exit(1);
         }
     };
+    let mut theme_store = match theme_local::ThemeStore::system() {
+        Ok(store) => store,
+        Err(message) => {
+            eprintln!("{message}");
+            std::process::exit(1);
+        }
+    };
+    match theme_store.load_themes() {
+        Ok(themes) => model.replace_themes(themes),
+        Err(message) => {
+            eprintln!("{message}");
+            std::process::exit(1);
+        }
+    }
     Application::new().run(move |cx: &mut App| {
         gpui_component::init(cx);
         files::register(cx);
@@ -562,7 +605,11 @@ fn main() {
             move |window, cx| {
                 window.set_window_title("Resume One · 简里");
                 let needs_repair = !model.preview_ready;
-                let view = cx.new(|cx| ResumeOne::new(model, cx));
+                let view = cx.new(|cx| {
+                    let mut app = ResumeOne::new(model, cx);
+                    app.theme_store = Some(theme_store);
+                    app
+                });
                 window.focus(&view.read(cx).focus);
                 *quit_target.borrow_mut() = Some(view.downgrade());
                 let close_view = view.clone();

@@ -7,6 +7,7 @@ use gpui::{
 
 use crate::editor_ui::{Save, SaveAs, ToggleSource};
 use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
+use crate::theme_local::{ChooseThemeDirectory, ResetThemeDirectory};
 use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
@@ -82,6 +83,13 @@ pub(super) fn register(cx: &mut App) {
                 MenuItem::action("切换文件", ToggleFiles),
                 MenuItem::action("刷新目录", RefreshFolder),
                 MenuItem::action("切换源码与预览", ToggleSource),
+            ],
+        },
+        Menu {
+            name: "主题".into(),
+            items: vec![
+                MenuItem::action("选择本地主题目录…", ChooseThemeDirectory),
+                MenuItem::action("恢复默认主题目录", ResetThemeDirectory),
             ],
         },
     ]);

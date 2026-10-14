@@ -4,6 +4,7 @@ mod editor_ui;
 mod export_ui;
 mod files;
 mod model;
+mod structure_ui;
 mod theme_local;
 mod workspace;
 
@@ -16,6 +17,7 @@ use gpui::{
 };
 use model::AppModel;
 use resume_one_core::semantic::{Item, Section};
+use resume_one_core::structure::StructureEdit;
 use resume_one_core::theme_style::{Rgb, ThemeStyle};
 
 const SECTION_LABELS: &[(&str, &str)] = &[
@@ -54,6 +56,14 @@ struct ResumeOne {
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
     theme_store: Option<theme_local::ThemeStore>,
+    hovered_section: Option<String>,
+    hovered_item: Option<(String, usize)>,
+    insertion_before: Option<Option<String>>,
+    selected_module: Option<String>,
+    selected_item_module: Option<String>,
+    visual_undo: Vec<(String, String)>,
+    visual_redo: Vec<(String, String)>,
+    recovery_pending: bool,
 }
 
 impl ResumeOne {
@@ -72,6 +82,14 @@ impl ResumeOne {
             editor: None,
             export_busy: false,
             theme_store: None,
+            hovered_section: None,
+            hovered_item: None,
+            insertion_before: None,
+            selected_module: None,
+            selected_item_module: None,
+            visual_undo: Vec::new(),
+            visual_redo: Vec::new(),
+            recovery_pending: false,
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -210,8 +228,66 @@ impl ResumeOne {
             .child(list)
     }
 
-    fn item(item: &Item, style: &ThemeStyle) -> impl IntoElement {
-        let mut view = div().flex().flex_col().gap_1().mb_3();
+    fn item(
+        &self,
+        item: &Item,
+        section_id: &str,
+        index: usize,
+        style: &ThemeStyle,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let hover_id = section_id.to_owned();
+        let id = section_id.to_owned();
+        let mut view = div()
+            .id(gpui::SharedString::from(format!(
+                "preview-item-{section_id}-{index}"
+            )))
+            .relative()
+            .flex()
+            .flex_col()
+            .gap_1()
+            .mb_2()
+            .pr_5()
+            .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                let target = (hover_id.clone(), index);
+                if *hovering {
+                    this.hovered_item = Some(target);
+                } else if this.hovered_item.as_ref() == Some(&target) {
+                    this.hovered_item = None;
+                }
+                cx.notify();
+            }))
+            .child(
+                div()
+                    .id(gpui::SharedString::from(format!(
+                        "remove-item-{section_id}-{index}"
+                    )))
+                    .absolute()
+                    .right_0()
+                    .top_0()
+                    .px_2()
+                    .rounded_sm()
+                    .cursor_pointer()
+                    .opacity(
+                        if self.hovered_item.as_ref() == Some(&(id.clone(), index)) {
+                            1.0
+                        } else {
+                            0.0
+                        },
+                    )
+                    .text_color(color(style.colors.seal))
+                    .child("−")
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.apply_visual_structure(
+                            StructureEdit::RemoveItem {
+                                id: id.clone(),
+                                index,
+                            },
+                            window,
+                            cx,
+                        );
+                    })),
+            );
         if !item.heading.is_empty() {
             view = view.child(
                 div()
@@ -247,27 +323,173 @@ impl ResumeOne {
                     .child(format!("· {bullet}")),
             );
         }
+        if item.heading.is_empty()
+            && item.details.is_empty()
+            && item.paragraphs.is_empty()
+            && item.bullets.is_empty()
+        {
+            view = view.child(
+                div()
+                    .text_size(px(11.0))
+                    .text_color(color(style.colors.muted))
+                    .child("新条目 · 可在 JSON 中填写内容"),
+            );
+        }
         view
     }
 
-    fn section(section: &Section, style: &ThemeStyle) -> impl IntoElement {
+    fn item_insert_control(
+        &self,
+        id: &str,
+        index: usize,
+        style: &ThemeStyle,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let id = id.to_owned();
+        let selector = format!("add-item-{id}-{index}");
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .w_full()
+            .h(px(10.0))
+            .flex()
+            .items_center()
+            .justify_center()
+            .cursor_pointer()
+            .text_size(px(14.0))
+            .text_color(color(style.colors.accent))
+            .opacity(
+                if self.selected_item_module.as_deref() == Some(id.as_str()) {
+                    1.0
+                } else {
+                    0.0
+                },
+            )
+            .hover(|control| control.opacity(1.0))
+            .child("+")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.apply_visual_structure(
+                    StructureEdit::InsertItem {
+                        id: id.clone(),
+                        index,
+                    },
+                    window,
+                    cx,
+                );
+            }))
+    }
+
+    fn module_insert_control(
+        &self,
+        before: Option<String>,
+        style: &ThemeStyle,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let selector = format!("add-module-before-{}", before.as_deref().unwrap_or("end"));
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .w_full()
+            .h(px(12.0))
+            .flex()
+            .items_center()
+            .justify_center()
+            .cursor_pointer()
+            .text_size(px(17.0))
+            .text_color(color(style.colors.accent))
+            .opacity(
+                if self.selected_module.is_some() || self.insertion_before.as_ref() == Some(&before)
+                {
+                    1.0
+                } else {
+                    0.0
+                },
+            )
+            .hover(|control| control.opacity(1.0))
+            .child("+")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                if let Some(id) = this.selected_module.clone() {
+                    this.apply_visual_structure(
+                        StructureEdit::InsertSection {
+                            id,
+                            before: before.clone(),
+                        },
+                        window,
+                        cx,
+                    );
+                } else {
+                    this.insertion_before = Some(before.clone());
+                    cx.notify();
+                }
+            }))
+    }
+
+    fn section(
+        &self,
+        section: &Section,
+        style: &ThemeStyle,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let hover_id = section.id.to_owned();
+        let id = section.id.to_owned();
         let mut view = div().flex().flex_col().mt_5().gap_3().child(
             div()
+                .id(gpui::SharedString::from(format!(
+                    "section-title-{}",
+                    section.id
+                )))
+                .relative()
                 .pb_2()
                 .border_b_1()
                 .border_color(color(style.colors.border))
                 .text_size(px(style.typography.section_title.size_pt * 1.3))
                 .font_weight(FontWeight::SEMIBOLD)
                 .text_color(color(style.colors.accent))
-                .child(label(section.id).to_string()),
+                .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                    if *hovering {
+                        this.hovered_section = Some(hover_id.clone());
+                    } else if this.hovered_section.as_deref() == Some(hover_id.as_str()) {
+                        this.hovered_section = None;
+                    }
+                    cx.notify();
+                }))
+                .child(label(section.id).to_string())
+                .child(
+                    div()
+                        .id(gpui::SharedString::from(format!(
+                            "remove-module-{}",
+                            section.id
+                        )))
+                        .absolute()
+                        .right_0()
+                        .top_0()
+                        .cursor_pointer()
+                        .text_size(px(13.0))
+                        .text_color(color(style.colors.seal))
+                        .opacity(if self.hovered_section.as_deref() == Some(section.id) {
+                            1.0
+                        } else {
+                            0.0
+                        })
+                        .child("−")
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.apply_visual_structure(
+                                StructureEdit::RemoveSection { id: id.clone() },
+                                window,
+                                cx,
+                            );
+                        })),
+                ),
         );
-        for item in &section.items {
-            view = view.child(Self::item(item, style));
+        view = view.child(self.item_insert_control(section.id, 0, style, cx));
+        for (index, item) in section.items.iter().enumerate() {
+            view = view.child(self.item(item, section.id, index, style, cx));
+            view = view.child(self.item_insert_control(section.id, index + 1, style, cx));
         }
         view
     }
 
-    fn resume_page(&self) -> impl IntoElement {
+    fn resume_page(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
         let content = &self.model.content;
         let mm = 3.0;
@@ -320,13 +542,77 @@ impl ResumeOne {
                     .child(content.summary.clone()),
             );
         }
-        for section in &content.sections {
-            page = page.child(Self::section(section, style));
+        let sections = self.model.document.sections();
+        for summary in &sections {
+            if summary.id == "basics" {
+                continue;
+            }
+            page = page.child(self.module_insert_control(Some(summary.id.clone()), style, cx));
+            if let Some(section) = content
+                .sections
+                .iter()
+                .find(|section| section.id == summary.id)
+            {
+                page = page.child(self.section(section, style, cx));
+            } else {
+                let hover_id = summary.id.clone();
+                let id = summary.id.clone();
+                page = page.child(
+                    div()
+                        .id(gpui::SharedString::from(format!(
+                            "empty-title-{}",
+                            summary.id
+                        )))
+                        .relative()
+                        .mt_5()
+                        .text_size(px(style.typography.section_title.size_pt * 1.3))
+                        .text_color(color(style.colors.accent))
+                        .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                            if *hovering {
+                                this.hovered_section = Some(hover_id.clone());
+                            } else if this.hovered_section.as_deref() == Some(hover_id.as_str()) {
+                                this.hovered_section = None;
+                            }
+                            cx.notify();
+                        }))
+                        .child(label(&summary.id).to_owned())
+                        .child(
+                            div()
+                                .id(gpui::SharedString::from(format!(
+                                    "remove-empty-module-{id}"
+                                )))
+                                .absolute()
+                                .right_0()
+                                .top_0()
+                                .cursor_pointer()
+                                .text_size(px(12.0))
+                                .text_color(color(style.colors.seal))
+                                .opacity(
+                                    if self.hovered_section.as_deref() == Some(summary.id.as_str())
+                                    {
+                                        1.0
+                                    } else {
+                                        0.0
+                                    },
+                                )
+                                .child("−")
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.apply_visual_structure(
+                                        StructureEdit::RemoveSection { id: id.clone() },
+                                        window,
+                                        cx,
+                                    );
+                                })),
+                        ),
+                );
+                page = page.child(self.item_insert_control(&summary.id, 0, style, cx));
+            }
         }
+        page = page.child(self.module_insert_control(None, style, cx));
         page
     }
 
-    fn module_sidebar(&self) -> impl IntoElement {
+    fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
         let mut list = div()
             .id("module-list")
@@ -342,28 +628,61 @@ impl ResumeOne {
             Vec::new()
         };
         for (id, title) in SECTION_LABELS {
-            let count = sections
-                .iter()
-                .find(|section| section.id == *id)
-                .map_or(0, |section| section.count);
+            let existing = sections.iter().find(|section| section.id == *id);
+            let count = existing.map_or(0, |section| section.count);
+            let id = (*id).to_owned();
+            let selector = format!("module-{id}");
+            let selected = self.selected_module.as_deref() == Some(id.as_str())
+                || self.selected_item_module.as_deref() == Some(id.as_str());
             list = list.child(
                 div()
+                    .id(gpui::SharedString::from(selector.clone()))
+                    .debug_selector(move || selector.clone())
                     .flex()
                     .items_center()
                     .justify_between()
                     .px_3()
                     .py_2()
                     .rounded_md()
-                    .bg(rgb(0xffffff))
+                    .bg(if selected {
+                        color(self.active_style().colors.canvas)
+                    } else {
+                        rgb(0xffffff)
+                    })
+                    .cursor_pointer()
                     .text_size(px(12.0))
                     .text_color(rgb(0x464e47))
                     .child((*title).to_string())
-                    .child(
-                        div()
-                            .text_size(px(10.0))
-                            .text_color(accent)
-                            .child(count.to_string()),
-                    ),
+                    .child(div().text_size(px(10.0)).text_color(accent).child(
+                        if existing.is_some() {
+                            count.to_string()
+                        } else {
+                            "+".to_owned()
+                        },
+                    ))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if this.model.document.value.get(&id).is_some() {
+                            this.selected_item_module = (id != "basics").then_some(id.clone());
+                            this.selected_module = None;
+                            this.insertion_before = None;
+                            cx.notify();
+                            return;
+                        }
+                        if let Some(before) = this.insertion_before.clone() {
+                            this.apply_visual_structure(
+                                StructureEdit::InsertSection {
+                                    id: id.clone(),
+                                    before,
+                                },
+                                window,
+                                cx,
+                            );
+                        } else {
+                            this.selected_module = Some(id.clone());
+                            this.selected_item_module = None;
+                            cx.notify();
+                        }
+                    })),
             );
         }
         div()
@@ -416,6 +735,8 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::refresh_folder))
             .on_action(cx.listener(Self::toggle_source))
             .on_action(cx.listener(Self::format_json))
+            .on_action(cx.listener(Self::undo_visual_edit))
+            .on_action(cx.listener(Self::redo_visual_edit))
             .on_action(cx.listener(Self::save_json))
             .on_action(cx.listener(Self::save_json_as))
             .on_action(cx.listener(Self::export_pdf))
@@ -527,7 +848,7 @@ impl Render for ResumeOne {
                                         .flex()
                                         .justify_center()
                                         .when(self.model.preview_ready, |view| {
-                                            view.child(self.resume_page())
+                                            view.child(self.resume_page(cx))
                                         })
                                         .when(!self.model.preview_ready, |view| {
                                             view.child(
@@ -543,7 +864,7 @@ impl Render for ResumeOne {
                                 ),
                         )
                     })
-                    .child(self.module_sidebar()),
+                    .child(self.module_sidebar(cx)),
             )
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
     }
@@ -576,6 +897,7 @@ fn main() {
         gpui_component::init(cx);
         files::register(cx);
         editor_ui::register(cx);
+        structure_ui::register(cx);
         let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
         let quit_flush_target = quit_target.clone();
         cx.on_app_quit(move |cx| {
@@ -635,8 +957,173 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gpui::{Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point};
+    use gpui::{
+        EntityInputHandler as _, Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point,
+    };
     use gpui_component::RopeExt;
+
+    #[gpui::test]
+    fn visual_structure_edits_share_json_draft_and_undo_without_touching_disk(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("structure.json");
+        let disk = br#"{"basics":{"name":"A"},"work":[{"name":"B"}],"custom":{"keep":true}}"#;
+        std::fs::write(&path, disk).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.apply_visual_structure(
+                    StructureEdit::InsertSection {
+                        id: "skills".into(),
+                        before: Some("work".into()),
+                    },
+                    window,
+                    cx,
+                );
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(!app.source_mode);
+            assert!(app.editor.as_ref().unwrap().buffer.is_dirty());
+            assert_eq!(app.model.document.value["skills"], serde_json::json!([]));
+            assert_eq!(app.model.document.value["custom"]["keep"], true);
+            assert!(app.editor.as_ref().unwrap().store.load().unwrap().is_some());
+        });
+        assert_eq!(std::fs::read(&path).unwrap(), disk);
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.undo_visual_edit(&structure_ui::UndoVisualEdit, window, cx)
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.model.document.value.get("skills").is_none());
+            assert!(!app.editor.as_ref().unwrap().buffer.is_dirty());
+        });
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.redo_visual_edit(&structure_ui::RedoVisualEdit, window, cx)
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            });
+        });
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.source_mode);
+            let input = app.editor.as_ref().unwrap().input.read(cx);
+            assert!(input.value().contains("\"skills\": []"));
+        });
+        cx.update(|window, cx| {
+            let input = view.read(cx).editor.as_ref().unwrap().input.clone();
+            input.update(cx, |state, cx| {
+                let source = state
+                    .value()
+                    .replace("\"name\": \"A\"", "\"name\": \"Edited\"");
+                let length = state.value().chars().map(char::len_utf16).sum();
+                state.replace_text_in_range(Some(0..length), &source, window, cx);
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx);
+                app.undo_visual_edit(&structure_ui::UndoVisualEdit, window, cx);
+            });
+        });
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.content.name, "Edited");
+            assert_eq!(app.model.document.value["skills"], serde_json::json!([]));
+        });
+    }
+
+    #[gpui::test]
+    fn sidebar_and_paper_insertions_keep_right_pane_fixed(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("structure-clicks.json");
+        std::fs::write(&path, br#"{"basics":{"name":"A"},"work":[{"name":"B"}]}"#).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let sidebar = cx.debug_bounds("module-panel").unwrap();
+        let skill = cx.debug_bounds("module-skills").unwrap();
+        cx.simulate_click(
+            point(
+                skill.origin.x + skill.size.width / 2.0,
+                skill.origin.y + skill.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert_eq!(view.read(cx).selected_module.as_deref(), Some("skills")));
+        let target = cx.debug_bounds("add-module-before-work").unwrap();
+        cx.simulate_click(
+            point(
+                target.origin.x + target.size.width / 2.0,
+                target.origin.y + target.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.document.value["skills"], serde_json::json!([]));
+            let ids: Vec<_> = app
+                .model
+                .document
+                .sections()
+                .into_iter()
+                .map(|s| s.id)
+                .collect();
+            assert_eq!(ids, ["basics", "skills", "work"]);
+        });
+        assert_eq!(sidebar, cx.debug_bounds("module-panel").unwrap());
+        cx.update(|window, _| window.refresh());
+        let skill = cx.debug_bounds("module-skills").unwrap();
+        cx.simulate_click(
+            point(
+                skill.origin.x + skill.size.width / 2.0,
+                skill.origin.y + skill.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.update(|window, _| window.refresh());
+        let target = cx.debug_bounds("add-item-skills-0").unwrap();
+        cx.simulate_click(
+            point(
+                target.origin.x + target.size.width / 2.0,
+                target.origin.y + target.size.height / 2.0,
+            ),
+            Modifiers::none(),
+        );
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(
+                app.model.document.value["skills"].as_array().unwrap().len(),
+                1
+            );
+        });
+        assert_eq!(sidebar, cx.debug_bounds("module-panel").unwrap());
+    }
 
     #[gpui::test]
     fn json_openers_pair_and_undo_as_one_edit(cx: &mut TestAppContext) {

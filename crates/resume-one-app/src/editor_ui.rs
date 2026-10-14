@@ -145,6 +145,12 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.visual_undo.clear();
+        self.visual_redo.clear();
+        self.insertion_before = None;
+        self.selected_module = None;
+        self.selected_item_module = None;
+        self.recovery_pending = false;
         let Some(editor) = &mut self.editor else {
             return;
         };
@@ -451,33 +457,20 @@ impl ResumeOne {
         }
         cx.notify();
     }
-    pub(super) fn toggle_source(
-        &mut self,
-        _: &ToggleSource,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        self.files.open = false;
-        self.hovered_theme = None;
-        if self.source_mode {
-            self.source_mode = false;
-            window.focus(&self.focus);
-            cx.notify();
-            return;
-        }
+    pub(super) fn ensure_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
         if self.editor.is_none() {
             let root = match drafts_root() {
                 Ok(root) => root,
                 Err(message) => {
                     self.editor_warning("无法进入编辑", &message, window, cx);
-                    return;
+                    return false;
                 }
             };
             let buffer = match ResumeBuffer::new(self.model.opened_source.clone()) {
                 Ok(buffer) => buffer,
                 Err(issue) => {
                     self.editor_warning("无法进入编辑", &issue.message, window, cx);
-                    return;
+                    return false;
                 }
             };
             let display = buffer
@@ -508,6 +501,26 @@ impl ResumeOne {
             });
             self.prompt_recovery(window, cx);
         }
+        true
+    }
+
+    pub(super) fn toggle_source(
+        &mut self,
+        _: &ToggleSource,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.files.open = false;
+        self.hovered_theme = None;
+        if self.source_mode {
+            self.source_mode = false;
+            window.focus(&self.focus);
+            cx.notify();
+            return;
+        }
+        if !self.ensure_editor(window, cx) {
+            return;
+        }
         apply_editor_theme(self.model.selected_style(), cx);
         self.source_mode = true;
         if let Some(editor) = &self.editor {
@@ -522,6 +535,7 @@ impl ResumeOne {
         let generation = editor.generation;
         match editor.store.load() {
             Ok(Some(draft)) => {
+                self.recovery_pending = true;
                 let choice = window.prompt(
                     PromptLevel::Info,
                     "发现未保存的编辑草稿",
@@ -531,16 +545,17 @@ impl ResumeOne {
                 );
                 cx.spawn_in(window, async move |this, cx| {
                     let answer = choice.await.ok();
-                    if answer == Some(0) {
-                        this.update_in(cx, |this, window, cx| {
-                            if this.editor.as_ref().is_some_and(|editor| {
-                                editor.input == input && editor.generation == generation
-                            }) {
+                    this.update_in(cx, |this, window, cx| {
+                        if this.editor.as_ref().is_some_and(|editor| {
+                            editor.input == input && editor.generation == generation
+                        }) {
+                            this.recovery_pending = false;
+                            if answer == Some(0) {
                                 this.restore_draft(draft, window, cx);
                             }
-                        })
-                        .ok();
-                    }
+                        }
+                    })
+                    .ok();
                 })
                 .detach();
             }

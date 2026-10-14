@@ -4,11 +4,13 @@ mod editor_ui;
 mod export_ui;
 mod files;
 mod model;
+mod motion;
 mod structure_ui;
 mod theme_local;
 mod workspace;
 
 use std::path::Path;
+use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
 use gpui::{
@@ -53,6 +55,8 @@ struct ResumeOne {
     files: files::FileUi,
     preview_scroll: ScrollHandle,
     source_mode: bool,
+    sidebar_progress: f32,
+    mode_transition: Option<motion::ModeTransition>,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
     theme_store: Option<theme_local::ThemeStore>,
@@ -79,6 +83,8 @@ impl ResumeOne {
             files,
             preview_scroll: ScrollHandle::new(),
             source_mode: false,
+            sidebar_progress: 0.0,
+            mode_transition: None,
             editor: None,
             export_busy: false,
             theme_store: None,
@@ -98,13 +104,34 @@ impl ResumeOne {
             .map_or_else(|| self.model.selected_style(), |theme| &theme.style)
     }
 
+    fn begin_mode_transition(&mut self) {
+        let target = if self.source_mode { 1.0 } else { 0.0 };
+        self.mode_transition = Some(motion::ModeTransition::new(
+            self.sidebar_progress,
+            target,
+            Instant::now(),
+        ));
+    }
+
+    fn advance_mode_transition(&mut self, _: &mut Window, cx: &mut Context<Self>) {
+        let Some(transition) = &self.mode_transition else {
+            return;
+        };
+        let (progress, complete) = transition.sample(Instant::now());
+        self.sidebar_progress = progress;
+        if complete {
+            self.mode_transition = None;
+        }
+        cx.notify();
+    }
+
     fn quit(&mut self, _: &files::Quit, window: &mut Window, cx: &mut Context<Self>) {
         if self.confirm_close(window, cx) {
             window.remove_window();
         }
     }
 
-    fn theme_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn theme_sidebar(&self, width: f32, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
         let warnings = self
             .theme_store
@@ -189,11 +216,12 @@ impl ResumeOne {
         div()
             .id("theme-panel")
             .debug_selector(|| "theme-panel".to_string())
-            .w(px(206.0))
+            .w(px(width))
             .h_full()
             .flex_none()
             .flex()
             .flex_col()
+            .overflow_hidden()
             .border_r_1()
             .border_color(rgb(0xe4e7e1))
             .bg(rgb(0xf6f7f3))
@@ -737,6 +765,44 @@ impl ResumeOne {
             }))
     }
 
+    fn preview_surface(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let style = self.active_style();
+        div()
+            .id("resume-preview")
+            .debug_selector(|| "resume-preview".to_string())
+            .w_full()
+            .h_full()
+            .overflow_scroll()
+            .track_scroll(&self.preview_scroll)
+            .bg(color(style.colors.canvas))
+            .child(
+                div()
+                    .w_full()
+                    .min_w(px(style.page.width_mm * 3.0 + 64.0))
+                    .py_8()
+                    .flex()
+                    .justify_center()
+                    .when(self.model.preview_ready, |view| {
+                        view.child(self.resume_page(cx))
+                    })
+                    .when(!self.model.preview_ready, |view| {
+                        view.child(
+                            div()
+                                .w(px(style.page.width_mm * 3.0))
+                                .min_h(px(style.page.height_mm * 3.0))
+                                .flex()
+                                .items_center()
+                                .justify_center()
+                                .bg(color(style.colors.paper))
+                                .shadow_lg()
+                                .text_size(px(14.0))
+                                .text_color(color(style.colors.muted))
+                                .child("简历尚未通过校验，请切换到 JSON 编辑修复。"),
+                        )
+                    }),
+            )
+    }
+
     fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
         let mut list = div()
@@ -896,7 +962,16 @@ impl ResumeOne {
 }
 
 impl Render for ResumeOne {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        if self.mode_transition.is_some() {
+            cx.on_next_frame(window, |this, window, cx| {
+                this.advance_mode_transition(window, cx)
+            });
+            window.request_animation_frame();
+        }
+        let progress = self.sidebar_progress;
+        let preview_alpha = (1.0 - progress / 0.55).clamp(0.0, 1.0);
+        let json_alpha = ((progress - 0.45) / 0.55).clamp(0.0, 1.0);
         let style = self.active_style();
         div()
             .relative()
@@ -1011,43 +1086,37 @@ impl Render for ResumeOne {
                     .flex()
                     .flex_1()
                     .min_h_0()
-                    .when(!self.source_mode, |view| view.child(self.theme_sidebar(cx)))
-                    .when(self.source_mode, |view| view.child(self.json_editor()))
-                    .when(!self.source_mode, |view| {
-                        view.child(
-                            div()
-                                .id("resume-preview")
-                                .debug_selector(|| "resume-preview".to_string())
-                                .flex_1()
-                                .min_w_0()
-                                .h_full()
-                                .overflow_scroll()
-                                .track_scroll(&self.preview_scroll)
-                                .bg(color(style.colors.canvas))
-                                .child(
-                                    div()
-                                        .w_full()
-                                        .min_w(px(style.page.width_mm * 3.0 + 64.0))
-                                        .py_8()
-                                        .flex()
-                                        .justify_center()
-                                        .when(self.model.preview_ready, |view| {
-                                            view.child(self.resume_page(cx))
-                                        })
-                                        .when(!self.model.preview_ready, |view| {
-                                            view.child(
-                                        div().w(px(style.page.width_mm * 3.0))
-                                            .min_h(px(style.page.height_mm * 3.0))
-                                            .flex().items_center().justify_center()
-                                            .bg(color(style.colors.paper)).shadow_lg()
-                                            .text_size(px(14.0))
-                                            .text_color(color(style.colors.muted))
-                                            .child("简历尚未通过校验，请切换到 JSON 编辑修复。"),
-                                    )
-                                        }),
-                                ),
-                        )
+                    .when(progress < 1.0 || !self.source_mode, |view| {
+                        view.child(self.theme_sidebar(motion::THEME_WIDTH * (1.0 - progress), cx))
                     })
+                    .child(
+                        div()
+                            .relative()
+                            .flex_1()
+                            .min_w_0()
+                            .h_full()
+                            .overflow_hidden()
+                            .bg(color(style.colors.canvas))
+                            .when(progress < 1.0 || !self.source_mode, |surface| {
+                                surface.child(
+                                    div()
+                                        .absolute()
+                                        .size_full()
+                                        .opacity(preview_alpha)
+                                        .child(self.preview_surface(cx)),
+                                )
+                            })
+                            .when(progress > 0.0 || self.source_mode, |surface| {
+                                surface.child(
+                                    div()
+                                        .absolute()
+                                        .size_full()
+                                        .flex()
+                                        .opacity(json_alpha)
+                                        .child(self.json_editor()),
+                                )
+                            }),
+                    )
                     .child(self.module_sidebar(cx)),
             )
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
@@ -1482,7 +1551,25 @@ mod tests {
                 app.toggle_source(&editor_ui::ToggleSource, window, cx)
             });
         });
-        cx.update(|window, _| window.refresh());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.sidebar_progress = 0.5;
+                app.mode_transition = None;
+                cx.notify();
+            });
+            window.refresh();
+        });
+        let middle_theme = cx.debug_bounds("theme-panel").unwrap();
+        assert!(middle_theme.size.width >= px(102.0));
+        assert!(middle_theme.size.width <= px(104.0));
+        assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.sidebar_progress = 1.0;
+                cx.notify();
+            });
+            window.refresh();
+        });
         cx.update(|_, cx| assert!(view.read(cx).source_mode));
         let source = cx.debug_bounds("resume-json-editor").unwrap();
         assert_eq!(source.left(), px(0.0));
@@ -1494,7 +1581,25 @@ mod tests {
                 app.toggle_source(&editor_ui::ToggleSource, window, cx)
             });
         });
-        cx.update(|window, _| window.refresh());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.sidebar_progress = 0.5;
+                app.mode_transition = None;
+                cx.notify();
+            });
+            window.refresh();
+        });
+        let middle_theme = cx.debug_bounds("theme-panel").unwrap();
+        assert!(middle_theme.size.width >= px(102.0));
+        assert!(middle_theme.size.width <= px(104.0));
+        assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.sidebar_progress = 0.0;
+                cx.notify();
+            });
+            window.refresh();
+        });
         cx.update(|_, cx| assert!(!view.read(cx).source_mode));
         let preview = cx.debug_bounds("resume-preview").unwrap();
         assert_eq!(preview.left(), px(206.0));

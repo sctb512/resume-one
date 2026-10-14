@@ -521,6 +521,7 @@ impl ResumeOne {
         self.hovered_theme = None;
         if self.source_mode {
             self.source_mode = false;
+            self.begin_mode_transition();
             window.focus(&self.focus);
             cx.notify();
             return;
@@ -530,6 +531,7 @@ impl ResumeOne {
         }
         apply_editor_theme(self.model.selected_style(), cx);
         self.source_mode = true;
+        self.begin_mode_transition();
         if let Some(editor) = &self.editor {
             editor.input.update(cx, |state, cx| state.focus(window, cx));
         }

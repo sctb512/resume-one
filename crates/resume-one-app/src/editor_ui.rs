@@ -179,6 +179,10 @@ impl ResumeOne {
     }
 
     pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        if self.export_busy {
+            self.editor_warning("导出中", "请等待导出完成再关闭窗口", window, cx);
+            return false;
+        }
         let Some(editor) = &self.editor else {
             return true;
         };

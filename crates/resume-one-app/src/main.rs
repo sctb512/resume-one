@@ -1,6 +1,7 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 mod editor_ui;
+mod export_ui;
 mod files;
 mod model;
 mod workspace;
@@ -50,6 +51,7 @@ struct ResumeOne {
     preview_scroll: ScrollHandle,
     source_mode: bool,
     editor: Option<editor_ui::EditorUi>,
+    export_busy: bool,
 }
 
 impl ResumeOne {
@@ -66,6 +68,7 @@ impl ResumeOne {
             preview_scroll: ScrollHandle::new(),
             source_mode: false,
             editor: None,
+            export_busy: false,
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -388,6 +391,10 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::format_json))
             .on_action(cx.listener(Self::save_json))
             .on_action(cx.listener(Self::save_json_as))
+            .on_action(cx.listener(Self::export_pdf))
+            .on_action(cx.listener(Self::export_docx))
+            .on_action(cx.listener(Self::export_text))
+            .on_action(cx.listener(Self::export_markdown))
             .on_action(cx.listener(Self::quit))
             .bg(rgb(0xf5f5f1))
             .child(

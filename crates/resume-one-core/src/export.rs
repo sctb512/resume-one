@@ -36,6 +36,16 @@ pub fn write_export(
             return Err(issue("SAME_FILE", "导出目标不能是原始简历文件"));
         }
     }
+    write_export_unnamed(output, bytes, overwrite)
+}
+
+/// Export a not-yet-saved example resume. The caller has no source file to
+/// protect, but the destination still uses the same no-clobber semantics.
+pub fn write_export_unnamed(
+    output: &Path,
+    bytes: &[u8],
+    overwrite: bool,
+) -> Result<(), ExportError> {
     if overwrite {
         let mut writer =
             AtomicWriteFile::open(output).map_err(|err| issue("EXPORT_IO", err.to_string()))?;
@@ -98,5 +108,21 @@ mod tests {
             "SAME_FILE"
         );
         assert_eq!(fs::read(&source).unwrap(), b"{}");
+    }
+
+    #[test]
+    fn unnamed_export_also_requires_explicit_overwrite() {
+        let dir = tempfile::tempdir().unwrap();
+        let output = dir.path().join("resume.txt");
+        write_export_unnamed(&output, b"first", false).unwrap();
+        assert_eq!(
+            write_export_unnamed(&output, b"second", false)
+                .unwrap_err()
+                .code,
+            "FILE_EXISTS"
+        );
+        assert_eq!(fs::read(&output).unwrap(), b"first");
+        write_export_unnamed(&output, b"second", true).unwrap();
+        assert_eq!(fs::read(&output).unwrap(), b"second");
     }
 }

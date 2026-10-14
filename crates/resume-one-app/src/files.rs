@@ -6,6 +6,7 @@ use gpui::{
 };
 
 use crate::editor_ui::{Save, SaveAs, ToggleSource};
+use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
 use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
@@ -73,6 +74,11 @@ pub(super) fn register(cx: &mut App) {
                 MenuItem::action("保存", Save),
                 MenuItem::action("另存为…", SaveAs),
                 MenuItem::separator(),
+                MenuItem::action("导出 PDF…", ExportPdf),
+                MenuItem::action("导出 DOCX…", ExportDocx),
+                MenuItem::action("导出纯文本…", ExportText),
+                MenuItem::action("导出 Markdown…", ExportMarkdown),
+                MenuItem::separator(),
                 MenuItem::action("切换文件", ToggleFiles),
                 MenuItem::action("刷新目录", RefreshFolder),
                 MenuItem::action("切换源码与预览", ToggleSource),
@@ -96,7 +102,10 @@ impl ResumeOne {
     }
 
     fn prompt_path(&mut self, directory: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if self.files.busy || self.editor.as_ref().is_some_and(|editor| editor.saving) {
+        if self.files.busy
+            || self.export_busy
+            || self.editor.as_ref().is_some_and(|editor| editor.saving)
+        {
             return;
         }
         self.files.busy = true;
@@ -138,7 +147,10 @@ impl ResumeOne {
     }
 
     pub(super) fn load_path(&mut self, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
-        if self.files.busy || self.editor.as_ref().is_some_and(|editor| editor.saving) {
+        if self.files.busy
+            || self.export_busy
+            || self.editor.as_ref().is_some_and(|editor| editor.saving)
+        {
             return;
         }
         self.files.busy = true;

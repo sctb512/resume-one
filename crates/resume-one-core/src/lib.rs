@@ -21,6 +21,7 @@ pub mod render;
 pub mod resume;
 pub mod semantic;
 pub mod storage;
+pub mod structure;
 pub mod theme_style;
 
 const MAX_THEME_BYTES: usize = 1_048_576;

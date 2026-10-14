@@ -15,6 +15,8 @@ use resume_one_core::resume::{
 };
 use resume_one_core::semantic::project;
 use resume_one_core::storage::patch_resume;
+use resume_one_core::storage::replace_resume;
+use resume_one_core::structure::{StructureEdit, apply_structure};
 use serde_json::{Value, json};
 use tempfile::Builder;
 
@@ -71,6 +73,17 @@ enum Command {
         #[arg(long)]
         dry_run: bool,
     },
+    /// 按模块和条目安全修改结构，不读取或输出简历正文
+    Structure {
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long = "if-match")]
+        if_match: String,
+        #[arg(long)]
+        dry_run: bool,
+        #[command(subcommand)]
+        operation: StructureCommand,
+    },
     /// 导出 PDF、DOCX、UTF-8 纯文本或 Markdown
     Export {
         #[arg(long)]
@@ -103,6 +116,30 @@ enum ExportFormat {
 enum ExportLanguage {
     Zh,
     En,
+}
+
+#[derive(Subcommand)]
+enum StructureCommand {
+    /// 在指定模块前插入空模块；未指定位置时追加到末尾
+    AddModule {
+        id: String,
+        #[arg(long)]
+        before: Option<String>,
+    },
+    /// 移除整个模块及其条目
+    RemoveModule { id: String },
+    /// 在零基位置插入空条目
+    AddItem {
+        id: String,
+        #[arg(long)]
+        index: usize,
+    },
+    /// 移除零基位置的一个条目
+    RemoveItem {
+        id: String,
+        #[arg(long)]
+        index: usize,
+    },
 }
 
 #[derive(Debug)]
@@ -379,6 +416,75 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 "changedPaths": outcome.changed_paths,
                 "valid": true,
                 "dryRun": outcome.dry_run
+            }))
+        }
+        Command::Structure {
+            file,
+            if_match,
+            dry_run,
+            operation,
+        } => {
+            if !if_match.starts_with("sha256:")
+                || if_match.len() != 71
+                || !if_match[7..].bytes().all(|byte| byte.is_ascii_hexdigit())
+            {
+                return Err(AppError::new(
+                    2,
+                    "INVALID_REVISION",
+                    "if-match 必须是 sha256: 后接 64 位十六进制摘要",
+                )
+                .file(&file));
+            }
+            let document = load(&file)?;
+            if document.revision != if_match {
+                let mut error = AppError::new(
+                    4,
+                    "REVISION_CONFLICT",
+                    "文件已被其他进程或同步服务修改；未覆盖外部内容",
+                )
+                .file(&file);
+                error.revision = Some(document.revision);
+                return Err(error);
+            }
+            let edit = match operation {
+                StructureCommand::AddModule { id, before } => {
+                    StructureEdit::InsertSection { id, before }
+                }
+                StructureCommand::RemoveModule { id } => StructureEdit::RemoveSection { id },
+                StructureCommand::AddItem { id, index } => StructureEdit::InsertItem { id, index },
+                StructureCommand::RemoveItem { id, index } => {
+                    StructureEdit::RemoveItem { id, index }
+                }
+            };
+            let changed_path = match &edit {
+                StructureEdit::InsertSection { id, .. } | StructureEdit::RemoveSection { id } => {
+                    format!("/{id}")
+                }
+                StructureEdit::InsertItem { id, index }
+                | StructureEdit::RemoveItem { id, index } => format!("/{id}/{index}"),
+            };
+            let next = apply_structure(&document, &edit)
+                .map_err(|error| AppError::new(3, error.code, error.message).file(&file))?;
+            if !dry_run {
+                replace_resume(&file, &next.source, &if_match).map_err(|error| {
+                    let exit = match error.code {
+                        "REVISION_CONFLICT" => 4,
+                        "RESUME_IO" => 5,
+                        "INVALID_REVISION" => 2,
+                        _ => 3,
+                    };
+                    let mut output = AppError::new(exit, error.code, error.message).file(&file);
+                    output.revision = error.current_revision;
+                    output
+                })?;
+            }
+            Ok(json!({
+                "file": file,
+                "previousRevision": document.revision,
+                "revision": next.revision,
+                "changedPaths": [changed_path],
+                "valid": true,
+                "dryRun": dry_run
             }))
         }
         Command::Export {

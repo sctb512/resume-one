@@ -154,6 +154,108 @@ fn patch_dry_run_commit_conflict_and_rollback() {
 }
 
 #[test]
+fn structure_commands_are_revision_guarded_and_preserve_unknown_fields() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    fs::write(
+        &file,
+        r#"{"basics":{"name":"Private"},"custom":{"html":"<br>"},"work":[{"name":"A"}],"education":[{}]}"#,
+    )
+    .unwrap();
+    let (_, inspected) = call(&["inspect", "--file", path(&file), "--json"]);
+    let revision = inspected["result"]["revision"].as_str().unwrap();
+    let original = fs::read(&file).unwrap();
+    let (_, preview) = call(&[
+        "structure",
+        "--file",
+        path(&file),
+        "--if-match",
+        revision,
+        "--dry-run",
+        "add-module",
+        "skills",
+        "--before",
+        "education",
+        "--json",
+    ]);
+    assert_eq!(preview["result"]["changedPaths"], json!(["/skills"]));
+    assert_eq!(preview["result"]["dryRun"], true);
+    assert!(!preview.to_string().contains("Private"));
+    assert_eq!(fs::read(&file).unwrap(), original);
+    assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+    let (_, added) = call(&[
+        "structure",
+        "--file",
+        path(&file),
+        "--if-match",
+        revision,
+        "add-module",
+        "skills",
+        "--before",
+        "education",
+        "--json",
+    ]);
+    assert_eq!(added["result"]["revision"], preview["result"]["revision"]);
+    let after: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+    assert_eq!(after["custom"]["html"], "<br>");
+    let keys: Vec<_> = after
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect();
+    assert_eq!(keys, ["basics", "custom", "work", "skills", "education"]);
+
+    let (conflict, error) = call(&[
+        "structure",
+        "--file",
+        path(&file),
+        "--if-match",
+        revision,
+        "add-item",
+        "work",
+        "--index",
+        "1",
+        "--json",
+    ]);
+    assert_eq!(conflict.status.code(), Some(4));
+    assert_eq!(error["error"]["code"], "REVISION_CONFLICT");
+    let next_revision = added["result"]["revision"].as_str().unwrap();
+    let (_, item) = call(&[
+        "structure",
+        "--file",
+        path(&file),
+        "--if-match",
+        next_revision,
+        "add-item",
+        "work",
+        "--index",
+        "1",
+        "--json",
+    ]);
+    assert_eq!(item["result"]["changedPaths"], json!(["/work/1"]));
+    let with_item: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+    assert_eq!(with_item["work"], json!([{"name":"A"}, {}]));
+    let unchanged = fs::read(&file).unwrap();
+    let current = item["result"]["revision"].as_str().unwrap();
+    let (bad, error) = call(&[
+        "structure",
+        "--file",
+        path(&file),
+        "--if-match",
+        current,
+        "remove-item",
+        "work",
+        "--index",
+        "9",
+        "--json",
+    ]);
+    assert_eq!(bad.status.code(), Some(3));
+    assert_eq!(error["error"]["code"], "ITEM_INDEX");
+    assert_eq!(fs::read(&file).unwrap(), unchanged);
+}
+
+#[test]
 fn validates_errors_and_json_arguments_without_leaking_body() {
     let root = tempfile::tempdir().unwrap();
     let file = root.path().join("invalid.json");

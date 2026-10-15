@@ -17,6 +17,7 @@ pub mod docx;
 pub mod draft;
 pub mod editor;
 pub mod export;
+pub mod layout;
 pub mod pdf;
 pub mod render;
 pub mod resume;

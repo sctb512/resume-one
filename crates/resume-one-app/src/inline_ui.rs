@@ -26,6 +26,7 @@ pub(super) struct InlineUi {
 pub(super) struct InlineForm {
     pub section: String,
     pub index: Option<usize>,
+    pub page: Option<usize>,
     fields: Vec<Field>,
     list_keys: &'static [&'static str],
     profile_count: usize,
@@ -128,6 +129,7 @@ impl ResumeOne {
         &mut self,
         section: &str,
         index: Option<usize>,
+        page: usize,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -150,6 +152,9 @@ impl ResumeOne {
                     && !this.inline_focused(window, cx)
                 {
                     this.open_inline(&section, index, window, cx);
+                    if let Some(form) = &mut this.inline.form {
+                        form.page = Some(page);
+                    }
                 }
             })
             .ok();
@@ -238,6 +243,7 @@ impl ResumeOne {
         self.inline.form = Some(InlineForm {
             section: section.into(),
             index,
+            page: None,
             fields,
             list_keys: list_fields(section),
             profile_count: profiles.map_or(0, Vec::len),
@@ -439,6 +445,7 @@ impl ResumeOne {
         };
         let section = form.section.clone();
         let index = form.index;
+        let page = form.page;
         if self
             .visual_undo
             .last()
@@ -465,6 +472,9 @@ impl ResumeOne {
                     }
                     this.clear_inline();
                     this.open_inline(&section, index, window, cx);
+                    if let Some(form) = &mut this.inline.form {
+                        form.page = page;
+                    }
                     this.inline.scroll.set_offset(retained_offset);
                     this.inline.form_hovered = retained_hover;
                     if let Some((key, list_index)) = focus {

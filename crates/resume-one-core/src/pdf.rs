@@ -136,6 +136,7 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
                             },
                         },
                     ]),
+                    LayoutElement::Anchor(_) => {}
                 }
             }
             PdfPage::new(Mm(layout.width_mm), Mm(layout.height_mm), ops)

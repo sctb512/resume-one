@@ -25,6 +25,19 @@ impl FontKind {
             Self::Serif => "Noto Serif SC",
         }
     }
+
+    /// Ascender and positive descender in em units for hit-region construction.
+    pub fn vertical_metrics(self) -> (f32, f32) {
+        let bytes = match self {
+            Self::Sans => SANS_FONT_BYTES,
+            Self::Serif => SERIF_FONT_BYTES,
+        };
+        let face = Face::parse(bytes, 0).expect("validated bundled font");
+        (
+            face.ascender() as f32 / face.units_per_em() as f32,
+            -(face.descender() as f32) / face.units_per_em() as f32,
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -36,6 +49,19 @@ pub struct LayoutText {
     pub leading_pt: f32,
     pub color: Rgb,
     pub font: FontKind,
+    pub target: Option<LayoutTarget>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LayoutTarget {
+    pub section: &'static str,
+    pub index: Option<usize>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct LayoutAnchor {
+    pub target: LayoutTarget,
+    pub y_pt: f32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -51,6 +77,7 @@ pub struct LayoutRule {
 pub enum LayoutElement {
     Text(LayoutText),
     Rule(LayoutRule),
+    Anchor(LayoutAnchor),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -74,6 +101,7 @@ struct PageWriter<'a> {
     top: f32,
     bottom: f32,
     muted: Rgb,
+    target: Option<LayoutTarget>,
 }
 
 impl<'a> PageWriter<'a> {
@@ -94,10 +122,22 @@ impl<'a> PageWriter<'a> {
             top,
             bottom: style.page.margins.bottom * PT_PER_MM,
             muted: style.colors.muted,
+            target: Some(LayoutTarget {
+                section: "basics",
+                index: None,
+            }),
         }
     }
     fn content_width(&self) -> f32 {
         self.width - self.left - self.right
+    }
+
+    fn mark(&mut self, target: LayoutTarget) {
+        self.target = Some(target);
+        self.ops.push(LayoutElement::Anchor(LayoutAnchor {
+            target,
+            y_pt: self.y,
+        }));
     }
 
     fn face(&self, kind: FontKind) -> &Face<'a> {
@@ -138,6 +178,7 @@ impl<'a> PageWriter<'a> {
             leading_pt: leading,
             color,
             font: kind,
+            target: self.target,
         }));
         self.y -= leading;
     }
@@ -233,6 +274,7 @@ impl<'a> PageWriter<'a> {
                 leading_pt: 8.0,
                 color: self.muted,
                 font: FontKind::Sans,
+                target: None,
             }));
         }
         self.pages
@@ -240,13 +282,13 @@ impl<'a> PageWriter<'a> {
 }
 fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
     if style.tracking_em != 0.0 {
-        return Err("PDF 暂不支持主题 typography.trackingEm；请设为 0".into());
+        return Err("当前排版引擎暂不支持 typography.trackingEm；请设为 0".into());
     }
     match (style.family.as_str(), style.weight) {
         ("cjk-sans" | "system-sans", 400) => Ok(FontKind::Sans),
         ("cjk-serif" | "system-serif", 600) => Ok(FontKind::Serif),
         _ => Err(format!(
-            "PDF 暂不支持字体组合 {} / {}；当前支持 cjk-sans 400 和 cjk-serif 600",
+            "当前排版引擎暂不支持字体组合 {} / {}；当前支持 cjk-sans 400 和 cjk-serif 600",
             style.family, style.weight
         )),
     }
@@ -268,25 +310,27 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             .as_object()
             .is_some_and(|value| !value.is_empty())
     {
-        return Err("PDF 暂不支持该 composition 布局；仅支持单栏、堆叠页眉与行内联系方式".into());
+        return Err(
+            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠页眉与行内联系方式".into(),
+        );
     }
     if source["sections"]
         .as_object()
         .is_some_and(|value| !value.is_empty())
     {
-        return Err("PDF 暂不支持 sections 自定义模块构件".into());
+        return Err("当前排版引擎暂不支持 sections 自定义模块构件".into());
     }
     if source["decorations"]
         .as_object()
         .is_some_and(|value| !value.is_empty())
     {
-        return Err("PDF 暂不支持 decorations 自定义装饰".into());
+        return Err("当前排版引擎暂不支持 decorations 自定义装饰".into());
     }
     if source["assets"]["fonts"]
         .as_array()
         .is_some_and(|value| !value.is_empty())
     {
-        return Err("PDF 暂不支持主题自带字体 assets.fonts".into());
+        return Err("当前排版引擎暂不支持主题自带字体 assets.fonts".into());
     }
     for text_style in [
         &style.typography.body,
@@ -427,11 +471,15 @@ fn layout_with_style(
             })
     {
         return Err(format!(
-            "内置 PDF 字体缺少 U+{:04X} 字形，无法保证内容完整",
+            "内置字体缺少 U+{:04X} 字形，无法保证内容完整",
             character as u32
         ));
     }
     let mut page = PageWriter::new(sans_face, serif_face, style);
+    page.mark(LayoutTarget {
+        section: "basics",
+        index: None,
+    });
     let body = &style.typography.body;
     let name = &style.typography.name;
     let section = &style.typography.section_title;
@@ -501,6 +549,10 @@ fn layout_with_style(
             );
         }
         page.gap(section_gap);
+        page.mark(LayoutTarget {
+            section: section_content.id,
+            index: None,
+        });
         page.line(
             title(section_content.id, language),
             section.size_pt,
@@ -509,11 +561,15 @@ fn layout_with_style(
             0.0,
             section.size_pt * section.line_height + 4.0,
         );
-        for item in &section_content.items {
+        for (index, item) in section_content.items.iter().enumerate() {
             if style.page.avoid_split_items {
                 let height = item_height(&page, item, section_content.id, style);
                 page.ensure(height);
             }
+            page.mark(LayoutTarget {
+                section: section_content.id,
+                index: Some(index),
+            });
             page.gap(4.0);
             if !item.heading.is_empty() {
                 page.wrapped(

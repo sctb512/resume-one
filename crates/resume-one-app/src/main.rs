@@ -6,6 +6,7 @@ mod files;
 mod inline_ui;
 mod model;
 mod motion;
+mod preview_ui;
 mod structure_ui;
 mod theme_local;
 mod workspace;
@@ -15,11 +16,10 @@ use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
 use gpui::{
-    App, Application, Bounds, Context, FocusHandle, FontWeight, IntoElement, MouseButton, Render,
-    ScrollHandle, Window, WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
+    App, Application, Bounds, Context, FocusHandle, IntoElement, MouseButton, Render, ScrollHandle,
+    Window, WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
 };
 use model::AppModel;
-use resume_one_core::semantic::{Item, Section};
 use resume_one_core::structure::StructureEdit;
 use resume_one_core::theme_style::{Rgb, ThemeStyle};
 
@@ -70,6 +70,7 @@ struct ResumeOne {
     visual_redo: Vec<(String, String)>,
     recovery_pending: bool,
     inline: inline_ui::InlineUi,
+    preview: preview_ui::PreviewState,
 }
 
 impl ResumeOne {
@@ -99,6 +100,7 @@ impl ResumeOne {
             visual_redo: Vec::new(),
             recovery_pending: false,
             inline: inline_ui::InlineUi::default(),
+            preview: preview_ui::PreviewState::new(cx),
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -262,135 +264,6 @@ impl ResumeOne {
             .child(list)
     }
 
-    fn item(
-        &self,
-        item: &Item,
-        section_id: &str,
-        index: usize,
-        style: &ThemeStyle,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
-        let hover_id = section_id.to_owned();
-        let click_id = section_id.to_owned();
-        let keyboard_id = section_id.to_owned();
-        let id = section_id.to_owned();
-        let mut view = div()
-            .id(gpui::SharedString::from(format!(
-                "preview-item-{section_id}-{index}"
-            )))
-            .relative()
-            .focusable()
-            .tab_index(0)
-            .key_context("PreviewItem")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .mb_2()
-            .pr_5()
-            .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
-                let target = (hover_id.clone(), index);
-                if *hovering {
-                    this.hovered_item = Some(target);
-                    this.schedule_inline(&hover_id, Some(index), window, cx);
-                } else if this.hovered_item.as_ref() == Some(&target) {
-                    this.hovered_item = None;
-                }
-                cx.notify();
-            }))
-            .on_click(cx.listener(move |this, _, window, cx| {
-                this.open_inline(&click_id, Some(index), window, cx);
-            }))
-            .on_action(
-                cx.listener(move |this, _: &inline_ui::OpenInline, window, cx| {
-                    this.open_inline(&keyboard_id, Some(index), window, cx);
-                    this.focus_inline_first(window, cx);
-                }),
-            )
-            .child(
-                div()
-                    .id(gpui::SharedString::from(format!(
-                        "remove-item-{section_id}-{index}"
-                    )))
-                    .absolute()
-                    .right_0()
-                    .top_0()
-                    .px_2()
-                    .rounded_sm()
-                    .cursor_pointer()
-                    .opacity(
-                        if self.hovered_item.as_ref() == Some(&(id.clone(), index)) {
-                            1.0
-                        } else {
-                            0.0
-                        },
-                    )
-                    .text_color(color(style.colors.seal))
-                    .child("−")
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        cx.stop_propagation();
-                        this.apply_visual_structure(
-                            StructureEdit::RemoveItem {
-                                id: id.clone(),
-                                index,
-                            },
-                            window,
-                            cx,
-                        );
-                    })),
-            );
-        if !item.heading.is_empty() {
-            view = view.child(
-                div()
-                    .text_size(px(style.typography.body.size_pt * 1.3))
-                    .text_color(color(style.colors.ink))
-                    .child(item.heading.clone()),
-            );
-        }
-        for detail in &item.details {
-            view = view.child(
-                div()
-                    .text_size(px(style.typography.meta.size_pt * 1.3))
-                    .text_color(color(style.colors.muted))
-                    .child(detail.clone()),
-            );
-        }
-        for paragraph in &item.paragraphs {
-            view = view.child(
-                div()
-                    .text_size(px(style.typography.body.size_pt * 1.3))
-                    .line_height(px(style.typography.body.size_pt
-                        * 1.3
-                        * style.typography.body.line_height))
-                    .text_color(color(style.colors.ink))
-                    .child(paragraph.clone()),
-            );
-        }
-        for bullet in &item.bullets {
-            view = view.child(
-                div()
-                    .text_size(px(style.typography.body.size_pt * 1.3))
-                    .text_color(color(style.colors.ink))
-                    .child(format!("· {bullet}")),
-            );
-        }
-        if item.heading.is_empty()
-            && item.details.is_empty()
-            && item.paragraphs.is_empty()
-            && item.bullets.is_empty()
-        {
-            view = view.child(
-                div()
-                    .text_size(px(11.0))
-                    .text_color(color(style.colors.muted))
-                    .child("新条目 · 可在 JSON 中填写内容"),
-            );
-        }
-        if self.inline_matches(section_id, Some(index)) {
-            view = view.child(self.inline_form(cx));
-        }
-        view
-    }
-
     fn item_insert_control(
         &self,
         id: &str,
@@ -475,226 +348,6 @@ impl ResumeOne {
                     cx.notify();
                 }
             }))
-    }
-
-    fn section(
-        &self,
-        section: &Section,
-        style: &ThemeStyle,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
-        let hover_id = section.id.to_owned();
-        let id = section.id.to_owned();
-        let mut view = div().flex().flex_col().mt_5().gap_3().child(
-            div()
-                .id(gpui::SharedString::from(format!(
-                    "section-title-{}",
-                    section.id
-                )))
-                .relative()
-                .pb_2()
-                .border_b_1()
-                .border_color(color(style.colors.border))
-                .text_size(px(style.typography.section_title.size_pt * 1.3))
-                .font_weight(FontWeight::SEMIBOLD)
-                .text_color(color(style.colors.accent))
-                .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
-                    if *hovering {
-                        this.hovered_section = Some(hover_id.clone());
-                    } else if this.hovered_section.as_deref() == Some(hover_id.as_str()) {
-                        this.hovered_section = None;
-                    }
-                    cx.notify();
-                }))
-                .child(label(section.id).to_string())
-                .child(
-                    div()
-                        .id(gpui::SharedString::from(format!(
-                            "remove-module-{}",
-                            section.id
-                        )))
-                        .absolute()
-                        .right_0()
-                        .top_0()
-                        .cursor_pointer()
-                        .text_size(px(13.0))
-                        .text_color(color(style.colors.seal))
-                        .opacity(if self.hovered_section.as_deref() == Some(section.id) {
-                            1.0
-                        } else {
-                            0.0
-                        })
-                        .child("−")
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.apply_visual_structure(
-                                StructureEdit::RemoveSection { id: id.clone() },
-                                window,
-                                cx,
-                            );
-                        })),
-                ),
-        );
-        view = view.child(self.item_insert_control(section.id, 0, style, cx));
-        for (index, item) in section.items.iter().enumerate() {
-            view = view.child(self.item(item, section.id, index, style, cx));
-            view = view.child(self.item_insert_control(section.id, index + 1, style, cx));
-        }
-        view
-    }
-
-    fn resume_page(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let style = self.active_style();
-        let content = &self.model.content;
-        let mm = 3.0;
-        let mut page = div()
-            .id("resume-paper")
-            .debug_selector(|| "resume-paper".to_string())
-            .w(px(style.page.width_mm * mm))
-            .min_h(px(style.page.height_mm * mm))
-            .flex_none()
-            .flex()
-            .flex_col()
-            .bg(color(style.colors.paper))
-            .shadow_lg()
-            .pt(px(style.page.margins.top * mm))
-            .pr(px(style.page.margins.right * mm))
-            .pb(px(style.page.margins.bottom * mm))
-            .pl(px(style.page.margins.left * mm))
-            .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
-                this.inline.paper_hovered = *hovering;
-                if !hovering {
-                    this.defer_inline_close(window, cx);
-                }
-            }));
-        let mut header = div()
-            .id("preview-basics")
-            .debug_selector(|| "preview-basics".into())
-            .relative()
-            .focusable()
-            .tab_index(0)
-            .key_context("PreviewItem")
-            .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
-                if *hovering {
-                    this.hovered_section = Some("basics".into());
-                    this.schedule_inline("basics", None, window, cx);
-                } else if this.hovered_section.as_deref() == Some("basics") {
-                    this.hovered_section = None;
-                }
-            }))
-            .on_click(
-                cx.listener(|this, _, window, cx| this.open_inline("basics", None, window, cx)),
-            )
-            .on_action(cx.listener(|this, _: &inline_ui::OpenInline, window, cx| {
-                this.open_inline("basics", None, window, cx);
-                this.focus_inline_first(window, cx);
-            }))
-            .child(
-                div()
-                    .text_size(px(style.typography.name.size_pt * 1.3))
-                    .font_weight(FontWeight::SEMIBOLD)
-                    .text_color(color(style.colors.accent))
-                    .child(content.name.clone()),
-            )
-            .child(
-                div()
-                    .mt_2()
-                    .text_size(px(style.typography.body.size_pt * 1.3))
-                    .text_color(color(style.colors.muted))
-                    .child(content.label.clone()),
-            );
-        if !content.contacts.is_empty() {
-            header = header.child(
-                div()
-                    .mt_3()
-                    .text_size(px(style.typography.meta.size_pt * 1.3))
-                    .text_color(color(style.colors.muted))
-                    .child(content.contacts.join("  ·  ")),
-            );
-        }
-        if !content.summary.is_empty() {
-            header = header.child(
-                div()
-                    .mt_6()
-                    .text_size(px(style.typography.body.size_pt * 1.3))
-                    .line_height(px(style.typography.body.size_pt
-                        * 1.3
-                        * style.typography.body.line_height))
-                    .text_color(color(style.colors.ink))
-                    .child(content.summary.clone()),
-            );
-        }
-        if self.inline_matches("basics", None) {
-            header = header.child(self.inline_form(cx));
-        }
-        page = page.child(header);
-        let sections = self.model.document.sections();
-        for summary in &sections {
-            if summary.id == "basics" {
-                continue;
-            }
-            page = page.child(self.module_insert_control(Some(summary.id.clone()), style, cx));
-            if let Some(section) = content
-                .sections
-                .iter()
-                .find(|section| section.id == summary.id)
-            {
-                page = page.child(self.section(section, style, cx));
-            } else {
-                let hover_id = summary.id.clone();
-                let id = summary.id.clone();
-                page = page.child(
-                    div()
-                        .id(gpui::SharedString::from(format!(
-                            "empty-title-{}",
-                            summary.id
-                        )))
-                        .relative()
-                        .mt_5()
-                        .text_size(px(style.typography.section_title.size_pt * 1.3))
-                        .text_color(color(style.colors.accent))
-                        .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
-                            if *hovering {
-                                this.hovered_section = Some(hover_id.clone());
-                            } else if this.hovered_section.as_deref() == Some(hover_id.as_str()) {
-                                this.hovered_section = None;
-                            }
-                            cx.notify();
-                        }))
-                        .child(label(&summary.id).to_owned())
-                        .child(
-                            div()
-                                .id(gpui::SharedString::from(format!(
-                                    "remove-empty-module-{id}"
-                                )))
-                                .absolute()
-                                .right_0()
-                                .top_0()
-                                .cursor_pointer()
-                                .text_size(px(12.0))
-                                .text_color(color(style.colors.seal))
-                                .opacity(
-                                    if self.hovered_section.as_deref() == Some(summary.id.as_str())
-                                    {
-                                        1.0
-                                    } else {
-                                        0.0
-                                    },
-                                )
-                                .child("−")
-                                .on_click(cx.listener(move |this, _, window, cx| {
-                                    this.apply_visual_structure(
-                                        StructureEdit::RemoveSection { id: id.clone() },
-                                        window,
-                                        cx,
-                                    );
-                                })),
-                        ),
-                );
-                page = page.child(self.item_insert_control(&summary.id, 0, style, cx));
-            }
-        }
-        page = page.child(self.module_insert_control(None, style, cx));
-        page
     }
 
     fn source_module_add(
@@ -840,7 +493,7 @@ impl ResumeOne {
                     .flex()
                     .justify_center()
                     .when(self.model.preview_ready, |view| {
-                        view.child(self.resume_page(cx))
+                        view.child(self.resume_pages(cx))
                     })
                     .when(!self.model.preview_ready, |view| {
                         view.child(
@@ -1381,7 +1034,14 @@ mod tests {
         let path = directory.path().join("structure-clicks.json");
         std::fs::write(&path, br#"{"basics":{"name":"A"},"work":[{"name":"B"}]}"#).unwrap();
         let model = AppModel::load(Some(&path)).unwrap();
-        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
         cx.update(|window, _| window.refresh());
         let sidebar = cx.debug_bounds("module-panel").unwrap();
         let skill = cx.debug_bounds("module-skills").unwrap();
@@ -1441,7 +1101,9 @@ mod tests {
                 app.model.document.value["skills"].as_array().unwrap().len(),
                 1
             );
+            assert!(app.inline_matches("skills", Some(0)));
         });
+        assert!(cx.debug_bounds("inline-form").is_some());
         assert_eq!(sidebar, cx.debug_bounds("module-panel").unwrap());
     }
 

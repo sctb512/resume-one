@@ -66,6 +66,7 @@ pub struct AppModel {
     pub folder: Option<LocalFolder>,
     pub themes: Vec<BuiltinTheme>,
     pub selected_theme: usize,
+    pub theme_epoch: u64,
 }
 
 impl AppModel {
@@ -120,6 +121,7 @@ impl AppModel {
             folder,
             themes,
             selected_theme: 0,
+            theme_epoch: 0,
         })
     }
 
@@ -128,6 +130,7 @@ impl AppModel {
     }
 
     pub fn replace_themes(&mut self, themes: Vec<BuiltinTheme>) {
+        self.theme_epoch = self.theme_epoch.wrapping_add(1);
         let selected_id = self
             .themes
             .get(self.selected_theme)

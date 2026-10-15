@@ -40,6 +40,17 @@ impl ResumeOne {
             return;
         }
         let before = editor.buffer.source().to_owned();
+        let open_after = if self.source_mode {
+            None
+        } else {
+            match &edit {
+                StructureEdit::InsertItem { id, index } => Some((id.clone(), Some(*index))),
+                StructureEdit::InsertSection { id, .. } if id == "basics" => {
+                    Some((id.clone(), None))
+                }
+                _ => None,
+            }
+        };
         self.clear_inline();
         let result = match apply_structure(&self.model.document, &edit) {
             Ok(document) => document,
@@ -69,6 +80,13 @@ impl ResumeOne {
             && let Some(editor) = &self.editor
         {
             editor.input.update(cx, |input, cx| input.focus(window, cx));
+        }
+        if let Some((section, index)) = open_after {
+            cx.defer_in(window, move |this, window, cx| {
+                this.open_inline(&section, index, window, cx);
+                this.focus_inline_first(window, cx);
+                cx.notify();
+            });
         }
         cx.notify();
     }

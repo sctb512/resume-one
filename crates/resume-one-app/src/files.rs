@@ -7,7 +7,7 @@ use gpui::{
 
 use crate::editor_ui::{Save, SaveAs, ToggleSource};
 use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
-use crate::theme_local::{ChooseThemeDirectory, ResetThemeDirectory};
+use crate::theme_manager::ManageThemes;
 use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
@@ -87,10 +87,7 @@ pub(super) fn register(cx: &mut App) {
         },
         Menu {
             name: "主题".into(),
-            items: vec![
-                MenuItem::action("选择本地主题目录…", ChooseThemeDirectory),
-                MenuItem::action("恢复默认主题目录", ResetThemeDirectory),
-            ],
+            items: vec![MenuItem::action("管理主题…", ManageThemes)],
         },
     ]);
 }
@@ -110,7 +107,8 @@ impl ResumeOne {
     }
 
     fn prompt_path(&mut self, directory: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if self.files.busy
+        if self.theme_manager_open
+            || self.files.busy
             || self.export_busy
             || self.editor.as_ref().is_some_and(|editor| editor.saving)
         {

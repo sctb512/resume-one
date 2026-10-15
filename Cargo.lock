@@ -5380,6 +5380,7 @@ dependencies = [
  "gpui",
  "gpui-component",
  "resume-one-core",
+ "resume-one-themes",
  "serde_json",
  "tempfile",
 ]

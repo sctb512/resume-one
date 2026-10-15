@@ -15,6 +15,7 @@ gpui-component = "=0.5.1"
 dirs = "=5.0.1"
 serde_json.workspace = true
 resume-one-core = { path = "../resume-one-core" }
+resume-one-themes = { path = "../resume-one-themes" }
 
 [dev-dependencies]
 tempfile.workspace = true

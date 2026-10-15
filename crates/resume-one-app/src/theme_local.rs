@@ -6,6 +6,7 @@ use gpui::{Context, PathPromptOptions, Window, actions};
 use resume_one_core::export::write_export_unnamed;
 use resume_one_core::parse_theme;
 use resume_one_core::theme_style::ThemeStyle;
+use resume_one_themes::{GithubSource, parse_sources};
 use serde_json::{Value, json};
 
 use crate::ResumeOne;
@@ -18,6 +19,7 @@ pub(super) struct ThemeStore {
     default_dir: PathBuf,
     pub directory: PathBuf,
     pub warnings: Vec<String>,
+    pub sources: Vec<GithubSource>,
 }
 
 impl ThemeStore {
@@ -30,26 +32,34 @@ impl ThemeStore {
         )
     }
 
-    fn new(settings_path: PathBuf, default_dir: PathBuf) -> Result<Self, String> {
+    pub(super) fn new(settings_path: PathBuf, default_dir: PathBuf) -> Result<Self, String> {
         fs::create_dir_all(&default_dir)
             .map_err(|error| format!("无法创建默认主题目录：{error}"))?;
         let default_dir = default_dir
             .canonicalize()
             .map_err(|error| format!("无法定位默认主题目录：{error}"))?;
         let mut warnings = Vec::new();
-        let chosen = match fs::read(&settings_path) {
-            Ok(bytes) => match serde_json::from_slice::<Value>(&bytes) {
-                Ok(settings) => settings
-                    .get("localThemeDirectory")
-                    .and_then(Value::as_str)
-                    .map(PathBuf::from),
-                Err(error) => {
-                    warnings.push(format!("主题设置无效，已使用默认目录：{error}"));
-                    None
-                }
-            },
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
-            Err(error) => return Err(format!("无法读取主题设置：{error}")),
+        let settings = match Self::read_settings(&settings_path) {
+            Ok(settings) => settings,
+            Err(message) => {
+                warnings.push(format!("{message}；暂时使用默认设置，未改写原文件"));
+                json!({})
+            }
+        };
+        let chosen = settings
+            .get("localThemeDirectory")
+            .and_then(Value::as_str)
+            .map(PathBuf::from);
+        let sources = match settings
+            .get("onlineThemeSources")
+            .map(parse_sources)
+            .transpose()
+        {
+            Ok(sources) => sources.unwrap_or_default(),
+            Err(error) => {
+                warnings.push(error.to_string());
+                Vec::new()
+            }
         };
         let directory = match chosen {
             Some(path) if path.is_absolute() && path.is_dir() => path,
@@ -64,9 +74,56 @@ impl ThemeStore {
             default_dir,
             directory,
             warnings,
+            sources,
         };
         Self::seed_defaults(&store.directory)?;
         Ok(store)
+    }
+
+    fn read_settings(path: &Path) -> Result<Value, String> {
+        use std::io::Read;
+        let file = match fs::File::open(path) {
+            Ok(file) => file,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(json!({})),
+            Err(error) => return Err(format!("无法读取主题设置：{error}")),
+        };
+        let mut bytes = Vec::new();
+        file.take(1_048_577)
+            .read_to_end(&mut bytes)
+            .map_err(|error| format!("无法读取主题设置：{error}"))?;
+        if bytes.len() > 1_048_576 {
+            return Err("主题设置超过 1 MiB，拒绝覆盖".into());
+        }
+        serde_json::from_slice::<Value>(&bytes)
+            .ok()
+            .filter(Value::is_object)
+            .ok_or_else(|| "主题设置不是有效的 JSON 对象，拒绝覆盖".into())
+    }
+
+    fn write_settings(&self, settings: &Value) -> Result<(), String> {
+        let bytes = serde_json::to_vec_pretty(settings).map_err(|error| error.to_string())?;
+        if bytes.len() > 1_048_576 {
+            return Err("主题设置将超过 1 MiB，未保存".into());
+        }
+        let parent = self.settings_path.parent().ok_or("主题设置路径无效")?;
+        fs::create_dir_all(parent).map_err(|error| format!("无法创建配置目录：{error}"))?;
+        write_export_unnamed(&self.settings_path, &bytes, true)
+            .map_err(|error| format!("无法保存主题设置：{}", error.message))
+    }
+
+    pub fn save_sources(&mut self, sources: Vec<GithubSource>) -> Result<(), String> {
+        let value = json!(
+            sources
+                .iter()
+                .map(GithubSource::as_json)
+                .collect::<Vec<_>>()
+        );
+        let sources = parse_sources(&value).map_err(|error| error.to_string())?;
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        settings["onlineThemeSources"] = value;
+        self.write_settings(&settings)?;
+        self.sources = sources;
+        Ok(())
     }
 
     fn seed_defaults(directory: &Path) -> Result<(), String> {
@@ -192,6 +249,7 @@ impl ThemeStore {
     }
 
     fn switch(&mut self, directory: PathBuf) -> Result<Vec<BuiltinTheme>, String> {
+        let mut settings = Self::read_settings(&self.settings_path)?;
         let directory = directory
             .canonicalize()
             .map_err(|error| format!("主题目录不可访问：{error}"))?;
@@ -204,18 +262,8 @@ impl ThemeStore {
         } else {
             json!(directory)
         };
-        let mut settings = fs::read(&self.settings_path)
-            .ok()
-            .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
-            .filter(Value::is_object)
-            .unwrap_or_else(|| json!({}));
         settings["localThemeDirectory"] = value;
-        let bytes = serde_json::to_vec_pretty(&settings)
-            .map_err(|error| format!("无法序列化主题设置：{error}"))?;
-        let parent = self.settings_path.parent().ok_or("主题设置路径无效")?;
-        fs::create_dir_all(parent).map_err(|error| format!("无法创建配置目录：{error}"))?;
-        write_export_unnamed(&self.settings_path, &bytes, true)
-            .map_err(|error| format!("无法保存主题设置：{}", error.message))?;
+        self.write_settings(&settings)?;
         self.directory = directory;
         self.warnings = warnings;
         Ok(themes)
@@ -336,6 +384,59 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn multiple_sources_persist_without_changing_local_directory_or_foreign_settings() {
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        let defaults = root.path().join("default");
+        fs::write(&settings, br#"{"future":{"preserve":true}}"#).unwrap();
+        let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        let first = GithubSource::new("Example/Paper", "main", "themes/index.json").unwrap();
+        let second = GithubSource::new("Example/Ink", "v1", "index.json").unwrap();
+        store
+            .save_sources(vec![first.clone(), second.clone()])
+            .unwrap();
+        let saved = fs::read(&settings).unwrap();
+        assert_eq!(
+            serde_json::from_slice::<Value>(&saved).unwrap()["future"]["preserve"],
+            true
+        );
+        assert!(
+            store
+                .save_sources(vec![first.clone(), first.clone()])
+                .is_err()
+        );
+        assert_eq!(fs::read(&settings).unwrap(), saved);
+        let directory = root.path().join("chosen");
+        fs::create_dir(&directory).unwrap();
+        store.choose(directory).unwrap();
+        let reopened = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        assert_eq!(reopened.sources, [first.clone(), second.clone()]);
+        assert_eq!(reopened.directory, store.directory);
+        store.reset().unwrap();
+        assert_eq!(store.sources, [first, second.clone()]);
+        store.save_sources(vec![second.clone()]).unwrap();
+        assert_eq!(
+            ThemeStore::new(settings, defaults).unwrap().sources,
+            [second]
+        );
+    }
+
+    #[test]
+    fn source_changes_do_not_destroy_damaged_settings() {
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        fs::write(&settings, b"{broken").unwrap();
+        let mut store = ThemeStore::new(settings.clone(), root.path().join("defaults")).unwrap();
+        assert!(store.save_sources(vec![]).is_err());
+        assert_eq!(fs::read(&settings).unwrap(), b"{broken");
+        assert!(store.sources.is_empty());
+        let near_limit = serde_json::to_vec(&json!({"future":"x".repeat(1_048_550)})).unwrap();
+        fs::write(&settings, &near_limit).unwrap();
+        assert!(store.save_sources(vec![]).is_err());
+        assert_eq!(fs::read(settings).unwrap(), near_limit);
+    }
 
     #[test]
     fn default_theme_files_are_real_and_user_files_survive_reset() {

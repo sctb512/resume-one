@@ -103,7 +103,7 @@
 
 ## 8. GitHub 来源及缓存契约
 
-共享来源库 `resume-one-themes` 与 `resume-one themes` CLI 已实现本节协议；GUI 来源管理和滚动预取仍需接入，不能据此标记完整在线功能交付。
+共享来源库 `resume-one-themes` 与 `resume-one themes` CLI 已实现本节协议，GUI 已接入多来源配置管理；在线列表和滚动预取仍需接入，不能据此标记完整在线功能交付。
 
 来源配置是 `repository/ref/indexPath` 三个字符串：例如 `{"repository":"owner/repository","ref":"main","indexPath":"themes/index.json"}`。仓库名规范化为小写，ref 保留大小写；配置列表最多 16 项，不允许相同三元组重复，不接受其他字段、凭据或任意 URL。上述仓库只是格式占位符，开发版不预置该地址。仓库、ref、路径只允许 ASCII 字母数字及 `-_.`，ref/路径可含分隔目录的 `/`，不得出现空段、`.` 或 `..`；ref 最长 100 字节，路径最长 240 字节且以 `.json` 结尾。
 

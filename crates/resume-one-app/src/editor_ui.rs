@@ -285,6 +285,9 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_manager_open {
+            return;
+        }
         let Some(editor) = &self.editor else { return };
         if editor.saving {
             return;
@@ -304,6 +307,9 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json_as(&mut self, _: &SaveAs, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_manager_open {
+            return;
+        }
         let Some(editor) = &self.editor else { return };
         if editor.saving {
             return;
@@ -518,6 +524,9 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.theme_manager_open {
+            return;
+        }
         self.files.open = false;
         self.clear_inline();
         self.cancel_insertion();

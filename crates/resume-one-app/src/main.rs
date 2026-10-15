@@ -9,6 +9,7 @@ mod motion;
 mod preview_ui;
 mod structure_ui;
 mod theme_local;
+mod theme_manager;
 mod workspace;
 
 use std::path::Path;
@@ -65,6 +66,7 @@ struct ResumeOne {
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
     theme_store: Option<theme_local::ThemeStore>,
+    theme_manager_open: bool,
     hovered_section: Option<String>,
     hovered_item: Option<(String, usize)>,
     insertion_before: Option<Option<String>>,
@@ -99,6 +101,7 @@ impl ResumeOne {
             editor: None,
             export_busy: false,
             theme_store: None,
+            theme_manager_open: false,
             hovered_section: None,
             hovered_item: None,
             insertion_before: None,
@@ -253,7 +256,16 @@ impl ResumeOne {
                     .text_size(px(11.0))
                     .text_color(rgb(0x758078))
                     .child("主题")
-                    .child(format!("本地 · {}", self.model.themes.len())),
+                    .child(
+                        div()
+                            .id("manage-themes")
+                            .debug_selector(|| "manage-themes".into())
+                            .cursor_pointer()
+                            .child("管理")
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.manage_themes(&theme_manager::ManageThemes, window, cx)
+                            })),
+                    ),
             )
             .when(!warnings.is_empty(), |panel| {
                 panel.child(
@@ -753,6 +765,7 @@ impl Render for ResumeOne {
             });
             window.request_animation_frame();
         }
+        let dialogs = gpui_component::Root::render_dialog_layer(window, cx);
         let progress = self.sidebar_progress;
         let preview_alpha = (1.0 - progress / 0.55).clamp(0.0, 1.0);
         let json_alpha = ((progress - 0.45) / 0.55).clamp(0.0, 1.0);
@@ -789,6 +802,7 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::export_markdown))
             .on_action(cx.listener(Self::choose_theme_directory))
             .on_action(cx.listener(Self::reset_theme_directory))
+            .on_action(cx.listener(Self::manage_themes))
             .on_action(cx.listener(Self::quit))
             .bg(rgb(0xf5f5f1))
             .child(
@@ -905,6 +919,7 @@ impl Render for ResumeOne {
                     .child(self.module_sidebar(cx)),
             )
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
+            .children(dialogs)
     }
 }
 
@@ -937,6 +952,7 @@ fn main() {
         editor_ui::register(cx);
         structure_ui::register(cx);
         inline_ui::register(cx);
+        theme_manager::register(cx);
         let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
         let quit_flush_target = quit_target.clone();
         cx.on_app_quit(move |cx| {

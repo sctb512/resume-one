@@ -16,10 +16,11 @@
 | `set-field` | `resume-one set-field --file /absolute/resume.json --if-match sha256:... --section work --index 0 --field position --value '设计师' --dry-run` | 设置标准文本字段；`basics` 不带 `--index`；空值移除字段 |
 | `export` | `resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/dir/name.theme.json` | `pdf`、可编辑 `docx`、`txt`、`md`；`--lang zh`（默认）或 `en`；已有目标需显式 `--overwrite`；`--theme` 当前仅供 PDF 使用 |
 | `schema` | `resume-one schema` | 返回固定版本及内置 Schema 内容 |
+| `themes` | `resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json` | 显式联网读取声明式主题清单；`--offline` 只读已验证缓存；不读取简历 |
 
 `--json` 可放在子命令前或后。成功或失败时 stdout 都恰好是一行 JSON，结构为 `{"protocolVersion":1,"ok":true,"result":{...}}` 或 `{"protocolVersion":1,"ok":false,"error":{"code":"...","message":"..."}}`；错误可能附 `file`、`revision`、`error.diagnostics`。非 JSON 模式成功输出格式化结果，错误写入 stderr。`inspect`、`validate` 和补丁结果不输出简历正文；只有 `read` 会返回字段值。Schema 错误只列 JSON Pointer 和失败规则，不回显原值。建议不要长期保存 `read` 的输出日志。
 
-退出码：`0` 成功、`2` 参数错误、`3` JSON/Schema/结构/补丁错误、`4` revision 冲突、`5` 文件 I/O、`6` 导出错误。`init` 与导出默认不覆盖现有文件；导出目标不能是源 JSON 文件。`patch`、`structure` 和 `set-field` 都必须传 `--if-match`，其值来自先前 `inspect` 的 revision；revision 是**原文件字节**的 SHA-256，因此仅改空格也会触发冲突。写入前还会再次核对 revision，操作失败或结果不符合 Schema 时不替换原文件。`--dry-run` 不创建锁文件或修改原文件。
+退出码：`0` 成功、`2` 参数错误、`3` JSON/Schema/结构/补丁错误、`4` revision 冲突、`5` 文件 I/O、`6` 导出错误、`7` 在线主题源/缓存/下载错误。`init` 与导出默认不覆盖现有文件；导出目标不能是源 JSON 文件。`patch`、`structure` 和 `set-field` 都必须传 `--if-match`，其值来自先前 `inspect` 的 revision；revision 是**原文件字节**的 SHA-256，因此仅改空格也会触发冲突。写入前还会再次核对 revision，操作失败或结果不符合 Schema 时不替换原文件。`--dry-run` 不创建锁文件或修改原文件。
 
 `structure` 有四个操作：`add-module ID [--before ID]`、`remove-module ID`、`add-item ID --index N`、`remove-item ID --index N`。`N` 从 0 开始；新增条目为 `{}`，新增的普通模块为 `[]`，基本信息模块为 `{}`，内容需随后补齐。`--before` 指定现有标准模块，省略时追加；不存在的模块、越界条目、重复模块或不支持的 ID 都会报错。移除模块会删除其中所有条目，建议先 `--dry-run` 并核对目标。自定义扩展字段和其他模块顺序保持不变；命令结果只返回 revision 和变更路径，不回显正文。
 
@@ -28,6 +29,21 @@
 导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；当前 PDF 支持单栏布局、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高；只支持内置无衬线 400 与衬线 600 两种字重。不支持的侧栏/分栏、特殊页眉/模块/装饰、自带字体及字距会报错，不生成不完整的 PDF。PDF 嵌入完整 Noto Sans SC 与 Noto Serif SC 字形并自动换页，文件可能达到约 15 MB。DOCX 为可编辑的 Word 文档，仍使用基础样式；字体引用 Noto Sans SC，如阅读设备未安装，Word/LibreOffice 会使用其替代字体。纯文本和 Markdown 不应用主题。导出不会写回主题或格式元数据到 `resume.json`。
 
 Agent 修改文件的流程为：先用 `inspect --file ... --json` 获取 revision，必要时用 `read --pointer ...` 读取字段；标准模块和条目增删优先用 `structure --if-match REV --dry-run --json` 预检，普通文本字段优先用 `set-field --if-match REV --dry-run --json`，其他具体字段用 `patch --if-match REV --dry-run --json`。预检后在 revision 不变时提交。数组按位置寻址时，建议在补丁中先加 `test` 操作确认条目身份；冲突后应重新读取，不可盲目重放旧操作。
+
+## 在线主题命令
+
+`themes` 只接受公开 GitHub 来源，不接受网站 URL、令牌或私有仓库。显式参数为 `--repository owner/repository`、`--ref`（默认 `main`）、`--index`（默认 `themes/index.json`）、绝对路径 `--cache`；它不会读取或更改 GUI 的目录设置。这里的 `owner/repository` 是参数占位符，不是软件默认源。
+
+```sh
+resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json
+resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache --offline download calm-paper --dir /absolute/local-themes --json
+```
+
+不带 `--offline` 时，分支/标签先解析成完整 commit，清单与主题文件均从该 commit 获取；可直接传 40 位 commit 固定版本。清单失败但旧缓存有效时返回旧清单及 `stale: true`、`warning`；没有缓存则报错。`list` 返回清单元数据，`manifestsValidated: false` 明确表示还未逐项验证主题，不能据此宣称可应用。`download ID --dir ...` 才校验原始文件的 SHA-256（清单提供时）、ID、名称、声明式格式和当前排版能力，再安装到显式指定且已存在的本地目录。
+
+下载文件名包含来源指纹、主题 ID 和内容摘要，保留原始 UTF-8 字节，不写入样式、HTML、简历正文或缓存元数据；已存在且字节相同则幂等返回，内容不同或为符号链接则拒绝覆盖。缓存与本地安装目录是两回事：缓存可按最近访问时间自动淘汰，总量 256 MiB；本地下载文件不会被缓存清理删除。`--offline` 不产生网络请求，只允许有效缓存。源/主题文件上限各 1 MiB，单份清单最多 500 项，网络请求超时 15 秒，不跟随重定向，也不请求图片、脚本或字体资源。来源、网络、缓存和主题下载错误退出码为 `7`；相对路径参数仍为 `2`。
+
+## 独立迁移工具
 
 迁移主题的独立程序名为 `resume-one-theme-migrate`，**不属于**这个 CLI；它只处理主题文件，不处理用户的 `resume.json`。从源码可用 `cargo run -p resume-one-theme-migrate -- <参数>`。v1 声明式主题升级用法：
 

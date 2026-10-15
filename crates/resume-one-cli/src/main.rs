@@ -18,6 +18,7 @@ use resume_one_core::semantic::project;
 use resume_one_core::storage::patch_resume;
 use resume_one_core::storage::replace_resume;
 use resume_one_core::structure::{StructureEdit, apply_structure};
+use resume_one_themes::{GithubClient, GithubSource, ThemeCache};
 use serde_json::{Value, json};
 use tempfile::Builder;
 
@@ -121,6 +122,34 @@ enum Command {
     },
     /// 输出当前内置 Schema 的身份和内容
     Schema,
+    /// 显式读取 GitHub 声明式主题源或下载主题；不读取简历
+    Themes {
+        #[arg(long)]
+        repository: String,
+        #[arg(long = "ref", default_value = "main")]
+        reference: String,
+        #[arg(long = "index", default_value = "themes/index.json")]
+        index_path: String,
+        /// 仅存公开主题文件；与简历和本地安装目录分离
+        #[arg(long)]
+        cache: PathBuf,
+        #[arg(long)]
+        offline: bool,
+        #[command(subcommand)]
+        operation: ThemeCommand,
+    },
+}
+
+#[derive(Subcommand)]
+enum ThemeCommand {
+    /// 列出清单元数据（不表示逐项 manifest 已通过校验）
+    List,
+    /// 校验主题后显式下载到所选本地目录，不覆盖同名文件
+    Download {
+        id: String,
+        #[arg(long)]
+        dir: PathBuf,
+    },
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -312,6 +341,53 @@ fn from_diagnostics(path: &Path, issues: &[Diagnostic]) -> AppError {
 
 fn execute(command: Command) -> Result<Value, AppError> {
     match command {
+        Command::Themes {
+            repository,
+            reference,
+            index_path,
+            cache,
+            offline,
+            operation,
+        } => {
+            absolute(&cache)?;
+            if let ThemeCommand::Download { dir, .. } = &operation {
+                absolute(dir)?;
+                if !dir.is_dir() {
+                    return Err(AppError::new(
+                        5,
+                        "THEME_DIRECTORY",
+                        "本地主题目录不存在或不是目录",
+                    )
+                    .file(dir));
+                }
+            }
+            let issue =
+                |error: resume_one_themes::ThemeError| AppError::new(7, error.code, error.message);
+            let source = GithubSource::new(&repository, &reference, &index_path).map_err(issue)?;
+            let client = GithubClient::new(ThemeCache::new(&cache).map_err(issue)?);
+            let result = client.catalog(&source, offline).map_err(issue)?;
+            let warning = result
+                .warning
+                .as_ref()
+                .map(|error| json!({"code":error.code,"message":error.message}));
+            let catalog = result.catalog;
+            match operation {
+                ThemeCommand::List => {
+                    Ok(json!({"source":source.as_json(),"commit":catalog.commit(),
+                    "stale":result.stale,"warning":warning,"manifestsValidated":false,
+                    "themes":catalog.entries().iter().map(|entry| json!({"id":entry.id,"name":entry.name,
+                        "manifest":entry.manifest,"sha256":entry.sha256})).collect::<Vec<_>>()}))
+                }
+                ThemeCommand::Download { id, dir } => {
+                    let theme = client.theme(&catalog, &id, offline).map_err(issue)?;
+                    let path = theme.install(&source, &dir).map_err(issue)?;
+                    Ok(
+                        json!({"source":source.as_json(),"commit":catalog.commit(),"stale":result.stale,
+                        "warning":warning,"id":theme.manifest().id,"sha256":theme.sha256(),"file":path,"verified":true}),
+                    )
+                }
+            }
+        }
         Command::Init { file } => {
             absolute(&file)?;
             let parent = file

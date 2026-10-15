@@ -454,6 +454,11 @@ pub fn layout_with_theme(
     layout_with_style(content, language, &style)
 }
 
+/// Check renderer capability without loading any resume content.
+pub fn check_theme(theme: &ThemeManifest) -> Result<(), String> {
+    validate_theme(theme, &ThemeStyle::from_manifest(theme))
+}
+
 fn layout_with_style(
     content: &ResumeContent,
     language: Language,

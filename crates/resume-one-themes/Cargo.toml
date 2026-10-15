@@ -1,0 +1,17 @@
+[package]
+name = "resume-one-themes"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+resume-one-core = { path = "../resume-one-core" }
+serde_json.workspace = true
+sha2.workspace = true
+jsonschema.workspace = true
+ureq = { version = "=3.4.2", default-features = false, features = ["rustls"] }
+url = "=2.5.8"
+
+[dev-dependencies]
+tempfile.workspace = true

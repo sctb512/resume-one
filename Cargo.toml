@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/resume-one-core", "crates/resume-one-cli", "crates/resume-one-theme-migrate", "crates/resume-one-app"]
+members = ["crates/resume-one-core", "crates/resume-one-cli", "crates/resume-one-theme-migrate", "crates/resume-one-app", "crates/resume-one-themes"]
 
 [workspace.package]
 version = "0.1.0"

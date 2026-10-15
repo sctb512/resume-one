@@ -152,6 +152,7 @@ impl ResumeOne {
         self.selected_module = None;
         self.selected_item_module = None;
         self.recovery_pending = false;
+        self.clear_inline();
         let Some(editor) = &mut self.editor else {
             return;
         };
@@ -518,6 +519,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         self.files.open = false;
+        self.clear_inline();
         self.hovered_theme = None;
         if self.source_mode {
             self.source_mode = false;
@@ -639,6 +641,7 @@ impl ResumeOne {
         if !editor.buffer.set_source(stored_source) {
             return;
         }
+        self.sync_inline_error();
         self.refresh_preview_from_buffer();
         self.persist_editor_draft(cx);
         cx.notify();

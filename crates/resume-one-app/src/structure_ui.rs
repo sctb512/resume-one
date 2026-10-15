@@ -40,6 +40,7 @@ impl ResumeOne {
             return;
         }
         let before = editor.buffer.source().to_owned();
+        self.clear_inline();
         let result = match apply_structure(&self.model.document, &edit) {
             Ok(document) => document,
             Err(error) => {
@@ -72,7 +73,12 @@ impl ResumeOne {
         cx.notify();
     }
 
-    fn replace_editor_source(&mut self, source: &str, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn replace_editor_source(
+        &mut self,
+        source: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         let Some(editor) = &self.editor else { return };
         let input = editor.input.clone();
         let display_source = editor
@@ -103,6 +109,7 @@ impl ResumeOne {
         if self.source_mode {
             return;
         }
+        self.clear_inline();
         let Some((before, after)) = self.visual_undo.pop() else {
             return;
         };
@@ -125,6 +132,7 @@ impl ResumeOne {
         if self.source_mode {
             return;
         }
+        self.clear_inline();
         let Some((before, after)) = self.visual_redo.pop() else {
             return;
         };

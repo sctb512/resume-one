@@ -3,6 +3,7 @@
 mod editor_ui;
 mod export_ui;
 mod files;
+mod inline_ui;
 mod model;
 mod motion;
 mod structure_ui;
@@ -68,6 +69,7 @@ struct ResumeOne {
     visual_undo: Vec<(String, String)>,
     visual_redo: Vec<(String, String)>,
     recovery_pending: bool,
+    inline: inline_ui::InlineUi,
 }
 
 impl ResumeOne {
@@ -96,6 +98,7 @@ impl ResumeOne {
             visual_undo: Vec::new(),
             visual_redo: Vec::new(),
             recovery_pending: false,
+            inline: inline_ui::InlineUi::default(),
         }
     }
     fn active_style(&self) -> &ThemeStyle {
@@ -265,26 +268,40 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let hover_id = section_id.to_owned();
+        let click_id = section_id.to_owned();
+        let keyboard_id = section_id.to_owned();
         let id = section_id.to_owned();
         let mut view = div()
             .id(gpui::SharedString::from(format!(
                 "preview-item-{section_id}-{index}"
             )))
             .relative()
+            .focusable()
+            .tab_index(0)
+            .key_context("PreviewItem")
             .flex()
             .flex_col()
             .gap_1()
             .mb_2()
             .pr_5()
-            .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+            .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
                 let target = (hover_id.clone(), index);
                 if *hovering {
                     this.hovered_item = Some(target);
+                    this.schedule_inline(&hover_id, Some(index), window, cx);
                 } else if this.hovered_item.as_ref() == Some(&target) {
                     this.hovered_item = None;
                 }
                 cx.notify();
             }))
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.open_inline(&click_id, Some(index), window, cx);
+            }))
+            .on_action(
+                cx.listener(move |this, _: &inline_ui::OpenInline, window, cx| {
+                    this.open_inline(&keyboard_id, Some(index), window, cx);
+                }),
+            )
             .child(
                 div()
                     .id(gpui::SharedString::from(format!(
@@ -306,6 +323,7 @@ impl ResumeOne {
                     .text_color(color(style.colors.seal))
                     .child("−")
                     .on_click(cx.listener(move |this, _, window, cx| {
+                        cx.stop_propagation();
                         this.apply_visual_structure(
                             StructureEdit::RemoveItem {
                                 id: id.clone(),
@@ -362,6 +380,9 @@ impl ResumeOne {
                     .text_color(color(style.colors.muted))
                     .child("新条目 · 可在 JSON 中填写内容"),
             );
+        }
+        if self.inline_matches(section_id, Some(index)) {
+            view = view.child(self.inline_form(cx));
         }
         view
     }
@@ -535,6 +556,33 @@ impl ResumeOne {
             .pr(px(style.page.margins.right * mm))
             .pb(px(style.page.margins.bottom * mm))
             .pl(px(style.page.margins.left * mm))
+            .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
+                this.inline.paper_hovered = *hovering;
+                if !hovering {
+                    this.defer_inline_close(window, cx);
+                }
+            }));
+        let mut header = div()
+            .id("preview-basics")
+            .debug_selector(|| "preview-basics".into())
+            .relative()
+            .focusable()
+            .tab_index(0)
+            .key_context("PreviewItem")
+            .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
+                if *hovering {
+                    this.hovered_section = Some("basics".into());
+                    this.schedule_inline("basics", None, window, cx);
+                } else if this.hovered_section.as_deref() == Some("basics") {
+                    this.hovered_section = None;
+                }
+            }))
+            .on_click(
+                cx.listener(|this, _, window, cx| this.open_inline("basics", None, window, cx)),
+            )
+            .on_action(cx.listener(|this, _: &inline_ui::OpenInline, window, cx| {
+                this.open_inline("basics", None, window, cx)
+            }))
             .child(
                 div()
                     .text_size(px(style.typography.name.size_pt * 1.3))
@@ -550,7 +598,7 @@ impl ResumeOne {
                     .child(content.label.clone()),
             );
         if !content.contacts.is_empty() {
-            page = page.child(
+            header = header.child(
                 div()
                     .mt_3()
                     .text_size(px(style.typography.meta.size_pt * 1.3))
@@ -559,7 +607,7 @@ impl ResumeOne {
             );
         }
         if !content.summary.is_empty() {
-            page = page.child(
+            header = header.child(
                 div()
                     .mt_6()
                     .text_size(px(style.typography.body.size_pt * 1.3))
@@ -570,6 +618,10 @@ impl ResumeOne {
                     .child(content.summary.clone()),
             );
         }
+        if self.inline_matches("basics", None) {
+            header = header.child(self.inline_form(cx));
+        }
+        page = page.child(header);
         let sections = self.model.document.sections();
         for summary in &sections {
             if summary.id == "basics" {
@@ -993,6 +1045,7 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::choose_file))
             .on_action(cx.listener(Self::refresh_folder))
             .on_action(cx.listener(Self::toggle_source))
+            .on_action(cx.listener(Self::dismiss_inline))
             .on_action(cx.listener(Self::format_json))
             .on_action(cx.listener(Self::undo_visual_edit))
             .on_action(cx.listener(Self::redo_visual_edit))
@@ -1151,6 +1204,7 @@ fn main() {
         files::register(cx);
         editor_ui::register(cx);
         structure_ui::register(cx);
+        inline_ui::register(cx);
         let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
         let quit_flush_target = quit_target.clone();
         cx.on_app_quit(move |cx| {

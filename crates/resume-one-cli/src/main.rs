@@ -5,6 +5,7 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand, ValueEnum};
 use resume_one_core::Diagnostic;
+use resume_one_core::content_edit::{TextEdit, apply_text_edit};
 use resume_one_core::docx;
 use resume_one_core::export::write_export;
 use resume_one_core::load_theme;
@@ -83,6 +84,24 @@ enum Command {
         dry_run: bool,
         #[command(subcommand)]
         operation: StructureCommand,
+    },
+    /// 安全设置或清除标准文本字段；空字符串表示移除字段
+    SetField {
+        #[arg(long)]
+        file: PathBuf,
+        #[arg(long = "if-match")]
+        if_match: String,
+        #[arg(long)]
+        section: String,
+        /// 非 basics 模块的零基条目序号
+        #[arg(long)]
+        index: Option<usize>,
+        #[arg(long)]
+        field: String,
+        #[arg(long)]
+        value: String,
+        #[arg(long)]
+        dry_run: bool,
     },
     /// 导出 PDF、DOCX、UTF-8 纯文本或 Markdown
     Export {
@@ -483,6 +502,67 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 "previousRevision": document.revision,
                 "revision": next.revision,
                 "changedPaths": [changed_path],
+                "valid": true,
+                "dryRun": dry_run
+            }))
+        }
+        Command::SetField {
+            file,
+            if_match,
+            section,
+            index,
+            field,
+            value,
+            dry_run,
+        } => {
+            if !if_match.starts_with("sha256:")
+                || if_match.len() != 71
+                || !if_match[7..].bytes().all(|byte| byte.is_ascii_hexdigit())
+            {
+                return Err(AppError::new(
+                    2,
+                    "INVALID_REVISION",
+                    "if-match 必须是 sha256: 后接 64 位十六进制摘要",
+                )
+                .file(&file));
+            }
+            let document = load(&file)?;
+            if document.revision != if_match {
+                let mut error = AppError::new(
+                    4,
+                    "REVISION_CONFLICT",
+                    "文件已被其他进程或同步服务修改；未覆盖外部内容",
+                )
+                .file(&file);
+                error.revision = Some(document.revision);
+                return Err(error);
+            }
+            let edit = TextEdit {
+                section,
+                index,
+                field,
+                value,
+            };
+            let next = apply_text_edit(&document, &edit)
+                .map_err(|error| AppError::new(3, error.code, error.message).file(&file))?;
+            if !dry_run && next.revision != document.revision {
+                replace_resume(&file, &next.source, &if_match).map_err(|error| {
+                    let exit = match error.code {
+                        "REVISION_CONFLICT" => 4,
+                        "RESUME_IO" => 5,
+                        "INVALID_REVISION" => 2,
+                        _ => 3,
+                    };
+                    let mut output = AppError::new(exit, error.code, error.message).file(&file);
+                    output.revision = error.current_revision;
+                    output
+                })?;
+            }
+            Ok(json!({
+                "file": file,
+                "previousRevision": document.revision,
+                "revision": next.revision,
+                "changedPaths": if next.revision == document.revision { Vec::new() } else { vec![edit.pointer()] },
                 "valid": true,
                 "dryRun": dry_run
             }))

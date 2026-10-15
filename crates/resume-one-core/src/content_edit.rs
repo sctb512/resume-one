@@ -14,6 +14,31 @@ pub struct TextEdit {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StringListChange {
+    Set { index: usize, value: String },
+    Insert { index: usize },
+    Remove { index: usize },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StringListEdit {
+    pub section: String,
+    pub index: usize,
+    pub field: String,
+    pub change: StringListChange,
+}
+
+pub fn list_fields(section: &str) -> &'static [&'static str] {
+    match section {
+        "work" | "volunteer" => &["highlights"],
+        "education" => &["courses"],
+        "skills" | "interests" => &["keywords"],
+        "projects" => &["highlights", "keywords", "roles"],
+        _ => &[],
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TextEditError {
     pub code: &'static str,
     pub message: String,
@@ -158,6 +183,74 @@ pub fn prepare_text_edit(source: &[u8], edit: &TextEdit) -> Result<Vec<u8>, Text
     Ok(source)
 }
 
+/// Edit one standard string-list value while retaining any other draft errors.
+/// The caller owns draft validation, persistence and undo transactions.
+pub fn prepare_list_edit(source: &[u8], edit: &StringListEdit) -> Result<Vec<u8>, TextEditError> {
+    if source.len() > MAX_RESUME_BYTES
+        || matches!(&edit.change, StringListChange::Set { value, .. } if value.len() > MAX_RESUME_BYTES)
+    {
+        return Err(error("RESUME_TOO_LARGE", "简历文件超过 16 MiB 上限"));
+    }
+    if !list_fields(&edit.section).contains(&edit.field.as_str()) {
+        return Err(error("UNKNOWN_FIELD", "不是支持的标准文本列表字段"));
+    }
+    let mut value: serde_json::Value = serde_json::from_slice(source)
+        .map_err(|_| error("INVALID_JSON", "请先修复 JSON 语法错误"))?;
+    let item = value
+        .get_mut(&edit.section)
+        .and_then(serde_json::Value::as_array_mut)
+        .and_then(|items| items.get_mut(edit.index))
+        .and_then(serde_json::Value::as_object_mut)
+        .ok_or_else(|| error("ITEM_INDEX", "条目不存在"))?;
+    if !item.contains_key(&edit.field) {
+        if matches!(edit.change, StringListChange::Insert { index: 0 }) {
+            item.insert(edit.field.clone(), json!([]));
+        } else {
+            return Err(error("LIST_INDEX", "列表不存在或位置超出范围"));
+        }
+    }
+    let list = item
+        .get_mut(&edit.field)
+        .and_then(serde_json::Value::as_array_mut)
+        .ok_or_else(|| error("FIELD_TYPE", "字段不是文本列表"))?;
+    if !list.iter().all(serde_json::Value::is_string) {
+        return Err(error("FIELD_TYPE", "列表包含非文本内容，请在 JSON 中修复"));
+    }
+    match &edit.change {
+        StringListChange::Set { index, value } => {
+            let target = list
+                .get_mut(*index)
+                .ok_or_else(|| error("LIST_INDEX", "列表内容不存在"))?;
+            if target.as_str() == Some(value) {
+                return Ok(source.to_vec());
+            }
+            *target = json!(value);
+        }
+        StringListChange::Insert { index } => {
+            if *index > list.len() {
+                return Err(error("LIST_INDEX", "列表插入位置超出范围"));
+            }
+            list.insert(*index, json!(""));
+        }
+        StringListChange::Remove { index } => {
+            if *index >= list.len() {
+                return Err(error("LIST_INDEX", "列表内容不存在"));
+            }
+            list.remove(*index);
+            if list.is_empty() {
+                item.shift_remove(&edit.field);
+            }
+        }
+    }
+    let mut source = serde_json::to_vec_pretty(&value)
+        .map_err(|reason| error("SERIALIZE", reason.to_string()))?;
+    source.push(b'\n');
+    if source.len() > MAX_RESUME_BYTES {
+        return Err(error("RESUME_TOO_LARGE", "简历文件超过 16 MiB 上限"));
+    }
+    Ok(source)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -246,5 +339,68 @@ mod tests {
         let repaired = parse_resume(&prepare_text_edit(&draft, &edit).unwrap()).unwrap();
         assert_eq!(repaired.value["basics"]["name"], "新名字");
         assert_eq!(repaired.value["basics"]["email"], "new@example.com");
+    }
+
+    #[test]
+    fn lists_preserve_neighbors_and_remove_empty_container() {
+        let old =
+            parse_resume(br#"{"work":[{"highlights":["A","B"],"extra":{"keep":true}}]}"#).unwrap();
+        let mut edit = StringListEdit {
+            section: "work".into(),
+            index: 0,
+            field: "highlights".into(),
+            change: StringListChange::Insert { index: 1 },
+        };
+        let source = prepare_list_edit(&old.source, &edit).unwrap();
+        assert_eq!(
+            parse_resume(&source).unwrap().value["work"][0]["highlights"],
+            json!(["A", "", "B"])
+        );
+        edit.change = StringListChange::Set {
+            index: 1,
+            value: "新要点".into(),
+        };
+        let source = prepare_list_edit(&source, &edit).unwrap();
+        assert_eq!(
+            parse_resume(&source).unwrap().value["work"][0]["highlights"],
+            json!(["A", "新要点", "B"])
+        );
+        edit.change = StringListChange::Remove { index: 0 };
+        let source = prepare_list_edit(&source, &edit).unwrap();
+        let source = prepare_list_edit(&source, &edit).unwrap();
+        let source = prepare_list_edit(&source, &edit).unwrap();
+        let final_document = parse_resume(&source).unwrap();
+        assert!(final_document.value["work"][0].get("highlights").is_none());
+        assert_eq!(final_document.value["work"][0]["extra"]["keep"], true);
+        edit.change = StringListChange::Insert { index: 0 };
+        assert!(prepare_list_edit(&source, &edit).is_ok());
+    }
+
+    #[test]
+    fn list_edit_rejects_wrong_type_and_bounds_without_coercion() {
+        let mut edit = StringListEdit {
+            section: "work".into(),
+            index: 0,
+            field: "highlights".into(),
+            change: StringListChange::Remove { index: 1 },
+        };
+        assert_eq!(
+            prepare_list_edit(br#"{"work":[{"highlights":["A"]}]}"#, &edit)
+                .unwrap_err()
+                .code,
+            "LIST_INDEX"
+        );
+        edit.change = StringListChange::Insert { index: 0 };
+        assert_eq!(
+            prepare_list_edit(br#"{"work":[{"highlights":[9]}]}"#, &edit)
+                .unwrap_err()
+                .code,
+            "FIELD_TYPE"
+        );
+        edit.field = "name".into();
+        assert_eq!(
+            prepare_list_edit(&base().source, &edit).unwrap_err().code,
+            "UNKNOWN_FIELD"
+        );
     }
 }

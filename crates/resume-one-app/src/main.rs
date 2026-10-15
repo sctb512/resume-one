@@ -206,6 +206,9 @@ impl ResumeOne {
                 }))
                 .on_click(cx.listener(move |this, _, _, cx| {
                     this.model.select_theme(index);
+                    this.selected_module = None;
+                    this.selected_item_module = None;
+                    this.insertion_before = None;
                     cx.notify();
                 }))
                 .on_mouse_down(
@@ -875,6 +878,14 @@ impl ResumeOne {
         for (id, title) in SECTION_LABELS {
             let existing = sections.iter().find(|section| section.id == *id);
             let present = existing.is_some();
+            let offered = self.model.themes[self.model.selected_theme]
+                .manifest
+                .modules
+                .iter()
+                .any(|module| module == id);
+            if !present && !offered {
+                continue;
+            }
             let count = existing.map_or(0, |section| section.count);
             let id = (*id).to_owned();
             let selector = format!("module-{id}");
@@ -1742,5 +1753,33 @@ mod tests {
             assert_eq!(modules.right(), px(width));
             assert!(paper.left() >= preview.left());
         }
+    }
+
+    #[gpui::test]
+    fn module_choices_follow_applied_theme_and_preserve_existing_content(cx: &mut TestAppContext) {
+        let mut model = AppModel::load(None).unwrap();
+        let source = model.document.source.clone();
+        model.themes[0].manifest.modules = vec!["basics".into(), "work".into()];
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        assert!(cx.debug_bounds("module-volunteer").is_none());
+        assert!(cx.debug_bounds("module-education").is_some());
+        assert!(cx.debug_bounds("module-skills").is_some());
+        let theme = cx.debug_bounds("theme-1").unwrap();
+        let point = point(theme.left() + px(10.0), theme.top() + px(10.0));
+        cx.simulate_mouse_move(point, None, Modifiers::none());
+        cx.update(|_, cx| assert_eq!(view.read(cx).hovered_theme, Some(1)));
+        assert!(cx.debug_bounds("module-volunteer").is_none());
+        cx.update(|_, cx| view.update(cx, |app, _| app.selected_module = Some("awards".into())));
+        cx.simulate_click(point, Modifiers::none());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.selected_theme, 1);
+            assert!(app.selected_module.is_none());
+            assert_eq!(app.model.document.source, source);
+        });
+        assert!(cx.debug_bounds("module-volunteer").is_some());
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
     }
 }

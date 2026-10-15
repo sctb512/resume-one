@@ -115,9 +115,13 @@ impl ResumeOne {
         }
     }
     fn active_style(&self) -> &ThemeStyle {
+        &self.display_theme().style
+    }
+
+    fn display_theme(&self) -> &model::BuiltinTheme {
         self.hovered_theme
             .and_then(|index| self.model.themes.get(index))
-            .map_or_else(|| self.model.selected_style(), |theme| &theme.style)
+            .unwrap_or_else(|| self.model.applied_theme())
     }
 
     fn begin_mode_transition(&mut self) {
@@ -166,7 +170,8 @@ impl ResumeOne {
                 }
             }));
         for (index, theme) in self.model.themes.iter().enumerate() {
-            let selected = index == self.model.selected_theme;
+            let selected =
+                self.model.applied_online.is_none() && index == self.model.selected_theme;
             let row = div()
                 .id(("theme", index))
                 .debug_selector(|| format!("theme-{index}"))
@@ -555,7 +560,9 @@ impl ResumeOne {
         for (id, title) in SECTION_LABELS {
             let existing = sections.iter().find(|section| section.id == *id);
             let present = existing.is_some();
-            let offered = self.model.themes[self.model.selected_theme]
+            let offered = self
+                .model
+                .applied_theme()
                 .manifest
                 .modules
                 .iter()

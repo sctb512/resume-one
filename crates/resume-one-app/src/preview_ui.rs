@@ -10,7 +10,10 @@ use resume_one_core::{
     structure::StructureEdit,
 };
 
-use crate::{ResumeOne, SECTION_LABELS, color, inline_ui, model::AppModel};
+use crate::{
+    ResumeOne, SECTION_LABELS, color, inline_ui,
+    model::{AppModel, BuiltinTheme},
+};
 
 const PX_PER_MM: f32 = 3.0;
 const PX_PER_PT: f32 = PX_PER_MM / PT_PER_MM;
@@ -60,16 +63,19 @@ mod tests {
     fn preview_caches_layout_and_invalidates_document_and_theme_reloads(cx: &mut TestAppContext) {
         let mut model = AppModel::load(None).unwrap();
         let preview = cx.update(PreviewState::new);
-        let first = preview.resolve(&model, 0).unwrap();
-        assert!(Arc::ptr_eq(&first, &preview.resolve(&model, 0).unwrap()));
-        let hovered = preview.resolve(&model, 1).unwrap();
+        let first = preview.resolve(&model, &model.themes[0]).unwrap();
+        assert!(Arc::ptr_eq(
+            &first,
+            &preview.resolve(&model, &model.themes[0]).unwrap()
+        ));
+        let hovered = preview.resolve(&model, &model.themes[1]).unwrap();
         assert!(!Arc::ptr_eq(&first, &hovered));
         model.theme_epoch += 1;
-        let reloaded = preview.resolve(&model, 1).unwrap();
+        let reloaded = preview.resolve(&model, &model.themes[1]).unwrap();
         assert!(!Arc::ptr_eq(&hovered, &reloaded));
         model.document = parse_resume(br#"{"basics":{"name":"Changed"}}"#).unwrap();
         model.content = project(&model.document);
-        let changed = preview.resolve(&model, 1).unwrap();
+        let changed = preview.resolve(&model, &model.themes[1]).unwrap();
         assert!(!Arc::ptr_eq(&reloaded, &changed));
         assert!(
             changed.layout.pages.iter().flatten().any(
@@ -108,7 +114,7 @@ mod tests {
 struct Cache {
     revision: String,
     theme_epoch: u64,
-    theme_index: usize,
+    theme_identity: String,
     result: Result<Arc<PreviewData>, String>,
 }
 
@@ -142,7 +148,7 @@ impl PreviewState {
         }
     }
 
-    fn resolve(&self, model: &AppModel, theme_index: usize) -> Result<Arc<PreviewData>, String> {
+    fn resolve(&self, model: &AppModel, theme: &BuiltinTheme) -> Result<Arc<PreviewData>, String> {
         if let Some(error) = &self.font_error {
             return Err(error.clone());
         }
@@ -150,23 +156,20 @@ impl PreviewState {
         if let Some(cache) = cache.as_ref()
             && cache.revision == model.document.revision
             && cache.theme_epoch == model.theme_epoch
-            && cache.theme_index == theme_index
+            && cache.theme_identity == theme.identity
         {
             return cache.result.clone();
         }
-        let result = layout::layout_with_theme(
-            &model.content,
-            Language::Zh,
-            &model.themes[theme_index].manifest,
-        )
-        .map(|layout| {
-            let regions = regions(&layout);
-            Arc::new(PreviewData { layout, regions })
-        });
+        let result = layout::layout_with_theme(&model.content, Language::Zh, &theme.manifest).map(
+            |layout| {
+                let regions = regions(&layout);
+                Arc::new(PreviewData { layout, regions })
+            },
+        );
         *cache = Some(Cache {
             revision: model.document.revision.clone(),
             theme_epoch: model.theme_epoch,
-            theme_index,
+            theme_identity: theme.identity.clone(),
             result: result.clone(),
         });
         result
@@ -311,8 +314,7 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
 
 impl ResumeOne {
     pub(super) fn resume_pages(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
-        let index = self.hovered_theme.unwrap_or(self.model.selected_theme);
-        let data = match self.preview.resolve(&self.model, index) {
+        let data = match self.preview.resolve(&self.model, self.display_theme()) {
             Ok(data) => data,
             Err(message) => {
                 return div()

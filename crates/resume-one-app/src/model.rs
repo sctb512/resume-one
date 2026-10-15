@@ -50,10 +50,12 @@ const EXAMPLE_RESUME: &[u8] = br#"{
   "skills": [{"name": "\u8bbe\u8ba1\u5de5\u5177", "keywords": ["Figma", "\u539f\u578b\u8bbe\u8ba1"]}]
 }"#;
 
+#[derive(Clone)]
 pub struct BuiltinTheme {
     pub manifest: ThemeManifest,
     pub style: ThemeStyle,
     pub path: Option<PathBuf>,
+    pub identity: String,
 }
 
 pub struct AppModel {
@@ -67,6 +69,7 @@ pub struct AppModel {
     pub themes: Vec<BuiltinTheme>,
     pub selected_theme: usize,
     pub theme_epoch: u64,
+    pub applied_online: Option<BuiltinTheme>,
 }
 
 impl AppModel {
@@ -104,6 +107,7 @@ impl AppModel {
                     .map_err(|issues| format!("内置主题无效：{issues:?}"))?;
                 let style = ThemeStyle::from_manifest(&manifest);
                 Ok(BuiltinTheme {
+                    identity: format!("builtin:{}", manifest.id),
                     manifest,
                     style,
                     path: None,
@@ -122,21 +126,28 @@ impl AppModel {
             themes,
             selected_theme: 0,
             theme_epoch: 0,
+            applied_online: None,
         })
     }
 
     pub fn selected_style(&self) -> &ThemeStyle {
-        &self.themes[self.selected_theme].style
+        &self.applied_theme().style
+    }
+
+    pub fn applied_theme(&self) -> &BuiltinTheme {
+        self.applied_online
+            .as_ref()
+            .unwrap_or(&self.themes[self.selected_theme])
     }
 
     pub fn replace_themes(&mut self, themes: Vec<BuiltinTheme>) {
         self.theme_epoch = self.theme_epoch.wrapping_add(1);
-        let selected_id = self
+        let selected_identity = self
             .themes
             .get(self.selected_theme)
-            .map(|theme| &theme.manifest.id);
-        self.selected_theme = selected_id
-            .and_then(|id| themes.iter().position(|theme| &theme.manifest.id == id))
+            .map(|theme| &theme.identity);
+        self.selected_theme = selected_identity
+            .and_then(|identity| themes.iter().position(|theme| &theme.identity == identity))
             .unwrap_or(0);
         self.themes = themes;
     }
@@ -160,6 +171,7 @@ impl AppModel {
     pub fn select_theme(&mut self, index: usize) {
         if index < self.themes.len() {
             self.selected_theme = index;
+            self.applied_online = None;
         }
     }
 }
@@ -167,6 +179,36 @@ impl AppModel {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn applied_online_snapshot_survives_local_reload_and_browsing() {
+        let mut model = AppModel::load(None).unwrap();
+        let source = model.document.source.clone();
+        let mut online = model.themes[2].clone();
+        online.identity = "online:source-a:commit:songyan".into();
+        model.applied_online = Some(online.clone());
+        model.replace_themes(vec![model.themes[0].clone()]);
+        assert_eq!(model.applied_theme().identity, online.identity);
+        assert_eq!(model.selected_style().id, online.style.id);
+        assert_eq!(model.document.source, source);
+        model.select_theme(0);
+        assert!(model.applied_online.is_none());
+        assert_ne!(model.applied_theme().identity, online.identity);
+    }
+
+    #[test]
+    fn local_selection_uses_file_identity_not_manifest_id() {
+        let mut model = AppModel::load(None).unwrap();
+        let mut a = model.themes[0].clone();
+        a.identity = "local:/themes/a.theme.json".into();
+        let mut b = a.clone();
+        b.identity = "local:/themes/b.theme.json".into();
+        model.replace_themes(vec![a.clone(), b.clone()]);
+        model.select_theme(1);
+        model.replace_themes(vec![b.clone(), a]);
+        assert_eq!(model.selected_theme, 0);
+        assert_eq!(model.applied_theme().identity, b.identity);
+    }
 
     #[test]
     fn all_builtins_load_and_keep_resume_source_unchanged() {

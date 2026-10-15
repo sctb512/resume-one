@@ -116,9 +116,7 @@ impl ResumeOne {
         let snapshot = ExportSnapshot {
             kind,
             content: self.model.content.clone(),
-            theme: self.model.themes[self.model.selected_theme]
-                .manifest
-                .clone(),
+            theme: self.model.applied_theme().manifest.clone(),
             source_path: self.model.document_path.clone(),
         };
         let directory = self

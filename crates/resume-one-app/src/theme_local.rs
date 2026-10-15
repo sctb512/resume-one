@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -183,7 +183,6 @@ impl ThemeStore {
         Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
         let mut warnings = Vec::new();
-        let mut ids = HashSet::new();
         for path in Self::theme_paths(directory)? {
             match fs::metadata(&path) {
                 Ok(metadata) if metadata.len() > 1024 * 1024 => {
@@ -210,12 +209,14 @@ impl ThemeStore {
                     continue;
                 }
             };
-            if !ids.insert(manifest.id.clone()) {
-                warnings.push(format!("主题 ID 重复，已跳过：{}", path.display()));
-                continue;
-            }
             let style = ThemeStyle::from_manifest(&manifest);
             themes.push(BuiltinTheme {
+                identity: format!(
+                    "local:{}",
+                    path.canonicalize()
+                        .unwrap_or_else(|_| path.clone())
+                        .display()
+                ),
                 manifest,
                 style,
                 path: Some(path),
@@ -384,6 +385,29 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn different_files_can_share_a_theme_id_without_being_dropped() {
+        let root = tempfile::tempdir().unwrap();
+        let mut store = ThemeStore::new(
+            root.path().join("settings.json"),
+            root.path().join("themes"),
+        )
+        .unwrap();
+        fs::write(
+            store.directory.join("downloaded.theme.json"),
+            BUILTIN_THEMES[0],
+        )
+        .unwrap();
+        let themes = store.load_themes().unwrap();
+        let matches: Vec<_> = themes
+            .iter()
+            .filter(|theme| theme.manifest.id == "zhibai")
+            .collect();
+        assert_eq!(matches.len(), 2);
+        assert_ne!(matches[0].identity, matches[1].identity);
+        assert!(store.warnings.is_empty());
+    }
 
     #[test]
     fn multiple_sources_persist_without_changing_local_directory_or_foreign_settings() {

@@ -531,6 +531,7 @@ impl ResumeOne {
         self.clear_inline();
         self.cancel_insertion();
         self.hovered_theme = None;
+        self.online.cancel_interaction();
         if self.source_mode {
             self.source_mode = false;
             self.begin_mode_transition();

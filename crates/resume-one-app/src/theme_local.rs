@@ -288,7 +288,11 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.files.busy || self.export_busy || self.editor.as_ref().is_some_and(|e| e.saving) {
+        if self.online.download_pending()
+            || self.files.busy
+            || self.export_busy
+            || self.editor.as_ref().is_some_and(|e| e.saving)
+        {
             return;
         }
         let choice = cx.prompt_for_paths(PathPromptOptions {
@@ -330,6 +334,9 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.online.download_pending() || self.files.busy {
+            return;
+        }
         let changed = self
             .theme_store
             .as_mut()

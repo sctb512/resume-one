@@ -3,7 +3,7 @@ use gpui::{
     Subscription, WeakEntity, Window, actions, div, prelude::*, px,
 };
 use gpui_component::{
-    Sizable as _, WindowExt as _,
+    Disableable as _, Sizable as _, WindowExt as _,
     button::{Button, ButtonCustomVariant, ButtonVariant, ButtonVariants as _},
     dialog::DialogButtonProps,
     input::{Input, InputState},
@@ -168,6 +168,7 @@ impl ThemeManager {
                 sources.push(source);
             }
             store.save_sources(sources)?;
+            owner.sync_theme_sources(window, cx);
             cx.notify();
             Ok::<(), String>(())
         });
@@ -196,6 +197,7 @@ impl ThemeManager {
                 .cloned()
                 .collect();
             store.save_sources(sources)?;
+            owner.sync_theme_sources(window, cx);
             cx.notify();
             Ok::<(), String>(())
         });
@@ -237,11 +239,13 @@ impl Render for ThemeManager {
             .as_ref()
             .map(|store| store.sources.clone())
             .unwrap_or_default();
-        let warnings = app
+        let mut warnings = app
             .theme_store
             .as_ref()
             .map(|store| store.warnings.clone())
             .unwrap_or_default();
+        warnings.extend(app.online.diagnostics.iter().cloned());
+        let directory_locked = app.online.download_pending() || app.files.busy;
         let mut list = div()
             .id("managed-source-list")
             .flex()
@@ -379,6 +383,7 @@ impl Render for ThemeManager {
                             .gap_2()
                             .child(
                                 Button::new("choose-theme-folder")
+                                    .disabled(directory_locked)
                                     .small()
                                     .custom(quiet)
                                     .label("更换目录…")
@@ -396,6 +401,7 @@ impl Render for ThemeManager {
                             )
                             .child(
                                 Button::new("reset-theme-folder")
+                                    .disabled(directory_locked)
                                     .small()
                                     .custom(quiet)
                                     .label("恢复默认目录")
@@ -494,6 +500,7 @@ impl ResumeOne {
         self.clear_inline();
         self.cancel_insertion();
         self.hovered_theme = None;
+        self.online.cancel_interaction();
         crate::editor_ui::apply_editor_theme(self.model.selected_style(), cx);
         let owner = cx.entity();
         let manager = cx.new(|cx| ThemeManager::new(owner.clone(), window, cx));

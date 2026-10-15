@@ -117,6 +117,7 @@ impl ResumeOne {
         self.files.busy = true;
         self.files.open = false;
         self.hovered_theme = None;
+        self.online.cancel_interaction();
         cx.notify();
         let choice = cx.prompt_for_paths(PathPromptOptions {
             files: !directory,
@@ -162,6 +163,7 @@ impl ResumeOne {
         self.files.busy = true;
         self.files.open = false;
         self.hovered_theme = None;
+        self.online.cancel_interaction();
         cx.notify();
         let task = cx
             .background_executor()

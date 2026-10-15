@@ -8,8 +8,10 @@ mod model;
 mod motion;
 mod preview_ui;
 mod structure_ui;
+mod theme_browser_ui;
 mod theme_local;
 mod theme_manager;
+mod theme_online;
 mod workspace;
 
 use std::path::Path;
@@ -67,6 +69,8 @@ struct ResumeOne {
     export_busy: bool,
     theme_store: Option<theme_local::ThemeStore>,
     theme_manager_open: bool,
+    online: theme_online::OnlineThemes,
+    theme_scroll: ScrollHandle,
     hovered_section: Option<String>,
     hovered_item: Option<(String, usize)>,
     insertion_before: Option<Option<String>>,
@@ -102,6 +106,8 @@ impl ResumeOne {
             export_busy: false,
             theme_store: None,
             theme_manager_open: false,
+            online: theme_online::OnlineThemes::default(),
+            theme_scroll: ScrollHandle::new(),
             hovered_section: None,
             hovered_item: None,
             insertion_before: None,
@@ -119,6 +125,13 @@ impl ResumeOne {
     }
 
     fn display_theme(&self) -> &model::BuiltinTheme {
+        if self.online.online
+            && !self.source_mode
+            && !self.theme_manager_open
+            && let Some(theme) = &self.online.preview
+        {
+            return theme;
+        }
         self.hovered_theme
             .and_then(|index| self.model.themes.get(index))
             .unwrap_or_else(|| self.model.applied_theme())
@@ -152,11 +165,8 @@ impl ResumeOne {
     }
 
     fn theme_sidebar(&self, width: f32, cx: &mut Context<Self>) -> impl IntoElement {
-        let accent = color(self.active_style().colors.accent);
-        let warnings = self
-            .theme_store
-            .as_ref()
-            .map_or_else(Vec::new, |store| store.warnings.clone());
+        let colors = &self.active_style().colors;
+        let accent = color(colors.accent);
         let mut list = div()
             .id("theme-list")
             .flex()
@@ -169,21 +179,29 @@ impl ResumeOne {
                     cx.notify();
                 }
             }));
-        for (index, theme) in self.model.themes.iter().enumerate() {
+        for (index, theme) in self
+            .model
+            .themes
+            .iter()
+            .enumerate()
+            .filter(|_| !self.online.online)
+        {
             let selected =
                 self.model.applied_online.is_none() && index == self.model.selected_theme;
             let row = div()
                 .id(("theme", index))
                 .debug_selector(|| format!("theme-{index}"))
                 .flex()
+                .flex_none()
+                .h(px(62.0))
                 .items_center()
                 .gap_3()
                 .px_3()
                 .py_3()
                 .rounded_md()
                 .cursor_pointer()
-                .when(selected, |row| row.bg(rgb(0xffffff)))
-                .hover(|row| row.bg(rgb(0xffffff)))
+                .when(selected, |row| row.bg(color(colors.paper)))
+                .hover(|row| row.bg(color(colors.paper)))
                 .child(
                     div()
                         .w(px(5.0))
@@ -193,19 +211,23 @@ impl ResumeOne {
                 )
                 .child(
                     div()
+                        .flex_1()
+                        .min_w_0()
                         .flex()
                         .flex_col()
                         .gap_1()
                         .child(
                             div()
                                 .text_size(px(13.0))
-                                .text_color(if selected { accent } else { rgb(0x333933) })
+                                .truncate()
+                                .text_color(if selected { accent } else { color(colors.ink) })
                                 .child(theme.manifest.name.clone()),
                         )
                         .child(
                             div()
                                 .text_size(px(10.0))
-                                .text_color(rgb(0x8e958e))
+                                .truncate()
+                                .text_color(color(colors.muted))
                                 .child(theme.manifest.id.clone()),
                         ),
                 )
@@ -223,6 +245,8 @@ impl ResumeOne {
                     }
                 }))
                 .on_click(cx.listener(move |this, _, _, cx| {
+                    this.clear_inline();
+                    this.cancel_insertion();
                     this.model.select_theme(index);
                     this.selected_module = None;
                     this.selected_item_module = None;
@@ -237,6 +261,9 @@ impl ResumeOne {
                 );
             list = list.child(row);
         }
+        if self.online.online {
+            list = self.online_theme_list(cx);
+        }
         div()
             .id("theme-panel")
             .debug_selector(|| "theme-panel".to_string())
@@ -247,8 +274,8 @@ impl ResumeOne {
             .flex_col()
             .overflow_hidden()
             .border_r_1()
-            .border_color(rgb(0xe4e7e1))
-            .bg(rgb(0xf6f7f3))
+            .border_color(color(colors.border))
+            .bg(color(colors.sidebar))
             .px_3()
             .pt_5()
             .pb_4()
@@ -259,7 +286,7 @@ impl ResumeOne {
                     .flex()
                     .justify_between()
                     .text_size(px(11.0))
-                    .text_color(rgb(0x758078))
+                    .text_color(color(colors.muted))
                     .child("主题")
                     .child(
                         div()
@@ -272,20 +299,7 @@ impl ResumeOne {
                             })),
                     ),
             )
-            .when(!warnings.is_empty(), |panel| {
-                panel.child(
-                    div()
-                        .id("theme-warnings")
-                        .px_2()
-                        .text_size(px(10.0))
-                        .text_color(rgb(0x9b6045))
-                        .cursor_pointer()
-                        .child(format!("跳过 {} 个无效主题 · 查看", warnings.len()))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.editor_warning("主题加载提示", &warnings.join("\n"), window, cx);
-                        })),
-                )
-            })
+            .child(self.theme_navigation(cx))
             .child(list)
     }
 

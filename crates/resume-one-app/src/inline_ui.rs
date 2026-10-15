@@ -542,7 +542,8 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.inline.form.take().is_some() {
+        let insertion = self.cancel_insertion();
+        if self.inline.form.take().is_some() || insertion {
             self.clear_inline();
             window.focus(&self.focus);
             cx.notify();

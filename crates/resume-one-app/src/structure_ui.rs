@@ -22,6 +22,20 @@ pub(super) fn register(cx: &mut App) {
 }
 
 impl ResumeOne {
+    pub(super) fn insertion_active(&self) -> bool {
+        !self.source_mode
+            && (self.insertion_before.is_some()
+                || self.selected_module.is_some()
+                || self.selected_item_module.is_some())
+    }
+
+    pub(super) fn cancel_insertion(&mut self) -> bool {
+        let active = self.insertion_before.take().is_some();
+        let module = self.selected_module.take().is_some();
+        let item = self.selected_item_module.take().is_some();
+        active || module || item
+    }
+
     pub(super) fn apply_visual_structure(
         &mut self,
         edit: StructureEdit,
@@ -127,7 +141,9 @@ impl ResumeOne {
         if self.source_mode {
             return;
         }
+        self.cancel_insertion();
         self.clear_inline();
+        cx.notify();
         let Some((before, after)) = self.visual_undo.pop() else {
             return;
         };
@@ -150,7 +166,9 @@ impl ResumeOne {
         if self.source_mode {
             return;
         }
+        self.cancel_insertion();
         self.clear_inline();
+        cx.notify();
         let Some((before, after)) = self.visual_redo.pop() else {
             return;
         };

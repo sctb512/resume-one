@@ -13,12 +13,16 @@ pub(super) struct ModeTransition {
 
 impl ModeTransition {
     pub fn new(from: f32, to: f32, now: Instant) -> Self {
+        Self::with_duration(from, to, now, MODE_DURATION)
+    }
+
+    pub fn with_duration(from: f32, to: f32, now: Instant, duration: Duration) -> Self {
         let distance = (to - from).abs();
         Self {
             from,
             to,
             started: now,
-            duration: MODE_DURATION.mul_f32(distance),
+            duration: duration.mul_f32(distance),
         }
     }
 
@@ -50,5 +54,17 @@ mod tests {
         let reverse = ModeTransition::new(mid, 0.0, now);
         assert_eq!(reverse.sample(now).0, mid);
         assert_eq!(reverse.sample(now + MODE_DURATION), (0.0, true));
+    }
+
+    #[test]
+    fn spotlight_uses_short_duration_and_reverses_without_opacity_jump() {
+        let now = Instant::now();
+        let duration = Duration::from_millis(140);
+        let transition = ModeTransition::with_duration(0.0, 1.0, now, duration);
+        let middle = transition.sample(now + duration / 2).0;
+        assert!((middle - 0.5).abs() < 0.001);
+        let reverse = ModeTransition::with_duration(middle, 0.0, now, duration);
+        assert_eq!(reverse.sample(now).0, middle);
+        assert_eq!(reverse.sample(now + duration / 2), (0.0, true));
     }
 }

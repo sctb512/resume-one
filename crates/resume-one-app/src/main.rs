@@ -58,6 +58,10 @@ struct ResumeOne {
     source_mode: bool,
     sidebar_progress: f32,
     mode_transition: Option<motion::ModeTransition>,
+    spotlight_progress: f32,
+    spotlight_target: f32,
+    spotlight_transition: Option<motion::ModeTransition>,
+    spotlight_dimmed: Vec<&'static str>,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
     theme_store: Option<theme_local::ThemeStore>,
@@ -88,6 +92,10 @@ impl ResumeOne {
             source_mode: false,
             sidebar_progress: 0.0,
             mode_transition: None,
+            spotlight_progress: 0.0,
+            spotlight_target: 0.0,
+            spotlight_transition: None,
+            spotlight_dimmed: Vec::new(),
             editor: None,
             export_busy: false,
             theme_store: None,
@@ -344,7 +352,11 @@ impl ResumeOne {
                         cx,
                     );
                 } else {
+                    this.clear_inline();
+                    this.hovered_theme = None;
+                    this.selected_item_module = None;
                     this.insertion_before = Some(before.clone());
+                    window.focus(&this.focus);
                     cx.notify();
                 }
             }))
@@ -544,6 +556,7 @@ impl ResumeOne {
             let selector = format!("module-{id}");
             let selected = self.selected_module.as_deref() == Some(id.as_str())
                 || self.selected_item_module.as_deref() == Some(id.as_str());
+            let dimmed = !self.source_mode && self.spotlight_dimmed.contains(&id.as_str());
             let mut controls = div().flex().items_center().gap_2();
             if present {
                 controls = controls.child(
@@ -575,6 +588,11 @@ impl ResumeOne {
                     .px_3()
                     .py_2()
                     .rounded_md()
+                    .opacity(if dimmed {
+                        1.0 - 0.76 * self.spotlight_progress
+                    } else {
+                        1.0
+                    })
                     .bg(if selected {
                         color(self.active_style().colors.canvas)
                     } else {
@@ -609,10 +627,17 @@ impl ResumeOne {
                             return;
                         }
                         if this.model.document.value.get(&row_id).is_some() {
-                            this.selected_item_module =
-                                (row_id != "basics").then_some(row_id.clone());
+                            if this.insertion_before.is_some() {
+                                return;
+                            }
+                            this.clear_inline();
+                            this.hovered_theme = None;
+                            this.selected_item_module = (row_id != "basics"
+                                && this.selected_item_module.as_deref() != Some(&row_id))
+                            .then_some(row_id.clone());
                             this.selected_module = None;
                             this.insertion_before = None;
+                            window.focus(&this.focus);
                             cx.notify();
                             return;
                         }
@@ -626,8 +651,13 @@ impl ResumeOne {
                                 cx,
                             );
                         } else {
-                            this.selected_module = Some(row_id.clone());
+                            this.clear_inline();
+                            this.hovered_theme = None;
+                            this.selected_module = (this.selected_module.as_deref()
+                                != Some(&row_id))
+                            .then_some(row_id.clone());
                             this.selected_item_module = None;
+                            window.focus(&this.focus);
                             cx.notify();
                         }
                     })),
@@ -681,6 +711,42 @@ impl ResumeOne {
 
 impl Render for ResumeOne {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let spotlight_target = if self.insertion_active() { 1.0 } else { 0.0 };
+        if self.spotlight_target != spotlight_target {
+            self.spotlight_target = spotlight_target;
+            self.spotlight_transition = Some(motion::ModeTransition::with_duration(
+                self.spotlight_progress,
+                spotlight_target,
+                Instant::now(),
+                std::time::Duration::from_millis(140),
+            ));
+        }
+        if let Some(transition) = &self.spotlight_transition {
+            let (progress, complete) = transition.sample(Instant::now());
+            self.spotlight_progress = progress;
+            if complete {
+                self.spotlight_transition = None;
+            } else {
+                cx.on_next_frame(window, |_, _, cx| cx.notify());
+                window.request_animation_frame();
+            }
+        }
+        if self.insertion_active() {
+            self.spotlight_dimmed = SECTION_LABELS
+                .iter()
+                .filter_map(|&(id, _)| {
+                    let dim = if self.insertion_before.is_some() {
+                        self.model.document.value.get(id).is_some()
+                    } else {
+                        self.selected_module.as_deref() != Some(id)
+                            && self.selected_item_module.as_deref() != Some(id)
+                    };
+                    dim.then_some(id)
+                })
+                .collect();
+        } else if self.spotlight_progress == 0.0 {
+            self.spotlight_dimmed.clear();
+        }
         if self.mode_transition.is_some() {
             cx.on_next_frame(window, |this, window, cx| {
                 this.advance_mode_transition(window, cx)
@@ -934,6 +1000,69 @@ mod tests {
         EntityInputHandler as _, Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point,
     };
     use gpui_component::RopeExt;
+
+    #[gpui::test]
+    fn insertion_spotlights_are_bidirectional_cancellable_and_non_mutating(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        cx.update(inline_ui::register);
+        let executor = cx.executor();
+        let model = AppModel::load(None).unwrap();
+        let source = model.document.source.clone();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let add = cx.debug_bounds("add-module-before-work").unwrap();
+        let add_work_item = cx.debug_bounds("add-item-work-0").unwrap();
+        let add_education_item = cx.debug_bounds("add-item-education-0").unwrap();
+        cx.simulate_click(add.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.insertion_active());
+            assert_eq!(app.insertion_before, Some(Some("work".into())));
+            assert!(app.spotlight_dimmed.contains(&"work"));
+            assert!(!app.spotlight_dimmed.contains(&"volunteer"));
+            assert_eq!(app.model.document.source, source);
+        });
+        cx.simulate_click(add_work_item.center(), Modifiers::none());
+        cx.update(|_, cx| assert_eq!(view.read(cx).model.document.source, source));
+        let work = cx.debug_bounds("module-work").unwrap();
+        cx.simulate_click(work.center(), Modifiers::none());
+        cx.update(|_, cx| assert!(view.read(cx).insertion_before.is_some()));
+        let basics = cx.debug_bounds("preview-basics").unwrap();
+        cx.simulate_mouse_move(basics.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(200));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.simulate_keystrokes("escape");
+        cx.update(|_, cx| assert!(!view.read(cx).insertion_active()));
+        let volunteer = cx.debug_bounds("module-volunteer").unwrap();
+        cx.simulate_click(volunteer.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.selected_module.as_deref(), Some("volunteer"));
+            assert!(app.spotlight_dimmed.contains(&"work"));
+            assert!(!app.spotlight_dimmed.contains(&"volunteer"));
+        });
+        cx.simulate_click(volunteer.center(), Modifiers::none());
+        cx.update(|_, cx| assert!(!view.read(cx).insertion_active()));
+        cx.simulate_click(work.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        assert!(cx.debug_bounds("add-item-work-0").is_some());
+        cx.simulate_click(add_education_item.center(), Modifiers::none());
+        cx.update(|_, cx| assert_eq!(view.read(cx).model.document.source, source));
+        cx.simulate_keystrokes("escape");
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(!app.insertion_active());
+            assert_eq!(app.model.document.source, source);
+            assert!(app.visual_undo.is_empty());
+        });
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+    }
 
     #[gpui::test]
     fn visual_structure_edits_share_json_draft_and_undo_without_touching_disk(
@@ -1277,7 +1406,10 @@ mod tests {
 
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+                app.selected_module = Some("awards".into());
+                app.toggle_source(&editor_ui::ToggleSource, window, cx);
+                assert!(app.selected_module.is_none());
+                assert!(app.insertion_before.is_none());
             });
         });
         cx.update(|window, cx| {

@@ -520,6 +520,7 @@ impl ResumeOne {
     ) {
         self.files.open = false;
         self.clear_inline();
+        self.cancel_insertion();
         self.hovered_theme = None;
         if self.source_mode {
             self.source_mode = false;

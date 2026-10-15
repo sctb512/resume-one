@@ -325,6 +325,7 @@ impl ResumeOne {
             }
         };
         let style = self.active_style();
+        let spotlight = self.insertion_active();
         let valid = self
             .editor
             .as_ref()
@@ -354,7 +355,13 @@ impl ResumeOne {
                         this.defer_inline_close(window, cx);
                     }
                 }))
-                .child(page_canvas(data.clone(), page_index));
+                .child(
+                    div()
+                        .absolute()
+                        .size_full()
+                        .opacity(1.0 - 0.76 * self.spotlight_progress)
+                        .child(page_canvas(data.clone(), page_index)),
+                );
             for region in data
                 .regions
                 .iter()
@@ -386,12 +393,20 @@ impl ResumeOne {
                             .unwrap()
                             .page
                     });
-                page = page.child(self.preview_hit(*region, valid, form_page == page_index, cx));
+                page = page.child(self.preview_hit(
+                    *region,
+                    valid && !spotlight,
+                    form_page == page_index,
+                    cx,
+                ));
                 if !valid {
                     continue;
                 }
                 let target = region.target;
                 if target.index.is_none() && target.section != "basics" {
+                    if spotlight && self.selected_item_module.is_some() {
+                        continue;
+                    }
                     page = page.child(
                         div()
                             .absolute()
@@ -405,6 +420,9 @@ impl ResumeOne {
                             )),
                     );
                 } else if let Some(index) = target.index {
+                    if spotlight && self.selected_item_module.as_deref() != Some(target.section) {
+                        continue;
+                    }
                     let first = data
                         .regions
                         .iter()
@@ -445,7 +463,9 @@ impl ResumeOne {
             }
             if valid {
                 page = self.empty_module_controls(page, &data, page_index, cx);
-                if page_index + 1 == data.layout.pages.len() {
+                if page_index + 1 == data.layout.pages.len()
+                    && (!spotlight || self.selected_item_module.is_none())
+                {
                     let bottom = data
                         .regions
                         .iter()

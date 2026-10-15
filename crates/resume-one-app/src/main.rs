@@ -300,6 +300,7 @@ impl ResumeOne {
             .on_action(
                 cx.listener(move |this, _: &inline_ui::OpenInline, window, cx| {
                     this.open_inline(&keyboard_id, Some(index), window, cx);
+                    this.focus_inline_first(window, cx);
                 }),
             )
             .child(
@@ -581,7 +582,8 @@ impl ResumeOne {
                 cx.listener(|this, _, window, cx| this.open_inline("basics", None, window, cx)),
             )
             .on_action(cx.listener(|this, _: &inline_ui::OpenInline, window, cx| {
-                this.open_inline("basics", None, window, cx)
+                this.open_inline("basics", None, window, cx);
+                this.focus_inline_first(window, cx);
             }))
             .child(
                 div()

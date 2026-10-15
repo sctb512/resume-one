@@ -349,6 +349,27 @@ fn set_field_previews_validates_and_commits_without_leaking_content() {
     ]);
     assert_eq!(conflict.status.code(), Some(4));
     assert_eq!(error["error"]["code"], "REVISION_CONFLICT");
+    let (updated, nested) = call(&[
+        "set-field",
+        "--file",
+        path(&file),
+        "--if-match",
+        current,
+        "--section",
+        "basics",
+        "--field",
+        "location.city",
+        "--value",
+        "杭州",
+        "--json",
+    ]);
+    assert!(updated.status.success());
+    assert_eq!(
+        nested["result"]["changedPaths"],
+        json!(["/basics/location/city"])
+    );
+    let parsed: Value = serde_json::from_slice(&fs::read(&file).unwrap()).unwrap();
+    assert_eq!(parsed["basics"]["location"]["city"], "杭州");
 }
 
 #[test]

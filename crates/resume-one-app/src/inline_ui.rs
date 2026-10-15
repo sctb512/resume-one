@@ -1,13 +1,13 @@
 use std::time::Duration;
 
 use gpui::{
-    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, Subscription, Window, actions,
-    anchored, deferred, div, prelude::*, px,
+    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, ScrollHandle, Subscription,
+    Window, actions, anchored, deferred, div, prelude::*, px,
 };
 use gpui_component::input::{Input, InputEvent, InputState};
 use resume_one_core::content_edit::{
-    StringListChange, StringListEdit, TextEdit, list_fields, prepare_list_edit, prepare_text_edit,
-    text_fields,
+    ProfileChange, StringListChange, StringListEdit, TextEdit, list_fields, prepare_list_edit,
+    prepare_profile_edit, prepare_text_edit, text_fields,
 };
 
 use crate::{ResumeOne, color, label};
@@ -20,6 +20,7 @@ pub(super) struct InlineUi {
     generation: u64,
     pub paper_hovered: bool,
     form_hovered: bool,
+    scroll: ScrollHandle,
 }
 
 pub(super) struct InlineForm {
@@ -27,6 +28,7 @@ pub(super) struct InlineForm {
     pub index: Option<usize>,
     fields: Vec<Field>,
     list_keys: &'static [&'static str],
+    profile_count: usize,
     history_before: Option<String>,
     history_slot: usize,
     error: Option<String>,
@@ -38,6 +40,8 @@ struct Field {
     input: Entity<InputState>,
     _subscription: Subscription,
 }
+
+const PROFILE_FORM_FIELDS: &[&str] = &["profiles.network", "profiles.username", "profiles.url"];
 
 pub(super) fn register(cx: &mut App) {
     cx.bind_keys([
@@ -81,6 +85,14 @@ fn field_label(key: &str) -> &str {
         "keywords" => "关键词",
         "courses" => "课程",
         "roles" => "项目角色",
+        "location.address" => "详细地址",
+        "location.postalCode" => "邮政编码",
+        "location.city" => "城市",
+        "location.countryCode" => "国家代码",
+        "location.region" => "省份 / 地区",
+        "profiles.network" => "平台",
+        "profiles.username" => "账号",
+        "profiles.url" => "链接",
         _ => key,
     }
 }
@@ -91,6 +103,17 @@ impl ResumeOne {
             .form
             .as_ref()
             .is_some_and(|form| form.section == section && form.index == index)
+    }
+
+    pub(super) fn focus_inline_first(&self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(field) = self
+            .inline
+            .form
+            .as_ref()
+            .and_then(|form| form.fields.first())
+        {
+            field.input.update(cx, |state, cx| state.focus(window, cx));
+        }
     }
 
     fn inline_focused(&self, window: &Window, cx: &App) -> bool {
@@ -166,11 +189,13 @@ impl ResumeOne {
         if !item.is_object() {
             return;
         }
+        self.inline.generation += 1;
+        self.inline.scroll = ScrollHandle::new();
         let mut fields: Vec<_> = text_fields(section)
             .iter()
             .map(|&key| {
                 let value = item
-                    .get(key)
+                    .pointer(&format!("/{}", key.replace('.', "/")))
                     .and_then(serde_json::Value::as_str)
                     .unwrap_or("")
                     .to_owned();
@@ -192,11 +217,30 @@ impl ResumeOne {
                 }
             }
         }
+        let profiles = (section == "basics")
+            .then(|| item.get("profiles").and_then(serde_json::Value::as_array))
+            .flatten();
+        for (profile_index, profile) in profiles.into_iter().flatten().enumerate() {
+            for &key in PROFILE_FORM_FIELDS {
+                let value = profile
+                    .get(key.strip_prefix("profiles.").unwrap())
+                    .and_then(serde_json::Value::as_str)
+                    .unwrap_or("");
+                fields.push(Self::make_inline_field(
+                    key,
+                    Some(profile_index),
+                    value.into(),
+                    window,
+                    cx,
+                ));
+            }
+        }
         self.inline.form = Some(InlineForm {
             section: section.into(),
             index,
             fields,
             list_keys: list_fields(section),
+            profile_count: profiles.map_or(0, Vec::len),
             history_before: None,
             history_slot: self.visual_undo.len(),
             error: initial_error,
@@ -255,6 +299,14 @@ impl ResumeOne {
         };
         let before = self.editor.as_ref().unwrap().buffer.source().to_owned();
         let result = match candidate.list_index {
+            Some(profile_index) if field.starts_with("profiles.") => prepare_profile_edit(
+                before.as_bytes(),
+                &ProfileChange::SetText {
+                    index: profile_index,
+                    field: field.strip_prefix("profiles.").unwrap().into(),
+                    value: input.read(cx).value().to_string(),
+                },
+            ),
             Some(list_index) => prepare_list_edit(
                 before.as_bytes(),
                 &StringListEdit {
@@ -340,6 +392,53 @@ impl ResumeOne {
                 return;
             }
         };
+        self.record_inline_structure(
+            before,
+            after,
+            focus_index.map(|index| (key, index)),
+            window,
+            cx,
+        );
+    }
+
+    fn inline_profile_structure(
+        &mut self,
+        change: ProfileChange,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.inline_matches("basics", None) {
+            return;
+        }
+        let before = self.editor.as_ref().unwrap().buffer.source().to_owned();
+        let focus = match change {
+            ProfileChange::Insert { index } => Some(("profiles.network", index)),
+            _ => None,
+        };
+        let after = match prepare_profile_edit(before.as_bytes(), &change) {
+            Ok(source) => String::from_utf8(source).expect("JSON is UTF-8"),
+            Err(error) => {
+                self.inline.form.as_mut().unwrap().error = Some(error.message);
+                cx.notify();
+                return;
+            }
+        };
+        self.record_inline_structure(before, after, focus, window, cx);
+    }
+
+    fn record_inline_structure(
+        &mut self,
+        before: String,
+        after: String,
+        focus: Option<(&'static str, usize)>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(form) = &self.inline.form else {
+            return;
+        };
+        let section = form.section.clone();
+        let index = form.index;
         if self
             .visual_undo
             .last()
@@ -352,16 +451,23 @@ impl ResumeOne {
         self.replace_editor_source(&after, window, cx);
         let owner = cx.entity().downgrade();
         let retained_hover = self.inline.form_hovered;
+        let retained_offset = self.inline.scroll.offset();
         window.defer(cx, move |window, cx| {
             if let Some(owner) = owner.upgrade() {
                 owner.update(cx, |this, cx| {
-                    if !this.inline_matches(&section, Some(index)) {
+                    if !this.inline_matches(&section, index)
+                        || this
+                            .editor
+                            .as_ref()
+                            .is_none_or(|editor| editor.buffer.source() != after)
+                    {
                         return;
                     }
                     this.clear_inline();
-                    this.open_inline(&section, Some(index), window, cx);
+                    this.open_inline(&section, index, window, cx);
+                    this.inline.scroll.set_offset(retained_offset);
                     this.inline.form_hovered = retained_hover;
-                    if let Some(list_index) = focus_index {
+                    if let Some((key, list_index)) = focus {
                         let input = this
                             .inline
                             .form
@@ -440,11 +546,13 @@ impl ResumeOne {
             (style.page.width_mm - style.page.margins.left - style.page.margins.right) * 3.0;
         let mut fields = div()
             .id("inline-fields")
+            .debug_selector(|| "inline-fields".into())
             .flex()
             .flex_col()
             .gap_3()
             .max_h(px(340.0))
             .overflow_y_scroll()
+            .track_scroll(&self.inline.scroll)
             .p_4();
         for field in form
             .fields
@@ -463,12 +571,7 @@ impl ResumeOne {
                             .text_color(color(style.colors.muted))
                             .child(field_label(field.key).to_owned()),
                     )
-                    .child(
-                        div()
-                            .id(gpui::SharedString::from(selector.clone()))
-                            .debug_selector(move || selector.clone())
-                            .child(Input::new(&field.input).w_full()),
-                    ),
+                    .child(self.inline_input(field, selector)),
             );
         }
         for &key in form.list_keys {
@@ -499,11 +602,9 @@ impl ResumeOne {
                         .gap_2()
                         .child(
                             div()
-                                .id(gpui::SharedString::from(selector.clone()))
-                                .debug_selector(move || selector.clone())
                                 .flex_1()
                                 .min_w_0()
-                                .child(Input::new(&field.input).w_full()),
+                                .child(self.inline_input(field, selector)),
                         )
                         .child(
                             div()
@@ -528,6 +629,79 @@ impl ResumeOne {
                 list = list.child(self.inline_list_add(key, index + 1, cx));
             }
             fields = fields.child(list);
+        }
+        if form.section == "basics" {
+            let mut profiles = div()
+                .flex()
+                .flex_col()
+                .gap_2()
+                .child(
+                    div()
+                        .text_size(px(11.0))
+                        .text_color(color(style.colors.muted))
+                        .child("社交账号"),
+                )
+                .child(self.inline_profile_add(0, cx));
+            for index in 0..form.profile_count {
+                let selector = format!("inline-profile-remove-{index}");
+                let mut profile = div()
+                    .flex()
+                    .flex_col()
+                    .gap_2()
+                    .rounded_md()
+                    .border_1()
+                    .border_color(color(style.colors.border))
+                    .p_3()
+                    .child(
+                        div()
+                            .flex()
+                            .justify_between()
+                            .items_center()
+                            .text_size(px(11.0))
+                            .text_color(color(style.colors.muted))
+                            .child(format!("账号 {}", index + 1))
+                            .child(
+                                div()
+                                    .id(gpui::SharedString::from(selector.clone()))
+                                    .debug_selector(move || selector.clone())
+                                    .cursor_pointer()
+                                    .px_2()
+                                    .py_1()
+                                    .text_color(color(style.colors.seal))
+                                    .child("−")
+                                    .on_click(cx.listener(move |this, _, window, cx| {
+                                        cx.stop_propagation();
+                                        this.inline_profile_structure(
+                                            ProfileChange::Remove { index },
+                                            window,
+                                            cx,
+                                        );
+                                    })),
+                            ),
+                    );
+                for field in form.fields.iter().filter(|field| {
+                    field.key.starts_with("profiles.") && field.list_index == Some(index)
+                }) {
+                    let selector = format!("inline-profile-input-{}-{index}", field.key);
+                    profile = profile.child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .gap_1()
+                            .child(
+                                div()
+                                    .text_size(px(11.0))
+                                    .text_color(color(style.colors.muted))
+                                    .child(field_label(field.key).to_owned()),
+                            )
+                            .child(self.inline_input(field, selector)),
+                    );
+                }
+                profiles = profiles
+                    .child(profile)
+                    .child(self.inline_profile_add(index + 1, cx));
+            }
+            fields = fields.child(profiles);
         }
         deferred(
             anchored().snap_to_window_with_margin(px(64.0)).child(
@@ -613,6 +787,56 @@ impl ResumeOne {
                 this.inline_list_structure(key, StringListChange::Insert { index }, window, cx);
             }))
     }
+
+    fn inline_input(&self, field: &Field, selector: String) -> impl IntoElement {
+        let input = field.input.clone();
+        let scroll = self.inline.scroll.clone();
+        div()
+            .on_children_prepainted(move |children, window, cx| {
+                if !input.read(cx).focus_handle(cx).is_focused(window) {
+                    return;
+                }
+                let Some(bounds) = children.first().cloned() else {
+                    return;
+                };
+                let viewport = scroll.bounds();
+                let mut next = scroll.offset();
+                if bounds.top() < viewport.top() + px(12.0) {
+                    next.y += viewport.top() + px(12.0) - bounds.top();
+                } else if bounds.bottom() > viewport.bottom() - px(12.0) {
+                    next.y -= bounds.bottom() - viewport.bottom() + px(12.0);
+                }
+                next.y = next.y.max(-scroll.max_offset().height).min(px(0.0));
+                if (next.y - scroll.offset().y).abs() > px(0.5) {
+                    scroll.set_offset(next);
+                    window.defer(cx, |window, _| window.refresh());
+                }
+            })
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .w_full()
+            .min_w_0()
+            .child(Input::new(&field.input).w_full())
+    }
+
+    fn inline_profile_add(&self, index: usize, cx: &mut Context<Self>) -> impl IntoElement {
+        let selector = format!("inline-profile-add-{index}");
+        div()
+            .id(gpui::SharedString::from(selector.clone()))
+            .debug_selector(move || selector.clone())
+            .h(px(24.0))
+            .flex()
+            .justify_center()
+            .items_center()
+            .cursor_pointer()
+            .text_size(px(13.0))
+            .text_color(color(self.active_style().colors.accent))
+            .child("+")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                cx.stop_propagation();
+                this.inline_profile_structure(ProfileChange::Insert { index }, window, cx);
+            }))
+    }
 }
 
 #[cfg(test)]
@@ -621,6 +845,112 @@ mod tests {
     use crate::{editor_ui, model::AppModel, structure_ui};
     use gpui::{EntityInputHandler as _, Modifiers, TestAppContext, point};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn basics_nested_fields_and_profiles_keep_focus_visible_and_roundtrip_undo(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("basics.json");
+        let disk = br#"{"basics":{"name":"A","location":{"city":"Old","extra":true},"profiles":[{"network":"GitHub","custom":9}]}}"#;
+        std::fs::write(&path, disk).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.inline.paper_hovered = true;
+                app.open_inline("basics", None, window, cx);
+            })
+        });
+        cx.run_until_parked();
+        let city = cx.update(|_, cx| {
+            view.read(cx)
+                .inline
+                .form
+                .as_ref()
+                .unwrap()
+                .fields
+                .iter()
+                .find(|field| field.key == "location.city")
+                .unwrap()
+                .input
+                .clone()
+        });
+        cx.update(|window, cx| {
+            city.update(cx, |state, cx| {
+                state.focus(window, cx);
+                let length = state.value().chars().map(char::len_utf16).sum();
+                state.replace_text_in_range(Some(0..length), "杭州", window, cx);
+            })
+        });
+        cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
+        cx.run_until_parked();
+        let viewport = cx.debug_bounds("inline-fields").unwrap();
+        let field = cx.debug_bounds("inline-field-location.city").unwrap();
+        assert!(
+            field.top() >= viewport.top() && field.bottom() <= viewport.bottom(),
+            "focused city should scroll into the form viewport: field={field:?}, viewport={viewport:?}, offset={:?}",
+            cx.update(|_, cx| view.read(cx).inline.scroll.offset())
+        );
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert_eq!(
+                    app.model.document.value["basics"]["location"]["city"],
+                    "杭州"
+                );
+                app.inline_profile_structure(ProfileChange::Insert { index: 1 }, window, cx);
+            })
+        });
+        cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
+        cx.run_until_parked();
+        let viewport = cx.debug_bounds("inline-fields").unwrap();
+        let field = cx
+            .debug_bounds("inline-profile-input-profiles.network-1")
+            .unwrap();
+        assert!(
+            field.top() >= viewport.top() && field.bottom() <= viewport.bottom(),
+            "new profile input should be visible"
+        );
+        cx.simulate_input("GitLab");
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert_eq!(
+                    app.model.document.value["basics"]["profiles"][1]["network"],
+                    "GitLab"
+                );
+                assert_eq!(
+                    app.model.document.value["basics"]["profiles"][0]["custom"],
+                    9
+                );
+                assert_eq!(
+                    app.model.document.value["basics"]["location"]["extra"],
+                    true
+                );
+                app.dismiss_inline(&DismissInline, window, cx);
+            })
+        });
+        for _ in 0..3 {
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| {
+                    app.undo_visual_edit(&structure_ui::UndoVisualEdit, window, cx)
+                })
+            });
+            cx.run_until_parked();
+        }
+        cx.update(|_, cx| assert!(!view.read(cx).editor.as_ref().unwrap().buffer.is_dirty()));
+        assert_eq!(std::fs::read(path).unwrap(), disk);
+    }
 
     #[gpui::test]
     fn list_controls_keep_each_structural_edit_undoable(cx: &mut TestAppContext) {
@@ -782,7 +1112,7 @@ mod tests {
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
         cx.simulate_keystrokes("tab enter");
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+        cx.update(|window, cx| assert!(view.read(cx).inline_focused(window, cx)));
         cx.simulate_keystrokes("escape");
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.simulate_click(

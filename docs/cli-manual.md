@@ -23,7 +23,7 @@
 
 `structure` 有四个操作：`add-module ID [--before ID]`、`remove-module ID`、`add-item ID --index N`、`remove-item ID --index N`。`N` 从 0 开始；新增条目为 `{}`，新增的普通模块为 `[]`，基本信息模块为 `{}`，内容需随后补齐。`--before` 指定现有标准模块，省略时追加；不存在的模块、越界条目、重复模块或不支持的 ID 都会报错。移除模块会删除其中所有条目，建议先 `--dry-run` 并核对目标。自定义扩展字段和其他模块顺序保持不变；命令结果只返回 revision 和变更路径，不回显正文。
 
-`set-field` 仅允许 JSON Resume 标准模块中的普通字符串字段（如 `basics.name`、`work.position`、`education.institution`），不会把富文本或样式写入简历。列表模块必须指定从 0 开始的 `--index`，`basics` 必须省略。`--value ''` 会删除该字段；内容相同则保留原始文件字节和 revision，不执行写入。邮箱、URL、日期等仍按内置 Schema 校验，不合规则返回错误并保留原文件。数组字段（如 `highlights`、`keywords`）与自定义扩展字段请使用 `patch`，并对目标先做 `test`。
+`set-field` 仅允许 JSON Resume 标准模块中的普通字符串字段（如 `basics.name`、`work.position`、`education.institution`）；地址可用 `--section basics --field location.city` 等点分字段，不会自动注入富文本或样式。列表模块必须指定从 0 开始的 `--index`，`basics` 必须省略。`--value ''` 会删除该字段；内容相同则保留原始文件字节和 revision，不执行写入。邮箱、URL、日期等仍按内置 Schema 校验，不合规则返回错误并保留原文件。数组字段（如 `highlights`、`keywords`）与自定义扩展字段请使用 `patch`，并对目标先做 `test`。
 
 导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；当前 PDF 支持单栏布局、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高；只支持内置无衬线 400 与衬线 600 两种字重。不支持的侧栏/分栏、特殊页眉/模块/装饰、自带字体及字距会报错，不生成不完整的 PDF。PDF 嵌入完整 Noto Sans SC 与 Noto Serif SC 字形并自动换页，文件可能达到约 15 MB。DOCX 为可编辑的 Word 文档，仍使用基础样式；字体引用 Noto Sans SC，如阅读设备未安装，Word/LibreOffice 会使用其替代字体。纯文本和 Markdown 不应用主题。导出不会写回主题或格式元数据到 `resume.json`。
 

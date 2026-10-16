@@ -1,5 +1,6 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
+mod chrome;
 mod editor_ui;
 mod export_ui;
 mod files;
@@ -56,11 +57,16 @@ fn label(id: &str) -> &str {
 struct ResumeOne {
     model: AppModel,
     hovered_theme: Option<usize>,
+    theme_hover_generation: u64,
+    theme_hover_candidate: Option<String>,
     focus: FocusHandle,
     files: files::FileUi,
     preview_scroll: ScrollHandle,
+    preview_scale: f32,
     source_mode: bool,
     sidebar_progress: f32,
+    view_blend: f32,
+    view_blend_from: f32,
     mode_transition: Option<motion::ModeTransition>,
     spotlight_progress: f32,
     spotlight_target: f32,
@@ -68,6 +74,8 @@ struct ResumeOne {
     spotlight_dimmed: Vec<&'static str>,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
+    export_menu_open: bool,
+    export_choice: usize,
     theme_store: Option<theme_local::ThemeStore>,
     theme_manager_open: bool,
     online: theme_online::OnlineThemes,
@@ -93,11 +101,16 @@ impl ResumeOne {
         Self {
             model,
             hovered_theme: None,
+            theme_hover_generation: 0,
+            theme_hover_candidate: None,
             focus: cx.focus_handle(),
             files,
             preview_scroll: ScrollHandle::new(),
+            preview_scale: 1.0,
             source_mode: false,
             sidebar_progress: 0.0,
+            view_blend: 0.0,
+            view_blend_from: 0.0,
             mode_transition: None,
             spotlight_progress: 0.0,
             spotlight_target: 0.0,
@@ -105,6 +118,8 @@ impl ResumeOne {
             spotlight_dimmed: Vec::new(),
             editor: None,
             export_busy: false,
+            export_menu_open: false,
+            export_choice: 0,
             theme_store: None,
             theme_manager_open: false,
             online: theme_online::OnlineThemes::default(),
@@ -139,7 +154,10 @@ impl ResumeOne {
     }
 
     fn begin_mode_transition(&mut self) {
+        self.theme_hover_generation += 1;
+        self.theme_hover_candidate = None;
         let target = if self.source_mode { 1.0 } else { 0.0 };
+        self.view_blend_from = self.view_blend;
         self.mode_transition = Some(motion::ModeTransition::new(
             self.sidebar_progress,
             target,
@@ -151,8 +169,12 @@ impl ResumeOne {
         let Some(transition) = &self.mode_transition else {
             return;
         };
-        let (progress, complete) = transition.sample(Instant::now());
+        let now = Instant::now();
+        let (progress, complete) = transition.sample(now);
         self.sidebar_progress = progress;
+        let target = if self.source_mode { 1.0 } else { 0.0 };
+        let phase = transition.handoff(now);
+        self.view_blend = self.view_blend_from + (target - self.view_blend_from) * phase;
         if complete {
             self.mode_transition = None;
         }
@@ -167,15 +189,18 @@ impl ResumeOne {
 
     fn theme_sidebar(&self, width: f32, cx: &mut Context<Self>) -> impl IntoElement {
         let colors = &self.active_style().colors;
+        let palette = chrome::Palette::new(self.active_style());
         let accent = color(colors.accent);
         let mut list = div()
             .id("theme-list")
             .flex()
             .flex_col()
-            .gap_1()
+            .px_2()
             .overflow_y_scroll()
             .flex_1()
             .on_scroll_wheel(cx.listener(|this, _, _, cx| {
+                this.theme_hover_generation += 1;
+                this.theme_hover_candidate = None;
                 if this.hovered_theme.take().is_some() {
                     cx.notify();
                 }
@@ -194,56 +219,61 @@ impl ResumeOne {
                 .debug_selector(|| format!("theme-{index}"))
                 .flex()
                 .flex_none()
-                .h(px(62.0))
+                .relative()
+                .h(px(chrome::THEME_ROW_HEIGHT))
                 .items_center()
                 .gap_3()
-                .px_3()
-                .py_3()
-                .rounded_md()
+                .px(px(9.))
+                .py(px(10.))
+                .border_b_1()
+                .border_color(color(palette.line))
                 .cursor_pointer()
-                .when(selected, |row| row.bg(color(colors.paper)))
-                .hover(|row| row.bg(color(colors.paper)))
-                .child(
-                    div()
-                        .w(px(5.0))
-                        .h(px(34.0))
-                        .rounded_sm()
-                        .bg(color(theme.style.colors.accent)),
-                )
+                .when(selected, |row| row.bg(color(palette.soft)))
+                .hover(|row| row.bg(color(palette.soft)))
+                .when(selected, |row| {
+                    row.child(
+                        div()
+                            .absolute()
+                            .left_0()
+                            .top(px(11.))
+                            .bottom(px(11.))
+                            .w(px(3.))
+                            .rounded_sm()
+                            .bg(accent),
+                    )
+                })
+                .child(self.theme_thumbnail(Some(theme)))
                 .child(
                     div()
                         .flex_1()
                         .min_w_0()
                         .flex()
                         .flex_col()
-                        .gap_1()
+                        .gap(px(7.))
                         .child(
                             div()
-                                .text_size(px(13.0))
+                                .font_family(chrome::SERIF)
+                                .text_size(px(15.0))
                                 .truncate()
                                 .text_color(if selected { accent } else { color(colors.ink) })
                                 .child(theme.manifest.name.clone()),
                         )
                         .child(
                             div()
-                                .text_size(px(10.0))
-                                .truncate()
+                                .text_size(px(12.0))
+                                .line_height(px(17.))
+                                .line_clamp(2)
                                 .text_color(color(colors.muted))
-                                .child(theme.manifest.id.clone()),
+                                .child(
+                                    theme.manifest.normalized["description"]
+                                        .as_str()
+                                        .unwrap_or(&theme.manifest.id)
+                                        .to_owned(),
+                                ),
                         ),
                 )
-                .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
-                    let next = if *hovering {
-                        Some(index)
-                    } else if this.hovered_theme == Some(index) {
-                        None
-                    } else {
-                        this.hovered_theme
-                    };
-                    if this.hovered_theme != next {
-                        this.hovered_theme = next;
-                        cx.notify();
-                    }
+                .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                    this.hover_local_theme(index, *hovering, window, cx);
                 }))
                 .on_click(cx.listener(move |this, _, _, cx| {
                     this.clear_inline();
@@ -274,34 +304,53 @@ impl ResumeOne {
             .flex()
             .flex_col()
             .overflow_hidden()
-            .border_r_1()
-            .border_color(color(colors.border))
-            .bg(color(colors.sidebar))
-            .px_3()
-            .pt_5()
-            .pb_4()
-            .gap_4()
+            .bg(color(palette.panel))
             .child(
                 div()
-                    .px_2()
+                    .id("theme-track")
+                    .debug_selector(|| "theme-track".into())
+                    .relative()
+                    .left(px(width - chrome::THEME_WIDTH))
+                    .w(px(chrome::THEME_WIDTH))
+                    .h_full()
+                    .flex_none()
                     .flex()
-                    .justify_between()
-                    .text_size(px(11.0))
-                    .text_color(color(colors.muted))
-                    .child("主题")
+                    .flex_col()
+                    .border_r_1()
+                    .border_color(color(palette.line))
+                    .pb_3()
                     .child(
                         div()
-                            .id("manage-themes")
-                            .debug_selector(|| "manage-themes".into())
-                            .cursor_pointer()
-                            .child("管理")
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.manage_themes(&theme_manager::ManageThemes, window, cx)
-                            })),
-                    ),
+                            .h(px(63.))
+                            .flex_none()
+                            .items_center()
+                            .px(px(18.))
+                            .flex()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .font_family(chrome::SERIF)
+                                    .text_size(px(18.))
+                                    .text_color(color(palette.ink))
+                                    .child("主题"),
+                            )
+                            .child(
+                                div()
+                                    .id("manage-themes")
+                                    .debug_selector(|| "manage-themes".into())
+                                    .cursor_pointer()
+                                    .text_size(px(12.))
+                                    .text_color(accent)
+                                    .py_2()
+                                    .child("管理")
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.manage_themes(&theme_manager::ManageThemes, window, cx)
+                                    })),
+                            ),
+                    )
+                    .child(self.theme_navigation(cx))
+                    .child(list),
             )
-            .child(self.theme_navigation(cx))
-            .child(list)
     }
 
     fn item_insert_control(
@@ -464,7 +513,7 @@ impl ResumeOne {
             .px_2()
             .py_1()
             .cursor_pointer()
-            .text_size(px(10.0))
+            .text_size(px(12.0))
             .text_color(color(self.active_style().colors.accent))
             .child("+ 在此插入条目")
             .on_click(cx.listener(move |this, _, window, cx| {
@@ -502,8 +551,8 @@ impl ResumeOne {
             .rounded_sm()
             .flex()
             .justify_between()
-            .text_size(px(11.0))
-            .text_color(rgb(0x68716a))
+            .text_size(px(12.0))
+            .text_color(color(chrome::Palette::new(self.active_style()).muted))
             .child(div().min_w_0().truncate().child(title))
             .child("−")
             .cursor_pointer()
@@ -532,8 +581,9 @@ impl ResumeOne {
             .child(
                 div()
                     .w_full()
-                    .min_w(px(style.page.width_mm * 3.0 + 64.0))
-                    .py_8()
+                    .min_w(px(style.page.width_mm * 3.0 * self.preview_scale + 44.0))
+                    .pt(px(24.))
+                    .pb(px(58.))
                     .flex()
                     .justify_center()
                     .when(self.model.preview_ready, |view| {
@@ -559,11 +609,12 @@ impl ResumeOne {
 
     fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let accent = color(self.active_style().colors.accent);
+        let palette = chrome::Palette::new(self.active_style());
         let mut list = div()
             .id("module-list")
             .flex()
             .flex_col()
-            .gap_2()
+            .px(px(17.))
             .flex_1()
             .min_h_0()
             .overflow_y_scroll();
@@ -586,6 +637,7 @@ impl ResumeOne {
                 continue;
             }
             let count = existing.map_or(0, |section| section.count);
+            let icon_id = *id;
             let id = (*id).to_owned();
             let selector = format!("module-{id}");
             let selected = self.selected_module.as_deref() == Some(id.as_str())
@@ -595,8 +647,8 @@ impl ResumeOne {
             if present {
                 controls = controls.child(
                     div()
-                        .text_size(px(10.0))
-                        .text_color(accent)
+                        .text_size(px(12.0))
+                        .text_color(color(palette.muted))
                         .child(count.to_string()),
                 );
             }
@@ -608,7 +660,7 @@ impl ResumeOne {
                     controls = controls.child(self.source_module_remove(&id, cx));
                 }
             } else if !present {
-                controls = controls.child(div().text_size(px(10.0)).text_color(accent).child("+"));
+                controls = controls.child(div().text_size(px(17.0)).text_color(accent).child("+"));
             }
             let source_mode = self.source_mode;
             let row_id = id.clone();
@@ -617,25 +669,32 @@ impl ResumeOne {
                     .id(gpui::SharedString::from(selector.clone()))
                     .debug_selector(move || selector.clone())
                     .flex()
+                    .min_h(px(58.))
+                    .flex_none()
+                    .gap(px(10.))
                     .items_center()
                     .justify_between()
-                    .px_3()
-                    .py_2()
-                    .rounded_md()
+                    .px(px(4.))
+                    .border_t_1()
+                    .border_color(color(palette.line))
                     .opacity(if dimmed {
                         1.0 - 0.76 * self.spotlight_progress
                     } else {
                         1.0
                     })
-                    .bg(if selected {
-                        color(self.active_style().colors.canvas)
-                    } else {
-                        rgb(0xffffff)
-                    })
+                    .when(selected, |row| row.bg(color(palette.soft)))
+                    .hover(|row| row.bg(color(palette.soft)))
                     .cursor_pointer()
-                    .text_size(px(12.0))
-                    .text_color(rgb(0x464e47))
-                    .child((*title).to_string())
+                    .text_size(px(13.0))
+                    .text_color(color(palette.ink))
+                    .child(chrome::icon(icon_id, self.active_style().colors.accent))
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_w_0()
+                            .truncate()
+                            .child((*title).to_string()),
+                    )
                     .child(controls)
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if source_mode {
@@ -731,31 +790,73 @@ impl ResumeOne {
         div()
             .id("module-panel")
             .debug_selector(|| "module-panel".to_string())
-            .w(px(188.0))
+            .w(px(chrome::MODULE_WIDTH))
             .h_full()
             .flex_none()
             .flex()
             .flex_col()
             .border_l_1()
-            .border_color(rgb(0xe4e7e1))
-            .bg(rgb(0xf7f8f5))
-            .px_3()
-            .pt_5()
-            .pb_4()
-            .gap_4()
+            .border_color(color(palette.line))
+            .bg(color(palette.panel))
             .child(
                 div()
-                    .px_2()
-                    .text_size(px(11.0))
-                    .text_color(rgb(0x758078))
-                    .child("内容模块"),
+                    .h(px(63.))
+                    .flex_none()
+                    .px(px(18.))
+                    .flex()
+                    .items_center()
+                    .justify_between()
+                    .gap_2()
+                    .child(
+                        div()
+                            .font_family(chrome::SERIF)
+                            .text_size(px(18.))
+                            .text_color(color(palette.ink))
+                            .child("模块"),
+                    )
+                    .child(
+                        div()
+                            .min_w_0()
+                            .truncate()
+                            .text_size(px(12.))
+                            .text_color(color(palette.muted))
+                            .child(self.model.applied_theme().manifest.name.clone()),
+                    ),
             )
             .child(list)
+            .child(
+                div()
+                    .h(px(47.))
+                    .flex_none()
+                    .flex()
+                    .items_center()
+                    .px_4()
+                    .border_t_1()
+                    .border_color(color(palette.line))
+                    .text_size(px(12.))
+                    .text_color(color(palette.muted))
+                    .child(if self.insertion_before.is_some() {
+                        "选择要添加的模块 · Esc 取消"
+                    } else if self.selected_module.is_some() || self.selected_item_module.is_some()
+                    {
+                        "选择文档中的插入位置 · Esc 取消"
+                    } else {
+                        "先选模块，再选文档中的插入位置"
+                    }),
+            )
     }
 }
 
 impl Render for ResumeOne {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        // A screen transform only: PDF geometry and line breaks stay unchanged.
+        // Use the preview rails' resting widths, so mode animation never resizes glyphs.
+        self.preview_scale = ((f32::from(window.viewport_size().width)
+            - chrome::THEME_WIDTH
+            - chrome::MODULE_WIDTH
+            - 44.)
+            / (self.active_style().page.width_mm * 3.))
+            .clamp(0.4, 1.2);
         let spotlight_target = if self.insertion_active() { 1.0 } else { 0.0 };
         if self.spotlight_target != spotlight_target {
             self.spotlight_target = spotlight_target;
@@ -800,8 +901,8 @@ impl Render for ResumeOne {
         }
         let dialogs = gpui_component::Root::render_dialog_layer(window, cx);
         let progress = self.sidebar_progress;
-        let preview_alpha = (1.0 - progress / 0.55).clamp(0.0, 1.0);
-        let json_alpha = ((progress - 0.45) / 0.55).clamp(0.0, 1.0);
+        let preview_alpha = 1.0 - self.view_blend;
+        let json_alpha = self.view_blend;
         let style = self.active_style();
         div()
             .relative()
@@ -809,7 +910,12 @@ impl Render for ResumeOne {
             .flex()
             .flex_col()
             .track_focus(&self.focus)
-            .key_context(if self.files.open {
+            .font_family(chrome::SANS)
+            .text_size(px(13.))
+            .text_color(color(chrome::Palette::new(style).ink))
+            .key_context(if self.export_menu_open {
+                "ResumeOne ExportMenu"
+            } else if self.files.open {
                 "ResumeOne FileSwitcher"
             } else {
                 "ResumeOne"
@@ -833,86 +939,16 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::export_docx))
             .on_action(cx.listener(Self::export_text))
             .on_action(cx.listener(Self::export_markdown))
+            .on_action(cx.listener(Self::dismiss_export))
+            .on_action(cx.listener(Self::next_export))
+            .on_action(cx.listener(Self::previous_export))
+            .on_action(cx.listener(Self::choose_export))
             .on_action(cx.listener(Self::choose_theme_directory))
             .on_action(cx.listener(Self::reset_theme_directory))
             .on_action(cx.listener(Self::manage_themes))
             .on_action(cx.listener(Self::quit))
-            .bg(rgb(0xf5f5f1))
-            .child(
-                div()
-                    .h(px(55.0))
-                    .flex_none()
-                    .flex()
-                    .items_center()
-                    .justify_between()
-                    .px_6()
-                    .border_b_1()
-                    .border_color(rgb(0xe4e7e1))
-                    .bg(color(style.colors.chrome))
-                    .on_mouse_down(
-                        MouseButton::Left,
-                        cx.listener(|this, _, window, cx| {
-                            this.dismiss_files(&files::DismissFiles, window, cx);
-                        }),
-                    )
-                    .child(
-                        div()
-                            .flex()
-                            .flex_1()
-                            .min_w_0()
-                            .items_center()
-                            .gap_4()
-                            .child(
-                                div()
-                                    .text_size(px(15.0))
-                                    .text_color(color(style.colors.accent))
-                                    .child("简里  resume one"),
-                            )
-                            .child(
-                                div()
-                                    .id("current-file")
-                                    .debug_selector(|| "current-file".into())
-                                    .min_w_0()
-                                    .truncate()
-                                    .cursor_pointer()
-                                    .px_2()
-                                    .py_2()
-                                    .rounded_md()
-                                    .hover(|label| label.bg(color(style.colors.canvas)))
-                                    .text_size(px(12.0))
-                                    .text_color(color(style.colors.muted))
-                                    .child(self.model.document_label.clone())
-                                    .on_mouse_down(MouseButton::Left, |_, _, cx| {
-                                        cx.stop_propagation()
-                                    })
-                                    .on_click(cx.listener(|this, _, window, cx| {
-                                        this.toggle_files(&files::ToggleFiles, window, cx);
-                                    })),
-                            ),
-                    )
-                    .child(
-                        div()
-                            .id("open-menu")
-                            .debug_selector(|| "open-menu".into())
-                            .flex_none()
-                            .px_3()
-                            .py_2()
-                            .rounded_md()
-                            .cursor_pointer()
-                            .text_size(px(13.0))
-                            .text_color(color(style.colors.accent))
-                            .hover(|button| button.bg(color(style.colors.canvas)))
-                            .child(if self.files.busy {
-                                "打开中…"
-                            } else {
-                                "打开"
-                            })
-                            .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.toggle_open_menu(window, cx);
-                            })),
-                    ),
-            )
+            .bg(color(style.colors.canvas))
+            .child(self.toolbar(cx))
             .child(
                 div()
                     .flex()
@@ -952,6 +988,9 @@ impl Render for ResumeOne {
                     .child(self.module_sidebar(cx)),
             )
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
+            .when(self.export_menu_open, |view| {
+                view.child(self.export_popup(cx))
+            })
             .children(dialogs)
     }
 }
@@ -982,6 +1021,7 @@ fn main() {
     Application::new().run(move |cx: &mut App| {
         gpui_component::init(cx);
         files::register(cx);
+        export_ui::register(cx);
         editor_ui::register(cx);
         structure_ui::register(cx);
         inline_ui::register(cx);
@@ -1005,7 +1045,7 @@ fn main() {
             }
         })
         .detach();
-        let bounds = Bounds::centered(None, size(px(1120.0), px(780.0)), cx);
+        let bounds = Bounds::centered(None, size(px(1280.0), px(820.0)), cx);
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
@@ -1049,6 +1089,77 @@ mod tests {
         EntityInputHandler as _, Modifiers, ScrollDelta, ScrollWheelEvent, TestAppContext, point,
     };
     use gpui_component::RopeExt;
+
+    #[gpui::test]
+    fn theme_hover_waits_and_does_not_apply_after_pointer_leaves(cx: &mut TestAppContext) {
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let row = cx.debug_bounds("theme-1").unwrap();
+        cx.simulate_mouse_move(row.center(), None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(100));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).hovered_theme.is_none()));
+        cx.simulate_mouse_move(point(px(700.), px(100.)), None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(100));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).hovered_theme.is_none()));
+        cx.simulate_mouse_move(row.center(), None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert_eq!(view.read(cx).hovered_theme, Some(1)));
+    }
+
+    #[gpui::test]
+    fn every_mode_sample_clips_and_pushes_theme_track_without_moving_toolbar_or_right_rail(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let child = Rc::new(RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, _| window.refresh());
+        let toolbar = cx.debug_bounds("toolbar").unwrap();
+        let module = cx.debug_bounds("module-panel").unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx)
+            })
+        });
+        for direction in [true, false] {
+            for frame in 0..=20 {
+                let progress = if direction {
+                    frame as f32 / 20.
+                } else {
+                    1. - frame as f32 / 20.
+                };
+                cx.update(|window, cx| {
+                    view.update(cx, |app, cx| {
+                        app.source_mode = direction;
+                        app.sidebar_progress = progress;
+                        app.mode_transition = None;
+                        cx.notify();
+                    });
+                    window.refresh();
+                });
+                assert_eq!(toolbar, cx.debug_bounds("toolbar").unwrap());
+                assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
+                if progress < 1. {
+                    let track = cx.debug_bounds("theme-track").unwrap();
+                    assert!((f32::from(track.left()) + chrome::THEME_WIDTH * progress).abs() <= 1.);
+                    assert_eq!(track.size.width, px(chrome::THEME_WIDTH));
+                }
+            }
+        }
+    }
 
     #[gpui::test]
     fn insertion_spotlights_are_bidirectional_cancellable_and_non_mutating(
@@ -1470,8 +1581,7 @@ mod tests {
             window.refresh();
         });
         let middle_theme = cx.debug_bounds("theme-panel").unwrap();
-        assert!(middle_theme.size.width >= px(102.0));
-        assert!(middle_theme.size.width <= px(104.0));
+        assert_eq!(middle_theme.size.width, px(chrome::THEME_WIDTH / 2.));
         assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
@@ -1500,8 +1610,7 @@ mod tests {
             window.refresh();
         });
         let middle_theme = cx.debug_bounds("theme-panel").unwrap();
-        assert!(middle_theme.size.width >= px(102.0));
-        assert!(middle_theme.size.width <= px(104.0));
+        assert_eq!(middle_theme.size.width, px(chrome::THEME_WIDTH / 2.));
         assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
@@ -1512,7 +1621,7 @@ mod tests {
         });
         cx.update(|_, cx| assert!(!view.read(cx).source_mode));
         let preview = cx.debug_bounds("resume-preview").unwrap();
-        assert_eq!(preview.left(), px(206.0));
+        assert_eq!(preview.left(), px(chrome::THEME_WIDTH));
         assert_eq!(preview.right(), module.left());
         assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
     }
@@ -1533,6 +1642,9 @@ mod tests {
             second.origin.y + second.size.height / 2.0,
         );
         cx.simulate_mouse_move(location, None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
+        cx.run_until_parked();
         cx.update(|_, cx| {
             let app = view.read(cx);
             assert_eq!(app.model.themes.len(), 20);
@@ -1581,7 +1693,7 @@ mod tests {
             let paper = cx.debug_bounds("resume-paper").unwrap();
             cx.update(|_, cx| {
                 let app = view.read(cx);
-                let expected = px(app.active_style().page.width_mm * 3.0);
+                let expected = px(app.active_style().page.width_mm * 3.0 * app.preview_scale);
                 assert!(f32::from(paper.size.width - expected).abs() <= 1.0);
             });
             assert_eq!(module, cx.debug_bounds("module-panel").unwrap());
@@ -1592,9 +1704,10 @@ mod tests {
             let preview = cx.debug_bounds("resume-preview").unwrap();
             let paper = cx.debug_bounds("resume-paper").unwrap();
             let modules = cx.debug_bounds("module-panel").unwrap();
-            assert_eq!(modules.size.width, px(188.0));
+            assert_eq!(modules.size.width, px(chrome::MODULE_WIDTH));
             assert_eq!(modules.right(), px(width));
             assert!(paper.left() >= preview.left());
+            assert!(paper.right() <= preview.right());
         }
     }
 
@@ -1612,6 +1725,9 @@ mod tests {
         let theme = cx.debug_bounds("theme-1").unwrap();
         let point = point(theme.left() + px(10.0), theme.top() + px(10.0));
         cx.simulate_mouse_move(point, None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
+        cx.run_until_parked();
         cx.update(|_, cx| assert_eq!(view.read(cx).hovered_theme, Some(1)));
         assert!(cx.debug_bounds("module-volunteer").is_none());
         cx.update(|_, cx| view.update(cx, |app, _| app.selected_module = Some("awards".into())));

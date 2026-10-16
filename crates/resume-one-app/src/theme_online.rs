@@ -463,10 +463,14 @@ impl OnlineThemes {
         self.requeue();
     }
 
-    pub fn color(&self, id: &str) -> Option<resume_one_core::theme_style::Rgb> {
-        self.ready
-            .get(id)
-            .map(|theme| ThemeStyle::from_manifest(theme.manifest()).colors.accent)
+    pub fn thumbnail_theme(&self, id: &str) -> Option<BuiltinTheme> {
+        let theme = self.ready.get(id)?;
+        Some(BuiltinTheme {
+            manifest: theme.manifest().clone(),
+            style: ThemeStyle::from_manifest(theme.manifest()),
+            path: None,
+            identity: self.identity(id)?,
+        })
     }
 
     pub fn identity(&self, id: &str) -> Option<String> {

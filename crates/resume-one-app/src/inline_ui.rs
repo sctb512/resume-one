@@ -4,6 +4,7 @@ use gpui::{
     App, Context, Entity, Focusable as _, IntoElement, KeyBinding, ScrollHandle, Subscription,
     Window, actions, anchored, deferred, div, prelude::*, px,
 };
+use gpui_component::Sizable;
 use gpui_component::input::{Input, InputEvent, InputState};
 use resume_one_core::content_edit::{
     ProfileChange, StringListChange, StringListEdit, TextEdit, list_fields, prepare_list_edit,
@@ -545,6 +546,18 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        // Escape is also bound at the workspace scope. Dismiss transient menus
+        // first, regardless of registration order, before touching edit state.
+        if self.export_menu_open {
+            self.export_menu_open = false;
+            cx.notify();
+            return;
+        }
+        if self.files.open {
+            self.files.open = false;
+            cx.notify();
+            return;
+        }
         let insertion = self.cancel_insertion();
         if self.inline.form.take().is_some() || insertion {
             self.clear_inline();
@@ -556,38 +569,54 @@ impl ResumeOne {
     pub(super) fn inline_form(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let form = self.inline.form.as_ref().expect("active inline form");
         let style = self.active_style();
-        let width =
-            (style.page.width_mm - style.page.margins.left - style.page.margins.right) * 3.0;
+        let width = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
+            * 3.0
+            * self.preview_scale;
         let mut fields = div()
             .id("inline-fields")
             .debug_selector(|| "inline-fields".into())
             .flex()
             .flex_col()
-            .gap_3()
-            .max_h(px(340.0))
+            .gap(px(16.))
+            .max_h(px(440.0))
             .overflow_y_scroll()
             .track_scroll(&self.inline.scroll)
-            .p_4();
+            .px(px(20.))
+            .py(px(18.));
+        let mut text_fields = div()
+            .grid()
+            .grid_cols(if width >= 440. { 2 } else { 1 })
+            .gap(px(16.));
         for field in form
             .fields
             .iter()
             .filter(|field| field.list_index.is_none())
         {
             let selector = format!("inline-field-{}", field.key);
-            fields = fields.child(
+            text_fields = text_fields.child(
                 div()
+                    .min_w_0()
+                    .when(
+                        width >= 440.
+                            && matches!(
+                                field.key,
+                                "summary" | "description" | "reference" | "image" | "url"
+                            ),
+                        |v| v.col_span(2),
+                    )
                     .flex()
                     .flex_col()
                     .gap_1()
                     .child(
                         div()
-                            .text_size(px(11.0))
+                            .text_size(px(12.0))
                             .text_color(color(style.colors.muted))
                             .child(field_label(field.key).to_owned()),
                     )
                     .child(self.inline_input(field, selector)),
             );
         }
+        fields = fields.child(text_fields);
         for &key in form.list_keys {
             let rows: Vec<_> = form
                 .fields
@@ -600,7 +629,7 @@ impl ResumeOne {
                 .gap_1()
                 .child(
                     div()
-                        .text_size(px(11.0))
+                        .text_size(px(12.0))
                         .text_color(color(style.colors.muted))
                         .child(field_label(key).to_owned()),
                 )
@@ -651,7 +680,7 @@ impl ResumeOne {
                 .gap_2()
                 .child(
                     div()
-                        .text_size(px(11.0))
+                        .text_size(px(12.0))
                         .text_color(color(style.colors.muted))
                         .child("社交账号"),
                 )
@@ -671,7 +700,7 @@ impl ResumeOne {
                             .flex()
                             .justify_between()
                             .items_center()
-                            .text_size(px(11.0))
+                            .text_size(px(12.0))
                             .text_color(color(style.colors.muted))
                             .child(format!("账号 {}", index + 1))
                             .child(
@@ -704,7 +733,7 @@ impl ResumeOne {
                             .gap_1()
                             .child(
                                 div()
-                                    .text_size(px(11.0))
+                                    .text_size(px(12.0))
                                     .text_color(color(style.colors.muted))
                                     .child(field_label(field.key).to_owned()),
                             )
@@ -727,10 +756,12 @@ impl ResumeOne {
                     .flex()
                     .flex_col()
                     .rounded_md()
-                    .shadow_lg()
+                    .shadow_md()
                     .border_1()
-                    .border_color(color(style.colors.accent))
-                    .bg(color(style.colors.paper))
+                    .border_color(color(crate::chrome::Palette::new(style).line))
+                    .border_l(px(3.))
+                    .border_color(color(style.colors.accent.mix(style.colors.paper, 0.55)))
+                    .bg(color(crate::chrome::Palette::new(style).panel))
                     .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
                         this.inline.form_hovered = *hovering;
                         if !hovering {
@@ -747,7 +778,8 @@ impl ResumeOne {
                             .py_3()
                             .border_b_1()
                             .border_color(color(style.colors.border))
-                            .text_size(px(12.0))
+                            .font_family(crate::chrome::SERIF)
+                            .text_size(px(17.0))
                             .text_color(color(style.colors.accent))
                             .child(label(&form.section).to_owned())
                             .child(
@@ -767,7 +799,7 @@ impl ResumeOne {
                             div()
                                 .px_4()
                                 .pb_3()
-                                .text_size(px(11.0))
+                                .text_size(px(12.0))
                                 .text_color(color(style.colors.seal))
                                 .child(message),
                         )
@@ -830,7 +862,7 @@ impl ResumeOne {
             .debug_selector(move || selector.clone())
             .w_full()
             .min_w_0()
-            .child(Input::new(&field.input).w_full())
+            .child(Input::new(&field.input).small().w_full())
     }
 
     fn inline_profile_add(&self, index: usize, cx: &mut Context<Self>) -> impl IntoElement {

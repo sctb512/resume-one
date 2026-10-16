@@ -1,4 +1,4 @@
-use std::{borrow::Cow, cell::RefCell, sync::Arc};
+use std::{borrow::Cow, cell::RefCell, collections::VecDeque, sync::Arc};
 
 use gpui::{
     App, Bounds, Context, Font, FontWeight, IntoElement, Pixels, Point, Rgba, ShapedLine, TextRun,
@@ -19,7 +19,7 @@ const PX_PER_MM: f32 = 3.0;
 const PX_PER_PT: f32 = PX_PER_MM / PT_PER_MM;
 
 pub(super) struct PreviewState {
-    cache: RefCell<Option<Cache>>,
+    cache: RefCell<VecDeque<Cache>>,
     font_error: Option<String>,
 }
 
@@ -28,6 +28,52 @@ mod tests {
     use super::*;
     use gpui::{TestAppContext, px};
     use resume_one_core::{resume::parse_resume, semantic::project};
+
+    #[gpui::test]
+    fn screen_fit_preserves_layout_and_hit_coordinates_and_thumbnail_cache(
+        cx: &mut TestAppContext,
+    ) {
+        let model = AppModel::load(None).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let original = cx.update(|_, cx| {
+            let app = view.read(cx);
+            app.preview
+                .resolve(&app.model, app.model.applied_theme())
+                .unwrap()
+        });
+        for width in [800., 900., 1120., 1440.] {
+            cx.simulate_resize(gpui::size(px(width), px(700.)));
+            cx.update(|window, _| window.refresh());
+            let paper = cx.debug_bounds("resume-paper").unwrap();
+            let preview = cx.debug_bounds("resume-preview").unwrap();
+            let hit = cx.debug_bounds("preview-basics").unwrap();
+            cx.update(|_, cx| {
+                let app = view.read(cx);
+                let cached = app
+                    .preview
+                    .resolve(&app.model, app.model.applied_theme())
+                    .unwrap();
+                assert!(
+                    Arc::ptr_eq(&original, &cached),
+                    "screen resizing must not reflow the resume"
+                );
+                let scale = PX_PER_PT * app.preview_scale;
+                let region = original
+                    .regions
+                    .iter()
+                    .find(|r| r.target.section == "basics")
+                    .unwrap();
+                assert!(
+                    (f32::from(hit.top() - paper.top()) - region.top * scale).abs() <= 1.0,
+                    "hit={hit:?}, paper={paper:?}, expected_y={}",
+                    region.top * scale
+                );
+                assert!(app.preview.cache.borrow().len() <= 40);
+            });
+            assert!(paper.left() >= preview.left());
+            assert!(paper.right() <= preview.right());
+        }
+    }
 
     #[test]
     fn hit_regions_preserve_empty_item_indices_and_exclude_page_footers() {
@@ -85,10 +131,11 @@ mod tests {
             .collect();
         assert!(!basics.is_empty());
         assert!(basics.iter().any(|r| r.text && r.bottom > r.top));
-        let (_, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.update(|window, _| window.refresh());
         let paper = cx.debug_bounds("resume-paper").unwrap();
-        assert_eq!(paper.size.width, px(expected.width_mm * PX_PER_MM));
+        let scale = cx.update(|_, cx| view.read(cx).preview_scale);
+        assert_eq!(paper.size.width, px(expected.width_mm * PX_PER_MM * scale));
     }
 
     #[gpui::test]
@@ -123,11 +170,18 @@ mod tests {
                     index: Some(index)
                 }));
         }
-        let (_, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.update(|window, _| window.refresh());
         let paper = cx.debug_bounds("resume-paper").unwrap();
-        assert_eq!(paper.size.width, px(data.layout.width_mm * PX_PER_MM));
-        assert_eq!(paper.size.height, px(data.layout.height_mm * PX_PER_MM));
+        let scale = cx.update(|_, cx| view.read(cx).preview_scale);
+        assert_eq!(
+            paper.size.width,
+            px(data.layout.width_mm * PX_PER_MM * scale)
+        );
+        assert!(
+            f32::from(paper.size.height - px(data.layout.height_mm * PX_PER_MM * scale)).abs()
+                <= 1.
+        );
     }
 
     #[gpui::test]
@@ -167,13 +221,17 @@ mod tests {
             layout::layout_with_theme(&model.content, Language::Zh, &model.themes[0].manifest)
                 .unwrap();
         assert_eq!(expected.pages.len(), 2);
-        let (_, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.update(|window, _| window.refresh());
         for index in 0..expected.pages.len() {
+            let scale = cx.update(|_, cx| view.read(cx).preview_scale);
             let selector = ["resume-paper", "resume-paper-1"][index];
             let bounds = cx.debug_bounds(selector).unwrap();
-            assert_eq!(bounds.size.width, px(expected.width_mm * PX_PER_MM));
-            assert_eq!(bounds.size.height, px(expected.height_mm * PX_PER_MM));
+            assert_eq!(bounds.size.width, px(expected.width_mm * PX_PER_MM * scale));
+            assert!(
+                f32::from(bounds.size.height - px(expected.height_mm * PX_PER_MM * scale)).abs()
+                    <= 1.
+            );
             if index > 0 {
                 let previous = cx.debug_bounds("resume-paper").unwrap();
                 assert!(bounds.top() >= previous.bottom());
@@ -214,7 +272,7 @@ impl PreviewState {
             .err()
             .map(|error| format!("无法载入简历字体：{error}"));
         Self {
-            cache: RefCell::new(None),
+            cache: RefCell::new(VecDeque::new()),
             font_error,
         }
     }
@@ -224,10 +282,12 @@ impl PreviewState {
             return Err(error.clone());
         }
         let mut cache = self.cache.borrow_mut();
-        if let Some(cache) = cache.as_ref()
-            && cache.revision == model.document.revision
-            && cache.theme_epoch == model.theme_epoch
-            && cache.theme_identity == theme.identity
+        cache.retain(|item| {
+            item.revision == model.document.revision && item.theme_epoch == model.theme_epoch
+        });
+        if let Some(cache) = cache
+            .iter()
+            .find(|item| item.theme_identity == theme.identity)
         {
             return cache.result.clone();
         }
@@ -237,7 +297,12 @@ impl PreviewState {
                 Arc::new(PreviewData { layout, regions })
             },
         );
-        *cache = Some(Cache {
+        // Up to 32 online manifests plus the applied/hovered theme must fit
+        // together; otherwise the sidebar and main page evict each other every frame.
+        if cache.len() >= 40 {
+            cache.pop_front();
+        }
+        cache.push_back(Cache {
             revision: model.document.revision.clone(),
             theme_epoch: model.theme_epoch,
             theme_identity: theme.identity.clone(),
@@ -307,7 +372,7 @@ enum Painted {
     Rule(Bounds<Pixels>, Rgba),
 }
 
-fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
+fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl IntoElement {
     canvas(
         move |bounds, window, _| {
             let height = data.layout.height_mm * PT_PER_MM;
@@ -333,19 +398,19 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
                         };
                         let line = window.text_system().shape_line(
                             text.text.clone().into(),
-                            px(text.size_pt * PX_PER_PT),
+                            px(text.size_pt * px_per_pt),
                             &[run],
                             None,
                         );
                         let leading =
-                            px(text.leading_pt * PX_PER_PT).max(line.ascent + line.descent);
+                            px(text.leading_pt * px_per_pt).max(line.ascent + line.descent);
                         let baseline = (leading - line.ascent - line.descent) / 2.0 + line.ascent;
                         Some(Painted::Text(
                             Box::new(line),
                             bounds.origin
                                 + point(
-                                    px(text.x_pt * PX_PER_PT),
-                                    px((height - text.baseline_y_pt) * PX_PER_PT) - baseline,
+                                    px(text.x_pt * px_per_pt),
+                                    px((height - text.baseline_y_pt) * px_per_pt) - baseline,
                                 ),
                             leading,
                         ))
@@ -354,12 +419,12 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
                         Bounds::new(
                             bounds.origin
                                 + point(
-                                    px(rule.left_pt * PX_PER_PT),
-                                    px((height - rule.y_pt - rule.thickness_pt / 2.0) * PX_PER_PT),
+                                    px(rule.left_pt * px_per_pt),
+                                    px((height - rule.y_pt - rule.thickness_pt / 2.0) * px_per_pt),
                                 ),
                             size(
-                                px((rule.right_pt - rule.left_pt) * PX_PER_PT),
-                                px(rule.thickness_pt * PX_PER_PT),
+                                px((rule.right_pt - rule.left_pt) * px_per_pt),
+                                px(rule.thickness_pt * px_per_pt),
                             ),
                         ),
                         color(rule.color),
@@ -368,12 +433,12 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
                         Bounds::new(
                             bounds.origin
                                 + point(
-                                    px(fill.left_pt * PX_PER_PT),
-                                    px((height - fill.bottom_pt - fill.height_pt) * PX_PER_PT),
+                                    px(fill.left_pt * px_per_pt),
+                                    px((height - fill.bottom_pt - fill.height_pt) * px_per_pt),
                                 ),
                             size(
-                                px(fill.width_pt * PX_PER_PT),
-                                px(fill.height_pt * PX_PER_PT),
+                                px(fill.width_pt * px_per_pt),
+                                px(fill.height_pt * px_per_pt),
                             ),
                         ),
                         color(fill.color),
@@ -398,6 +463,29 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
 }
 
 impl ResumeOne {
+    pub(super) fn theme_thumbnail(&self, theme: Option<&BuiltinTheme>) -> gpui::AnyElement {
+        let style = theme
+            .map(|t| &t.style)
+            .unwrap_or_else(|| self.active_style());
+        let mut thumb = div()
+            .relative()
+            .w(px(48.))
+            .h(px(68.))
+            .flex_none()
+            .overflow_hidden()
+            .border_1()
+            .border_color(color(style.colors.paper.mix(style.colors.ink, 0.12)))
+            .bg(color(style.colors.paper))
+            .shadow_sm();
+        if let Some(theme) = theme
+            && let Ok(data) = self.preview.resolve(&self.model, theme)
+        {
+            let scale = 48. / (data.layout.width_mm * PT_PER_MM);
+            thumb = thumb.child(page_canvas(data, 0, scale));
+        }
+        thumb.into_any_element()
+    }
+
     pub(super) fn resume_pages(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
         let data = match self.preview.resolve(&self.model, self.display_theme()) {
             Ok(data) => data,
@@ -413,13 +501,15 @@ impl ResumeOne {
         };
         let style = self.active_style();
         let spotlight = self.insertion_active();
+        let px_per_mm = PX_PER_MM * self.preview_scale;
+        let px_per_pt = PX_PER_PT * self.preview_scale;
         let valid = self
             .editor
             .as_ref()
             .is_none_or(|editor| editor.buffer.issues().is_empty());
-        let left = style.page.margins.left * PX_PER_MM;
+        let left = style.page.margins.left * px_per_mm;
         let content_width =
-            (style.page.width_mm - style.page.margins.left - style.page.margins.right) * PX_PER_MM;
+            (style.page.width_mm - style.page.margins.left - style.page.margins.right) * px_per_mm;
         let mut pages = div().flex().flex_col().gap_6();
         for page_index in 0..data.layout.pages.len() {
             let selector = if page_index == 0 {
@@ -431,11 +521,11 @@ impl ResumeOne {
                 .id(gpui::SharedString::from(selector.clone()))
                 .debug_selector(move || selector.clone())
                 .relative()
-                .w(px(data.layout.width_mm * PX_PER_MM))
-                .h(px(data.layout.height_mm * PX_PER_MM))
+                .w(px(data.layout.width_mm * px_per_mm))
+                .h(px(data.layout.height_mm * px_per_mm))
                 .flex_none()
                 .bg(color(data.layout.paper))
-                .shadow_lg()
+                .shadow_md()
                 .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
                     this.inline.paper_hovered = *hovering;
                     if !hovering {
@@ -446,8 +536,8 @@ impl ResumeOne {
                     div()
                         .absolute()
                         .size_full()
-                        .opacity(1.0 - 0.76 * self.spotlight_progress)
-                        .child(page_canvas(data.clone(), page_index)),
+                        .opacity(1.0 - 0.22 * self.spotlight_progress)
+                        .child(page_canvas(data.clone(), page_index, px_per_pt)),
                 );
             for region in data
                 .regions
@@ -498,7 +588,7 @@ impl ResumeOne {
                         div()
                             .absolute()
                             .left(px(left))
-                            .top(px(region.top * PX_PER_PT - 14.0))
+                            .top(px(region.top * px_per_pt - 14.0))
                             .w(px(content_width))
                             .child(self.module_insert_control(
                                 Some(target.section.into()),
@@ -526,7 +616,7 @@ impl ResumeOne {
                             div()
                                 .absolute()
                                 .left(px(left))
-                                .top(px(region.top * PX_PER_PT - 10.0))
+                                .top(px(region.top * px_per_pt - 10.0))
                                 .w(px(content_width))
                                 .child(self.item_insert_control(target.section, 0, style, cx)),
                         );
@@ -536,7 +626,7 @@ impl ResumeOne {
                             div()
                                 .absolute()
                                 .left(px(left))
-                                .top(px(region.bottom * PX_PER_PT + 1.0))
+                                .top(px(region.bottom * px_per_pt + 1.0))
                                 .w(px(content_width))
                                 .child(self.item_insert_control(
                                     target.section,
@@ -560,7 +650,7 @@ impl ResumeOne {
                         .map(|region| region.bottom)
                         .fold(0.0, f32::max);
                     let position =
-                        (bottom * PX_PER_PT + 18.0).min(data.layout.height_mm * PX_PER_MM - 30.0);
+                        (bottom * px_per_pt + 18.0).min(data.layout.height_mm * px_per_mm - 30.0);
                     page = page.child(
                         div()
                             .absolute()
@@ -584,6 +674,8 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let style = self.active_style();
+        let px_per_mm = PX_PER_MM * self.preview_scale;
+        let px_per_pt = PX_PER_PT * self.preview_scale;
         let target = region.target;
         let id = target.section.to_owned();
         let hover_id = id.clone();
@@ -609,13 +701,13 @@ impl ResumeOne {
             )))
             .debug_selector(move || selector.clone())
             .absolute()
-            .left(px(style.page.margins.left * PX_PER_MM))
-            .top(px(region.top * PX_PER_PT))
+            .left(px(style.page.margins.left * px_per_mm))
+            .top(px(region.top * px_per_pt))
             .w(px((style.page.width_mm
                 - style.page.margins.left
                 - style.page.margins.right)
-                * PX_PER_MM))
-            .h(px(((region.bottom - region.top) * PX_PER_PT).max(4.0)))
+                * px_per_mm))
+            .h(px(((region.bottom - region.top) * px_per_pt).max(4.0)))
             .when(valid && editable, |hit| {
                 hit.focusable().tab_index(0).key_context("PreviewItem")
             })
@@ -698,6 +790,8 @@ impl ResumeOne {
     ) -> gpui::Stateful<gpui::Div> {
         let summaries = self.model.document.sections();
         let style = self.active_style();
+        let px_per_mm = PX_PER_MM * self.preview_scale;
+        let px_per_pt = PX_PER_PT * self.preview_scale;
         for (index, summary) in summaries.iter().enumerate() {
             if summary.id == "basics"
                 || summary.count != 0
@@ -719,9 +813,9 @@ impl ResumeOne {
                         .filter(|region| region.page == last_page)
                         .map(|region| region.bottom)
                         .fold(0.0, f32::max);
-                    (last_page, bottom * PX_PER_PT + 16.0)
+                    (last_page, bottom * px_per_pt + 16.0)
                 },
-                |region| (region.page, region.top * PX_PER_PT - 14.0),
+                |region| (region.page, region.top * px_per_pt - 14.0),
             );
             if target_page != page_index {
                 continue;
@@ -730,12 +824,12 @@ impl ResumeOne {
                 page = page.child(
                     div()
                         .absolute()
-                        .left(px(style.page.margins.left * PX_PER_MM))
+                        .left(px(style.page.margins.left * px_per_mm))
                         .top(px(y))
                         .w(px((style.page.width_mm
                             - style.page.margins.left
                             - style.page.margins.right)
-                            * PX_PER_MM))
+                            * px_per_mm))
                         .child(self.item_insert_control(id, 0, style, cx)),
                 );
             }

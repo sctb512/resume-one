@@ -1,7 +1,7 @@
 use std::time::{Duration, Instant};
 
-pub(super) const MODE_DURATION: Duration = Duration::from_millis(240);
-pub(super) const THEME_WIDTH: f32 = 206.0;
+pub(super) const MODE_DURATION: Duration = Duration::from_millis(360);
+pub(super) const THEME_WIDTH: f32 = crate::chrome::THEME_WIDTH;
 
 /// Progress is 0 for preview with themes and 1 for full-width JSON.
 pub(super) struct ModeTransition {
@@ -12,6 +12,17 @@ pub(super) struct ModeTransition {
 }
 
 impl ModeTransition {
+    /// Keep the outgoing document intact during the physical rail movement.
+    /// Both directions use the final 24% for a short, continuous handoff.
+    pub fn handoff(&self, now: Instant) -> f32 {
+        if self.duration.is_zero() {
+            return 1.0;
+        }
+        let t =
+            now.saturating_duration_since(self.started).as_secs_f32() / self.duration.as_secs_f32();
+        let t = ((t - 0.76) / 0.24).clamp(0.0, 1.0);
+        t * t * (3.0 - 2.0 * t)
+    }
     pub fn new(from: f32, to: f32, now: Instant) -> Self {
         Self::with_duration(from, to, now, MODE_DURATION)
     }
@@ -51,6 +62,9 @@ mod tests {
         assert!(!done);
         assert!((mid - 0.5).abs() < 0.001);
         assert_eq!(forward.sample(now + MODE_DURATION), (1.0, true));
+        assert_eq!(forward.handoff(now + MODE_DURATION.mul_f32(0.75)), 0.0);
+        assert!(forward.handoff(now + MODE_DURATION.mul_f32(0.88)) > 0.45);
+        assert_eq!(forward.handoff(now + MODE_DURATION), 1.0);
         let reverse = ModeTransition::new(mid, 0.0, now);
         assert_eq!(reverse.sample(now).0, mid);
         assert_eq!(reverse.sample(now + MODE_DURATION), (0.0, true));

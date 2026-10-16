@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use gpui::{Context, Window, actions};
+use gpui::{App, Context, IntoElement, KeyBinding, Window, actions, div, prelude::*, px};
 use resume_one_core::ThemeManifest;
 use resume_one_core::export::{write_export, write_export_unnamed};
 use resume_one_core::render::{Language, markdown, plain_text};
@@ -10,8 +10,26 @@ use crate::ResumeOne;
 
 actions!(
     resume_one,
-    [ExportPdf, ExportDocx, ExportText, ExportMarkdown]
+    [
+        ExportPdf,
+        ExportDocx,
+        ExportText,
+        ExportMarkdown,
+        DismissExport,
+        NextExport,
+        PreviousExport,
+        ChooseExport
+    ]
 );
+
+pub(super) fn register(cx: &mut App) {
+    cx.bind_keys([
+        KeyBinding::new("escape", DismissExport, Some("ResumeOne && ExportMenu")),
+        KeyBinding::new("down", NextExport, Some("ResumeOne && ExportMenu")),
+        KeyBinding::new("up", PreviousExport, Some("ResumeOne && ExportMenu")),
+        KeyBinding::new("enter", ChooseExport, Some("ResumeOne && ExportMenu")),
+    ]);
+}
 
 #[derive(Clone, Copy)]
 enum ExportKind {
@@ -63,6 +81,116 @@ fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
 }
 
 impl ResumeOne {
+    pub(super) fn dismiss_export(
+        &mut self,
+        _: &DismissExport,
+        _: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.export_menu_open = false;
+        cx.notify();
+    }
+    pub(super) fn next_export(&mut self, _: &NextExport, _: &mut Window, cx: &mut Context<Self>) {
+        self.export_choice = (self.export_choice + 1).min(3);
+        cx.notify();
+    }
+    pub(super) fn previous_export(
+        &mut self,
+        _: &PreviousExport,
+        _: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.export_choice = self.export_choice.saturating_sub(1);
+        cx.notify();
+    }
+    pub(super) fn choose_export(
+        &mut self,
+        _: &ChooseExport,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.export_menu_open = false;
+        self.start_export(
+            [
+                ExportKind::Pdf,
+                ExportKind::Docx,
+                ExportKind::Text,
+                ExportKind::Markdown,
+            ][self.export_choice],
+            window,
+            cx,
+        );
+        cx.notify();
+    }
+    pub(super) fn export_popup(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let p = crate::chrome::Palette::new(self.active_style());
+        let mut menu = div()
+            .id("export-popup")
+            .debug_selector(|| "export-popup".into())
+            .absolute()
+            .top(px(crate::chrome::TOOLBAR_HEIGHT - 4.))
+            .right(px(26.))
+            .w(px(228.))
+            .p_2()
+            .rounded(px(8.))
+            .border_1()
+            .border_color(crate::color(p.line))
+            .bg(crate::color(p.panel))
+            .shadow_md()
+            .occlude()
+            .flex()
+            .flex_col()
+            .on_mouse_down_out(
+                cx.listener(|this, event: &gpui::MouseDownEvent, window, cx| {
+                    if event.position.y >= px(crate::chrome::TOOLBAR_HEIGHT) {
+                        this.dismiss_export(&DismissExport, window, cx)
+                    }
+                }),
+            );
+        for (index, (kind, hint)) in [
+            (ExportKind::Pdf, "固定版式，适合投递"),
+            (ExportKind::Docx, "可在 Word 中继续编辑"),
+            (ExportKind::Text, "适合粘贴到招聘系统"),
+            (ExportKind::Markdown, "保留标题与列表结构"),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            menu = menu.child(
+                div()
+                    .id(("export-format", index))
+                    .debug_selector(move || format!("export-format-{index}"))
+                    .px_3()
+                    .py_2()
+                    .rounded(px(5.))
+                    .cursor_pointer()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .when(index == self.export_choice, |v| v.bg(crate::color(p.soft)))
+                    .hover(|v| v.bg(crate::color(p.soft)))
+                    .child(
+                        div()
+                            .text_size(px(13.))
+                            .text_color(crate::color(p.ink))
+                            .child(kind.label()),
+                    )
+                    .child(
+                        div()
+                            .text_size(px(12.))
+                            .text_color(crate::color(p.muted))
+                            .child(hint),
+                    )
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.export_menu_open = false;
+                        this.start_export(kind, window, cx);
+                        cx.notify();
+                    })),
+            );
+        }
+        menu
+    }
+
     pub(super) fn export_pdf(
         &mut self,
         _: &ExportPdf,
@@ -220,6 +348,56 @@ impl ResumeOne {
             .ok();
         })
         .detach();
+    }
+}
+
+#[cfg(test)]
+mod chrome_tests {
+    use super::*;
+    use gpui::{Modifiers, TestAppContext};
+    #[gpui::test]
+    fn toolbar_export_menu_is_keyboard_accessible_and_does_not_change_document(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        cx.update(register);
+        cx.update(crate::inline_ui::register);
+        let model = crate::model::AppModel::load(None).unwrap();
+        let source = model.document.source.clone();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let toolbar = cx.debug_bounds("toolbar").unwrap();
+        let trigger = cx.debug_bounds("export-menu").unwrap();
+        cx.simulate_click(trigger.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        cx.simulate_click(trigger.center(), Modifiers::none());
+        cx.update(|_, cx| assert!(!view.read(cx).export_menu_open));
+        cx.update(|window, _| window.refresh());
+        cx.simulate_click(trigger.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        for selector in [
+            "export-format-0",
+            "export-format-1",
+            "export-format-2",
+            "export-format-3",
+        ] {
+            assert!(cx.debug_bounds(selector).is_some());
+        }
+        cx.simulate_keystrokes("down down up");
+        cx.update(|_, cx| assert_eq!(view.read(cx).export_choice, 1));
+        cx.simulate_keystrokes("escape");
+        cx.update(|_, cx| {
+            assert!(
+                !view.read(cx).export_menu_open,
+                "Escape must dismiss menu state"
+            )
+        });
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(!view.read(cx).export_menu_open));
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        assert_eq!(toolbar, cx.debug_bounds("toolbar").unwrap());
+        cx.update(|_, cx| assert_eq!(view.read(cx).model.document.source, source));
     }
 }
 

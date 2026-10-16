@@ -796,18 +796,23 @@ impl ResumeOne {
             .bg(color(style.colors.canvas))
             .px_5()
             .pt_5()
-            .pb_2()
+            .pb_4()
+            .items_center()
             .child(
                 div()
                     .relative()
+                    .w_full()
+                    .max_w(px(930.))
                     .flex_1()
                     .min_h_0()
-                    .rounded_md()
+                    .rounded(px(8.))
                     .border_1()
-                    .border_color(color(style.colors.border))
+                    .border_color(color(crate::chrome::Palette::new(style).line))
                     .bg(color(style.colors.paper))
                     .child(
                         Input::new(&editor.input)
+                            .text_size(px(13.))
+                            .line_height(px(21.))
                             .opacity(1.0 - 0.65 * self.spotlight_progress)
                             .appearance(false)
                             .bordered(false)
@@ -821,19 +826,21 @@ impl ResumeOne {
                     )
                     .child(self.source_gutter(cx)),
             )
-            .child(
-                div()
-                    .h(px(24.0))
-                    .flex_none()
-                    .px_2()
-                    .text_size(px(11.0))
-                    .text_color(if editor.buffer.issues().is_empty() {
-                        color(style.colors.muted)
-                    } else {
-                        color(style.colors.seal)
-                    })
-                    .child(status),
-            )
+            .when(!status.is_empty(), |view| {
+                view.child(
+                    div()
+                        .h(px(24.0))
+                        .flex_none()
+                        .px_2()
+                        .text_size(px(12.0))
+                        .text_color(if editor.buffer.issues().is_empty() {
+                            color(style.colors.muted)
+                        } else {
+                            color(style.colors.seal)
+                        })
+                        .child(status),
+                )
+            })
     }
 }
 

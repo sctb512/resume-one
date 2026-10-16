@@ -7,6 +7,53 @@ use resume_one_themes::{GithubClient, GithubSource, ThemeCache, VerifiedTheme};
 use crate::{ResumeOne, color, model::BuiltinTheme, theme_online::Provider};
 
 impl ResumeOne {
+    pub(super) fn hover_local_theme(
+        &mut self,
+        index: usize,
+        entering: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let identity = self.model.themes[index].identity.clone();
+        if !entering {
+            if self.theme_hover_candidate.as_ref() == Some(&identity) {
+                self.theme_hover_generation += 1;
+                self.theme_hover_candidate = None;
+            }
+            if self.hovered_theme == Some(index) {
+                self.hovered_theme = None;
+                cx.notify();
+            }
+            return;
+        }
+        self.theme_hover_generation += 1;
+        let generation = self.theme_hover_generation;
+        self.theme_hover_candidate = Some(identity.clone());
+        let timer = cx
+            .background_executor()
+            .timer(std::time::Duration::from_millis(160));
+        cx.spawn_in(window, async move |this, cx| {
+            timer.await;
+            this.update_in(cx, |this, _, cx| {
+                if this.theme_hover_generation == generation
+                    && !this.source_mode
+                    && !this.theme_manager_open
+                    && !this.online.online
+                    && this
+                        .model
+                        .themes
+                        .get(index)
+                        .is_some_and(|t| t.identity == identity)
+                {
+                    this.hovered_theme = Some(index);
+                    cx.notify();
+                }
+            })
+            .ok();
+        })
+        .detach();
+    }
+
     pub(super) fn sync_theme_sources(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let sources = self
             .theme_store
@@ -127,7 +174,14 @@ impl ResumeOne {
 
     pub(super) fn theme_navigation(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
-        let mut tabs = div().flex().gap_4().text_size(px(12.)).px_2();
+        let p = crate::chrome::Palette::new(style);
+        let mut tabs = div()
+            .flex()
+            .text_size(px(12.))
+            .mx(px(14.))
+            .mb_2()
+            .border_b_1()
+            .border_color(color(p.line));
         for (online, title) in [(false, "本地"), (true, "在线")] {
             let selector = if online {
                 "themes-online"
@@ -139,12 +193,16 @@ impl ResumeOne {
                     .id(selector)
                     .debug_selector(move || selector.into())
                     .cursor_pointer()
-                    .pb_2()
-                    .border_b_1()
+                    .flex_1()
+                    .flex()
+                    .justify_center()
+                    .pt_2()
+                    .pb(px(11.))
+                    .border_b_2()
                     .border_color(color(if online == self.online.online {
                         style.colors.accent
                     } else {
-                        style.colors.chrome
+                        p.panel
                     }))
                     .text_color(color(if online == self.online.online {
                         style.colors.accent
@@ -157,7 +215,7 @@ impl ResumeOne {
                     })),
             );
         }
-        let mut nav = div().flex().flex_col().gap_2().child(tabs);
+        let mut nav = div().flex_none().flex().flex_col().gap_2().child(tabs);
         if self.online.online {
             let title = self
                 .online
@@ -171,7 +229,7 @@ impl ResumeOne {
                     .debug_selector(|| "theme-source-picker".into())
                     .px_2()
                     .py_1()
-                    .text_size(px(10.))
+                    .text_size(px(12.))
                     .text_color(color(style.colors.muted))
                     .cursor_pointer()
                     .overflow_hidden()
@@ -202,7 +260,7 @@ impl ResumeOne {
                         div()
                             .id(("source-choice", index))
                             .debug_selector(move || format!("source-choice-{index}"))
-                            .text_size(px(10.))
+                            .text_size(px(12.))
                             .px_2()
                             .py_2()
                             .rounded_md()
@@ -226,16 +284,19 @@ impl ResumeOne {
 
     pub(super) fn online_theme_list(&self, cx: &mut Context<Self>) -> gpui::Stateful<gpui::Div> {
         let style = self.active_style();
+        let p = crate::chrome::Palette::new(style);
         let mut list = div()
             .id("theme-list")
             .flex()
             .flex_col()
-            .gap_1()
+            .px_2()
             .overflow_y_scroll()
             .flex_1()
             .min_h_0()
             .track_scroll(&self.theme_scroll)
             .on_scroll_wheel(cx.listener(|this, _, window, cx| {
+                this.theme_hover_generation += 1;
+                this.theme_hover_candidate = None;
                 this.online.clear_hover();
                 let owner = cx.entity().downgrade();
                 window.defer(cx, move |window, cx| {
@@ -243,7 +304,7 @@ impl ResumeOne {
                         owner.update(cx, |this, cx| {
                             let center = ((-f32::from(this.theme_scroll.offset().y)
                                 + f32::from(this.theme_scroll.bounds().size.height) / 2.)
-                                / 66.)
+                                / crate::chrome::THEME_ROW_HEIGHT)
                                 .floor()
                                 .max(0.) as usize;
                             this.online.scroll_to(center);
@@ -266,32 +327,52 @@ impl ResumeOne {
                 let download_id = id.clone();
                 let owner = cx.entity().downgrade();
                 let download_disabled = self.online.download_pending() || self.files.busy;
+                let thumbnail_theme = self.online.thumbnail_theme(&entry.id);
+                let description = thumbnail_theme
+                    .as_ref()
+                    .and_then(|t| t.manifest.normalized["description"].as_str())
+                    .unwrap_or(&entry.id)
+                    .to_owned();
                 let row = div()
                     .id(("theme", index))
                     .debug_selector(move || format!("theme-{index}"))
                     .flex()
                     .flex_none()
-                    .h(px(62.))
+                    .relative()
+                    .h(px(crate::chrome::THEME_ROW_HEIGHT))
                     .items_center()
                     .gap_3()
-                    .px_3()
-                    .rounded_md()
+                    .px(px(9.))
+                    .py(px(10.))
+                    .border_b_1()
+                    .border_color(color(p.line))
                     .cursor_pointer()
-                    .when(selected, |row| row.bg(color(style.colors.paper)))
-                    .hover(|row| row.bg(color(style.colors.paper)))
-                    .child(div().w(px(5.)).h(px(34.)).rounded_sm().bg(color(
-                        self.online.color(&entry.id).unwrap_or(style.colors.border),
-                    )))
+                    .when(selected, |row| row.bg(color(p.soft)))
+                    .hover(|row| row.bg(color(p.soft)))
+                    .when(selected, |row| {
+                        row.child(
+                            div()
+                                .absolute()
+                                .left_0()
+                                .top(px(11.))
+                                .bottom(px(11.))
+                                .w(px(3.))
+                                .rounded_sm()
+                                .bg(color(style.colors.accent)),
+                        )
+                    })
+                    .child(self.theme_thumbnail(thumbnail_theme.as_ref()))
                     .child(
                         div()
                             .flex_1()
                             .min_w_0()
                             .flex()
                             .flex_col()
-                            .gap_1()
+                            .gap(px(7.))
                             .child(
                                 div()
-                                    .text_size(px(13.))
+                                    .font_family(crate::chrome::SERIF)
+                                    .text_size(px(15.))
                                     .text_color(color(if selected {
                                         style.colors.accent
                                     } else {
@@ -302,15 +383,47 @@ impl ResumeOne {
                             )
                             .child(
                                 div()
-                                    .text_size(px(10.))
+                                    .text_size(px(12.))
+                                    .line_height(px(17.))
+                                    .line_clamp(2)
                                     .text_color(color(style.colors.muted))
-                                    .truncate()
-                                    .child(entry.id.clone()),
+                                    .child(description),
                             ),
                     )
                     .on_hover(cx.listener(move |this, entering: &bool, window, cx| {
-                        this.online.hover(&id, *entering);
-                        this.pump_online(window, cx);
+                        let identity = this.online.identity(&id);
+                        if !entering && this.theme_hover_candidate != identity {
+                            return;
+                        }
+                        this.theme_hover_generation += 1;
+                        let generation = this.theme_hover_generation;
+                        if !entering {
+                            this.theme_hover_candidate = None;
+                            this.online.hover(&id, false);
+                        } else {
+                            this.theme_hover_candidate = identity.clone();
+                            let id = id.clone();
+                            let timer = cx
+                                .background_executor()
+                                .timer(std::time::Duration::from_millis(160));
+                            cx.spawn_in(window, async move |this, cx| {
+                                timer.await;
+                                this.update_in(cx, |this, window, cx| {
+                                    if generation == this.theme_hover_generation
+                                        && !this.source_mode
+                                        && !this.theme_manager_open
+                                        && identity == this.online.identity(&id)
+                                        && this.online.online
+                                    {
+                                        this.online.hover(&id, true);
+                                        this.pump_online(window, cx);
+                                        cx.notify();
+                                    }
+                                })
+                                .ok();
+                            })
+                            .detach();
+                        }
                         cx.notify();
                     }))
                     .on_click(cx.listener(move |this, _, window, cx| {
@@ -408,6 +521,8 @@ mod tests {
         cx.update(|window, _| window.refresh());
         let second = cx.debug_bounds("theme-1").unwrap();
         cx.simulate_mouse_move(second.center(), None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
         cx.run_until_parked();
         cx.update(|_, cx| {
             let app = owner.read(cx);
@@ -428,6 +543,8 @@ mod tests {
         cx.update(|window, _| window.refresh());
         let second = cx.debug_bounds("theme-1").unwrap();
         cx.simulate_mouse_move(second.center(), None, Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
         cx.run_until_parked();
         cx.update(|_, cx| {
             let app = owner.read(cx);
@@ -470,7 +587,15 @@ mod tests {
         cx.update(|_, cx| {
             let app = owner.read(cx);
             assert!(app.theme_scroll.offset().y < px(-1000.));
-            assert!(app.online.color("theme-40").is_some());
+            let center = ((-f32::from(app.theme_scroll.offset().y)
+                + f32::from(app.theme_scroll.bounds().size.height) / 2.)
+                / crate::chrome::THEME_ROW_HEIGHT)
+                .floor() as usize;
+            assert!(
+                app.online
+                    .thumbnail_theme(&format!("theme-{center}"))
+                    .is_some()
+            );
             assert_eq!(app.model.applied_theme().identity, applied);
             assert_eq!(app.model.document.source, resume);
         });

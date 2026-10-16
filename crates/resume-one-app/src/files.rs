@@ -82,8 +82,11 @@ pub(super) fn register(cx: &mut App) {
                 MenuItem::separator(),
                 MenuItem::action("切换文件", ToggleFiles),
                 MenuItem::action("刷新目录", RefreshFolder),
-                MenuItem::action("切换源码与预览", ToggleSource),
             ],
+        },
+        Menu {
+            name: "视图".into(),
+            items: vec![MenuItem::action("切换源码与预览", ToggleSource)],
         },
         Menu {
             name: "主题".into(),
@@ -415,7 +418,7 @@ impl ResumeOne {
             .id("file-switcher")
             .debug_selector(|| "file-switcher".to_string())
             .absolute()
-            .top(px(55.0))
+            .top(px(crate::chrome::TOOLBAR_HEIGHT))
             .when(self.files.anchor_right, |menu| menu.right(px(24.0)))
             .when(!self.files.anchor_right, |menu| menu.left(px(160.0)))
             .w(px(if self.files.actions_only {
@@ -437,7 +440,7 @@ impl ResumeOne {
             .occlude()
             .on_mouse_down_out(
                 cx.listener(|this, event: &gpui::MouseDownEvent, window, cx| {
-                    if event.position.y >= px(55.0) {
+                    if event.position.y >= px(crate::chrome::TOOLBAR_HEIGHT) {
                         this.dismiss_files(&DismissFiles, window, cx);
                     }
                 }),

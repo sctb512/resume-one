@@ -2,8 +2,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use gpui::{
-    App, Context, Entity, EntityInputHandler as _, IntoElement, KeyBinding, PromptLevel,
-    Subscription, Window, actions, div, prelude::*, px,
+    App, Context, Entity, IntoElement, KeyBinding, PromptLevel, Subscription, Window, actions, div,
+    prelude::*, px,
 };
 use gpui_component::{
     Theme,
@@ -30,6 +30,8 @@ pub(super) struct EditorUi {
     pub generation: u64,
     pub saving: bool,
     pub journal_error: Option<String>,
+    pub source_anchors: Arc<Vec<resume_one_core::source_map::Anchor>>,
+    pub source_generation: u64,
     _subscription: Subscription,
 }
 
@@ -83,6 +85,12 @@ pub(super) fn apply_editor_theme(style: &ThemeStyle, cx: &mut App) {
     theme.colors.background = color(style.colors.paper).into();
     theme.colors.foreground = color(style.colors.ink).into();
     theme.colors.accent = color(style.colors.accent).into();
+    theme.colors.accent_foreground = color(style.colors.paper).into();
+    theme.colors.popover = color(style.colors.paper).into();
+    theme.colors.popover_foreground = color(style.colors.ink).into();
+    theme.colors.border = color(style.colors.border).into();
+    theme.colors.muted_foreground = color(style.colors.muted).into();
+    theme.colors.ring = color(style.colors.accent).into();
 }
 
 fn drafts_root() -> Result<PathBuf, String> {
@@ -165,6 +173,9 @@ impl ResumeOne {
         editor.display_alias =
             (display != buffer.source()).then(|| (display.clone(), buffer.source().into()));
         editor.last_display = display.clone();
+        editor.source_anchors =
+            Arc::new(resume_one_core::source_map::anchors(&display).unwrap_or_default());
+        editor.source_generation = editor.source_generation.wrapping_add(1);
         editor.buffer = buffer;
         editor.store = DraftStore::new(
             drafts_root().expect("draft root already checked"),
@@ -261,6 +272,9 @@ impl ResumeOne {
         let Some(editor) = &mut self.editor else {
             return;
         };
+        if editor.input.read(cx).is_composing() {
+            return;
+        }
         let formatted = match editor.buffer.formatted() {
             Ok(value) => value,
             Err(issue) => {
@@ -272,7 +286,7 @@ impl ResumeOne {
         let input = editor.input.clone();
         input.update(cx, |state, cx| {
             let length = state.value().chars().map(char::len_utf16).sum();
-            state.replace_text_in_range(Some(0..length), &formatted, window, cx);
+            state.replace_text_transaction(0..length, &formatted, window, cx);
         });
         // Entering the editor renders a formatted copy without touching the
         // original bytes. An explicit Format command makes that copy editable.
@@ -503,6 +517,10 @@ impl ResumeOne {
             });
             let store = DraftStore::new(root, self.model.document_path.clone());
             self.editor = Some(EditorUi {
+                source_anchors: Arc::new(
+                    resume_one_core::source_map::anchors(&display).unwrap_or_default(),
+                ),
+                source_generation: 0,
                 input,
                 buffer,
                 last_display: display,
@@ -595,6 +613,10 @@ impl ResumeOne {
                 editor.buffer = buffer;
                 editor.display_alias = None;
                 editor.last_display = draft.source.clone();
+                editor.source_anchors = Arc::new(
+                    resume_one_core::source_map::anchors(&draft.source).unwrap_or_default(),
+                );
+                editor.source_generation = editor.source_generation.wrapping_add(1);
                 editor
                     .input
                     .update(cx, |state, cx| state.set_value(draft.source, window, cx));
@@ -611,11 +633,17 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.source_mode {
+            self.cancel_insertion();
+        }
         let Some(editor) = &mut self.editor else {
             return;
         };
         let state = input.read(cx);
         let source = state.value().to_string();
+        editor.source_anchors =
+            Arc::new(resume_one_core::source_map::anchors(&source).unwrap_or_default());
+        editor.source_generation = editor.source_generation.wrapping_add(1);
         let cursor = state.cursor();
         let closer = automatic_pair(&editor.last_display, &source, cursor);
         editor.last_display.clone_from(&source);
@@ -729,7 +757,7 @@ impl ResumeOne {
         .detach();
     }
 
-    pub(super) fn json_editor(&self) -> impl IntoElement {
+    pub(super) fn json_editor(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
         let editor = self.editor.as_ref().expect("source mode has editor");
         let status = if let Some(error) = &editor.journal_error {
@@ -761,6 +789,7 @@ impl ResumeOne {
             .pb_2()
             .child(
                 div()
+                    .relative()
                     .flex_1()
                     .min_h_0()
                     .rounded_md()
@@ -769,16 +798,18 @@ impl ResumeOne {
                     .bg(color(style.colors.paper))
                     .child(
                         Input::new(&editor.input)
+                            .opacity(1.0 - 0.65 * self.spotlight_progress)
                             .appearance(false)
                             .bordered(false)
                             .focus_bordered(false)
                             .h_full()
                             .w_full()
-                            .px_3()
+                            .pl(px(60.0))
                             .pt_3()
                             .pr_5()
                             .pb_2(),
-                    ),
+                    )
+                    .child(self.source_gutter(cx)),
             )
             .child(
                 div()
@@ -799,6 +830,30 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::automatic_pair;
+
+    #[gpui::test]
+    fn source_menus_follow_each_resume_palette(cx: &mut gpui::TestAppContext) {
+        cx.update(gpui_component::init);
+        let model = crate::model::AppModel::load(None).unwrap();
+        for theme in model.themes {
+            cx.update(|cx| {
+                super::apply_editor_theme(&theme.style, cx);
+                let colors = &gpui_component::Theme::global(cx).colors;
+                assert_eq!(
+                    colors.popover,
+                    gpui::Hsla::from(crate::color(theme.style.colors.paper))
+                );
+                assert_eq!(
+                    colors.popover_foreground,
+                    gpui::Hsla::from(crate::color(theme.style.colors.ink))
+                );
+                assert_eq!(
+                    colors.accent_foreground,
+                    gpui::Hsla::from(crate::color(theme.style.colors.paper))
+                );
+            });
+        }
+    }
 
     #[test]
     fn pairs_only_single_openers_outside_strings() {

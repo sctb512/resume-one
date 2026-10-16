@@ -22,6 +22,7 @@ pub mod pdf;
 pub mod render;
 pub mod resume;
 pub mod semantic;
+pub mod source_map;
 pub mod storage;
 pub mod structure;
 pub mod theme_style;

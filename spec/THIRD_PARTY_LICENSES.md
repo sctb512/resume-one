@@ -1,5 +1,11 @@
 # 第三方规范许可
 
+## gpui-component
+
+桌面组件固定于 crates.io 的 `gpui-component 0.5.1`，原始发布包 SHA-256：`d021d46b4088d3d93a57ccdf443da85695a77272108caca2f6fe5369f584966a`。源码、翻译和原始说明保留于 [vendor/gpui-component](../vendor/gpui-component/)，采用 Apache-2.0；完整原始许可见 [LICENSE-APACHE](../vendor/gpui-component/LICENSE-APACHE)。不从开发机 Cargo 缓存打临时补丁，其他机器构建也使用同一版本。
+
+Resume One 修改仅位于 `src/input/state.rs`、`src/input/element.rs`、`src/history.rs`：公开当前帧只读文本坐标与组合输入状态、转发行旁滚轮、隔离程序化编辑事务、使新编辑失效旧重做记录，并在平台以 unmark 提交输入法文本时发送内容变更。行旁控件复用该版本的真实字体、软换行、滚动和裁剪坐标，未替换文本输入引擎。后续升级必须重新验收这些行为。
+
 `json-resume-1.3.1.schema.json` 原样取自 `@jsonresume/schema@1.3.1`（JSON Resume），原始包的 `LICENSE.md` 如下：
 
 The MIT License (MIT)

@@ -1,7 +1,31 @@
-use gpui::{App, Context, EntityInputHandler as _, KeyBinding, Window, actions};
+use gpui::{App, Context, KeyBinding, Window, actions};
 use resume_one_core::structure::{StructureEdit, apply_structure};
 
 use crate::ResumeOne;
+
+/// A single UTF-16 replacement, trimmed at complete Unicode scalar boundaries.
+/// Keeping unaffected text out of history also keeps undo near the actual edit.
+fn changed_range<'a>(before: &str, after: &'a str) -> Option<(std::ops::Range<usize>, &'a str)> {
+    if before == after {
+        return None;
+    }
+    let prefix = before
+        .chars()
+        .zip(after.chars())
+        .take_while(|(a, b)| a == b)
+        .map(|(a, _)| a.len_utf8())
+        .sum::<usize>();
+    let suffix = before[prefix..]
+        .chars()
+        .rev()
+        .zip(after[prefix..].chars().rev())
+        .take_while(|(a, b)| a == b)
+        .map(|(a, _)| a.len_utf8())
+        .sum::<usize>();
+    let start = before[..prefix].encode_utf16().count();
+    let end = start + before[prefix..before.len() - suffix].encode_utf16().count();
+    Some((start..end, &after[prefix..after.len() - suffix]))
+}
 
 actions!(resume_one, [UndoVisualEdit, RedoVisualEdit]);
 
@@ -23,10 +47,9 @@ pub(super) fn register(cx: &mut App) {
 
 impl ResumeOne {
     pub(super) fn insertion_active(&self) -> bool {
-        !self.source_mode
-            && (self.insertion_before.is_some()
-                || self.selected_module.is_some()
-                || self.selected_item_module.is_some())
+        self.insertion_before.is_some()
+            || self.selected_module.is_some()
+            || (!self.source_mode && self.selected_item_module.is_some())
     }
 
     pub(super) fn cancel_insertion(&mut self) -> bool {
@@ -49,6 +72,9 @@ impl ResumeOne {
             return;
         }
         let Some(editor) = &self.editor else { return };
+        if editor.input.read(cx).is_composing() {
+            return;
+        }
         if !editor.buffer.issues().is_empty() {
             self.editor_warning("无法修改结构", "请先修复 JSON 或 Schema 错误", window, cx);
             return;
@@ -123,8 +149,9 @@ impl ResumeOne {
         let preserve_cursor = self.source_mode;
         input.update(cx, |state, cx| {
             let cursor = preserve_cursor.then(|| state.cursor_position());
-            let length = state.value().chars().map(char::len_utf16).sum();
-            state.replace_text_in_range(Some(0..length), display_source, window, cx);
+            if let Some((range, text)) = changed_range(&state.value(), display_source) {
+                state.replace_text_transaction(range, text, window, cx);
+            }
             if let Some(cursor) = cursor {
                 state.set_cursor_position(cursor, window, cx);
             }
@@ -180,5 +207,23 @@ impl ResumeOne {
         self.replace_editor_source(&after, window, cx);
         self.visual_undo.push((before, after));
         cx.notify();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn minimal_transactions_respect_unicode_crlf_and_disjoint_changes() {
+        assert_eq!(
+            changed_range("林🙂甲\r\n尾", "林🙂乙\r\n尾"),
+            Some((3..4, "乙"))
+        );
+        assert_eq!(changed_range("🙂x", "🙂中x"), Some((2..2, "中")));
+        assert_eq!(changed_range("🙂中x", "🙂x"), Some((2..3, "")));
+        assert_eq!(changed_range("{}", "{}"), None);
+        assert_eq!(changed_range("ab🙂cd", "az🙂yd"), Some((1..5, "z🙂y")));
+        assert_eq!(changed_range("", "🙂"), Some((0..0, "🙂")));
     }
 }

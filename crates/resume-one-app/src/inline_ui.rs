@@ -545,7 +545,7 @@ impl ResumeOne {
         let insertion = self.cancel_insertion();
         if self.inline.form.take().is_some() || insertion {
             self.clear_inline();
-            window.focus(&self.focus);
+            self.focus_current(window, cx);
             cx.notify();
         }
     }

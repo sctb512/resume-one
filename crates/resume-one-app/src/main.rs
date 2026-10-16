@@ -7,6 +7,7 @@ mod inline_ui;
 mod model;
 mod motion;
 mod preview_ui;
+mod source_gutter;
 mod structure_ui;
 mod theme_browser_ui;
 mod theme_local;
@@ -420,7 +421,7 @@ impl ResumeOne {
                 } else {
                     StructureEdit::InsertSection {
                         id: id.clone(),
-                        before: None,
+                        before: this.insertion_before.clone().flatten(),
                     }
                 };
                 this.apply_visual_structure(edit, window, cx);
@@ -589,7 +590,7 @@ impl ResumeOne {
             let selector = format!("module-{id}");
             let selected = self.selected_module.as_deref() == Some(id.as_str())
                 || self.selected_item_module.as_deref() == Some(id.as_str());
-            let dimmed = !self.source_mode && self.spotlight_dimmed.contains(&id.as_str());
+            let dimmed = self.spotlight_dimmed.contains(&id.as_str());
             let mut controls = div().flex().items_center().gap_2();
             if present {
                 controls = controls.child(
@@ -639,6 +640,10 @@ impl ResumeOne {
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if source_mode {
                             if present {
+                                if this.insertion_before.is_some() {
+                                    return;
+                                }
+                                this.selected_module = None;
                                 this.selected_item_module = if row_id == "basics"
                                     || this.selected_item_module.as_deref() == Some(row_id.as_str())
                                 {
@@ -647,15 +652,22 @@ impl ResumeOne {
                                     Some(row_id.clone())
                                 };
                                 cx.notify();
-                            } else {
+                            } else if let Some(before) = this.insertion_before.clone() {
                                 this.apply_visual_structure(
                                     StructureEdit::InsertSection {
                                         id: row_id.clone(),
-                                        before: None,
+                                        before,
                                     },
                                     window,
                                     cx,
                                 );
+                            } else {
+                                this.selected_module = (this.selected_module.as_deref()
+                                    != Some(row_id.as_str()))
+                                .then(|| row_id.clone());
+                                this.selected_item_module = None;
+                                window.focus(&this.focus);
+                                cx.notify();
                             }
                             return;
                         }
@@ -933,7 +945,7 @@ impl Render for ResumeOne {
                                         .size_full()
                                         .flex()
                                         .opacity(json_alpha)
-                                        .child(self.json_editor()),
+                                        .child(self.json_editor(cx)),
                                 )
                             }),
                     )

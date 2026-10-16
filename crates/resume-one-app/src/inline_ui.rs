@@ -176,6 +176,9 @@ impl ResumeOne {
         {
             return;
         }
+        // Preview-first users may never have toggled the JSON editor, where
+        // the component palette used to be installed as an accidental side effect.
+        crate::editor_ui::apply_editor_theme(self.model.selected_style(), cx);
         let editor = self.editor.as_ref().unwrap();
         let initial_error = editor
             .buffer
@@ -856,6 +859,49 @@ mod tests {
     use crate::{editor_ui, model::AppModel, structure_ui};
     use gpui::{EntityInputHandler as _, Modifiers, TestAppContext, point};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn preview_first_forms_sync_palette_without_source_mode_or_content_changes(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("resume.json");
+        let source = br#"{"work":[{"name":"Original","position":"Designer"}]}"#;
+        std::fs::write(&path, source).unwrap();
+        let mut model = AppModel::load(Some(&path)).unwrap();
+        let mut dark = model.themes[0].clone();
+        dark.manifest.normalized["colors"] = serde_json::json!({"accent":"#C9AC77","seal":"#A14F40","paper":"#172426","canvas":"#101A1B"});
+        dark.style = resume_one_core::theme_style::ThemeStyle::from_manifest(&dark.manifest);
+        dark.identity = "test:dark-form".into();
+        model.themes.push(dark);
+        let count = model.themes.len();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        for index in 0..count {
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| {
+                    app.clear_inline();
+                    app.model.select_theme(index);
+                    gpui_component::Theme::global_mut(cx).colors.background =
+                        gpui::rgb(0x000000).into();
+                    app.open_inline("work", Some(0), window, cx);
+                    assert!(app.inline.form.is_some());
+                    assert!(!app.source_mode);
+                    let style = app.model.selected_style();
+                    let colors = &gpui_component::Theme::global(cx).colors;
+                    assert_eq!(
+                        colors.background,
+                        gpui::Hsla::from(color(style.colors.paper))
+                    );
+                    assert_eq!(colors.foreground, gpui::Hsla::from(color(style.colors.ink)));
+                    assert_eq!(colors.input, gpui::Hsla::from(color(style.colors.border)));
+                    assert_eq!(colors.caret, gpui::Hsla::from(color(style.colors.accent)));
+                    assert!(!app.editor.as_ref().unwrap().buffer.is_dirty());
+                })
+            });
+        }
+        assert_eq!(std::fs::read(&path).unwrap(), source);
+    }
 
     #[gpui::test]
     fn basics_nested_fields_and_profiles_keep_focus_visible_and_roundtrip_undo(

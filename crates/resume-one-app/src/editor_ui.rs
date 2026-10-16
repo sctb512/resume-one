@@ -89,6 +89,16 @@ pub(super) fn apply_editor_theme(style: &ThemeStyle, cx: &mut App) {
     theme.colors.popover = color(style.colors.paper).into();
     theme.colors.popover_foreground = color(style.colors.ink).into();
     theme.colors.border = color(style.colors.border).into();
+    theme.colors.input = color(style.colors.border).into();
+    theme.colors.caret = color(style.colors.accent).into();
+    theme.colors.muted = color(style.colors.paper.mix(style.colors.ink, 0.03)).into();
+    let selection = style.colors.paper.mix(style.colors.accent, 0.12);
+    theme.colors.selection = color(if style.colors.ink.contrast(selection) >= 4.5 {
+        selection
+    } else {
+        style.colors.paper
+    })
+    .into();
     theme.colors.muted_foreground = color(style.colors.muted).into();
     theme.colors.ring = color(style.colors.accent).into();
 }

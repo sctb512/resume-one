@@ -14,6 +14,81 @@ fn click_center(cx: &mut gpui::VisualTestContext, selector: &'static str) {
 }
 
 #[gpui::test]
+fn new_resume_is_a_clean_preview_draft_and_never_overwrites_the_open_file(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    cx.update(register_bindings);
+    cx.update(crate::inline_ui::register);
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("original.json");
+    let original = br#"{"basics":{"name":"Original"},"work":[{"name":"Keep"}]}"#;
+    std::fs::write(&path, original).unwrap();
+    let mut model = AppModel::load(Some(&path)).unwrap();
+    model.folder = Some(crate::workspace::LocalFolder::scan(directory.path()).unwrap());
+    model.select_theme(3);
+    let theme = model.applied_theme().identity.clone();
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let output = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| ResumeOne::new(model, cx));
+        *output.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, _| window.refresh());
+    click_center(cx, "open-menu");
+    cx.simulate_keystrokes("down down enter");
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        view.update(cx, |app, _| {
+            assert!(!app.source_mode);
+            assert!(!app.model.is_example);
+            assert_eq!(app.model.document_label, "未命名简历");
+            assert!(app.model.document_path.is_none());
+            assert_eq!(app.model.document.value, serde_json::json!({"basics":{}}));
+            assert_eq!(app.model.applied_theme().identity, theme);
+            assert_eq!(
+                app.model.folder.as_ref().unwrap().path,
+                directory.path().canonicalize().unwrap()
+            );
+            assert!(app.inline_matches("basics", None));
+            app.editor.as_mut().unwrap().store =
+                resume_one_core::draft::DraftStore::new(directory.path().join("drafts"), None);
+        })
+    });
+    assert!(cx.debug_bounds("inline-form").is_some());
+    assert_eq!(std::fs::read(&path).unwrap(), original);
+
+    // An unsaved new draft must get the same discard guard as an opened file.
+    let edited = r#"{"basics":{"name":"Unsaved"},"custom":{"keep":true}}"#;
+    cx.update(|window, cx| {
+        let input = view.read(cx).editor.as_ref().unwrap().input.clone();
+        input.update(cx, |state, cx| state.set_value(edited, window, cx));
+    });
+    cx.run_until_parked();
+    cx.update(|window, cx| view.update(cx, |app, cx| app.new_resume(&NewResume, window, cx)));
+    assert!(cx.has_pending_prompt());
+    cx.simulate_prompt_answer("继续编辑");
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.editor.as_ref().unwrap().buffer.source(), edited);
+        assert!(app.editor.as_ref().unwrap().store.load().unwrap().is_some());
+        assert!(!app.files.busy);
+    });
+    cx.update(|window, cx| view.update(cx, |app, cx| app.new_resume(&NewResume, window, cx)));
+    cx.simulate_prompt_answer("丢弃更改并新建");
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.model.document.value, serde_json::json!({"basics":{}}));
+        assert!(app.visual_undo.is_empty());
+        assert!(app.editor.as_ref().unwrap().buffer.issues().is_empty());
+    });
+    assert_eq!(std::fs::read(&path).unwrap(), original);
+    assert!(!directory.path().join("resume.json").exists());
+}
+
+#[gpui::test]
 fn invalid_file_opens_for_repair_and_saves_only_after_becoming_valid(cx: &mut TestAppContext) {
     cx.update(gpui_component::init);
     let directory = tempfile::tempdir().unwrap();

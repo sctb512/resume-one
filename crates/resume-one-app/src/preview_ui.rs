@@ -647,7 +647,13 @@ impl ResumeOne {
                         .regions
                         .iter()
                         .filter(|region| region.page == page_index)
-                        .map(|region| region.bottom)
+                        .map(|region| {
+                            if region.target.section == "basics" && !region.text {
+                                region.bottom.max(region.top + 32. / px_per_pt)
+                            } else {
+                                region.bottom
+                            }
+                        })
                         .fold(0.0, f32::max);
                     let position =
                         (bottom * px_per_pt + 18.0).min(data.layout.height_mm * px_per_mm - 30.0);
@@ -708,6 +714,14 @@ impl ResumeOne {
                 - style.page.margins.right)
                 * px_per_mm))
             .h(px(((region.bottom - region.top) * px_per_pt).max(4.0)))
+            .when(!region.text && target.section == "basics" && valid, |hit| {
+                hit.min_h(px(32.)).child(
+                    div()
+                        .text_size(px(13.))
+                        .text_color(color(style.colors.accent))
+                        .child("填写基本信息"),
+                )
+            })
             .when(valid && editable, |hit| {
                 hit.focusable().tab_index(0).key_context("PreviewItem")
             })

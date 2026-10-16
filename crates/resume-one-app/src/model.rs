@@ -65,6 +65,7 @@ pub struct AppModel {
     pub preview_ready: bool,
     pub document_label: String,
     pub document_path: Option<PathBuf>,
+    pub is_example: bool,
     pub folder: Option<LocalFolder>,
     pub themes: Vec<BuiltinTheme>,
     pub selected_theme: usize,
@@ -122,6 +123,7 @@ impl AppModel {
             preview_ready,
             document_label,
             document_path,
+            is_example: opened.is_none(),
             folder,
             themes,
             selected_theme: 0,
@@ -153,6 +155,7 @@ impl AppModel {
     }
 
     pub fn apply_opened(&mut self, opened: OpenedFile) {
+        self.is_example = false;
         self.document_label = opened
             .path
             .file_name()
@@ -166,6 +169,17 @@ impl AppModel {
             self.document = document;
             self.content = content;
         }
+    }
+
+    pub fn new_document(&mut self) {
+        let document = parse_resume(b"{\n  \"basics\": {}\n}\n").expect("valid blank resume");
+        self.content = project(&document);
+        self.opened_source = document.source.clone();
+        self.document = document;
+        self.preview_ready = true;
+        self.document_path = None;
+        self.document_label = "未命名简历".into();
+        self.is_example = false;
     }
 
     pub fn select_theme(&mut self, index: usize) {

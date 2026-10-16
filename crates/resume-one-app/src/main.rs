@@ -994,6 +994,7 @@ impl Render for ResumeOne {
             })
             .on_action(cx.listener(Self::open_file))
             .on_action(cx.listener(Self::open_directory))
+            .on_action(cx.listener(Self::new_resume))
             .on_action(cx.listener(Self::toggle_files))
             .on_action(cx.listener(Self::dismiss_files))
             .on_action(cx.listener(Self::next_file))

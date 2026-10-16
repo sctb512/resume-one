@@ -205,14 +205,14 @@ impl ResumeOne {
         let dirty = self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty());
         let status = if self.editor.as_ref().is_some_and(|e| e.saving) {
             "保存中…"
-        } else if self.model.document_path.is_none() {
+        } else if self.model.document_path.is_none() && self.model.is_example {
             "示例预览 · 未保存"
-        } else if dirty {
+        } else if dirty || self.model.document_path.is_none() {
             "未保存"
         } else {
             "已保存"
         };
-        let filename = if self.model.document_path.is_none() {
+        let filename = if self.model.is_example {
             "示例简历"
         } else {
             &self.model.document_label

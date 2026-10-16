@@ -164,6 +164,23 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.rebuild_editor_for_document(true, window, cx);
+    }
+
+    pub(super) fn reset_editor_for_new_document(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.rebuild_editor_for_document(false, window, cx);
+    }
+
+    fn rebuild_editor_for_document(
+        &mut self,
+        offer_recovery: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         self.visual_undo.clear();
         self.visual_redo.clear();
         self.insertion_before = None;
@@ -206,7 +223,9 @@ impl ResumeOne {
         });
         editor.input = input;
         editor._subscription = subscription;
-        self.prompt_recovery(window, cx);
+        if offer_recovery {
+            self.prompt_recovery(window, cx);
+        }
     }
 
     pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
@@ -451,6 +470,7 @@ impl ResumeOne {
         }
         match result {
             Ok(_) => {
+                self.model.is_example = false;
                 self.model.opened_source = snapshot.source.clone();
                 self.model.preview_ready = true;
                 if create {

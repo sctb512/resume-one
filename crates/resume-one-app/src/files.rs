@@ -17,6 +17,7 @@ actions!(
     [
         OpenFile,
         OpenDirectory,
+        NewResume,
         ToggleFiles,
         DismissFiles,
         NextFile,
@@ -45,6 +46,7 @@ fn register_bindings(cx: &mut App) {
     };
     cx.bind_keys([
         KeyBinding::new(&format!("{modifier}-o"), OpenFile, Some("ResumeOne")),
+        KeyBinding::new(&format!("{modifier}-n"), NewResume, Some("ResumeOne")),
         KeyBinding::new(
             &format!("{modifier}-shift-o"),
             OpenDirectory,
@@ -71,6 +73,7 @@ pub(super) fn register(cx: &mut App) {
             items: vec![
                 MenuItem::action("打开 JSON…", OpenFile),
                 MenuItem::action("打开目录…", OpenDirectory),
+                MenuItem::action("新建简历", NewResume),
                 MenuItem::separator(),
                 MenuItem::action("保存", Save),
                 MenuItem::action("另存为…", SaveAs),
@@ -96,6 +99,93 @@ pub(super) fn register(cx: &mut App) {
 }
 
 impl ResumeOne {
+    pub(super) fn new_resume(
+        &mut self,
+        _: &NewResume,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.theme_manager_open
+            || self.files.busy
+            || self.export_busy
+            || self.editor.as_ref().is_some_and(|e| e.saving)
+        {
+            return;
+        }
+        if !self.ensure_editor(window, cx) || self.recovery_pending {
+            return;
+        }
+        self.files.open = false;
+        self.export_menu_open = false;
+        self.close_drawer();
+        let has_draft = match self.editor.as_ref().unwrap().store.load() {
+            Ok(draft) => draft.is_some(),
+            Err(message) => {
+                self.editor_warning("无法读取恢复草稿", &message, window, cx);
+                return;
+            }
+        };
+        if has_draft || self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty()) {
+            self.files.busy = true;
+            let choice = window.prompt(
+                PromptLevel::Warning,
+                "当前简历有未保存的更改",
+                Some("可取消后先保存；新建不会覆盖当前磁盘文件。"),
+                &["继续编辑", "丢弃更改并新建"],
+                cx,
+            );
+            cx.spawn_in(window, async move |this, cx| {
+                let answer = choice.await.ok();
+                this.update_in(cx, |this, window, cx| {
+                    this.files.busy = false;
+                    if answer == Some(1) {
+                        this.apply_new_document(window, cx);
+                    } else {
+                        this.focus_current(window, cx);
+                    }
+                    cx.notify();
+                })
+                .ok();
+            })
+            .detach();
+            cx.notify();
+            return;
+        }
+        self.apply_new_document(window, cx);
+    }
+
+    fn discard_current_draft(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        if let Some(editor) = &mut self.editor {
+            editor.generation += 1;
+            if let Err(message) = editor.store.clear_if_newer(editor.generation) {
+                self.editor_warning("无法丢弃草稿", &message, window, cx);
+                return false;
+            }
+        }
+        true
+    }
+
+    fn apply_new_document(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.discard_current_draft(window, cx) {
+            return;
+        }
+        self.clear_inline();
+        self.cancel_insertion();
+        self.hovered_theme = None;
+        self.theme_hover_generation += 1;
+        self.theme_hover_candidate = None;
+        self.online.cancel_interaction();
+        self.preview_scroll.set_offset(gpui::point(px(0.), px(0.)));
+        self.model.new_document();
+        self.reset_editor_for_new_document(window, cx);
+        self.source_mode = false;
+        self.begin_mode_transition();
+        window.set_window_title("未命名简历 — Resume One · 简里");
+        self.open_inline("basics", None, window, cx);
+        self.focus_inline_first(window, cx);
+        cx.notify();
+    }
+
     pub(super) fn open_file(&mut self, _: &OpenFile, window: &mut Window, cx: &mut Context<Self>) {
         self.prompt_path(false, window, cx);
     }
@@ -254,14 +344,10 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if let Some(editor) = &mut self.editor
-            && editor.buffer.is_dirty()
+        if self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty())
+            && !self.discard_current_draft(window, cx)
         {
-            editor.generation += 1;
-            if let Err(message) = editor.store.clear_if_newer(editor.generation) {
-                self.editor_warning("无法丢弃草稿", &message, window, cx);
-                return;
-            }
+            return;
         }
         self.preview_scroll
             .set_offset(gpui::point(px(0.0), px(0.0)));
@@ -346,7 +432,7 @@ impl ResumeOne {
 
     pub(super) fn next_file(&mut self, _: &NextFile, _: &mut Window, cx: &mut Context<Self>) {
         let count = if self.files.actions_only {
-            2
+            3
         } else {
             self.model
                 .folder
@@ -384,7 +470,11 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.files.open && self.files.actions_only {
-            self.prompt_path(self.files.selected == 1, window, cx);
+            if self.files.selected == 2 {
+                self.new_resume(&NewResume, window, cx);
+            } else {
+                self.prompt_path(self.files.selected == 1, window, cx);
+            }
             return;
         }
         if self.files.open
@@ -485,6 +575,26 @@ impl ResumeOne {
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.open_directory(&OpenDirectory, window, cx)
                     })),
+            )
+            .child(
+                div()
+                    .id("new-resume")
+                    .debug_selector(|| "new-resume".into())
+                    .px_3()
+                    .py_2()
+                    .rounded_md()
+                    .cursor_pointer()
+                    .when(self.files.actions_only && self.files.selected == 2, |row| {
+                        row.bg(color(colors.canvas))
+                    })
+                    .hover(|row| row.bg(color(colors.canvas)))
+                    .flex()
+                    .justify_between()
+                    .child("新建简历")
+                    .child(format!("{shortcut}N"))
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.new_resume(&NewResume, window, cx)),
+                    ),
             );
         if let Some(folder) = &self.model.folder
             && !self.files.actions_only

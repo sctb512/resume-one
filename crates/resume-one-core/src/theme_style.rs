@@ -173,6 +173,8 @@ pub struct ThemeStyle {
     pub page: PageStyle,
     pub typography: Typography,
     pub composition_preset: String,
+    pub centered_header: bool,
+    pub stacked_contacts: bool,
     pub sections: BTreeMap<String, SectionStyle>,
 }
 
@@ -308,6 +310,8 @@ impl ThemeStyle {
                 .and_then(Value::as_str)
                 .unwrap_or("single-column")
                 .to_owned(),
+            centered_header: manifest["composition"]["header"] == "centered",
+            stacked_contacts: manifest["composition"]["contact"] == "stacked",
             sections: manifest
                 .get("sections")
                 .and_then(Value::as_object)
@@ -345,6 +349,25 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn header_and_contact_defaults_are_independent_partial_overrides() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        for (composition, expected) in [
+            (serde_json::json!({}), (false, false)),
+            (serde_json::json!({"header":"centered"}), (true, false)),
+            (serde_json::json!({"contact":"stacked"}), (false, true)),
+            (
+                serde_json::json!({"header":"centered","contact":"stacked"}),
+                (true, true),
+            ),
+        ] {
+            theme.normalized["composition"] = composition;
+            let style = ThemeStyle::from_manifest(&theme);
+            assert_eq!((style.centered_header, style.stacked_contacts), expected);
+        }
+    }
 
     #[test]
     fn section_styles_are_partial_scoped_and_keep_unmentioned_defaults() {

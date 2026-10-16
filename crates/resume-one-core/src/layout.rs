@@ -208,6 +208,28 @@ impl<'a> PageWriter<'a> {
         }
     }
 
+    fn header_text(&mut self, text: &str, style: &TextStyle, color: Rgb, centered: bool) {
+        let kind = font_kind(style).expect("theme checked");
+        for input_line in text.lines() {
+            for line in self.wrap(input_line, style.size_pt, self.content_width(), kind) {
+                let indent = if centered {
+                    ((self.content_width() - self.text_width(&line, style.size_pt, kind)) / 2.0)
+                        .max(0.0)
+                } else {
+                    0.0
+                };
+                self.line(
+                    &line,
+                    style.size_pt,
+                    color,
+                    kind,
+                    indent,
+                    style.size_pt * style.line_height,
+                );
+            }
+        }
+    }
+
     fn text_width(&self, text: &str, size: f32, kind: FontKind) -> f32 {
         let face = self.face(kind);
         let units = face.units_per_em() as f32;
@@ -310,10 +332,10 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     if style.composition_preset != "single-column"
         || composition["header"]
             .as_str()
-            .is_some_and(|value| value != "stacked")
+            .is_some_and(|value| !matches!(value, "stacked" | "centered"))
         || composition["contact"]
             .as_str()
-            .is_some_and(|value| value != "inline")
+            .is_some_and(|value| !matches!(value, "inline" | "stacked"))
         || composition["sidebarWidthPct"].is_number()
         || composition["gapMm"].is_number()
         || composition["placements"]
@@ -321,7 +343,8 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             .is_some_and(|value| !value.is_empty())
     {
         return Err(
-            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠页眉与行内联系方式".into(),
+            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠/居中页眉与行内/逐行联系方式"
+                .into(),
         );
     }
     if let Some(sections) = source["sections"].as_object() {
@@ -631,33 +654,21 @@ fn layout_with_style(
     let muted = style.colors.muted;
     let section_gap = style.page.section_gap_mm * PT_PER_MM;
     if !content.name.is_empty() {
-        page.wrapped(
-            &content.name,
-            name.size_pt,
-            ink,
-            font_kind(name)?,
-            0.0,
-            name.size_pt * name.line_height,
-        );
+        page.header_text(&content.name, name, ink, style.centered_header);
     }
     if !content.label.is_empty() {
-        page.wrapped(
-            &content.label,
-            body.size_pt,
-            accent,
-            font_kind(body)?,
-            0.0,
-            body.size_pt * body.line_height,
-        );
+        page.header_text(&content.label, body, accent, style.centered_header);
     }
     if !content.contacts.is_empty() {
-        page.wrapped(
-            &content.contacts.join("   ·   "),
-            meta.size_pt,
+        page.header_text(
+            &content.contacts.join(if style.stacked_contacts {
+                "\n"
+            } else {
+                "   ·   "
+            }),
+            meta,
             muted,
-            font_kind(meta)?,
-            0.0,
-            meta.size_pt * meta.line_height,
+            style.centered_header,
         );
     }
     page.gap(section_gap.max(4.0));
@@ -781,6 +792,104 @@ fn layout_with_style(
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn centered_header_centers_each_wrapped_line_only_and_preserves_contact_order() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/centered-header.theme.json"
+        ))
+        .unwrap();
+        let mut content = project(&parse_resume(br#"{"basics":{"name":"Name","label":"Designer","summary":"Summary"},"work":[{"name":"Company"}]}"#).unwrap());
+        content.name = "Long bilingual name 中文姓名 wrapped safely ".repeat(4);
+        content.contacts = vec![
+            "first@example.com".into(),
+            "https://example.com/long/".repeat(8),
+            "Last contact".into(),
+        ];
+        for paper in ["A4", "Letter"] {
+            // Unequal margins catch centering around the page rather than its content area.
+            theme.normalized["page"] = serde_json::json!({"size":paper,"marginsMm":{"top":16,"right":11,"bottom":16,"left":23}});
+            let style = ThemeStyle::from_manifest(&theme);
+            let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+            let measure = PageWriter::new(
+                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                &style,
+            );
+            let header: Vec<_> = result
+                .pages
+                .iter()
+                .flatten()
+                .filter_map(|e| match e {
+                    LayoutElement::Text(t)
+                        if t.target.is_some_and(|target| target.section == "basics")
+                            && t.text != "Summary" =>
+                    {
+                        Some(t)
+                    }
+                    _ => None,
+                })
+                .collect();
+            assert!(header.len() > 8, "long name and URL must wrap");
+            let center = measure.left + measure.content_width() / 2.0;
+            for text in &header {
+                let width = measure.text_width(&text.text, text.size_pt, text.font);
+                assert!((text.x_pt + width / 2.0 - center).abs() < 0.01);
+                assert!(text.x_pt >= measure.left);
+                assert!(text.x_pt + width <= measure.width - measure.right + 0.01);
+            }
+            let contact_start = header
+                .iter()
+                .position(|t| t.text == "first@example.com")
+                .unwrap();
+            assert!(header[contact_start + 1].text.starts_with("https://"));
+            assert_eq!(header.last().unwrap().text, "Last contact");
+            assert!(
+                header
+                    .windows(2)
+                    .all(|pair| pair[0].baseline_y_pt > pair[1].baseline_y_pt)
+            );
+            for e in result.pages.iter().flatten() {
+                if let LayoutElement::Text(t) = e
+                    && ["Summary", "Work", "Company"].contains(&t.text.as_str())
+                {
+                    assert_eq!(t.x_pt, measure.left);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn header_defaults_are_legacy_identical_and_unsupported_variants_still_fail() {
+        let mut theme = sections_theme();
+        let mut content = project(
+            &parse_resume(br#"{"basics":{"name":"Name","label":"Designer","summary":"Summary"}}"#)
+                .unwrap(),
+        );
+        content.contacts = vec!["First".into(), "Second".into()];
+        let legacy = layout_with_theme(&content, Language::En, &theme).unwrap();
+        theme.normalized["composition"] =
+            serde_json::json!({"preset":"single-column","header":"stacked","contact":"inline"});
+        assert_eq!(
+            legacy,
+            layout_with_theme(&content, Language::En, &theme).unwrap()
+        );
+        for header in ["stacked", "centered"] {
+            for contact in ["inline", "stacked"] {
+                theme.normalized["composition"] =
+                    serde_json::json!({"header":header,"contact":contact});
+                assert!(layout_with_theme(&content, Language::En, &theme).is_ok());
+            }
+        }
+        for composition in [
+            serde_json::json!({"header":"split"}),
+            serde_json::json!({"contact":"icons"}),
+            serde_json::json!({"preset":"split-header"}),
+        ] {
+            theme.normalized["composition"] = composition;
+            assert!(check_theme(&theme).unwrap_err().contains("composition"));
+        }
+    }
 
     fn sections_theme() -> ThemeManifest {
         crate::parse_theme(include_bytes!(

@@ -640,6 +640,48 @@ fn exports_themed_docx_and_preserves_existing_output_on_failure() {
 }
 
 #[test]
+fn centered_header_exports_both_formats_and_rejects_unsupported_contact_without_overwrite() {
+    let root = tempfile::tempdir().unwrap();
+    let resume = root.path().join("resume.json");
+    let theme = root.path().join("header.theme.json");
+    let source = include_bytes!("fixtures/visual-qa.json");
+    fs::write(&resume, source).unwrap();
+    let mut manifest: Value =
+        serde_json::from_slice(include_bytes!("fixtures/centered-header.theme.json")).unwrap();
+    fs::write(&theme, serde_json::to_vec(&manifest).unwrap()).unwrap();
+    for format in ["pdf", "docx"] {
+        let out = root.path().join(format!("resume.{format}"));
+        let args = [
+            "export",
+            "--file",
+            path(&resume),
+            "--format",
+            format,
+            "--out",
+            path(&out),
+            "--theme",
+            path(&theme),
+            "--json",
+        ];
+        let (status, response) = call(&args);
+        assert!(status.status.success(), "{response}");
+        let bytes = fs::read(&out).unwrap();
+        assert!(bytes.starts_with(if format == "pdf" { b"%PDF" } else { b"PK" }));
+        manifest["composition"]["contact"] = json!("icons");
+        fs::write(&theme, serde_json::to_vec(&manifest).unwrap()).unwrap();
+        let mut overwrite = args.to_vec();
+        overwrite.push("--overwrite");
+        let (status, response) = call(&overwrite);
+        assert_eq!(status.status.code(), Some(6));
+        assert_eq!(response["error"]["code"], "EXPORT_RENDER");
+        assert_eq!(fs::read(&out).unwrap(), bytes);
+        manifest["composition"]["contact"] = json!("stacked");
+        fs::write(&theme, serde_json::to_vec(&manifest).unwrap()).unwrap();
+    }
+    assert_eq!(fs::read(&resume).unwrap(), source);
+}
+
+#[test]
 fn section_styles_export_in_both_formats_without_changing_resume() {
     let root = tempfile::tempdir().unwrap();
     let resume = root.path().join("resume.json");

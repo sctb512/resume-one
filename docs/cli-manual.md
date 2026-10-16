@@ -32,6 +32,8 @@ PDF 嵌入完整 Noto 字形，使用共享测量布局，文件可能达到约 
 
 PDF / DOCX 同时支持主题内 `sections.<标准模块>.heading` 的 `plain/line/accent-line/filled`，`items` 的 `stack/compact`，以及 `date: inline`；配置只作用于对应模块。紧凑模式仅减少条目与描述段落的间距，不改变文字、字号、字段顺序或模块数量。时间线、卡片、标签及左右日期仍返回 `EXPORT_RENDER`，不覆盖已有输出。本地主题和 `themes download` 的能力检查一致。
 
+单栏 `composition.header` 支持 `stacked`（默认左对齐）和 `centered`（按内容区逐行居中），`composition.contact` 支持 `inline`（默认行内连接）和 `stacked`（每项独立起行）。两项可任意组合，长姓名、职业和联系方式自然换行，不截断；摘要与正文保持左对齐。DOCX 使用原生段落对齐及文本换行，仍可编辑；不支持的分割页眉、图标联系方式返回 `EXPORT_RENDER`，不会覆盖已有输出或修改源 JSON。
+
 ```sh
 resume-one export --file /absolute/resume.json --format docx --out /absolute/resume.docx --theme /absolute/themes/chosen.theme.json --lang zh --json
 ```

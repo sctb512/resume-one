@@ -408,6 +408,23 @@ mod tests {
     }
 
     #[test]
+    fn centered_headers_are_accepted_online_but_icons_are_not_silently_flattened() {
+        let bytes =
+            include_bytes!("../../resume-one-cli/tests/fixtures/centered-header.theme.json");
+        let mut entry = ThemeEntry {
+            id: "centered-header".into(),
+            name: "居中页眉验收".into(),
+            manifest: "centered-header.theme.json".into(),
+            sha256: Some(sha256(bytes)),
+        };
+        assert_eq!(VerifiedTheme::parse(&entry, bytes).unwrap().bytes(), bytes);
+        let mut unsupported: serde_json::Value = serde_json::from_slice(bytes).unwrap();
+        unsupported["composition"]["contact"] = serde_json::json!("icons");
+        entry.sha256 = None;
+        assert!(VerifiedTheme::parse(&entry, &serde_json::to_vec(&unsupported).unwrap()).is_err());
+    }
+
+    #[test]
     fn same_section_styles_are_accepted_online_without_executing_theme_code() {
         let bytes = include_bytes!("../../resume-one-cli/tests/fixtures/section-styles.theme.json");
         let entry = ThemeEntry {

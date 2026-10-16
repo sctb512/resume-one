@@ -196,12 +196,22 @@ fn build_document(
     }
     if !content.contacts.is_empty() {
         header.push(paragraph(
-            &content.contacts.join("   ·   "),
+            &content.contacts.join(if style.stacked_contacts {
+                "\n"
+            } else {
+                "   ·   "
+            }),
             meta,
             muted,
             0.0,
             0.0,
         ));
+    }
+    if style.centered_header {
+        header = header
+            .into_iter()
+            .map(|p| p.align(docx_rs::AlignmentType::Center))
+            .collect();
     }
     // A real paragraph border, not an image/table: reflows with the editable header.
     if let Some(last) = header.last_mut() {
@@ -378,6 +388,45 @@ fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn centered_identity_and_stacked_contacts_are_native_and_do_not_center_summary() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/centered-header.theme.json"
+        ))
+        .unwrap();
+        let mut content = project(&parse_resume(br#"{"basics":{"name":"Name","label":"Designer","summary":"Summary"},"work":[{"name":"Company"}]}"#).unwrap());
+        content.contacts = vec!["first@example.com".into(), "Last contact".into()];
+        for centered in [true, false] {
+            for stacked in [true, false] {
+                theme.normalized["composition"]["header"] =
+                    serde_json::json!(if centered { "centered" } else { "stacked" });
+                theme.normalized["composition"]["contact"] =
+                    serde_json::json!(if stacked { "stacked" } else { "inline" });
+                check_theme(&theme).unwrap();
+                let package =
+                    build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme))
+                        .unwrap();
+                assert!(package.media.is_empty());
+                let xml = String::from_utf8(package.document).unwrap();
+                let paragraph =
+                    |text: &str| xml.split("</w:p>").find(|p| p.contains(text)).unwrap();
+                for text in [">Name</w:t>", ">Designer</w:t>", "first@example.com"] {
+                    assert_eq!(paragraph(text).contains("w:val=\"center\""), centered);
+                }
+                for text in [">Summary</w:t>", ">Work</w:t>", ">Company</w:t>"] {
+                    assert!(!paragraph(text).contains("w:val=\"center\""));
+                }
+                let contacts = paragraph("first@example.com");
+                assert_eq!(contacts.contains("<w:br"), stacked);
+                assert_eq!(contacts.contains("   ·   "), !stacked);
+                assert!(
+                    contacts.find("first@example.com").unwrap()
+                        < contacts.find("Last contact").unwrap()
+                );
+            }
+        }
+    }
 
     #[test]
     fn section_headings_are_native_editable_and_compact_spacing_is_scoped() {

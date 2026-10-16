@@ -1,0 +1,20 @@
+{
+  "formatVersion": 2,
+  "id": "centered-header",
+  "name": "居中页眉验收",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "classic",
+  "colors": {
+    "accent": "#52756B",
+    "seal": "#A14F40",
+    "paper": "#FFFEFA",
+    "canvas": "#F6F3ED"
+  },
+  "modules": ["basics", "work", "education", "projects", "skills", "languages", "awards"],
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "stacked"
+  }
+}

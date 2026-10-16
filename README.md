@@ -18,6 +18,8 @@ CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验�
 
 PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字体层级；未实现的侧栏、特殊构件与字体会明确拒绝，不静默降级。DOCX 使用可编辑段落、完整嵌入的 Noto 字体和可打印的矢量纸张背景，约 18 MB；CLI `export --theme` 同样支持 DOCX。Word 自行重排，字号/字重受其原生格式约束，不承诺与 PDF 逐像素一致；Microsoft Word 跨平台实机验收仍未完成。桌面应用已支持原生打开 JSON 文件和目录、顶栏文件切换器，以及文件菜单中的四种导出；预览已支持标准文本字段的悬停/点击表单及成组撤销；JSON 代码行旁已提供标准模块与条目的结构控件，支持双向选择插入位置、同一视觉行的命名操作菜单、独立撤销，以及 Schema/输入法/旧动作保护；预览尚未完整实现 v2 排版规范。`prototype-v3/` 只是历史浏览器原型，不是发布产品。请勿把当前源码当成已发布的 macOS/Windows 安装包。
 
+单栏页眉已支持 `composition.header: stacked/centered`，联系方式支持 `composition.contact: inline/stacked`，可独立组合；居中按实际内容区逐行计算，长文本自动换行，摘要与正文仍左对齐。预览、PDF、可编辑 DOCX 及本地/在线主题能力检查保持一致；分割页眉和图标联系方式仍明确拒绝。配置只属于主题，不写入简历 JSON。
+
 运行已实现的检查：`cargo test --workspace`；从源码使用 CLI：`cargo run -p resume-one-cli -- --help`。macOS 上可通过 `cargo run -p resume-one-app` 打开内置示例，或用 `cargo run -p resume-one-app -- /absolute/resume.json` 打开 JSON Resume 文件；有语法或 Schema 错误的 UTF-8 文件会直接进入源码修复界面。按 `⌘/` 切换预览和源码。首次构建 GPUI 需要安装 Xcode Metal Toolchain。Windows 运行与安装包尚未验收。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
 
 JSON Resume Schema 来自 `@jsonresume/schema@1.3.1`，其原始包声明 MIT 许可证，Copyright © 2024 JSON Resume；原文件 SHA-256 为 `a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd`。PDF / DOCX 内置 Noto Sans SC 和 Noto Serif SC 静态字体按 OFL 1.1 分发。许可全文与随附声明见 [第三方许可](./spec/THIRD_PARTY_LICENSES.md)。

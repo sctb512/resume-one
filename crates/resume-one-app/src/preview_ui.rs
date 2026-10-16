@@ -60,6 +60,38 @@ mod tests {
     }
 
     #[gpui::test]
+    fn centered_header_keeps_basics_editable_and_uses_shared_layout(cx: &mut TestAppContext) {
+        let mut model = AppModel::load(None).unwrap();
+        let manifest = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/centered-header.theme.json"
+        ))
+        .unwrap();
+        model.themes = vec![BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            identity: "test:centered-header".into(),
+            path: None,
+        }];
+        let preview = cx.update(PreviewState::new);
+        let data = preview.resolve(&model, &model.themes[0]).unwrap();
+        let expected =
+            layout::layout_with_theme(&model.content, Language::Zh, &model.themes[0].manifest)
+                .unwrap();
+        assert_eq!(data.layout, expected);
+        let basics: Vec<_> = data
+            .regions
+            .iter()
+            .filter(|r| r.target.section == "basics")
+            .collect();
+        assert!(!basics.is_empty());
+        assert!(basics.iter().any(|r| r.text && r.bottom > r.top));
+        let (_, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        assert_eq!(paper.size.width, px(expected.width_mm * PX_PER_MM));
+    }
+
+    #[gpui::test]
     fn decorated_headings_keep_item_hit_targets_and_shared_page_geometry(cx: &mut TestAppContext) {
         let mut model = AppModel::load(None).unwrap();
         let manifest = resume_one_core::parse_theme(include_bytes!(

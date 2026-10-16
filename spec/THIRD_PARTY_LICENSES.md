@@ -32,8 +32,8 @@ SOFTWARE.
 
 ## Noto Sans SC 字体
 
-PDF 导出随程序嵌入 [Noto Sans SC Regular](../assets/fonts/NotoSansSC-Regular.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notosanssc) 的 `NotoSansSC[wght].ttf`，在 `wght=400` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`eeb06b8a64fd04a2744d95579db1571b51027cda61ed78c62e4b730791525461`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSansSC.txt](../assets/fonts/OFL-NotoSansSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。
+PDF / DOCX 导出随程序嵌入 [Noto Sans SC Regular](../assets/fonts/NotoSansSC-Regular.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notosanssc) 的 `NotoSansSC[wght].ttf`，在 `wght=400` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`eeb06b8a64fd04a2744d95579db1571b51027cda61ed78c62e4b730791525461`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSansSC.txt](../assets/fonts/OFL-NotoSansSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。
 
 ## Noto Serif SC 字体
 
-PDF 导出还嵌入 [Noto Serif SC SemiBold](../assets/fonts/NotoSerifSC-SemiBold.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notoserifsc) 的 `NotoSerifSC[wght].ttf`，在 `wght=600` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`e827457c14fb9cd2eaf2101b60393c76b6b074e42986bbe4b65f45557860d17c`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSerifSC.txt](../assets/fonts/OFL-NotoSerifSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。
+PDF / DOCX 导出还嵌入 [Noto Serif SC SemiBold](../assets/fonts/NotoSerifSC-SemiBold.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notoserifsc) 的 `NotoSerifSC[wght].ttf`，在 `wght=600` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`e827457c14fb9cd2eaf2101b60393c76b6b074e42986bbe4b65f45557860d17c`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSerifSC.txt](../assets/fonts/OFL-NotoSerifSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。

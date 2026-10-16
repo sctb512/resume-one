@@ -1,6 +1,6 @@
 # Resume One CLI 手册
 
-状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 支持主题的单栏基础视觉参数；独立迁移工具支持 v1→v2 及第三方主题低置信度静态提取。完整主题排版仍在开发。
+状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 和 DOCX 支持主题的单栏基础视觉参数；独立迁移工具支持 v1→v2 及第三方主题低置信度静态提取。完整主题排版仍在开发。
 
 `resume-one` 是独立本地程序，不依赖桌面应用运行，不会自动读取 GUI 当前打开的简历。所有文件操作都需要显式的**绝对路径** `--file` 或 `--dir`。从仓库运行时可使用 `cargo run -p resume-one-cli -- <命令>`；构建后的程序名为 `resume-one`。Windows PowerShell 中路径应加引号，例如 `--file 'C:\Users\Me\Documents\resume.json'`。
 
@@ -14,7 +14,7 @@
 | `patch` | `resume-one patch --file /absolute/resume.json --patch /absolute/change.json --if-match sha256:... --dry-run` | RFC 6902 补丁预演；去掉 `--dry-run` 才写入；`--patch -` 从 stdin 读取 |
 | `structure` | `resume-one structure --file /absolute/resume.json --if-match sha256:... --dry-run add-module skills --before education` | 安全增删标准模块与条目；去掉 `--dry-run` 才写入 |
 | `set-field` | `resume-one set-field --file /absolute/resume.json --if-match sha256:... --section work --index 0 --field position --value '设计师' --dry-run` | 设置标准文本字段；`basics` 不带 `--index`；空值移除字段 |
-| `export` | `resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/dir/name.theme.json` | `pdf`、可编辑 `docx`、`txt`、`md`；`--lang zh`（默认）或 `en`；已有目标需显式 `--overwrite`；`--theme` 当前仅供 PDF 使用 |
+| `export` | `resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/dir/name.theme.json` | `pdf`、可编辑 `docx`、`txt`、`md`；`--lang zh`（默认）或 `en`；已有目标需显式 `--overwrite`；`--theme` 支持 PDF / DOCX |
 | `schema` | `resume-one schema` | 返回固定版本及内置 Schema 内容 |
 | `themes` | `resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json` | 显式联网读取声明式主题清单；`--offline` 只读已验证缓存；不读取简历 |
 
@@ -26,7 +26,13 @@
 
 `set-field` 仅允许 JSON Resume 标准模块中的普通字符串字段（如 `basics.name`、`work.position`、`education.institution`）；地址可用 `--section basics --field location.city` 等点分字段，不会自动注入富文本或样式。列表模块必须指定从 0 开始的 `--index`，`basics` 必须省略。`--value ''` 会删除该字段；内容相同则保留原始文件字节和 revision，不执行写入。邮箱、URL、日期等仍按内置 Schema 校验，不合规则返回错误并保留原文件。数组字段（如 `highlights`、`keywords`）与自定义扩展字段请使用 `patch`，并对目标先做 `test`。
 
-导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；当前 PDF 支持单栏布局、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高；只支持内置无衬线 400 与衬线 600 两种字重。不支持的侧栏/分栏、特殊页眉/模块/装饰、自带字体及字距会报错，不生成不完整的 PDF。PDF 嵌入完整 Noto Sans SC 与 Noto Serif SC 字形并自动换页，文件可能达到约 15 MB。DOCX 为可编辑的 Word 文档，仍使用基础样式；字体引用 Noto Sans SC，如阅读设备未安装，Word/LibreOffice 会使用其替代字体。纯文本和 Markdown 不应用主题。导出不会写回主题或格式元数据到 `resume.json`。
+导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF / DOCX 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；目前支持单栏、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高，以及内置无衬线 400 与衬线 600。侧栏/分栏、特殊页眉/模块/装饰、自带字体及字距会报错，失败时不替换已有输出。
+
+PDF 嵌入完整 Noto 字形，使用共享测量布局，文件可能达到约 15 MB。DOCX 使用可编辑的原生 Word 段落、显式换行、主题分隔线和重复的页底矢量背景，保留模块顺序与条目避断页设置；字号按 Word 半点单位取整，600 字重映射为 Word 粗体。DOCX 按 OOXML 规范嵌入完整 Noto Sans SC 与 Noto Serif SC 字体，未做仅覆盖当前文字的子集化，文件约 18 MB。支持嵌入字体的阅读器不需要预装字体；禁用嵌入字体或不支持该特性的阅读器仍可能替代字体。Word / LibreOffice 自行换行和分页，不承诺与 PDF 逐像素相同；尚未完成 Microsoft Word 跨平台实机验收。纯文本和 Markdown 不应用主题，向它们传 `--theme` 会报参数错误。所有导出均不写回主题或格式元数据到 `resume.json`。
+
+```sh
+resume-one export --file /absolute/resume.json --format docx --out /absolute/resume.docx --theme /absolute/themes/chosen.theme.json --lang zh --json
+```
 
 Agent 修改文件的流程为：先用 `inspect --file ... --json` 获取 revision，必要时用 `read --pointer ...` 读取字段；标准模块和条目增删优先用 `structure --if-match REV --dry-run --json` 预检，普通文本字段优先用 `set-field --if-match REV --dry-run --json`，其他具体字段用 `patch --if-match REV --dry-run --json`。预检后在 revision 不变时提交。数组按位置寻址时，建议在补丁中先加 `test` 操作确认条目身份；冲突后应重新读取，不可盲目重放旧操作。
 

@@ -54,7 +54,9 @@ fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
         ExportKind::Pdf => {
             resume_one_core::pdf::render_with_theme(&snapshot.content, language, &snapshot.theme)
         }
-        ExportKind::Docx => resume_one_core::docx::render(&snapshot.content, language),
+        ExportKind::Docx => {
+            resume_one_core::docx::render_with_theme(&snapshot.content, language, &snapshot.theme)
+        }
         ExportKind::Text => Ok(plain_text(&snapshot.content, language).into_bytes()),
         ExportKind::Markdown => Ok(markdown(&snapshot.content, language).into_bytes()),
     }
@@ -244,5 +246,26 @@ mod tests {
             let bytes = render(&snapshot).unwrap();
             assert!(bytes.starts_with(prefix), "{}", kind.extension());
         }
+    }
+
+    #[test]
+    fn docx_export_uses_snapshot_theme_and_rejects_unsupported_layout() {
+        let model = AppModel::load(None).unwrap();
+        let manifest = resume_one_core::parse_theme(include_bytes!(
+            "../../../assets/themes/xingye.theme.json"
+        ))
+        .unwrap();
+        let mut snapshot = ExportSnapshot {
+            kind: ExportKind::Docx,
+            content: model.content.clone(),
+            theme: manifest,
+            source_path: None,
+        };
+        let bytes = render(&snapshot).unwrap();
+        // Use the core's reader through a semantic check in core/CLI tests;
+        // here the theme guard demonstrates the GUI cannot take the unthemed path.
+        assert!(bytes.starts_with(b"PK"));
+        snapshot.theme.normalized["composition"] = serde_json::json!({"preset":"sidebar-left"});
+        assert!(render(&snapshot).unwrap_err().contains("composition"));
     }
 }

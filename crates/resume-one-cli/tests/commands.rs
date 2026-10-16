@@ -591,6 +591,55 @@ fn exports_editable_docx_with_chinese_content() {
 }
 
 #[test]
+fn exports_themed_docx_and_preserves_existing_output_on_failure() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    let out = root.path().join("resume.docx");
+    let theme = root.path().join("chosen.theme.json");
+    let source = r#"{"basics":{"name":"李明"},"work":[{"name":"Company"}],"extension":{"keep":"DO_NOT_EXPORT_EXTENSION"}}"#;
+    fs::write(&file, source).unwrap();
+    fs::write(
+        &theme,
+        include_bytes!("../../../assets/themes/xingye.theme.json"),
+    )
+    .unwrap();
+    let args = [
+        "export",
+        "--file",
+        path(&file),
+        "--format",
+        "docx",
+        "--out",
+        path(&out),
+        "--theme",
+        path(&theme),
+        "--json",
+    ];
+    let (status, response) = call(&args);
+    assert!(status.status.success(), "{response}");
+    let old = fs::read(&out).unwrap();
+    let parsed = docx_rs::read_docx(&old).unwrap().json();
+    assert!(parsed.contains("93523B"), "selected theme was ignored");
+    assert!(parsed.contains("李明"));
+    assert!(!parsed.contains("DO_NOT_EXPORT_EXTENSION"));
+    let (status, response) = call(&args);
+    assert_eq!(status.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "FILE_EXISTS");
+    assert_eq!(fs::read(&out).unwrap(), old);
+    let mut value: Value = serde_json::from_slice(&fs::read(&theme).unwrap()).unwrap();
+    value["composition"] =
+        serde_json::json!({"preset":"sidebar-left","placements":{"work":"sidebar"}});
+    fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
+    let mut overwrite = args.to_vec();
+    overwrite.push("--overwrite");
+    let (status, response) = call(&overwrite);
+    assert_eq!(status.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "EXPORT_RENDER");
+    assert_eq!(fs::read(&out).unwrap(), old);
+    assert_eq!(fs::read_to_string(&file).unwrap(), source);
+}
+
+#[test]
 fn exports_pdf_with_unicode_and_keeps_source_unchanged() {
     let root = tempfile::tempdir().unwrap();
     let file = root.path().join("resume.json");

@@ -114,7 +114,7 @@ enum Command {
         format: ExportFormat,
         #[arg(long, value_enum, default_value = "zh")]
         lang: ExportLanguage,
-        /// PDF 主题清单的绝对路径（根目录 *.theme.json 或子目录 theme.json）
+        /// PDF / DOCX 主题清单的绝对路径（根目录 *.theme.json 或子目录 theme.json）
         #[arg(long)]
         theme: Option<PathBuf>,
         #[arg(long)]
@@ -306,7 +306,7 @@ fn load(path: &Path) -> Result<resume_one_core::resume::ResumeDocument, AppError
     load_resume(path).map_err(|issues| from_diagnostics(path, &issues))
 }
 
-fn load_pdf_theme(path: &Path) -> Result<resume_one_core::ThemeManifest, AppError> {
+fn load_export_theme(path: &Path) -> Result<resume_one_core::ThemeManifest, AppError> {
     absolute(path)?;
     let parent = path
         .parent()
@@ -652,11 +652,11 @@ fn execute(command: Command) -> Result<Value, AppError> {
             overwrite,
         } => {
             absolute(&out)?;
-            if theme.is_some() && !matches!(format, ExportFormat::Pdf) {
+            if theme.is_some() && !matches!(format, ExportFormat::Pdf | ExportFormat::Docx) {
                 return Err(AppError::new(
                     2,
                     "THEME_FORMAT_UNSUPPORTED",
-                    "--theme 当前仅适用于 PDF 导出",
+                    "--theme 仅适用于 PDF / DOCX 导出",
                 ));
             }
             let document = load(&file)?;
@@ -670,14 +670,19 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 ExportFormat::Md => ("md", markdown(&content, language).into_bytes()),
                 ExportFormat::Docx => (
                     "docx",
-                    docx::render(&content, language)
-                        .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
+                    match theme.as_deref() {
+                        Some(path) => {
+                            docx::render_with_theme(&content, language, &load_export_theme(path)?)
+                        }
+                        None => docx::render(&content, language),
+                    }
+                    .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
                 ),
                 ExportFormat::Pdf => (
                     "pdf",
                     match theme.as_deref() {
                         Some(path) => {
-                            let manifest = load_pdf_theme(path)?;
+                            let manifest = load_export_theme(path)?;
                             pdf::render_with_theme(&content, language, &manifest)
                         }
                         None => pdf::render(&content, language),

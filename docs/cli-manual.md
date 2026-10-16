@@ -30,6 +30,8 @@
 
 PDF 嵌入完整 Noto 字形，使用共享测量布局，文件可能达到约 15 MB。DOCX 使用可编辑的原生 Word 段落、显式换行、主题分隔线和重复的页底矢量背景，保留模块顺序与条目避断页设置；字号按 Word 半点单位取整，600 字重映射为 Word 粗体。DOCX 按 OOXML 规范嵌入完整 Noto Sans SC 与 Noto Serif SC 字体，未做仅覆盖当前文字的子集化，文件约 18 MB。支持嵌入字体的阅读器不需要预装字体；禁用嵌入字体或不支持该特性的阅读器仍可能替代字体。Word / LibreOffice 自行换行和分页，不承诺与 PDF 逐像素相同；尚未完成 Microsoft Word 跨平台实机验收。纯文本和 Markdown 不应用主题，向它们传 `--theme` 会报参数错误。所有导出均不写回主题或格式元数据到 `resume.json`。
 
+PDF / DOCX 同时支持主题内 `sections.<标准模块>.heading` 的 `plain/line/accent-line/filled`，`items` 的 `stack/compact`，以及 `date: inline`；配置只作用于对应模块。紧凑模式仅减少条目与描述段落的间距，不改变文字、字号、字段顺序或模块数量。时间线、卡片、标签及左右日期仍返回 `EXPORT_RENDER`，不覆盖已有输出。本地主题和 `themes download` 的能力检查一致。
+
 ```sh
 resume-one export --file /absolute/resume.json --format docx --out /absolute/resume.docx --theme /absolute/themes/chosen.theme.json --lang zh --json
 ```

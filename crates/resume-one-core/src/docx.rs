@@ -12,7 +12,7 @@ use crate::ThemeManifest;
 use crate::layout::{PT_PER_MM, check_theme};
 use crate::render::{Language, title};
 use crate::semantic::ResumeContent;
-use crate::theme_style::{Rgb, TextStyle, ThemeStyle};
+use crate::theme_style::{Rgb, SectionHeading, TextStyle, ThemeStyle};
 
 fn color(rgb: Rgb) -> String {
     rgb.hex()[1..].to_owned()
@@ -62,6 +62,73 @@ fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: 
                 .line_rule(LineSpacingType::AtLeast)
                 .line(twips(style.size_pt * style.line_height) as i32),
         )
+}
+
+fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragraph {
+    let heading = style.section(id).heading;
+    let gap = style.page.section_gap_mm * PT_PER_MM;
+    let mut p = paragraph(
+        title(id, language),
+        &style.typography.section_title,
+        if heading == SectionHeading::Filled {
+            style.colors.paper
+        } else {
+            style.colors.accent
+        },
+        gap + if heading == SectionHeading::Filled {
+            4.0
+        } else {
+            0.0
+        },
+        if heading == SectionHeading::Filled {
+            8.0
+        } else {
+            4.0
+        },
+    );
+    match heading {
+        SectionHeading::Plain => {}
+        SectionHeading::Line | SectionHeading::AccentLine => {
+            p.property.borders = Some(
+                ParagraphBorders::with_empty().set(
+                    ParagraphBorder::new(ParagraphBorderPosition::Bottom)
+                        .color(color(if heading == SectionHeading::Line {
+                            style.colors.border
+                        } else {
+                            style.colors.accent
+                        }))
+                        .size(if heading == SectionHeading::Line {
+                            5
+                        } else {
+                            10
+                        })
+                        .space(4),
+                ),
+            );
+            let spacing = p.property.line_spacing.take().unwrap_or_default();
+            p.property.line_spacing = Some(spacing.after(twips(10.0)));
+        }
+        SectionHeading::Filled => {
+            p.property.shading = Some(docx_rs::Shading::new().fill(color(style.colors.accent)));
+            p = p.indent(Some(twips(6.0) as i32), None, Some(twips(6.0) as i32), None);
+            let mut borders = ParagraphBorders::with_empty();
+            for (position, space) in [
+                (ParagraphBorderPosition::Top, 4),
+                (ParagraphBorderPosition::Bottom, 4),
+                (ParagraphBorderPosition::Left, 6),
+                (ParagraphBorderPosition::Right, 6),
+            ] {
+                borders = borders.set(
+                    ParagraphBorder::new(position)
+                        .color(color(style.colors.accent))
+                        .size(1)
+                        .space(space),
+                );
+            }
+            p.property.borders = Some(borders);
+        }
+    }
+    p
 }
 
 pub fn render(content: &ResumeContent, language: Language) -> Result<Vec<u8>, String> {
@@ -166,16 +233,11 @@ fn build_document(
     let mut heading = body.clone();
     heading.size_pt *= 1.06;
     for section in &content.sections {
+        let section_style = style.section(section.id);
         document = document.add_paragraph(
-            paragraph(
-                title(section.id, language),
-                &style.typography.section_title,
-                accent,
-                gap,
-                4.0,
-            )
-            .keep_next(page.keep_heading_with_first_item && !section.items.is_empty())
-            .keep_lines(true),
+            section_heading(section.id, language, style)
+                .keep_next(page.keep_heading_with_first_item && !section.items.is_empty())
+                .keep_lines(true),
         );
         for item in &section.items {
             let mut paragraphs = Vec::new();
@@ -192,7 +254,13 @@ fn build_document(
                 ));
             }
             for text in &item.paragraphs {
-                paragraphs.push(paragraph(text, body, ink, 3.0, 0.0));
+                paragraphs.push(paragraph(
+                    text,
+                    body,
+                    ink,
+                    section_style.paragraph_gap_pt(),
+                    0.0,
+                ));
             }
             if (section.id == "skills" || section.id == "interests") && !item.bullets.is_empty() {
                 paragraphs.push(paragraph(
@@ -221,7 +289,8 @@ fn build_document(
             for (index, mut p) in paragraphs.into_iter().enumerate() {
                 if index == 0 {
                     let spacing = p.property.line_spacing.take().unwrap_or_default();
-                    p.property.line_spacing = Some(spacing.before(twips(4.0)));
+                    p.property.line_spacing =
+                        Some(spacing.before(twips(section_style.item_gap_pt())));
                 }
                 // Link only this item, never a complete section or neighbouring items.
                 // Oversized paragraphs stay splittable by Word to avoid overflow.
@@ -309,6 +378,40 @@ fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn section_headings_are_native_editable_and_compact_spacing_is_scoped() {
+        let theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        let work = section_heading("work", Language::Zh, &style);
+        assert_eq!(
+            work.property.shading.as_ref().unwrap().fill,
+            color(style.colors.accent)
+        );
+        assert!(work.property.borders.is_some());
+        let content = project(&parse_resume(br#"{"work":[{"name":"WorkItem","summary":"WorkBody"}],"projects":[{"name":"ProjectItem","description":"ProjectBody"}],"education":[{"institution":"School"}]}"#).unwrap());
+        let package = build_document(&content, Language::En, &style).unwrap();
+        assert!(package.media.is_empty());
+        let xml = String::from_utf8(package.document).unwrap();
+        let paragraph_with = |text: &str| {
+            xml.split("</w:p>")
+                .find(|p| p.contains(&format!(">{text}</w:t>")))
+                .unwrap()
+                .to_owned()
+        };
+        let work = paragraph_with("Work");
+        assert!(work.contains("<w:shd") && work.contains("w:fill=\"52756B\""));
+        assert!(work.contains(&format!("w:color w:val=\"{}\"", color(style.colors.paper))));
+        assert!(paragraph_with("WorkItem").contains("w:before=\"40\""));
+        assert!(paragraph_with("WorkBody").contains("w:before=\"20\""));
+        assert!(paragraph_with("ProjectItem").contains("w:before=\"80\""));
+        assert!(paragraph_with("ProjectBody").contains("w:before=\"60\""));
+        assert!(paragraph_with("Projects").contains("w:sz=\"10\""));
+        assert!(paragraph_with("Education").contains("w:sz=\"5\""));
+    }
     use std::io::Read;
 
     #[test]

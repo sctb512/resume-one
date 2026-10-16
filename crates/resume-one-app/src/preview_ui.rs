@@ -60,6 +60,45 @@ mod tests {
     }
 
     #[gpui::test]
+    fn decorated_headings_keep_item_hit_targets_and_shared_page_geometry(cx: &mut TestAppContext) {
+        let mut model = AppModel::load(None).unwrap();
+        let manifest = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        let theme = BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            identity: "test:section-styles".into(),
+            path: None,
+        };
+        model.document =
+            parse_resume(br#"{"work":[{}, {"name":"Editable"}],"projects":[{"name":"Project"}]}"#)
+                .unwrap();
+        model.content = project(&model.document);
+        model.themes = vec![theme];
+        let preview = cx.update(PreviewState::new);
+        let data = preview.resolve(&model, &model.themes[0]).unwrap();
+        assert!(
+            data.layout.pages[0]
+                .iter()
+                .any(|e| matches!(e, LayoutElement::Fill(_)))
+        );
+        for index in 0..2 {
+            assert!(data.regions.iter().any(|r| r.target
+                == LayoutTarget {
+                    section: "work",
+                    index: Some(index)
+                }));
+        }
+        let (_, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        assert_eq!(paper.size.width, px(data.layout.width_mm * PX_PER_MM));
+        assert_eq!(paper.size.height, px(data.layout.height_mm * PX_PER_MM));
+    }
+
+    #[gpui::test]
     fn preview_caches_layout_and_invalidates_document_and_theme_reloads(cx: &mut TestAppContext) {
         let mut model = AppModel::load(None).unwrap();
         let preview = cx.update(PreviewState::new);
@@ -203,7 +242,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                         true,
                     )
                 }
-                LayoutElement::Rule(_) => continue,
+                LayoutElement::Rule(_) | LayoutElement::Fill(_) => continue,
             };
             if let Some(region) = regions
                 .iter_mut()
@@ -292,6 +331,20 @@ fn page_canvas(data: Arc<PreviewData>, page: usize) -> impl IntoElement {
                             ),
                         ),
                         color(rule.color),
+                    )),
+                    LayoutElement::Fill(fill) => Some(Painted::Rule(
+                        Bounds::new(
+                            bounds.origin
+                                + point(
+                                    px(fill.left_pt * PX_PER_PT),
+                                    px((height - fill.bottom_pt - fill.height_pt) * PX_PER_PT),
+                                ),
+                            size(
+                                px(fill.width_pt * PX_PER_PT),
+                                px(fill.height_pt * PX_PER_PT),
+                            ),
+                        ),
+                        color(fill.color),
                     )),
                     LayoutElement::Anchor(_) => None,
                 })

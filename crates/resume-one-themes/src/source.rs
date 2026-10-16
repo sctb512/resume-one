@@ -406,6 +406,24 @@ mod tests {
             "SOURCE_ENTRY"
         );
     }
+
+    #[test]
+    fn same_section_styles_are_accepted_online_without_executing_theme_code() {
+        let bytes = include_bytes!("../../resume-one-cli/tests/fixtures/section-styles.theme.json");
+        let entry = ThemeEntry {
+            id: "section-styles".into(),
+            name: "模块样式验收".into(),
+            manifest: "section-styles.theme.json".into(),
+            sha256: Some(sha256(bytes)),
+        };
+        let theme = VerifiedTheme::parse(&entry, bytes).unwrap();
+        assert_eq!(theme.bytes(), bytes);
+        let mut unsupported: serde_json::Value = serde_json::from_slice(bytes).unwrap();
+        unsupported["sections"]["work"]["items"] = serde_json::json!("timeline");
+        let mut entry = entry;
+        entry.sha256 = None;
+        assert!(VerifiedTheme::parse(&entry, &serde_json::to_vec(&unsupported).unwrap()).is_err());
+    }
     #[test]
     fn prefetch_is_bounded_at_both_edges() {
         assert_eq!(prefetch_window(0, 0), 0..0);

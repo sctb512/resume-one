@@ -4,7 +4,7 @@
 use crate::ThemeManifest;
 use crate::render::{Language, title};
 use crate::semantic::{Item, ResumeContent};
-use crate::theme_style::{Rgb, TextStyle, ThemeStyle};
+use crate::theme_style::{Rgb, SectionHeading, TextStyle, ThemeStyle};
 use ttf_parser::Face;
 
 pub const SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
@@ -74,9 +74,19 @@ pub struct LayoutRule {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+pub struct LayoutFill {
+    pub left_pt: f32,
+    pub bottom_pt: f32,
+    pub width_pt: f32,
+    pub height_pt: f32,
+    pub color: Rgb,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub enum LayoutElement {
     Text(LayoutText),
     Rule(LayoutRule),
+    Fill(LayoutFill),
     Anchor(LayoutAnchor),
 }
 
@@ -314,11 +324,22 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠页眉与行内联系方式".into(),
         );
     }
-    if source["sections"]
-        .as_object()
-        .is_some_and(|value| !value.is_empty())
-    {
-        return Err("当前排版引擎暂不支持 sections 自定义模块构件".into());
+    if let Some(sections) = source["sections"].as_object() {
+        for (id, value) in sections {
+            if value["items"]
+                .as_str()
+                .is_some_and(|items| !matches!(items, "stack" | "compact"))
+            {
+                return Err(format!(
+                    "当前排版引擎暂不支持 sections.{id}.items；目前支持 stack / compact"
+                ));
+            }
+            if value["date"].as_str().is_some_and(|date| date != "inline") {
+                return Err(format!(
+                    "当前排版引擎暂不支持 sections.{id}.date；目前支持 inline"
+                ));
+            }
+        }
     }
     if source["decorations"]
         .as_object()
@@ -352,6 +373,122 @@ fn add_rule(page: &mut PageWriter<'_>, color: Rgb, thickness: f32) {
         color,
     }));
 }
+
+fn heading_height(style: &ThemeStyle, id: &str) -> f32 {
+    let text = &style.typography.section_title;
+    let leading = text.size_pt * text.line_height;
+    let (ascent, descent) = font_kind(text).expect("theme checked").vertical_metrics();
+    // The next item is baseline-positioned by the legacy stack renderer. Its
+    // ascender must also be reserved below a filled box or underline.
+    let following_ascent = (font_kind(&style.typography.body)
+        .expect("theme checked")
+        .vertical_metrics()
+        .0
+        * style.typography.body.size_pt
+        * 1.06)
+        .max(
+            font_kind(&style.typography.meta)
+                .expect("theme checked")
+                .vertical_metrics()
+                .0
+                * style.typography.meta.size_pt,
+        );
+    if style.section(id).heading == SectionHeading::Plain {
+        return (leading + 4.0).max(descent * text.size_pt + following_ascent + 4.0);
+    }
+    leading.max((ascent + descent) * text.size_pt)
+        + following_ascent
+        + if style.section(id).heading == SectionHeading::Filled {
+            12.0
+        } else {
+            10.0
+        }
+}
+
+fn section_heading(
+    page: &mut PageWriter<'_>,
+    id: &'static str,
+    language: Language,
+    style: &ThemeStyle,
+) {
+    let text = &style.typography.section_title;
+    let kind = font_kind(text).expect("theme checked");
+    let heading = style.section(id).heading;
+    let height = heading_height(style, id);
+    page.ensure(height);
+    page.mark(LayoutTarget {
+        section: id,
+        index: None,
+    });
+    if heading == SectionHeading::Plain {
+        page.line(
+            title(id, language),
+            text.size_pt,
+            style.colors.accent,
+            kind,
+            0.0,
+            height,
+        );
+        return;
+    }
+    let (ascent, descent) = kind.vertical_metrics();
+    let leading = (text.size_pt * text.line_height).max((ascent + descent) * text.size_pt);
+    let padding = if heading == SectionHeading::Filled {
+        4.0
+    } else {
+        0.0
+    };
+    let top = page.y;
+    if heading == SectionHeading::Filled {
+        page.ops.push(LayoutElement::Fill(LayoutFill {
+            left_pt: page.left,
+            bottom_pt: top - leading - 2.0 * padding,
+            width_pt: page.content_width(),
+            height_pt: leading + 2.0 * padding,
+            color: style.colors.accent,
+        }));
+    }
+    page.ops.push(LayoutElement::Text(LayoutText {
+        text: title(id, language).into(),
+        x_pt: page.left
+            + if heading == SectionHeading::Filled {
+                6.0
+            } else {
+                0.0
+            },
+        baseline_y_pt: top
+            - padding
+            - (leading - (ascent + descent) * text.size_pt) / 2.0
+            - ascent * text.size_pt,
+        size_pt: text.size_pt,
+        leading_pt: leading,
+        color: if heading == SectionHeading::Filled {
+            style.colors.paper
+        } else {
+            style.colors.accent
+        },
+        font: kind,
+        target: page.target,
+    }));
+    if matches!(heading, SectionHeading::Line | SectionHeading::AccentLine) {
+        page.ops.push(LayoutElement::Rule(LayoutRule {
+            left_pt: page.left,
+            right_pt: page.width - page.right,
+            y_pt: top - leading - 4.0,
+            thickness_pt: if heading == SectionHeading::Line {
+                0.6
+            } else {
+                1.2
+            },
+            color: if heading == SectionHeading::Line {
+                style.colors.border
+            } else {
+                style.colors.accent
+            },
+        }));
+    }
+    page.y = top - height;
+}
 fn wrapped_height(
     page: &PageWriter<'_>,
     text: &str,
@@ -374,7 +511,8 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let meta = &style.typography.meta;
     let body_font = font_kind(body).expect("theme checked");
     let meta_font = font_kind(meta).expect("theme checked");
-    let mut height = 4.0;
+    let section = style.section(section_id);
+    let mut height = section.item_gap_pt();
     if !item.heading.is_empty() {
         height += wrapped_height(
             page,
@@ -396,7 +534,7 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
         );
     }
     for paragraph in &item.paragraphs {
-        height += 3.0
+        height += section.paragraph_gap_pt()
             + wrapped_height(
                 page,
                 paragraph,
@@ -487,7 +625,6 @@ fn layout_with_style(
     });
     let body = &style.typography.body;
     let name = &style.typography.name;
-    let section = &style.typography.section_title;
     let meta = &style.typography.meta;
     let ink = style.colors.ink;
     let accent = style.colors.accent;
@@ -545,27 +682,17 @@ fn layout_with_style(
         page.gap(section_gap / 2.0);
     }
     for section_content in &content.sections {
+        let section = style.section(section_content.id);
+        let heading_height = heading_height(style, section_content.id);
         if style.page.keep_heading_with_first_item {
             let first_item_height = section_content.items.first().map_or(0.0, |item| {
                 item_height(&page, item, section_content.id, style)
             });
-            page.ensure(
-                section_gap + section.size_pt * section.line_height + 4.0 + first_item_height,
-            );
+            page.ensure(section_gap + heading_height + first_item_height);
         }
+        page.ensure(section_gap + heading_height);
         page.gap(section_gap);
-        page.mark(LayoutTarget {
-            section: section_content.id,
-            index: None,
-        });
-        page.line(
-            title(section_content.id, language),
-            section.size_pt,
-            accent,
-            font_kind(section)?,
-            0.0,
-            section.size_pt * section.line_height + 4.0,
-        );
+        section_heading(&mut page, section_content.id, language, style);
         for (index, item) in section_content.items.iter().enumerate() {
             if style.page.avoid_split_items {
                 let height = item_height(&page, item, section_content.id, style);
@@ -575,7 +702,7 @@ fn layout_with_style(
                 section: section_content.id,
                 index: Some(index),
             });
-            page.gap(4.0);
+            page.gap(section.item_gap_pt());
             if !item.heading.is_empty() {
                 page.wrapped(
                     &item.heading,
@@ -597,7 +724,7 @@ fn layout_with_style(
                 );
             }
             for paragraph in &item.paragraphs {
-                page.gap(3.0);
+                page.gap(section.paragraph_gap_pt());
                 page.wrapped(
                     paragraph,
                     body.size_pt,
@@ -654,6 +781,209 @@ fn layout_with_style(
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    fn sections_theme() -> ThemeManifest {
+        crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap()
+    }
+
+    #[test]
+    fn heading_shapes_enclose_glyphs_and_compact_changes_only_spacing() {
+        let theme = sections_theme();
+        let style = ThemeStyle::from_manifest(&theme);
+        let content = project(&parse_resume(br#"{"work":[{"name":"One","summary":"First"},{"name":"Two","summary":"Second"}],"projects":[{"name":"Project"}],"education":[{"institution":"School"}],"skills":[{"name":"Skill"}]}"#).unwrap());
+        let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let elements = &result.pages[0];
+        let fill = elements
+            .iter()
+            .find_map(|e| {
+                if let LayoutElement::Fill(f) = e {
+                    Some(f)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let heading = elements
+            .iter()
+            .find_map(|e| {
+                if let LayoutElement::Text(t) = e {
+                    (t.text == "Work").then_some(t)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        let (ascent, descent) = heading.font.vertical_metrics();
+        assert_eq!(heading.color, style.colors.paper);
+        assert!(heading.color.contrast(fill.color) >= 4.5);
+        assert!(heading.baseline_y_pt + ascent * heading.size_pt < fill.bottom_pt + fill.height_pt);
+        assert!(heading.baseline_y_pt - descent * heading.size_pt > fill.bottom_pt);
+        assert_eq!(heading.x_pt, fill.left_pt + 6.0);
+        let first_item = elements
+            .iter()
+            .find_map(|e| {
+                if let LayoutElement::Text(t) = e {
+                    (t.target
+                        == Some(LayoutTarget {
+                            section: "work",
+                            index: Some(0),
+                        }))
+                    .then_some(t)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        assert!(
+            first_item.baseline_y_pt + first_item.font.vertical_metrics().0 * first_item.size_pt
+                <= fill.bottom_pt - 2.0
+        );
+        let rules: Vec<_> = elements
+            .iter()
+            .filter_map(|e| {
+                if let LayoutElement::Rule(r) = e {
+                    Some(r)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert_eq!(rules.len(), 2);
+        assert_eq!(
+            (rules[0].color, rules[0].thickness_pt),
+            (style.colors.accent, 1.2)
+        );
+        assert_eq!(
+            (rules[1].color, rules[1].thickness_pt),
+            (style.colors.border, 0.6)
+        );
+        let mut stacked = theme.clone();
+        stacked.normalized["sections"]["work"]["items"] = serde_json::json!("stack");
+        let stacked = layout_with_theme(&content, Language::En, &stacked).unwrap();
+        let texts = |result: &ResumeLayout| {
+            result
+                .pages
+                .iter()
+                .flatten()
+                .filter_map(|e| {
+                    if let LayoutElement::Text(t) = e {
+                        t.target.map(|_| t.text.clone())
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(texts(&result), texts(&stacked));
+        let second_y = |result: &ResumeLayout| {
+            result
+                .pages
+                .iter()
+                .flatten()
+                .find_map(|e| {
+                    if let LayoutElement::Text(t) = e {
+                        (t.text == "Two").then_some(t.baseline_y_pt)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap()
+        };
+        assert!((second_y(&result) - second_y(&stacked) - 6.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn decorated_headers_stay_on_page_and_follow_first_items_across_pagination() {
+        let mut theme = sections_theme();
+        for heading in ["plain", "line", "accent-line", "filled"] {
+            for paper in ["A4", "Letter"] {
+                theme.normalized["page"] = serde_json::json!({"size":paper,"marginsMm":{"top":25,"bottom":25},"sectionGapMm":10});
+                for id in [
+                    "work",
+                    "projects",
+                    "education",
+                    "skills",
+                    "languages",
+                    "awards",
+                ] {
+                    theme.normalized["sections"][id] =
+                        serde_json::json!({"heading":heading,"items":"compact"});
+                }
+                let mut content = project(
+                    &parse_resume(include_bytes!(
+                        "../../resume-one-cli/tests/fixtures/visual-qa.json"
+                    ))
+                    .unwrap(),
+                );
+                content.sections[0].items = content.sections[0]
+                    .items
+                    .iter()
+                    .cycle()
+                    .take(16)
+                    .cloned()
+                    .collect();
+                let result = layout_with_theme(&content, Language::Zh, &theme).unwrap();
+                assert!(result.pages.len() > 2);
+                for elements in &result.pages {
+                    for (index, element) in elements.iter().enumerate() {
+                        match element {
+                            LayoutElement::Fill(f) => {
+                                assert!(f.bottom_pt >= 25.0 * PT_PER_MM);
+                                assert!(
+                                    f.bottom_pt + f.height_pt
+                                        <= (result.height_mm - 25.0) * PT_PER_MM + 0.01
+                                );
+                                assert!(matches!(
+                                    elements.get(index + 1),
+                                    Some(LayoutElement::Text(_))
+                                ));
+                            }
+                            LayoutElement::Text(t)
+                                if t.target.is_some_and(|target| {
+                                    target.index.is_none() && target.section != "basics"
+                                }) =>
+                            {
+                                let id = t.target.unwrap().section;
+                                assert!(elements.iter().any(|e| matches!(e, LayoutElement::Anchor(a) if a.target.section == id && a.target.index == Some(0))), "orphan heading {id}");
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn explicit_default_sections_are_legacy_identical_but_future_constructs_are_rejected() {
+        let mut theme = sections_theme();
+        theme.normalized["sections"] = serde_json::json!({});
+        let content = project(&parse_resume(br#"{"work":[{"name":"One"}]}"#).unwrap());
+        let legacy = layout_with_theme(&content, Language::Zh, &theme).unwrap();
+        theme.normalized["sections"] =
+            serde_json::json!({"work":{"heading":"plain","items":"stack","date":"inline"}});
+        assert_eq!(
+            legacy,
+            layout_with_theme(&content, Language::Zh, &theme).unwrap()
+        );
+        for value in [
+            serde_json::json!({"items":"timeline"}),
+            serde_json::json!({"items":"cards"}),
+            serde_json::json!({"date":"right"}),
+        ] {
+            theme.normalized["sections"]["work"] = value;
+            assert!(check_theme(&theme).unwrap_err().contains("sections.work"));
+        }
+        theme.normalized["sections"] = serde_json::json!({"skills":{"items":"chips"}});
+        assert!(
+            check_theme(&theme)
+                .unwrap_err()
+                .contains("sections.skills.items")
+        );
+    }
 
     #[test]
     fn shared_layout_keeps_multilingual_content_and_pagination_in_page_coordinates() {

@@ -136,6 +136,34 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
                             },
                         },
                     ]),
+                    LayoutElement::Fill(fill) => ops.extend([
+                        Op::SetFillColor {
+                            col: pdf_color(fill.color),
+                        },
+                        Op::DrawPolygon {
+                            polygon: Polygon {
+                                rings: vec![PolygonRing {
+                                    points: [
+                                        (fill.left_pt, fill.bottom_pt),
+                                        (fill.left_pt + fill.width_pt, fill.bottom_pt),
+                                        (
+                                            fill.left_pt + fill.width_pt,
+                                            fill.bottom_pt + fill.height_pt,
+                                        ),
+                                        (fill.left_pt, fill.bottom_pt + fill.height_pt),
+                                    ]
+                                    .into_iter()
+                                    .map(|(x, y)| LinePoint {
+                                        p: Point { x: Pt(x), y: Pt(y) },
+                                        bezier: false,
+                                    })
+                                    .collect(),
+                                }],
+                                mode: PaintMode::Fill,
+                                winding_order: WindingOrder::NonZero,
+                            },
+                        },
+                    ]),
                     LayoutElement::Anchor(_) => {}
                 }
             }

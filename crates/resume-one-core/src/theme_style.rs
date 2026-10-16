@@ -1,5 +1,7 @@
 //! Resolved, bounded presentation tokens shared by print and desktop renderers.
 
+use std::collections::BTreeMap;
+
 use serde_json::Value;
 
 use crate::ThemeManifest;
@@ -123,6 +125,46 @@ pub struct Typography {
     pub meta: TextStyle,
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum SectionHeading {
+    #[default]
+    Plain,
+    Line,
+    AccentLine,
+    Filled,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum ItemLayout {
+    #[default]
+    Stack,
+    Compact,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SectionStyle {
+    pub heading: SectionHeading,
+    pub items: ItemLayout,
+}
+
+impl SectionStyle {
+    pub fn item_gap_pt(self) -> f32 {
+        if self.items == ItemLayout::Compact {
+            2.0
+        } else {
+            4.0
+        }
+    }
+
+    pub fn paragraph_gap_pt(self) -> f32 {
+        if self.items == ItemLayout::Compact {
+            1.0
+        } else {
+            3.0
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct ThemeStyle {
     pub id: String,
@@ -131,6 +173,7 @@ pub struct ThemeStyle {
     pub page: PageStyle,
     pub typography: Typography,
     pub composition_preset: String,
+    pub sections: BTreeMap<String, SectionStyle>,
 }
 
 fn optional_color(value: &Value, key: &str) -> Option<Rgb> {
@@ -169,6 +212,10 @@ fn text_style(
 }
 
 impl ThemeStyle {
+    pub fn section(&self, id: &str) -> SectionStyle {
+        self.sections.get(id).copied().unwrap_or_default()
+    }
+
     pub fn from_manifest(theme: &ThemeManifest) -> Self {
         let manifest = &theme.normalized;
         let colors = &manifest["colors"];
@@ -261,6 +308,30 @@ impl ThemeStyle {
                 .and_then(Value::as_str)
                 .unwrap_or("single-column")
                 .to_owned(),
+            sections: manifest
+                .get("sections")
+                .and_then(Value::as_object)
+                .into_iter()
+                .flatten()
+                .map(|(id, value)| {
+                    (
+                        id.clone(),
+                        SectionStyle {
+                            heading: match value["heading"].as_str() {
+                                Some("line") => SectionHeading::Line,
+                                Some("accent-line") => SectionHeading::AccentLine,
+                                Some("filled") => SectionHeading::Filled,
+                                _ => SectionHeading::Plain,
+                            },
+                            items: if value["items"] == "compact" {
+                                ItemLayout::Compact
+                            } else {
+                                ItemLayout::Stack
+                            },
+                        },
+                    )
+                })
+                .collect(),
         }
     }
 
@@ -274,6 +345,33 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn section_styles_are_partial_scoped_and_keep_unmentioned_defaults() {
+        let theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert_eq!(
+            style.section("work"),
+            SectionStyle {
+                heading: SectionHeading::Filled,
+                items: ItemLayout::Compact
+            }
+        );
+        assert_eq!(
+            style.section("projects"),
+            SectionStyle {
+                heading: SectionHeading::AccentLine,
+                items: ItemLayout::Stack
+            }
+        );
+        assert_eq!(style.section("languages"), SectionStyle::default());
+        assert_eq!(style.section("work").item_gap_pt(), 2.0);
+        assert_eq!(style.section("work").paragraph_gap_pt(), 1.0);
+        assert_eq!(style.section("languages").item_gap_pt(), 4.0);
+    }
 
     #[test]
     fn derives_readable_colors_and_schema_defaults() {

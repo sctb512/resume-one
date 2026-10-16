@@ -640,6 +640,60 @@ fn exports_themed_docx_and_preserves_existing_output_on_failure() {
 }
 
 #[test]
+fn section_styles_export_in_both_formats_without_changing_resume() {
+    let root = tempfile::tempdir().unwrap();
+    let resume = root.path().join("resume.json");
+    let theme = root.path().join("sections.theme.json");
+    let source = include_bytes!("fixtures/visual-qa.json");
+    fs::write(&resume, source).unwrap();
+    fs::write(&theme, include_bytes!("fixtures/section-styles.theme.json")).unwrap();
+    for format in ["pdf", "docx"] {
+        let out = root.path().join(format!("resume.{format}"));
+        let (status, response) = call(&[
+            "export",
+            "--file",
+            path(&resume),
+            "--format",
+            format,
+            "--out",
+            path(&out),
+            "--theme",
+            path(&theme),
+            "--json",
+        ]);
+        assert!(status.status.success(), "{response}");
+        let bytes = fs::read(&out).unwrap();
+        assert!(bytes.starts_with(if format == "pdf" { b"%PDF" } else { b"PK" }));
+        if format == "docx" {
+            let parsed = docx_rs::read_docx(&bytes).unwrap().json();
+            assert!(parsed.contains("52756B") && parsed.contains("工作经历"));
+        }
+    }
+    assert_eq!(fs::read(&resume).unwrap(), source);
+    let previous = fs::read(root.path().join("resume.pdf")).unwrap();
+    let mut value: Value =
+        serde_json::from_slice(include_bytes!("fixtures/section-styles.theme.json")).unwrap();
+    value["sections"]["work"]["date"] = serde_json::json!("right");
+    fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
+    let (status, response) = call(&[
+        "export",
+        "--file",
+        path(&resume),
+        "--format",
+        "pdf",
+        "--out",
+        path(&root.path().join("resume.pdf")),
+        "--theme",
+        path(&theme),
+        "--overwrite",
+        "--json",
+    ]);
+    assert_eq!(status.status.code(), Some(6));
+    assert_eq!(response["error"]["code"], "EXPORT_RENDER");
+    assert_eq!(fs::read(root.path().join("resume.pdf")).unwrap(), previous);
+}
+
+#[test]
 fn exports_pdf_with_unicode_and_keeps_source_unchanged() {
     let root = tempfile::tempdir().unwrap();
     let file = root.path().join("resume.json");

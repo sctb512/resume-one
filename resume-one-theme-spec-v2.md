@@ -1,6 +1,6 @@
 # Resume One 声明式主题规范 v2
 
-状态：v2 文件结构及校验规则在 Rust 共享核心中实现；PDF 已支持单栏基础视觉参数，独立迁移器已支持 v1→v2 候选文件和第三方主题包的低置信度静态配色/元数据提取。视觉等效的人工移植、其余主题排版与桌面排版器仍在开发。配套文件：[JSON Schema](./resume-one-theme-v2.schema.json)与[结构示例](./resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
+状态：v2 文件结构及校验规则在 Rust 共享核心中实现；预览、PDF 和 DOCX 已支持单栏基础视觉参数、四种模块标题及紧凑条目间距，独立迁移器已支持 v1→v2 候选文件和第三方主题包的低置信度静态配色/元数据提取。视觉等效的人工移植及其余主题排版仍在开发。配套文件：[JSON Schema](./resume-one-theme-v2.schema.json)与[结构示例](./resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
 
 ## 1. 为什么要自定规范
 
@@ -65,6 +65,30 @@
 `layout` 始终必填，供 v1 兼容排版回退；显式 `composition` 优先于它。显式字段只覆盖对应默认值，不影响未提及字段。预览、PDF 和 DOCX 使用同一规范化后的主题语义；DOCX 的分页仍允许与 PDF 不同。
 
 `provenance` 只做元数据，不在主题列表弹出提示：`native` 表示为本规范原创，`adapted` 表示按已注明来源改编，`inspired` 表示仅借鉴视觉方向。迁移版应写 `upstreamUrl/upstreamRevision/upstreamAuthor/upstreamLicense/migratedBy` 中可证实的信息；是否通过验收记录在迁移工具的发布报告中，不用 `fidelity` 冒充审核状态。
+
+### 当前支持的模块外观
+
+`sections` 仅配置所列标准模块，未列出的模块仍用默认值；不得影响模块/条目顺序、字段值、右侧候选或原始 JSON。
+
+```json
+"sections": {
+  "work": { "heading": "filled", "items": "compact", "date": "inline" },
+  "projects": { "heading": "accent-line" },
+  "education": { "heading": "line" }
+}
+```
+
+| 配置 | 当前渲染语义 |
+|---|---|
+| `heading: plain` | 默认的强调色标题，无额外装饰 |
+| `heading: line` | 标题下方为 `border` 色细线，约 0.6 pt |
+| `heading: accent-line` | 标题下方为 `accent` 色强调线，约 1.2 pt |
+| `heading: filled` | 内容区等宽的 `accent` 色底、`paper` 色字；左右留白 6 pt、上下至少 4 pt；使用修正后的颜色保证文字对比度 |
+| `items: stack` | 默认条目前间距 4 pt、描述段落前间距 3 pt |
+| `items: compact` | 条目前间距 2 pt、描述段落前间距 1 pt；字号、字重、行高和全部内容保持不变 |
+| `date: inline` | 日期与其他辅助信息沿用行内顺序 |
+
+预览与 PDF 共用标题色块/线条及字形几何，按真实上升部/下降部预留标题与首项之间的空间；装饰不得与首项重叠或拆到另一页。DOCX 用原生段落底色、边框和缩进表达同一语义，线宽取 Word 八分之一磅单位，留白与分页允许因阅读器而不同。空模块不额外生成标题；空条目的交互索引仍保留。当前 `timeline/cards/chips`、左右日期、自定义装饰和侧栏仍会明确拒绝，不因为已支持部分 `sections` 就忽略其余配置。在线和本地使用同一能力校验。
 
 ## 4. 渲染器的固定语义
 

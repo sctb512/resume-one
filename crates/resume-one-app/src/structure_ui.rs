@@ -46,6 +46,13 @@ pub(super) fn register(cx: &mut App) {
 }
 
 impl ResumeOne {
+    pub(super) fn structure_enabled(&self) -> bool {
+        self.model.preview_ready
+            && self
+                .editor
+                .as_ref()
+                .is_none_or(|e| e.buffer.issues().is_empty())
+    }
     pub(super) fn insertion_active(&self) -> bool {
         self.insertion_before.is_some()
             || self.selected_module.is_some()

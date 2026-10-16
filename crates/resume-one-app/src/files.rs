@@ -117,6 +117,7 @@ impl ResumeOne {
         {
             return;
         }
+        self.close_drawer();
         self.files.busy = true;
         self.files.open = false;
         self.hovered_theme = None;
@@ -308,6 +309,7 @@ impl ResumeOne {
         if self.files.busy {
             return;
         }
+        self.close_drawer();
         if self.files.open && !self.files.anchor_right {
             self.dismiss_files(&DismissFiles, window, cx);
         } else {
@@ -319,6 +321,7 @@ impl ResumeOne {
         if self.files.busy {
             return;
         }
+        self.close_drawer();
         if self.files.open && self.files.anchor_right {
             self.files.open = false;
         } else {

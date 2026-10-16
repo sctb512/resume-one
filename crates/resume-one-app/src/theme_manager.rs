@@ -569,7 +569,10 @@ mod tests {
         let owner = child.borrow_mut().take().unwrap();
         cx.simulate_resize(gpui::size(px(800.0), px(600.0)));
         cx.update(|window, _| window.refresh());
-        let right = cx.debug_bounds("module-panel").unwrap();
+        let themes = cx.debug_bounds("show-themes").unwrap();
+        cx.simulate_click(themes.center(), gpui::Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("show-modules").unwrap();
         let entry = cx.debug_bounds("manage-themes").unwrap();
         cx.simulate_click(entry.center(), gpui::Modifiers::none());
         cx.run_until_parked();
@@ -604,7 +607,7 @@ mod tests {
             assert!(!owner.read(cx).theme_manager_open);
             assert_eq!(owner.read(cx).model.document.source, source);
         });
-        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        assert_eq!(right, cx.debug_bounds("show-modules").unwrap());
         cx.update(|window, cx| window.focus(&owner.read(cx).focus));
         cx.simulate_keystrokes("cmd-,");
         cx.run_until_parked();

@@ -1,10 +1,9 @@
 use std::time::Duration;
 
 use gpui::{
-    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, ScrollHandle, Subscription,
-    Window, actions, anchored, deferred, div, prelude::*, px,
+    Animation, AnimationExt, App, Context, Entity, Focusable as _, IntoElement, KeyBinding,
+    ScrollHandle, Subscription, Window, actions, anchored, deferred, div, prelude::*, px,
 };
-use gpui_component::Sizable;
 use gpui_component::input::{Input, InputEvent, InputState};
 use resume_one_core::content_edit::{
     ProfileChange, StringListChange, StringListEdit, TextEdit, list_fields, prepare_list_edit,
@@ -171,6 +170,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.source_mode
+            || !self.structure_enabled()
             || self.inline_matches(section, index)
             || !self.ensure_editor(window, cx)
             || self.recovery_pending
@@ -558,6 +558,15 @@ impl ResumeOne {
             cx.notify();
             return;
         }
+        if self.drawer.take().is_some() {
+            self.hovered_theme = None;
+            self.online.cancel_interaction();
+            self.theme_hover_generation += 1;
+            self.theme_hover_candidate = None;
+            self.cancel_insertion();
+            cx.notify();
+            return;
+        }
         let insertion = self.cancel_insertion();
         if self.inline.form.take().is_some() || insertion {
             self.clear_inline();
@@ -569,6 +578,7 @@ impl ResumeOne {
     pub(super) fn inline_form(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let form = self.inline.form.as_ref().expect("active inline form");
         let style = self.active_style();
+        let reduce_motion = self.reduce_motion;
         let width = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
             * 3.0
             * self.preview_scale;
@@ -578,7 +588,7 @@ impl ResumeOne {
             .flex()
             .flex_col()
             .gap(px(16.))
-            .max_h(px(440.0))
+            .max_h(px((self.viewport_height - 220.).clamp(160., 440.)))
             .overflow_y_scroll()
             .track_scroll(&self.inline.scroll)
             .px(px(20.))
@@ -803,7 +813,22 @@ impl ResumeOne {
                                 .text_color(color(style.colors.seal))
                                 .child(message),
                         )
-                    }),
+                    })
+                    .with_animation(
+                        gpui::SharedString::from(format!(
+                            "inline-arrival-{}-{:?}",
+                            form.section, form.index
+                        )),
+                        Animation::new(Duration::from_millis(160)),
+                        move |v, t| {
+                            let t = if reduce_motion {
+                                1.
+                            } else {
+                                t * t * (3. - 2. * t)
+                            };
+                            v.relative().top(px(4. * (1. - t))).opacity(t)
+                        },
+                    ),
             ),
         )
         .priority(1)
@@ -819,7 +844,7 @@ impl ResumeOne {
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
-            .h(px(20.0))
+            .h(px(32.0))
             .w_full()
             .flex()
             .justify_center()
@@ -862,7 +887,7 @@ impl ResumeOne {
             .debug_selector(move || selector.clone())
             .w_full()
             .min_w_0()
-            .child(Input::new(&field.input).small().w_full())
+            .child(Input::new(&field.input).w_full())
     }
 
     fn inline_profile_add(&self, index: usize, cx: &mut Context<Self>) -> impl IntoElement {
@@ -1200,7 +1225,7 @@ mod tests {
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
-        cx.simulate_keystrokes("tab enter");
+        cx.simulate_keystrokes("tab tab tab tab enter");
         cx.update(|window, cx| assert!(view.read(cx).inline_focused(window, cx)));
         cx.simulate_keystrokes("escape");
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));

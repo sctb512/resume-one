@@ -17,6 +17,12 @@ serde_json.workspace = true
 resume-one-core = { path = "../resume-one-core" }
 resume-one-themes = { path = "../resume-one-themes" }
 
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "=0.3.2", default-features = false, features = ["std", "NSWorkspace", "NSAccessibility"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "=0.61.2", features = ["Win32_UI_WindowsAndMessaging"] }
+
 [dev-dependencies]
 tempfile.workspace = true
 gpui = { workspace = true, features = ["test-support"] }

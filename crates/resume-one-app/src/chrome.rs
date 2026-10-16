@@ -14,31 +14,63 @@ pub const THEME_ROW_HEIGHT: f32 = 95.0;
 pub const SERIF: &str = "Noto Serif SC";
 pub const SANS: &str = "Noto Sans SC";
 
+pub(super) fn activation_key(event: &gpui::KeyDownEvent) -> bool {
+    matches!(event.keystroke.key.as_str(), "enter" | "space")
+        && !event.keystroke.modifiers.modified()
+}
+
 pub struct Palette {
     pub panel: Rgb,
     pub line: Rgb,
     pub soft: Rgb,
     pub ink: Rgb,
     pub muted: Rgb,
+    pub accent: Rgb,
+}
+
+/// Preserve the theme hue when possible; black/white is the guaranteed fallback.
+pub(super) fn readable_on(candidate: Rgb, background: Rgb) -> Rgb {
+    if candidate.contrast(background) >= 4.5 {
+        return candidate;
+    }
+    let black = Rgb { r: 0, g: 0, b: 0 };
+    let white = Rgb {
+        r: 255,
+        g: 255,
+        b: 255,
+    };
+    let fallback = if black.contrast(background) >= white.contrast(background) {
+        black
+    } else {
+        white
+    };
+    for step in 1..=20 {
+        let shade = candidate.mix(fallback, step as f32 / 20.);
+        if shade.contrast(background) >= 4.5 {
+            return shade;
+        }
+    }
+    fallback
+}
+
+pub(super) fn theme_description(description: &str) -> String {
+    // These are captions, not prose paragraphs. A terminal full stop must not
+    // become a detached second line in a narrow rail.
+    description.trim().trim_end_matches(['。', '.']).to_owned()
 }
 
 impl Palette {
     pub fn new(style: &ThemeStyle) -> Self {
         let c = style.colors;
         let panel = c.canvas.mix(c.paper, 0.72);
-        let readable = |candidate: Rgb| {
-            if candidate.contrast(panel) >= 4.5 {
-                candidate
-            } else {
-                c.ink
-            }
-        };
+        let readable = |candidate: Rgb| readable_on(candidate, panel);
         Self {
             panel,
             line: panel.mix(c.ink, 0.13),
             soft: panel.mix(c.accent, 0.09),
             ink: readable(c.ink),
             muted: readable(c.muted),
+            accent: readable(c.accent),
         }
     }
 }
@@ -168,6 +200,8 @@ impl ResumeOne {
     pub(super) fn toolbar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
         let p = Palette::new(style);
+        let compact = self.layout == crate::workspace_ui::Layout::Compact;
+        let export_ink = readable_on(style.colors.paper, style.colors.accent);
         let dirty = self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty());
         let status = if self.editor.as_ref().is_some_and(|e| e.saving) {
             "保存中…"
@@ -190,8 +224,8 @@ impl ResumeOne {
             .flex_none()
             .flex()
             .items_center()
-            .gap(px(18.))
-            .px(px(26.))
+            .gap(px(if compact { 8. } else { 18. }))
+            .px(px(if compact { 16. } else { 26. }))
             .border_b_1()
             .border_color(color(p.line))
             .bg(color(p.panel))
@@ -219,35 +253,42 @@ impl ResumeOne {
                             .justify_center()
                             .font_family(SERIF)
                             .text_size(px(17.))
-                            .text_color(color(
-                                if style.colors.paper.contrast(style.colors.seal) >= 4.5 {
-                                    style.colors.paper
-                                } else {
-                                    style.colors.ink
-                                },
-                            ))
+                            .text_color(color(readable_on(style.colors.paper, style.colors.seal)))
                             .child("简"),
                     )
-                    .child(
-                        div()
-                            .font_family(SERIF)
-                            .font_weight(FontWeight::SEMIBOLD)
-                            .text_size(px(18.))
-                            .text_color(color(style.colors.accent))
-                            .child("Resume One"),
-                    )
+                    .when(!compact, |brand| {
+                        brand.child(
+                            div()
+                                .font_family(SERIF)
+                                .font_weight(FontWeight::SEMIBOLD)
+                                .text_size(px(18.))
+                                .text_color(color(p.accent))
+                                .child("Resume One"),
+                        )
+                    })
                     .child(
                         div()
                             .font_family(SERIF)
                             .text_size(px(15.))
-                            .text_color(color(style.colors.accent))
+                            .text_color(color(p.accent))
                             .child("简里"),
                     ),
             )
-            .child(div().h(px(25.)).w(px(1.)).bg(color(p.line)))
+            .when(!self.source_mode && !self.layout.theme_docked(), |v| {
+                v.child(self.drawer_button(crate::workspace_ui::Drawer::Themes, cx))
+            })
             .child(
                 div()
                     .id("current-file")
+                    .tab_index(0)
+                    .focus(|v| v.bg(color(p.soft)))
+                    .on_key_down(cx.listener(|this, event, window, cx| {
+                        if activation_key(event) {
+                            this.export_menu_open = false;
+                            this.toggle_files(&crate::files::ToggleFiles, window, cx);
+                            cx.stop_propagation();
+                        }
+                    }))
                     .debug_selector(|| "current-file".into())
                     .flex_1()
                     .min_w_0()
@@ -281,12 +322,24 @@ impl ResumeOne {
                             } else {
                                 style.colors.accent
                             })))
-                            .child(status),
+                            .when(!compact, |v| v.child(status)),
                     ),
             )
+            .when(!self.layout.modules_docked(), |v| {
+                v.child(self.drawer_button(crate::workspace_ui::Drawer::Modules, cx))
+            })
             .child(
                 div()
                     .id("open-menu")
+                    .tab_index(0)
+                    .focus(|v| v.border_color(color(p.accent)).bg(color(p.soft)))
+                    .on_key_down(cx.listener(|this, event, window, cx| {
+                        if activation_key(event) {
+                            this.export_menu_open = false;
+                            this.toggle_open_menu(window, cx);
+                            cx.stop_propagation();
+                        }
+                    }))
                     .debug_selector(|| "open-menu".into())
                     .h(px(36.))
                     .px_3()
@@ -316,6 +369,22 @@ impl ResumeOne {
             .child(
                 div()
                     .id("export-menu")
+                    .tab_index(0)
+                    .border_1()
+                    .border_color(color(style.colors.accent))
+                    .focus(|v| v.border_color(color(export_ink)))
+                    .on_key_down(cx.listener(|this, event, window, cx| {
+                        if activation_key(event) {
+                            this.close_drawer();
+                            this.files.open = false;
+                            this.export_menu_open = !this.export_menu_open;
+                            this.export_choice = 0;
+                            this.clear_inline();
+                            window.focus(&this.focus);
+                            cx.stop_propagation();
+                            cx.notify();
+                        }
+                    }))
                     .debug_selector(|| "export-menu".into())
                     .h(px(36.))
                     .px_3()
@@ -325,19 +394,20 @@ impl ResumeOne {
                     .gap_2()
                     .rounded(px(6.))
                     .bg(color(style.colors.accent))
-                    .text_color(color(style.colors.paper))
+                    .text_color(color(export_ink))
                     .cursor_pointer()
                     .text_size(px(13.))
                     .hover(|v| v.bg(color(style.colors.accent.mix(style.colors.ink, 0.12))))
-                    .child(icon("export", style.colors.paper))
+                    .child(icon("export", export_ink))
                     .child(if self.export_busy {
                         "导出中…"
                     } else {
                         "导出"
                     })
-                    .child(icon("chevron", style.colors.paper))
+                    .child(icon("chevron", export_ink))
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                     .on_click(cx.listener(|this, _, window, cx| {
+                        this.close_drawer();
                         this.files.open = false;
                         this.export_menu_open = !this.export_menu_open;
                         this.export_choice = 0;
@@ -363,5 +433,33 @@ mod tests {
             assert!(p.ink.contrast(p.panel) >= 4.5);
             assert!(p.muted.contrast(p.panel) >= 4.5);
         }
+    }
+
+    #[test]
+    fn custom_middle_tones_have_safe_text_fallbacks() {
+        for gray in (0..=255).step_by(5) {
+            let background = Rgb {
+                r: gray,
+                g: gray,
+                b: gray,
+            };
+            for candidate in [
+                background,
+                Rgb {
+                    r: 120,
+                    g: 150,
+                    b: 138,
+                },
+                Rgb {
+                    r: 190,
+                    g: 77,
+                    b: 61,
+                },
+            ] {
+                assert!(readable_on(candidate, background).contrast(background) >= 4.5);
+            }
+        }
+        assert_eq!(theme_description("克制的行距。"), "克制的行距");
+        assert_eq!(theme_description("Quiet typography."), "Quiet typography");
     }
 }

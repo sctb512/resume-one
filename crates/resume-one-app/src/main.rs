@@ -15,6 +15,7 @@ mod theme_local;
 mod theme_manager;
 mod theme_online;
 mod workspace;
+mod workspace_ui;
 
 use std::path::Path;
 use std::time::Instant;
@@ -64,6 +65,10 @@ struct ResumeOne {
     preview_scroll: ScrollHandle,
     preview_scale: f32,
     source_mode: bool,
+    layout: workspace_ui::Layout,
+    drawer: Option<workspace_ui::Drawer>,
+    reduce_motion: bool,
+    viewport_height: f32,
     sidebar_progress: f32,
     view_blend: f32,
     view_blend_from: f32,
@@ -108,6 +113,10 @@ impl ResumeOne {
             preview_scroll: ScrollHandle::new(),
             preview_scale: 1.0,
             source_mode: false,
+            layout: workspace_ui::Layout::Wide,
+            drawer: None,
+            reduce_motion: false,
+            viewport_height: 820.,
             sidebar_progress: 0.0,
             view_blend: 0.0,
             view_blend_from: 0.0,
@@ -157,12 +166,19 @@ impl ResumeOne {
         self.theme_hover_generation += 1;
         self.theme_hover_candidate = None;
         let target = if self.source_mode { 1.0 } else { 0.0 };
+        self.drawer = None;
+        if self.reduce_motion {
+            self.sidebar_progress = target;
+            self.view_blend = target;
+            self.mode_transition = None;
+            return;
+        }
         self.view_blend_from = self.view_blend;
-        self.mode_transition = Some(motion::ModeTransition::new(
-            self.sidebar_progress,
-            target,
-            Instant::now(),
-        ));
+        self.mode_transition = Some(if self.layout.theme_docked() {
+            motion::ModeTransition::new(self.sidebar_progress, target, Instant::now())
+        } else {
+            motion::ModeTransition::crossfade(self.sidebar_progress, target, Instant::now())
+        });
     }
 
     fn advance_mode_transition(&mut self, _: &mut Window, cx: &mut Context<Self>) {
@@ -188,9 +204,8 @@ impl ResumeOne {
     }
 
     fn theme_sidebar(&self, width: f32, cx: &mut Context<Self>) -> impl IntoElement {
-        let colors = &self.active_style().colors;
         let palette = chrome::Palette::new(self.active_style());
-        let accent = color(colors.accent);
+        let accent = color(palette.accent);
         let mut list = div()
             .id("theme-list")
             .flex()
@@ -229,7 +244,7 @@ impl ResumeOne {
                 .border_color(color(palette.line))
                 .cursor_pointer()
                 .when(selected, |row| row.bg(color(palette.soft)))
-                .hover(|row| row.bg(color(palette.soft)))
+                .when(!selected, |row| row.hover(|row| row.border_color(accent)))
                 .when(selected, |row| {
                     row.child(
                         div()
@@ -255,7 +270,7 @@ impl ResumeOne {
                                 .font_family(chrome::SERIF)
                                 .text_size(px(15.0))
                                 .truncate()
-                                .text_color(if selected { accent } else { color(colors.ink) })
+                                .text_color(if selected { accent } else { color(palette.ink) })
                                 .child(theme.manifest.name.clone()),
                         )
                         .child(
@@ -263,19 +278,22 @@ impl ResumeOne {
                                 .text_size(px(12.0))
                                 .line_height(px(17.))
                                 .line_clamp(2)
-                                .text_color(color(colors.muted))
-                                .child(
+                                .text_color(color(palette.muted))
+                                .child(chrome::theme_description(
                                     theme.manifest.normalized["description"]
                                         .as_str()
-                                        .unwrap_or(&theme.manifest.id)
-                                        .to_owned(),
-                                ),
+                                        .unwrap_or(&theme.manifest.id),
+                                )),
                         ),
                 )
                 .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
                     this.hover_local_theme(index, *hovering, window, cx);
                 }))
                 .on_click(cx.listener(move |this, _, _, cx| {
+                    this.drawer = None;
+                    this.theme_hover_generation += 1;
+                    this.theme_hover_candidate = None;
+                    this.hovered_theme = None;
                     this.clear_inline();
                     this.cancel_insertion();
                     this.model.select_theme(index);
@@ -456,7 +474,11 @@ impl ResumeOne {
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
             .cursor_pointer()
-            .px_1()
+            .w(px(32.))
+            .h(px(32.))
+            .flex()
+            .items_center()
+            .justify_center()
             .text_size(px(15.0))
             .text_color(color(self.active_style().colors.accent))
             .child("+")
@@ -484,7 +506,11 @@ impl ResumeOne {
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
             .cursor_pointer()
-            .px_1()
+            .w(px(32.))
+            .h(px(32.))
+            .flex()
+            .items_center()
+            .justify_center()
             .text_size(px(15.0))
             .text_color(color(self.active_style().colors.seal))
             .child("−")
@@ -512,6 +538,7 @@ impl ResumeOne {
             .ml_4()
             .px_2()
             .py_1()
+            .min_h(px(32.))
             .cursor_pointer()
             .text_size(px(12.0))
             .text_color(color(self.active_style().colors.accent))
@@ -548,6 +575,7 @@ impl ResumeOne {
             .ml_4()
             .px_2()
             .py_1()
+            .min_h(px(32.))
             .rounded_sm()
             .flex()
             .justify_between()
@@ -578,6 +606,13 @@ impl ResumeOne {
             .overflow_scroll()
             .track_scroll(&self.preview_scroll)
             .bg(color(style.colors.canvas))
+            .when(!self.structure_enabled() && self.model.preview_ready, |view| {
+                let p = chrome::Palette::new(style);
+                view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
+                    .mx_4().mt_3().px_4().py_2().rounded_md()
+                    .bg(color(p.panel)).text_size(px(12.)).text_color(color(p.ink))
+                    .child("JSON 尚有错误 · 当前显示上次有效内容，只读。请按 ⌘/ 或 Ctrl+/ 返回修复。"))
+            })
             .child(
                 div()
                     .w_full()
@@ -608,8 +643,9 @@ impl ResumeOne {
     }
 
     fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let accent = color(self.active_style().colors.accent);
         let palette = chrome::Palette::new(self.active_style());
+        let accent = color(palette.accent);
+        let enabled = self.structure_enabled();
         let mut list = div()
             .id("module-list")
             .flex()
@@ -643,7 +679,7 @@ impl ResumeOne {
             let selected = self.selected_module.as_deref() == Some(id.as_str())
                 || self.selected_item_module.as_deref() == Some(id.as_str());
             let dimmed = self.spotlight_dimmed.contains(&id.as_str());
-            let mut controls = div().flex().items_center().gap_2();
+            let mut controls = div().flex().items_center().gap_1();
             if present {
                 controls = controls.child(
                     div()
@@ -652,14 +688,14 @@ impl ResumeOne {
                         .child(count.to_string()),
                 );
             }
-            if self.source_mode {
+            if self.source_mode && enabled {
                 if id != "basics" || !present {
                     controls = controls.child(self.source_module_add(&id, present, count, cx));
                 }
                 if present {
                     controls = controls.child(self.source_module_remove(&id, cx));
                 }
-            } else if !present {
+            } else if !present && enabled {
                 controls = controls.child(div().text_size(px(17.0)).text_color(accent).child("+"));
             }
             let source_mode = self.source_mode;
@@ -685,9 +721,10 @@ impl ResumeOne {
                     .when(selected, |row| row.bg(color(palette.soft)))
                     .hover(|row| row.bg(color(palette.soft)))
                     .cursor_pointer()
+                    .when(!enabled, |v| v.opacity(0.5).cursor_default())
                     .text_size(px(13.0))
                     .text_color(color(palette.ink))
-                    .child(chrome::icon(icon_id, self.active_style().colors.accent))
+                    .child(chrome::icon(icon_id, palette.accent))
                     .child(
                         div()
                             .flex_1()
@@ -697,6 +734,14 @@ impl ResumeOne {
                     )
                     .child(controls)
                     .on_click(cx.listener(move |this, _, window, cx| {
+                        if !this.structure_enabled() {
+                            return;
+                        }
+                        // Source-mode rows expand their item tools in place;
+                        // keep that drawer open so these tools remain usable.
+                        if !source_mode || !present {
+                            this.drawer = None;
+                        }
                         if source_mode {
                             if present {
                                 if this.insertion_before.is_some() {
@@ -835,7 +880,9 @@ impl ResumeOne {
                     .border_color(color(palette.line))
                     .text_size(px(12.))
                     .text_color(color(palette.muted))
-                    .child(if self.insertion_before.is_some() {
+                    .child(if !enabled {
+                        "请先修复 JSON，结构操作暂不可用"
+                    } else if self.insertion_before.is_some() {
                         "选择要添加的模块 · Esc 取消"
                     } else if self.selected_module.is_some() || self.selected_item_module.is_some()
                     {
@@ -849,15 +896,40 @@ impl ResumeOne {
 
 impl Render for ResumeOne {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.viewport_height = f32::from(window.viewport_size().height);
+        let layout = workspace_ui::Layout::for_width(f32::from(window.viewport_size().width));
+        if self.layout != layout {
+            self.layout = layout;
+            self.drawer = None;
+            self.hovered_theme = None;
+            self.online.cancel_interaction();
+            self.theme_hover_generation += 1;
+            self.theme_hover_candidate = None;
+            self.mode_transition = None;
+            self.sidebar_progress = if self.source_mode { 1. } else { 0. };
+            self.view_blend = self.sidebar_progress;
+        }
+        self.reduce_motion = motion::system_reduces_motion();
+        if self.reduce_motion {
+            self.mode_transition = None;
+            self.sidebar_progress = if self.source_mode { 1. } else { 0. };
+            self.view_blend = self.sidebar_progress;
+        }
+        if self.insertion_before.is_some() && !self.layout.modules_docked() {
+            self.drawer = Some(workspace_ui::Drawer::Modules);
+        }
         // A screen transform only: PDF geometry and line breaks stay unchanged.
         // Use the preview rails' resting widths, so mode animation never resizes glyphs.
-        self.preview_scale = ((f32::from(window.viewport_size().width)
-            - chrome::THEME_WIDTH
-            - chrome::MODULE_WIDTH
-            - 44.)
-            / (self.active_style().page.width_mm * 3.))
-            .clamp(0.4, 1.2);
+        self.preview_scale =
+            ((f32::from(window.viewport_size().width) - self.layout.reserved_width() - 44.)
+                / (self.active_style().page.width_mm * 3.))
+                .clamp(0.4, 1.2);
         let spotlight_target = if self.insertion_active() { 1.0 } else { 0.0 };
+        if self.reduce_motion {
+            self.spotlight_progress = spotlight_target;
+            self.spotlight_transition = None;
+            self.spotlight_target = spotlight_target;
+        }
         if self.spotlight_target != spotlight_target {
             self.spotlight_target = spotlight_target;
             self.spotlight_transition = Some(motion::ModeTransition::with_duration(
@@ -954,9 +1026,14 @@ impl Render for ResumeOne {
                     .flex()
                     .flex_1()
                     .min_h_0()
-                    .when(progress < 1.0 || !self.source_mode, |view| {
-                        view.child(self.theme_sidebar(motion::THEME_WIDTH * (1.0 - progress), cx))
-                    })
+                    .when(
+                        self.layout.theme_docked() && (progress < 1.0 || !self.source_mode),
+                        |view| {
+                            view.child(
+                                self.theme_sidebar(motion::THEME_WIDTH * (1.0 - progress), cx),
+                            )
+                        },
+                    )
                     .child(
                         div()
                             .relative()
@@ -983,10 +1060,20 @@ impl Render for ResumeOne {
                                         .opacity(json_alpha)
                                         .child(self.json_editor(cx)),
                                 )
+                            })
+                            // Invisible incoming layers must never intercept a
+                            // click while the outgoing view is still visible.
+                            .when(self.mode_transition.is_some(), |surface| {
+                                surface.child(div().absolute().size_full().occlude())
                             }),
                     )
-                    .child(self.module_sidebar(cx)),
+                    .when(self.layout.modules_docked(), |view| {
+                        view.child(self.module_sidebar(cx))
+                    }),
             )
+            .when(self.drawer.is_some(), |view| {
+                view.child(self.drawer_overlay(cx))
+            })
             .when(self.files.open, |view| view.child(self.file_switcher(cx)))
             .when(self.export_menu_open, |view| {
                 view.child(self.export_popup(cx))
@@ -1049,7 +1136,7 @@ fn main() {
         cx.open_window(
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
-                window_min_size: Some(size(px(800.0), px(600.0))),
+                window_min_size: Some(size(px(720.0), px(480.0))),
                 ..Default::default()
             },
             move |window, cx| {
@@ -1703,9 +1790,13 @@ mod tests {
             cx.update(|window, _| window.refresh());
             let preview = cx.debug_bounds("resume-preview").unwrap();
             let paper = cx.debug_bounds("resume-paper").unwrap();
-            let modules = cx.debug_bounds("module-panel").unwrap();
-            assert_eq!(modules.size.width, px(chrome::MODULE_WIDTH));
-            assert_eq!(modules.right(), px(width));
+            if width >= 1024. {
+                let modules = cx.debug_bounds("module-panel").unwrap();
+                assert_eq!(modules.size.width, px(chrome::MODULE_WIDTH));
+                assert_eq!(modules.right(), px(width));
+            } else {
+                assert!(cx.debug_bounds("show-modules").is_some());
+            }
             assert!(paper.left() >= preview.left());
             assert!(paper.right() <= preview.right());
         }

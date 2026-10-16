@@ -328,11 +328,12 @@ impl ResumeOne {
                 let owner = cx.entity().downgrade();
                 let download_disabled = self.online.download_pending() || self.files.busy;
                 let thumbnail_theme = self.online.thumbnail_theme(&entry.id);
-                let description = thumbnail_theme
-                    .as_ref()
-                    .and_then(|t| t.manifest.normalized["description"].as_str())
-                    .unwrap_or(&entry.id)
-                    .to_owned();
+                let description = crate::chrome::theme_description(
+                    thumbnail_theme
+                        .as_ref()
+                        .and_then(|t| t.manifest.normalized["description"].as_str())
+                        .unwrap_or(&entry.id),
+                );
                 let row = div()
                     .id(("theme", index))
                     .debug_selector(move || format!("theme-{index}"))
@@ -348,7 +349,9 @@ impl ResumeOne {
                     .border_color(color(p.line))
                     .cursor_pointer()
                     .when(selected, |row| row.bg(color(p.soft)))
-                    .hover(|row| row.bg(color(p.soft)))
+                    .when(!selected, |row| {
+                        row.hover(|row| row.border_color(color(p.accent)))
+                    })
                     .when(selected, |row| {
                         row.child(
                             div()
@@ -373,11 +376,7 @@ impl ResumeOne {
                                 div()
                                     .font_family(crate::chrome::SERIF)
                                     .text_size(px(15.))
-                                    .text_color(color(if selected {
-                                        style.colors.accent
-                                    } else {
-                                        style.colors.ink
-                                    }))
+                                    .text_color(color(if selected { p.accent } else { p.ink }))
                                     .truncate()
                                     .child(entry.name.clone()),
                             )
@@ -386,7 +385,7 @@ impl ResumeOne {
                                     .text_size(px(12.))
                                     .line_height(px(17.))
                                     .line_clamp(2)
-                                    .text_color(color(style.colors.muted))
+                                    .text_color(color(p.muted))
                                     .child(description),
                             ),
                     )
@@ -428,6 +427,7 @@ impl ResumeOne {
                     }))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if let Some(theme) = this.online.apply(&click_id) {
+                            this.drawer = None;
                             this.apply_online_theme(theme);
                         }
                         this.pump_online(window, cx);
@@ -509,6 +509,9 @@ mod tests {
         let owner = child.borrow_mut().take().unwrap();
         cx.simulate_resize(gpui::size(px(1120.), px(780.)));
         cx.update(|window, _| window.refresh());
+        let toggle = cx.debug_bounds("show-themes").unwrap();
+        cx.simulate_click(toggle.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
         let right = cx.debug_bounds("module-panel").unwrap();
         let tab = cx.debug_bounds("themes-online").unwrap();
         cx.simulate_click(tab.center(), Modifiers::none());
@@ -534,6 +537,9 @@ mod tests {
         cx.run_until_parked();
         let applied = cx.update(|_, cx| owner.read(cx).model.applied_theme().identity.clone());
         assert!(applied.contains(&source("a").key()));
+        let toggle = cx.debug_bounds("show-themes").unwrap();
+        cx.simulate_click(toggle.center(), Modifiers::none());
+        cx.update(|window, _| window.refresh());
         let picker = cx.debug_bounds("theme-source-picker").unwrap();
         cx.simulate_click(picker.center(), Modifiers::none());
         cx.update(|window, _| window.refresh());

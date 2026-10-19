@@ -18,7 +18,7 @@ use resume_one_core::semantic::project;
 use resume_one_core::storage::patch_resume;
 use resume_one_core::storage::replace_resume;
 use resume_one_core::structure::{StructureEdit, apply_structure};
-use resume_one_themes::{GithubClient, GithubSource, ThemeCache};
+use resume_one_themes::{GithubClient, GithubSource, ThemeCache, audit_release_source};
 use serde_json::{Value, json};
 use tempfile::Builder;
 
@@ -122,6 +122,12 @@ enum Command {
     },
     /// 输出当前内置 Schema 的身份和内容
     Schema,
+    /// 离线检查待发布默认主题源的完整性与人工验收声明；不证明人工判断真实有效
+    VerifyThemeSource {
+        /// 已检出的源仓库根目录，包含 themes/index.json 和 themes/review.json
+        #[arg(long)]
+        dir: PathBuf,
+    },
     /// 显式读取 GitHub 声明式主题源或下载主题；不读取简历
     Themes {
         #[arg(long)]
@@ -341,6 +347,12 @@ fn from_diagnostics(path: &Path, issues: &[Diagnostic]) -> AppError {
 
 fn execute(command: Command) -> Result<Value, AppError> {
     match command {
+        Command::VerifyThemeSource { dir } => {
+            absolute(&dir)?;
+            let audit = audit_release_source(&dir)
+                .map_err(|error| AppError::new(7, error.code, error.message).file(&dir))?;
+            Ok(audit.as_json())
+        }
         Command::Themes {
             repository,
             reference,

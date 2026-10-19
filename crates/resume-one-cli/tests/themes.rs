@@ -115,3 +115,43 @@ fn offline_misses_and_invalid_paths_are_machine_readable() {
     assert_eq!(output.status.code(), Some(2));
     assert_eq!(error["error"]["code"], "PATH_NOT_ABSOLUTE");
 }
+
+#[test]
+fn release_audit_command_is_offline_and_does_not_accept_native_themes_as_migrations() {
+    let root = tempfile::tempdir().unwrap();
+    std::fs::create_dir(root.path().join("themes")).unwrap();
+    let bytes = include_bytes!("../../../assets/themes/zhibai.theme.json");
+    std::fs::write(root.path().join("themes/zhibai.theme.json"), bytes).unwrap();
+    std::fs::write(
+        root.path().join("themes/index.json"),
+        serde_json::to_vec(&json!({"version":1,"themes":[{
+            "id":"zhibai","name":"知白","manifest":"zhibai.theme.json","sha256":sha256(bytes)
+        }]}))
+        .unwrap(),
+    )
+    .unwrap();
+    std::fs::write(
+        root.path().join("themes/review.json"),
+        serde_json::to_vec(&json!({"version":1,"themes":[{
+            "id":"zhibai","sha256":sha256(bytes),"upstreamUrl":"https://github.com/example/theme",
+            "upstreamRevision":"abc123","upstreamLicense":"MIT","licenseReviewedBy":"Tester",
+            "visualReviewedBy":"Tester","reviewDate":"2026-10-19","visualSamples":["zh-short",
+            "zh-long","en-short","en-long","missing-fields","multi-page"],
+            "pdfReviewed":true,"limitations":"Fixture only"
+        }]}))
+        .unwrap(),
+    )
+    .unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_resume-one"))
+        .args([
+            "--json",
+            "verify-theme-source",
+            "--dir",
+            root.path().to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(7));
+    let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(result["error"]["code"], "RELEASE_NOT_MIGRATED");
+}

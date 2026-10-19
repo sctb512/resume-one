@@ -2,10 +2,12 @@
 
 mod cache;
 mod client;
+mod release;
 mod source;
 
 pub use cache::ThemeCache;
 pub use client::{CatalogResult, GithubClient, HttpResponse, Transport, UreqTransport};
+pub use release::{SourceAudit, audit_release_source};
 pub use source::{Catalog, GithubSource, ThemeEntry, VerifiedTheme, prefetch_window};
 
 use sha2::{Digest, Sha256};

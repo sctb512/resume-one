@@ -17,6 +17,7 @@
 | `export` | `resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/dir/name.theme.json` | `pdf`、可编辑 `docx`、`txt`、`md`；`--lang zh`（默认）或 `en`；已有目标需显式 `--overwrite`；`--theme` 支持 PDF / DOCX |
 | `schema` | `resume-one schema` | 返回固定版本及内置 Schema 内容 |
 | `themes` | `resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json` | 显式联网读取声明式主题清单；`--offline` 只读已验证缓存；不读取简历 |
+| `verify-theme-source` | `resume-one verify-theme-source --dir /absolute/source-checkout --json` | 离线检查待发布默认源的清单、主题文件和人工验收记录；不读取简历 |
 
 `--json` 可放在子命令前或后。成功或失败时 stdout 都恰好是一行 JSON，结构为 `{"protocolVersion":1,"ok":true,"result":{...}}` 或 `{"protocolVersion":1,"ok":false,"error":{"code":"...","message":"..."}}`；错误可能附 `file`、`revision`、`error.diagnostics`。非 JSON 模式成功输出格式化结果，错误写入 stderr。`inspect`、`validate` 和补丁结果不输出简历正文；只有 `read` 会返回字段值。Schema 错误只列 JSON Pointer 和失败规则，不回显原值。建议不要长期保存 `read` 的输出日志。
 
@@ -52,6 +53,8 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 不带 `--offline` 时，分支/标签先解析成完整 commit，清单与主题文件均从该 commit 获取；可直接传 40 位 commit 固定版本。清单失败但旧缓存有效时返回旧清单及 `stale: true`、`warning`；没有缓存则报错。`list` 返回清单元数据，`manifestsValidated: false` 明确表示还未逐项验证主题，不能据此宣称可应用。`download ID --dir ...` 才校验原始文件的 SHA-256（清单提供时）、ID、名称、声明式格式和当前排版能力，再安装到显式指定且已存在的本地目录。
 
 下载文件名包含来源指纹、主题 ID 和内容摘要，保留原始 UTF-8 字节，不写入样式、HTML、简历正文或缓存元数据；已存在且字节相同则幂等返回，内容不同或为符号链接则拒绝覆盖。缓存与本地安装目录是两回事：缓存可按最近访问时间自动淘汰，总量 256 MiB；本地下载文件不会被缓存清理删除。`--offline` 不产生网络请求，只允许有效缓存。源/主题文件上限各 1 MiB，单份清单最多 500 项，网络请求超时 15 秒，不跟随重定向，也不请求图片、脚本或字体资源。来源、网络、缓存和主题下载错误退出码为 `7`；相对路径参数仍为 `2`。
+
+`verify-theme-source` 只读取所选仓库的 `themes/index.json`、`themes/review.json` 与清单列出的主题文件；不会联网、下载、发布、修改文件或运行第三方主题代码。它要求每项主题有原文件 SHA-256、v2 `adapted` 来源、可用的当前渲染能力，以及与主题 ID、摘要、上游 URL/版本/许可一致的人工验收记录。记录遵循 [`theme-source-review-v1.schema.json`](../spec/theme-source-review-v1.schema.json)，包含审核人、日期、中英文短/长、缺字段、多页及 PDF 检查声明。失败退出码 `7`；成功结果的 `structurallyVerified: true` 只证明记录完整且一致，`humanReviewIndependentlyVerified: false` 明确表明没有机器证明许可或视觉审核真实完成。发布者仍须人工核验上游许可和视觉/PDF 证据，公开 GitHub 仓库并固定真实 commit 后再配置默认源；此命令不代替发布流程。
 
 ## 独立迁移工具
 

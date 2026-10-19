@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Resume One Default Theme Source Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "themes"],
+  "properties": {
+    "version": { "const": 1 },
+    "themes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "sha256", "upstreamUrl", "upstreamRevision", "upstreamLicense",
+          "licenseReviewedBy", "visualReviewedBy", "reviewDate", "visualSamples",
+          "pdfReviewed", "limitations"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+          "upstreamUrl": { "type": "string", "pattern": "^https://[^\\s]+$", "maxLength": 500 },
+          "upstreamRevision": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "upstreamLicense": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "licenseReviewedBy": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "visualReviewedBy": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "reviewDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+          "visualSamples": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": { "enum": ["zh-short", "zh-long", "en-short", "en-long", "missing-fields", "multi-page"] }
+          },
+          "pdfReviewed": { "const": true },
+          "limitations": { "type": "string", "maxLength": 1000 }
+        }
+      }
+    }
+  }
+}

@@ -18,7 +18,9 @@ actions!(
         DismissExport,
         NextExport,
         PreviousExport,
-        ChooseExport
+        ChooseExport,
+        ExportChinese,
+        ExportEnglish
     ]
 );
 
@@ -28,6 +30,8 @@ pub(super) fn register(cx: &mut App) {
         KeyBinding::new("down", NextExport, Some("ResumeOne && ExportMenu")),
         KeyBinding::new("up", PreviousExport, Some("ResumeOne && ExportMenu")),
         KeyBinding::new("enter", ChooseExport, Some("ResumeOne && ExportMenu")),
+        KeyBinding::new("left", ExportChinese, Some("ResumeOne && ExportMenu")),
+        KeyBinding::new("right", ExportEnglish, Some("ResumeOne && ExportMenu")),
     ]);
 }
 
@@ -61,13 +65,14 @@ impl ExportKind {
 
 struct ExportSnapshot {
     kind: ExportKind,
+    language: Language,
     content: ResumeContent,
     theme: ThemeManifest,
     source_path: Option<PathBuf>,
 }
 
 fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
-    let language = Language::Zh;
+    let language = snapshot.language;
     match snapshot.kind {
         ExportKind::Pdf => {
             resume_one_core::pdf::render_with_theme(&snapshot.content, language, &snapshot.theme)
@@ -81,6 +86,26 @@ fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
 }
 
 impl ResumeOne {
+    pub(super) fn export_chinese(
+        &mut self,
+        _: &ExportChinese,
+        _: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.export_language = Language::Zh;
+        cx.notify();
+    }
+
+    pub(super) fn export_english(
+        &mut self,
+        _: &ExportEnglish,
+        _: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.export_language = Language::En;
+        cx.notify();
+    }
+
     pub(super) fn dismiss_export(
         &mut self,
         _: &DismissExport,
@@ -188,6 +213,54 @@ impl ResumeOne {
                     })),
             );
         }
+        menu = menu.child(
+            div()
+                .mt_2()
+                .pt_2()
+                .border_t_1()
+                .border_color(crate::color(p.line))
+                .flex()
+                .items_center()
+                .justify_between()
+                .child(
+                    div()
+                        .text_size(px(12.))
+                        .text_color(crate::color(p.muted))
+                        .child("导出标题"),
+                )
+                .child(div().flex().gap_1().children(
+                    [(Language::Zh, "中文"), (Language::En, "EN")].map(|(language, label)| {
+                        div()
+                            .id(match language {
+                                Language::Zh => "export-language-zh",
+                                Language::En => "export-language-en",
+                            })
+                            .debug_selector(move || match language {
+                                Language::Zh => "export-language-zh".into(),
+                                Language::En => "export-language-en".into(),
+                            })
+                            .px_2()
+                            .py_1()
+                            .rounded(px(4.))
+                            .cursor_pointer()
+                            .text_size(px(11.))
+                            .text_color(crate::color(if self.export_language == language {
+                                p.accent
+                            } else {
+                                p.muted
+                            }))
+                            .when(self.export_language == language, |v| {
+                                v.bg(crate::color(p.soft))
+                            })
+                            .hover(|v| v.bg(crate::color(p.soft)))
+                            .child(label)
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.export_language = language;
+                                cx.notify();
+                            }))
+                    }),
+                )),
+        );
         menu
     }
 
@@ -245,6 +318,7 @@ impl ResumeOne {
         }
         let snapshot = ExportSnapshot {
             kind,
+            language: self.export_language,
             content: self.model.content.clone(),
             theme: self.model.applied_theme().manifest.clone(),
             source_path: self.model.document_path.clone(),
@@ -381,9 +455,21 @@ mod chrome_tests {
             "export-format-1",
             "export-format-2",
             "export-format-3",
+            "export-language-zh",
+            "export-language-en",
         ] {
             assert!(cx.debug_bounds(selector).is_some());
         }
+        let english = cx.debug_bounds("export-language-en").unwrap();
+        cx.simulate_click(english.center(), Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(view.read(cx).export_language, Language::En);
+            assert!(view.read(cx).export_menu_open);
+        });
+        cx.simulate_keystrokes("left");
+        cx.update(|_, cx| assert_eq!(view.read(cx).export_language, Language::Zh));
+        cx.simulate_keystrokes("right");
+        cx.update(|_, cx| assert_eq!(view.read(cx).export_language, Language::En));
         cx.simulate_keystrokes("down down up");
         cx.update(|_, cx| assert_eq!(view.read(cx).export_choice, 1));
         cx.simulate_keystrokes("escape");
@@ -417,6 +503,7 @@ mod tests {
         ] {
             let snapshot = ExportSnapshot {
                 kind,
+                language: Language::Zh,
                 content: model.content.clone(),
                 theme: model.themes[0].manifest.clone(),
                 source_path: None,
@@ -435,6 +522,7 @@ mod tests {
         .unwrap();
         let mut snapshot = ExportSnapshot {
             kind: ExportKind::Docx,
+            language: Language::Zh,
             content: model.content.clone(),
             theme: manifest,
             source_path: None,
@@ -445,5 +533,32 @@ mod tests {
         assert!(bytes.starts_with(b"PK"));
         snapshot.theme.normalized["composition"] = serde_json::json!({"preset":"sidebar-left"});
         assert!(render(&snapshot).unwrap_err().contains("composition"));
+    }
+
+    #[test]
+    fn language_changes_export_headings_without_changing_resume_content() {
+        let model = AppModel::load(None).unwrap();
+        for kind in [ExportKind::Text, ExportKind::Markdown] {
+            let snapshot = ExportSnapshot {
+                kind,
+                language: Language::En,
+                content: model.content.clone(),
+                theme: model.themes[0].manifest.clone(),
+                source_path: None,
+            };
+            let english = String::from_utf8(render(&snapshot).unwrap()).unwrap();
+            let chinese = String::from_utf8(
+                render(&ExportSnapshot {
+                    language: Language::Zh,
+                    ..snapshot
+                })
+                .unwrap(),
+            )
+            .unwrap();
+            assert!(english.contains("Work"));
+            assert!(chinese.contains("工作经历"));
+            assert!(!english.contains("工作经历"));
+            assert!(english.contains("林清和"));
+        }
     }
 }

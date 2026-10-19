@@ -81,6 +81,7 @@ struct ResumeOne {
     export_busy: bool,
     export_menu_open: bool,
     export_choice: usize,
+    export_language: resume_one_core::render::Language,
     theme_store: Option<theme_local::ThemeStore>,
     theme_manager_open: bool,
     online: theme_online::OnlineThemes,
@@ -129,6 +130,7 @@ impl ResumeOne {
             export_busy: false,
             export_menu_open: false,
             export_choice: 0,
+            export_language: resume_one_core::render::Language::Zh,
             theme_store: None,
             theme_manager_open: false,
             online: theme_online::OnlineThemes::default(),
@@ -1008,6 +1010,8 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::next_export))
             .on_action(cx.listener(Self::previous_export))
             .on_action(cx.listener(Self::choose_export))
+            .on_action(cx.listener(Self::export_chinese))
+            .on_action(cx.listener(Self::export_english))
             .on_action(cx.listener(Self::choose_theme_directory))
             .on_action(cx.listener(Self::reset_theme_directory))
             .on_action(cx.listener(Self::manage_themes))

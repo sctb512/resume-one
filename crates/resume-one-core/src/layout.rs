@@ -4,7 +4,7 @@
 use crate::ThemeManifest;
 use crate::render::{Language, title};
 use crate::semantic::{Item, ResumeContent};
-use crate::theme_style::{Rgb, SectionHeading, TextStyle, ThemeStyle};
+use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
 use ttf_parser::Face;
 
 pub const SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
@@ -112,6 +112,12 @@ struct PageWriter<'a> {
     bottom: f32,
     muted: Rgb,
     target: Option<LayoutTarget>,
+}
+
+pub(crate) struct RightDateLines {
+    pub heading: Vec<String>,
+    pub date: Vec<String>,
+    pub same_line: bool,
 }
 
 impl<'a> PageWriter<'a> {
@@ -294,6 +300,91 @@ impl<'a> PageWriter<'a> {
         lines
     }
 
+    fn right_date_lines(
+        &self,
+        heading: &str,
+        date: &str,
+        body: &TextStyle,
+        meta: &TextStyle,
+    ) -> RightDateLines {
+        let heading_size = body.size_pt * 1.06;
+        let body_font = font_kind(body).expect("theme checked");
+        let meta_font = font_kind(meta).expect("theme checked");
+        let date_width = self.text_width(date, meta.size_pt, meta_font);
+        let same_line = date_width <= self.content_width() * 0.42;
+        let heading_width = if same_line {
+            (self.content_width() - date_width - 12.0).max(heading_size)
+        } else {
+            self.content_width()
+        };
+        RightDateLines {
+            heading: self.wrap(heading, heading_size, heading_width, body_font),
+            date: self.wrap(date, meta.size_pt, self.content_width(), meta_font),
+            same_line,
+        }
+    }
+
+    fn right_dated_heading(
+        &mut self,
+        heading: &str,
+        date: &str,
+        body: &TextStyle,
+        meta: &TextStyle,
+        ink: Rgb,
+        muted: Rgb,
+    ) {
+        let lines = self.right_date_lines(heading, date, body, meta);
+        let heading_size = body.size_pt * 1.06;
+        let heading_leading = body.size_pt * body.line_height * 1.06;
+        let date_leading = meta.size_pt * meta.line_height;
+        let body_font = font_kind(body).expect("theme checked");
+        let meta_font = font_kind(meta).expect("theme checked");
+        if lines.same_line {
+            let first_height = if lines.heading.is_empty() {
+                date_leading
+            } else {
+                heading_leading.max(date_leading)
+            };
+            self.ensure(first_height);
+            if let Some(first) = lines.heading.first() {
+                self.ops.push(LayoutElement::Text(LayoutText {
+                    text: first.clone(),
+                    x_pt: self.left,
+                    baseline_y_pt: self.y,
+                    size_pt: heading_size,
+                    leading_pt: first_height,
+                    color: ink,
+                    font: body_font,
+                    target: self.target,
+                }));
+            }
+            self.ops.push(LayoutElement::Text(LayoutText {
+                text: date.into(),
+                x_pt: self.width - self.right - self.text_width(date, meta.size_pt, meta_font),
+                baseline_y_pt: self.y,
+                size_pt: meta.size_pt,
+                leading_pt: first_height,
+                color: muted,
+                font: meta_font,
+                target: self.target,
+            }));
+            self.y -= first_height;
+            for line in lines.heading.iter().skip(1) {
+                self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+            }
+        } else {
+            for line in &lines.heading {
+                self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+            }
+            for line in &lines.date {
+                let indent = (self.content_width()
+                    - self.text_width(line, meta.size_pt, meta_font))
+                .max(0.0);
+                self.line(line, meta.size_pt, muted, meta_font, indent, date_leading);
+            }
+        }
+    }
+
     fn finish(mut self) -> Vec<Vec<LayoutElement>> {
         self.pages.push(self.ops);
         let count = self.pages.len();
@@ -357,9 +448,12 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
                     "当前排版引擎暂不支持 sections.{id}.items；目前支持 stack / compact"
                 ));
             }
-            if value["date"].as_str().is_some_and(|date| date != "inline") {
+            if value["date"]
+                .as_str()
+                .is_some_and(|date| !matches!(date, "inline" | "right"))
+            {
                 return Err(format!(
-                    "当前排版引擎暂不支持 sections.{id}.date；目前支持 inline"
+                    "当前排版引擎暂不支持 sections.{id}.date；目前支持 inline / right"
                 ));
             }
         }
@@ -536,7 +630,22 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let meta_font = font_kind(meta).expect("theme checked");
     let section = style.section(section_id);
     let mut height = section.item_gap_pt();
-    if !item.heading.is_empty() {
+    if section.date == DatePlacement::Right
+        && let Some(date) = item.date()
+    {
+        let lines = page.right_date_lines(&item.heading, date, body, meta);
+        let heading_leading = body.size_pt * body.line_height * 1.06;
+        let date_leading = meta.size_pt * meta.line_height;
+        height += if lines.same_line {
+            (if lines.heading.is_empty() {
+                date_leading
+            } else {
+                heading_leading.max(date_leading)
+            }) + lines.heading.len().saturating_sub(1) as f32 * heading_leading
+        } else {
+            lines.heading.len() as f32 * heading_leading + lines.date.len() as f32 * date_leading
+        };
+    } else if !item.heading.is_empty() {
         height += wrapped_height(
             page,
             &item.heading,
@@ -546,10 +655,15 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
             body.size_pt * body.line_height * 1.06,
         );
     }
-    if !item.details.is_empty() {
+    let details = if section.date == DatePlacement::Right && item.date().is_some() {
+        item.other_details().join("   ·   ")
+    } else {
+        item.details.join("   ·   ")
+    };
+    if !details.is_empty() {
         height += wrapped_height(
             page,
-            &item.details.join("   ·   "),
+            &details,
             meta.size_pt,
             meta_font,
             0.0,
@@ -618,6 +732,22 @@ pub fn layout_with_theme(
 /// Check renderer capability without loading any resume content.
 pub fn check_theme(theme: &ThemeManifest) -> Result<(), String> {
     validate_theme(theme, &ThemeStyle::from_manifest(theme))
+}
+
+/// Share the measured first-line split with editable Word output.
+pub(crate) fn right_date_lines_for_style(
+    style: &ThemeStyle,
+    heading: &str,
+    date: &str,
+) -> RightDateLines {
+    let sans_face = Face::parse(SANS_FONT_BYTES, 0).expect("validated bundled font");
+    let serif_face = Face::parse(SERIF_FONT_BYTES, 0).expect("validated bundled font");
+    PageWriter::new(sans_face, serif_face, style).right_date_lines(
+        heading,
+        date,
+        &style.typography.body,
+        &style.typography.meta,
+    )
 }
 
 fn layout_with_style(
@@ -714,7 +844,11 @@ fn layout_with_style(
                 index: Some(index),
             });
             page.gap(section.item_gap_pt());
-            if !item.heading.is_empty() {
+            if section.date == DatePlacement::Right
+                && let Some(date) = item.date()
+            {
+                page.right_dated_heading(&item.heading, date, body, meta, ink, muted);
+            } else if !item.heading.is_empty() {
                 page.wrapped(
                     &item.heading,
                     body.size_pt * 1.06,
@@ -724,9 +858,14 @@ fn layout_with_style(
                     body.size_pt * body.line_height * 1.06,
                 );
             }
-            if !item.details.is_empty() {
+            let details = if section.date == DatePlacement::Right && item.date().is_some() {
+                item.other_details().join("   ·   ")
+            } else {
+                item.details.join("   ·   ")
+            };
+            if !details.is_empty() {
                 page.wrapped(
-                    &item.details.join("   ·   "),
+                    &details,
                     meta.size_pt,
                     muted,
                     font_kind(meta)?,
@@ -1081,7 +1220,7 @@ mod tests {
         for value in [
             serde_json::json!({"items":"timeline"}),
             serde_json::json!({"items":"cards"}),
-            serde_json::json!({"date":"right"}),
+            serde_json::json!({"date":"left"}),
         ] {
             theme.normalized["sections"]["work"] = value;
             assert!(check_theme(&theme).unwrap_err().contains("sections.work"));
@@ -1092,6 +1231,113 @@ mod tests {
                 .unwrap_err()
                 .contains("sections.skills.items")
         );
+    }
+
+    #[test]
+    fn right_dates_align_to_content_edge_without_overlap_or_loss() {
+        let mut theme = sections_theme();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("right");
+        theme.normalized["sections"]["awards"] = serde_json::json!({"date":"right"});
+        check_theme(&theme).unwrap();
+        let source = serde_json::json!({"basics":{"name":"Ada"},
+            "work":[{"position":"Very long cross-platform engineering position with many words to wrap safely",
+                "name":"Example Organization", "startDate":"2020-01-01", "endDate":"2022-12-31",
+                "location":"北京", "summary":"Delivered reliable work"}],
+            "awards":[{"title":"Prize", "awarder":"Acme", "date":"2023-05-01"}]});
+        let content = project(&parse_resume(&serde_json::to_vec(&source).unwrap()).unwrap());
+        let style = ThemeStyle::from_manifest(&theme);
+        let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let measure = PageWriter::new(
+            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            &style,
+        );
+        let texts: Vec<_> = layout
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| {
+                if let LayoutElement::Text(text) = element {
+                    Some(text)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let date = texts
+            .iter()
+            .find(|text| text.text == "2020-01-01 – 2022-12-31")
+            .unwrap();
+        let first_heading = texts
+            .iter()
+            .find(|text| text.target == date.target && text.color == style.colors.ink)
+            .unwrap();
+        assert_eq!(first_heading.baseline_y_pt, date.baseline_y_pt);
+        assert!(
+            first_heading.x_pt
+                + measure.text_width(
+                    &first_heading.text,
+                    first_heading.size_pt,
+                    first_heading.font
+                )
+                + 12.0
+                <= date.x_pt + 0.01
+        );
+        assert!(
+            (date.x_pt + measure.text_width(&date.text, date.size_pt, date.font)
+                - (measure.width - measure.right))
+                .abs()
+                < 0.01
+        );
+        for text in &texts {
+            assert!(
+                text.x_pt + measure.text_width(&text.text, text.size_pt, text.font)
+                    <= measure.width - measure.right + 0.05,
+                "{}",
+                text.text
+            );
+        }
+        assert_eq!(
+            texts
+                .iter()
+                .filter(|text| text.text == "2020-01-01 – 2022-12-31")
+                .count(),
+            1
+        );
+        assert!(texts.iter().any(|text| text.text == "北京"));
+        assert!(texts.iter().any(|text| text.text == "Acme"));
+        assert!(texts.iter().any(|text| text.text == "2023-05-01"));
+
+        let mut long_date_content = content.clone();
+        long_date_content.sections[0].items[0].details[0] = "2020-01-01 – 2022-12-31 ".repeat(6);
+        let long = layout_with_theme(&long_date_content, Language::En, &theme).unwrap();
+        let long_texts: Vec<_> = long
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| {
+                if let LayoutElement::Text(text) = element {
+                    Some(text)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            long_texts
+                .iter()
+                .filter(|text| text.target == date.target && text.color == style.colors.muted)
+                .count()
+                > 1
+        );
+        for text in long_texts {
+            assert!(
+                text.x_pt + measure.text_width(&text.text, text.size_pt, text.font)
+                    <= measure.width - measure.right + 0.05,
+                "{}",
+                text.text
+            );
+        }
     }
 
     #[test]

@@ -220,6 +220,7 @@ mod tests {
                 items: vec![Item {
                     heading: "[Test]".into(),
                     details: Vec::new(),
+                    date_detail_index: None,
                     paragraphs: Vec::new(),
                     bullets: vec!["*Bold*".into()],
                     url: Some("javascript:alert(1)".into()),

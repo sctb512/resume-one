@@ -142,9 +142,17 @@ pub enum ItemLayout {
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum DatePlacement {
+    #[default]
+    Inline,
+    Right,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct SectionStyle {
     pub heading: SectionHeading,
     pub items: ItemLayout,
+    pub date: DatePlacement,
 }
 
 impl SectionStyle {
@@ -332,6 +340,11 @@ impl ThemeStyle {
                             } else {
                                 ItemLayout::Stack
                             },
+                            date: if value["date"] == "right" {
+                                DatePlacement::Right
+                            } else {
+                                DatePlacement::Inline
+                            },
                         },
                     )
                 })
@@ -371,7 +384,7 @@ mod tests {
 
     #[test]
     fn section_styles_are_partial_scoped_and_keep_unmentioned_defaults() {
-        let theme = crate::parse_theme(include_bytes!(
+        let mut theme = crate::parse_theme(include_bytes!(
             "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
         ))
         .unwrap();
@@ -380,20 +393,27 @@ mod tests {
             style.section("work"),
             SectionStyle {
                 heading: SectionHeading::Filled,
-                items: ItemLayout::Compact
+                items: ItemLayout::Compact,
+                date: DatePlacement::Inline,
             }
         );
         assert_eq!(
             style.section("projects"),
             SectionStyle {
                 heading: SectionHeading::AccentLine,
-                items: ItemLayout::Stack
+                items: ItemLayout::Stack,
+                date: DatePlacement::Inline,
             }
         );
         assert_eq!(style.section("languages"), SectionStyle::default());
         assert_eq!(style.section("work").item_gap_pt(), 2.0);
         assert_eq!(style.section("work").paragraph_gap_pt(), 1.0);
         assert_eq!(style.section("languages").item_gap_pt(), 4.0);
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("right");
+        assert_eq!(
+            ThemeStyle::from_manifest(&theme).section("work").date,
+            DatePlacement::Right
+        );
     }
 
     #[test]

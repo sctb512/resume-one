@@ -435,6 +435,11 @@ mod tests {
         };
         let theme = VerifiedTheme::parse(&entry, bytes).unwrap();
         assert_eq!(theme.bytes(), bytes);
+        let mut right_date: serde_json::Value = serde_json::from_slice(bytes).unwrap();
+        right_date["sections"]["work"]["date"] = serde_json::json!("right");
+        let mut unpinned = entry.clone();
+        unpinned.sha256 = None;
+        VerifiedTheme::parse(&unpinned, &serde_json::to_vec(&right_date).unwrap()).unwrap();
         let mut unsupported: serde_json::Value = serde_json::from_slice(bytes).unwrap();
         unsupported["sections"]["work"]["items"] = serde_json::json!("timeline");
         let mut entry = entry;

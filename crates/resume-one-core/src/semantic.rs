@@ -24,6 +24,8 @@ pub struct Section {
 pub struct Item {
     pub heading: String,
     pub details: Vec<String>,
+    /// Position of the date inside `details`; inline output keeps its original order.
+    pub date_detail_index: Option<usize>,
     pub paragraphs: Vec<String>,
     pub bullets: Vec<String>,
     pub url: Option<String>,
@@ -75,6 +77,31 @@ fn maybe_push(items: &mut Vec<String>, value: impl Into<String>) {
     }
 }
 
+fn push_date(details: &mut Vec<String>, date: String, index: &mut Option<usize>) {
+    if !date.is_empty() {
+        *index = Some(details.len());
+        details.push(date);
+    }
+}
+
+impl Item {
+    pub fn date(&self) -> Option<&str> {
+        self.date_detail_index
+            .and_then(|index| self.details.get(index))
+            .map(String::as_str)
+    }
+
+    pub fn other_details(&self) -> Vec<&str> {
+        self.details
+            .iter()
+            .enumerate()
+            .filter_map(|(index, detail)| {
+                (Some(index) != self.date_detail_index).then_some(detail.as_str())
+            })
+            .collect()
+    }
+}
+
 fn period(item: &Value, start: &str, end: &str) -> String {
     match (string(item, start), string(item, end)) {
         ("", "") => String::new(),
@@ -97,38 +124,63 @@ fn map_item(id: &str, source: &Value) -> Item {
         _ => String::new(),
     };
     let mut details = Vec::new();
+    let mut date_detail_index = None;
     let mut paragraphs = Vec::new();
     let mut bullets = Vec::new();
     match id {
         "work" => {
-            maybe_push(&mut details, period(source, "startDate", "endDate"));
+            push_date(
+                &mut details,
+                period(source, "startDate", "endDate"),
+                &mut date_detail_index,
+            );
             maybe_push(&mut details, string(source, "location"));
             maybe_push(&mut paragraphs, string(source, "description"));
             maybe_push(&mut paragraphs, string(source, "summary"));
             bullets = strings(source, "highlights");
         }
         "volunteer" => {
-            maybe_push(&mut details, period(source, "startDate", "endDate"));
+            push_date(
+                &mut details,
+                period(source, "startDate", "endDate"),
+                &mut date_detail_index,
+            );
             maybe_push(&mut paragraphs, string(source, "summary"));
             bullets = strings(source, "highlights");
         }
         "education" => {
-            maybe_push(&mut details, period(source, "startDate", "endDate"));
+            push_date(
+                &mut details,
+                period(source, "startDate", "endDate"),
+                &mut date_detail_index,
+            );
             maybe_push(&mut details, string(source, "score"));
             bullets = strings(source, "courses");
         }
         "awards" => {
             maybe_push(&mut details, string(source, "awarder"));
-            maybe_push(&mut details, string(source, "date"));
+            push_date(
+                &mut details,
+                string(source, "date").to_owned(),
+                &mut date_detail_index,
+            );
             maybe_push(&mut paragraphs, string(source, "summary"));
         }
         "certificates" => {
             maybe_push(&mut details, string(source, "issuer"));
-            maybe_push(&mut details, string(source, "date"));
+            push_date(
+                &mut details,
+                string(source, "date").to_owned(),
+                &mut date_detail_index,
+            );
         }
         "publications" => {
             maybe_push(&mut details, string(source, "publisher"));
-            maybe_push(&mut details, string(source, "releaseDate"));
+            push_date(
+                &mut details,
+                string(source, "releaseDate").to_owned(),
+                &mut date_detail_index,
+            );
             maybe_push(&mut paragraphs, string(source, "summary"));
         }
         "skills" => {
@@ -139,7 +191,11 @@ fn map_item(id: &str, source: &Value) -> Item {
         "interests" => bullets = strings(source, "keywords"),
         "references" => maybe_push(&mut paragraphs, string(source, "reference")),
         "projects" => {
-            maybe_push(&mut details, period(source, "startDate", "endDate"));
+            push_date(
+                &mut details,
+                period(source, "startDate", "endDate"),
+                &mut date_detail_index,
+            );
             maybe_push(&mut details, string(source, "entity"));
             maybe_push(&mut details, string(source, "type"));
             maybe_push(&mut details, strings(source, "roles").join(", "));
@@ -153,6 +209,7 @@ fn map_item(id: &str, source: &Value) -> Item {
     Item {
         heading,
         details,
+        date_detail_index,
         paragraphs,
         bullets,
         url: (!url.is_empty()).then(|| url.to_owned()),
@@ -244,5 +301,22 @@ mod tests {
                 .collect::<Vec<_>>(),
             ["projects", "education", "work"]
         );
+    }
+
+    #[test]
+    fn marks_date_without_reordering_other_details_or_text_exports() {
+        let source = r#"{"work":[{"name":"Acme","startDate":"2020-01","endDate":"2022-12","location":"北京"}],"awards":[{"title":"Prize","awarder":"2024-01","date":"2024-02"}],"certificates":[{"name":"Cert","date":"2025-01"}],"skills":[{"name":"Rust","level":"Advanced"}]}"#;
+        let content = project(&parse_resume(source.as_bytes()).unwrap());
+        let work = &content.sections[0].items[0];
+        assert_eq!(work.date(), Some("2020-01 – 2022-12"));
+        assert_eq!(work.other_details(), ["北京"]);
+        let award = &content.sections[1].items[0];
+        assert_eq!(award.date_detail_index, Some(1));
+        assert_eq!(award.other_details(), ["2024-01"]);
+        assert_eq!(content.sections[2].items[0].date_detail_index, Some(0));
+        assert_eq!(content.sections[3].items[0].date(), None);
+        let plain = crate::render::plain_text(&content, crate::render::Language::En);
+        assert!(plain.contains("2020-01 – 2022-12"));
+        assert!(plain.contains("2024-01\n2024-02"));
     }
 }

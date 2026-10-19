@@ -31,7 +31,7 @@
 
 PDF 嵌入完整 Noto 字形，使用共享测量布局，文件可能达到约 15 MB。DOCX 使用可编辑的原生 Word 段落、显式换行、主题分隔线和重复的页底矢量背景，保留模块顺序与条目避断页设置；字号按 Word 半点单位取整，600 字重映射为 Word 粗体。DOCX 按 OOXML 规范嵌入完整 Noto Sans SC 与 Noto Serif SC 字体，未做仅覆盖当前文字的子集化，文件约 18 MB。支持嵌入字体的阅读器不需要预装字体；禁用嵌入字体或不支持该特性的阅读器仍可能替代字体。Word / LibreOffice 自行换行和分页，不承诺与 PDF 逐像素相同；尚未完成 Microsoft Word 跨平台实机验收。纯文本和 Markdown 不应用主题，向它们传 `--theme` 会报参数错误。所有导出均不写回主题或格式元数据到 `resume.json`。
 
-PDF / DOCX 同时支持主题内 `sections.<标准模块>.heading` 的 `plain/line/accent-line/filled`，`items` 的 `stack/compact`，以及 `date: inline`；配置只作用于对应模块。紧凑模式仅减少条目与描述段落的间距，不改变文字、字号、字段顺序或模块数量。时间线、卡片、标签及左右日期仍返回 `EXPORT_RENDER`，不覆盖已有输出。本地主题和 `themes download` 的能力检查一致。
+PDF / DOCX 同时支持主题内 `sections.<标准模块>.heading` 的 `plain/line/accent-line/filled`，`items` 的 `stack/compact`，以及 `date: inline/right`；配置只作用于对应模块。靠右日期在标题首行右侧，其他辅助信息留在下方；超长日期另起右对齐行。DOCX 的短日期使用可编辑的右制表位，长标题按共享字形测量拆为可编辑段落，过长日期用独立的右对齐段落。紧凑模式仅减少条目与描述段落的间距，不改变文字、字号、字段顺序或模块数量。时间线、卡片、标签及 `date: left` 仍返回 `EXPORT_RENDER`，不覆盖已有输出。本地主题和 `themes download` 的能力检查一致。
 
 单栏 `composition.header` 支持 `stacked`（默认左对齐）和 `centered`（按内容区逐行居中），`composition.contact` 支持 `inline`（默认行内连接）和 `stacked`（每项独立起行）。两项可任意组合，长姓名、职业和联系方式自然换行，不截断；摘要与正文保持左对齐。DOCX 使用原生段落对齐及文本换行，仍可编辑；不支持的分割页眉、图标联系方式返回 `EXPORT_RENDER`，不会覆盖已有输出或修改源 JSON。
 

@@ -712,27 +712,40 @@ fn section_styles_export_in_both_formats_without_changing_resume() {
         }
     }
     assert_eq!(fs::read(&resume).unwrap(), source);
-    let previous = fs::read(root.path().join("resume.pdf")).unwrap();
     let mut value: Value =
         serde_json::from_slice(include_bytes!("fixtures/section-styles.theme.json")).unwrap();
     value["sections"]["work"]["date"] = serde_json::json!("right");
     fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
-    let (status, response) = call(&[
-        "export",
-        "--file",
-        path(&resume),
-        "--format",
-        "pdf",
-        "--out",
-        path(&root.path().join("resume.pdf")),
-        "--theme",
-        path(&theme),
-        "--overwrite",
-        "--json",
-    ]);
-    assert_eq!(status.status.code(), Some(6));
-    assert_eq!(response["error"]["code"], "EXPORT_RENDER");
-    assert_eq!(fs::read(root.path().join("resume.pdf")).unwrap(), previous);
+    for format in ["pdf", "docx"] {
+        let out = root.path().join(format!("resume.{format}"));
+        let previous = fs::read(&out).unwrap();
+        let args = [
+            "export",
+            "--file",
+            path(&resume),
+            "--format",
+            format,
+            "--out",
+            path(&out),
+            "--theme",
+            path(&theme),
+            "--overwrite",
+            "--json",
+        ];
+        let (status, response) = call(&args);
+        assert!(status.status.success(), "{response}");
+        let right_date = fs::read(&out).unwrap();
+        assert_ne!(right_date, previous);
+        value["sections"]["work"]["date"] = serde_json::json!("left");
+        fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
+        let (status, response) = call(&args);
+        assert_eq!(status.status.code(), Some(6));
+        assert_eq!(response["error"]["code"], "EXPORT_RENDER");
+        assert_eq!(fs::read(&out).unwrap(), right_date);
+        value["sections"]["work"]["date"] = serde_json::json!("right");
+        fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
+    }
+    assert_eq!(fs::read(&resume).unwrap(), source);
 }
 
 #[test]

@@ -9,10 +9,10 @@ use docx_rs::{
 };
 
 use crate::ThemeManifest;
-use crate::layout::{PT_PER_MM, check_theme};
+use crate::layout::{PT_PER_MM, check_theme, right_date_lines_for_style};
 use crate::render::{Language, title};
 use crate::semantic::ResumeContent;
-use crate::theme_style::{Rgb, SectionHeading, TextStyle, ThemeStyle};
+use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
 
 fn color(rgb: Rgb) -> String {
     rgb.hex()[1..].to_owned()
@@ -251,17 +251,51 @@ fn build_document(
         );
         for item in &section.items {
             let mut paragraphs = Vec::new();
-            if !item.heading.is_empty() {
+            if section_style.date == DatePlacement::Right
+                && let Some(date) = item.date()
+            {
+                let lines = right_date_lines_for_style(style, &item.heading, date);
+                if lines.heading.is_empty() {
+                    paragraphs.push(
+                        paragraph(date, meta, muted, 0.0, 0.0).align(docx_rs::AlignmentType::Right),
+                    );
+                } else if !lines.same_line {
+                    paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                    paragraphs.push(
+                        paragraph(date, meta, muted, 0.0, 0.0).align(docx_rs::AlignmentType::Right),
+                    );
+                } else {
+                    let date_run = Run::new()
+                        .add_tab()
+                        .add_text(date)
+                        .size((meta.size_pt * 2.0).round() as usize)
+                        .color(color(muted))
+                        .fonts(font(meta));
+                    let content_width =
+                        (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
+                    paragraphs.push(
+                        paragraph(&lines.heading[0], &heading, ink, 0.0, 0.0)
+                            .add_tab(
+                                docx_rs::Tab::new()
+                                    .val(docx_rs::TabValueType::Right)
+                                    .pos(twips(content_width) as usize),
+                            )
+                            .add_run(date_run),
+                    );
+                    for continuation in lines.heading.iter().skip(1) {
+                        paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0));
+                    }
+                }
+            } else if !item.heading.is_empty() {
                 paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
             }
-            if !item.details.is_empty() {
-                paragraphs.push(paragraph(
-                    &item.details.join("   ·   "),
-                    meta,
-                    muted,
-                    0.0,
-                    0.0,
-                ));
+            let details = if section_style.date == DatePlacement::Right && item.date().is_some() {
+                item.other_details().join("   ·   ")
+            } else {
+                item.details.join("   ·   ")
+            };
+            if !details.is_empty() {
+                paragraphs.push(paragraph(&details, meta, muted, 0.0, 0.0));
             }
             for text in &item.paragraphs {
                 paragraphs.push(paragraph(
@@ -460,6 +494,93 @@ mod tests {
         assert!(paragraph_with("ProjectBody").contains("w:before=\"60\""));
         assert!(paragraph_with("Projects").contains("w:sz=\"10\""));
         assert!(paragraph_with("Education").contains("w:sz=\"5\""));
+    }
+
+    #[test]
+    fn right_dates_use_editable_right_tab_and_leave_other_details_in_order() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("right");
+        theme.normalized["sections"]["awards"] = serde_json::json!({"date":"right"});
+        check_theme(&theme).unwrap();
+        let content = project(&parse_resume(br#"{"work":[{"position":"Engineer","name":"Acme","startDate":"2020-01-01","endDate":"2022-12-31","location":"Berlin"}],"awards":[{"title":"Prize","awarder":"Institute","date":"2023-05-01"}]}"#).unwrap());
+        let package =
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme)).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let work = xml
+            .split("</w:p>")
+            .find(|p| p.contains("Engineer · Acme"))
+            .unwrap();
+        assert!(work.contains("<w:tabs>") && work.contains("w:val=\"right\""));
+        assert!(work.contains("<w:tab") && work.contains("2020-01-01 – 2022-12-31"));
+        assert!(!work.contains("Berlin"));
+        let award = xml.split("</w:p>").find(|p| p.contains("Prize")).unwrap();
+        assert!(award.contains("2023-05-01") && award.contains("w:val=\"right\""));
+        assert!(xml.contains("Berlin") && xml.contains("Institute"));
+        assert_eq!(xml.matches("2020-01-01 – 2022-12-31").count(), 1);
+        assert!(package.media.is_empty());
+    }
+
+    #[test]
+    fn long_right_date_moves_to_its_own_right_aligned_paragraph() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("right");
+        let mut content = project(
+            &parse_resume(
+                br#"{"work":[{"position":"Engineer","name":"Acme","startDate":"2020"}]}"#,
+            )
+            .unwrap(),
+        );
+        let date = "2020 - 2022, extended appointment and a second extended appointment";
+        let item = &mut content.sections[0].items[0];
+        item.details[item.date_detail_index.unwrap()] = date.into();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert!(!right_date_lines_for_style(&style, &item.heading, date).same_line);
+        let package = build_document(&content, Language::En, &style).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let heading = xml
+            .split("</w:p>")
+            .find(|p| p.contains("Engineer · Acme"))
+            .unwrap();
+        let separate_date = xml.split("</w:p>").find(|p| p.contains(date)).unwrap();
+        assert!(!heading.contains("<w:tabs>"));
+        assert!(!heading.contains(date));
+        assert!(separate_date.contains("w:val=\"right\""));
+        assert_eq!(xml.matches(date).count(), 1);
+    }
+
+    #[test]
+    fn long_heading_places_right_date_on_first_editable_line() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("right");
+        let content = project(
+            &parse_resume(br#"{"work":[{"position":"Very long cross-platform engineering position with many words to wrap safely","name":"Example Organization","startDate":"2020","endDate":"2022"}]}"#).unwrap(),
+        );
+        let style = ThemeStyle::from_manifest(&theme);
+        let item = &content.sections[0].items[0];
+        let lines = right_date_lines_for_style(&style, &item.heading, item.date().unwrap());
+        assert!(lines.same_line && lines.heading.len() > 1);
+        let package = build_document(&content, Language::En, &style).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let first = xml
+            .split("</w:p>")
+            .find(|p| p.contains(&lines.heading[0]))
+            .unwrap();
+        assert!(first.contains("<w:tabs>") && first.contains("2020 – 2022"));
+        let continuation = xml
+            .split("</w:p>")
+            .find(|p| p.contains(&lines.heading[1]))
+            .unwrap();
+        assert!(!continuation.contains("2020 – 2022"));
+        assert_eq!(xml.matches("2020 – 2022").count(), 1);
     }
     use std::io::Read;
 

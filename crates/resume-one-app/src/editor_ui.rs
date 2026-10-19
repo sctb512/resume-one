@@ -509,6 +509,9 @@ impl ResumeOne {
                     editor.journal_error = None;
                 }
                 self.persist_editor_draft(cx);
+                if let Some(path) = self.model.document_path.clone() {
+                    self.remember_file(&path);
+                }
                 window.set_window_title(&format!(
                     "{} — Resume One · 简里",
                     self.model.document_label

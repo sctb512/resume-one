@@ -1098,6 +1098,30 @@ fn main() {
             std::process::exit(1);
         }
     }
+    let restored_folder =
+        path.is_none() && model.folder.is_none() && theme_store.last_folder().is_some();
+    if restored_folder
+        && let Some(folder) = theme_store
+            .last_folder()
+            .and_then(|path| workspace::LocalFolder::scan(path).ok())
+    {
+        model.folder = Some(folder);
+    }
+    if let Some(path) = model.document_path.as_ref()
+        && let Err(message) = theme_store.remember_file(path)
+    {
+        theme_store
+            .warnings
+            .push(format!("无法记录最近文件：{message}"));
+    }
+    if path.as_deref().is_some_and(|path| Path::new(path).is_dir())
+        && let Some(folder) = model.folder.as_ref()
+        && let Err(message) = theme_store.remember_folder(&folder.path)
+    {
+        theme_store
+            .warnings
+            .push(format!("无法记录最近目录：{message}"));
+    }
     Application::new().run(move |cx: &mut App| {
         gpui_component::init(cx);
         files::register(cx);
@@ -1138,6 +1162,9 @@ fn main() {
                 let view = cx.new(|cx| {
                     let mut app = ResumeOne::new(model, cx);
                     app.theme_store = Some(theme_store);
+                    if restored_folder {
+                        app.files.open = false;
+                    }
                     app
                 });
                 window.focus(&view.read(cx).focus);

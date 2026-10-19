@@ -14,6 +14,102 @@ fn click_center(cx: &mut gpui::VisualTestContext, selector: &'static str) {
 }
 
 #[gpui::test]
+fn recent_file_switcher_reopens_a_file_without_a_folder(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    cx.update(register_bindings);
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("recent.json");
+    let original = br#"{"basics":{"name":"Recent"},"private":{"keep":true}}"#;
+    std::fs::write(&path, original).unwrap();
+    let mut store = crate::theme_local::ThemeStore::new(
+        root.path().join("settings.json"),
+        root.path().join("themes"),
+    )
+    .unwrap();
+    store.remember_file(&path).unwrap();
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let output = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| {
+            let mut app = ResumeOne::new(AppModel::load(None).unwrap(), cx);
+            app.theme_store = Some(store);
+            app
+        });
+        window.focus(&view.read(cx).focus);
+        *output.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, _| window.refresh());
+    click_center(cx, "current-file");
+    cx.update(|window, _| window.refresh());
+    assert!(cx.debug_bounds("recent-file-0").is_some());
+    cx.simulate_keystrokes("enter");
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.model.content.name, "Recent");
+        assert_eq!(app.model.document.source, original);
+        assert!(app.model.folder.is_none());
+        assert!(!app.files.open);
+    });
+    assert_eq!(std::fs::read(path).unwrap(), original);
+}
+
+#[gpui::test]
+fn folder_candidates_precede_other_recent_files_without_duplicates(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    cx.update(register_bindings);
+    let root = tempfile::tempdir().unwrap();
+    let folder = root.path().join("folder");
+    std::fs::create_dir(&folder).unwrap();
+    let in_folder = folder.join("a.json");
+    let other = root.path().join("other.json");
+    std::fs::write(&in_folder, br#"{"basics":{"name":"Folder"}}"#).unwrap();
+    std::fs::write(&other, br#"{"basics":{"name":"Other"}}"#).unwrap();
+    let mut store = crate::theme_local::ThemeStore::new(
+        root.path().join("settings.json"),
+        root.path().join("themes"),
+    )
+    .unwrap();
+    store.remember_file(&in_folder).unwrap();
+    store.remember_file(&other).unwrap();
+    let mut model = AppModel::load(None).unwrap();
+    model.folder = Some(crate::workspace::LocalFolder::scan(&folder).unwrap());
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let output = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| {
+            let mut app = ResumeOne::new(model, cx);
+            app.theme_store = Some(store);
+            app.files.open = false;
+            app
+        });
+        window.focus(&view.read(cx).focus);
+        *output.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, _| window.refresh());
+    click_center(cx, "current-file");
+    cx.update(|window, _| window.refresh());
+    assert!(cx.debug_bounds("file-0").is_some());
+    assert!(cx.debug_bounds("recent-file-0").is_some());
+    assert!(cx.debug_bounds("recent-file-1").is_none());
+    cx.simulate_keystrokes("down enter");
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.model.content.name, "Other");
+        assert_eq!(app.model.folder.as_ref().unwrap().files.len(), 1);
+        assert_eq!(
+            app.theme_store.as_ref().unwrap().recent_files()[0],
+            other.canonicalize().unwrap()
+        );
+    });
+}
+
+#[gpui::test]
 fn new_resume_is_a_clean_preview_draft_and_never_overwrites_the_open_file(cx: &mut TestAppContext) {
     cx.update(gpui_component::init);
     cx.update(register_bindings);

@@ -20,6 +20,40 @@ pub(super) struct ThemeStore {
     pub directory: PathBuf,
     pub warnings: Vec<String>,
     pub sources: Vec<GithubSource>,
+    recent_files: Vec<PathBuf>,
+    last_folder: Option<PathBuf>,
+}
+
+const MAX_RECENT_FILES: usize = 12;
+
+fn recent_files_from(settings: &Value) -> Vec<PathBuf> {
+    let mut files = Vec::new();
+    if let Some(items) = settings.get("recentFiles").and_then(Value::as_array) {
+        for item in items {
+            let Some(path) = item.as_str().map(PathBuf::from) else {
+                continue;
+            };
+            if !path.is_absolute()
+                || !path.is_file()
+                || !path
+                    .extension()
+                    .and_then(|extension| extension.to_str())
+                    .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
+            {
+                continue;
+            }
+            let Ok(path) = path.canonicalize() else {
+                continue;
+            };
+            if !files.contains(&path) {
+                files.push(path);
+                if files.len() == MAX_RECENT_FILES {
+                    break;
+                }
+            }
+        }
+    }
+    files
 }
 
 impl ThemeStore {
@@ -61,6 +95,13 @@ impl ThemeStore {
                 Vec::new()
             }
         };
+        let recent_files = recent_files_from(&settings);
+        let last_folder = settings
+            .get("lastOpenedDirectory")
+            .and_then(Value::as_str)
+            .map(PathBuf::from)
+            .filter(|path| path.is_absolute() && path.is_dir())
+            .and_then(|path| path.canonicalize().ok());
         let directory = match chosen {
             Some(path) if path.is_absolute() && path.is_dir() => path,
             Some(_) => {
@@ -75,6 +116,8 @@ impl ThemeStore {
             directory,
             warnings,
             sources,
+            recent_files,
+            last_folder,
         };
         Self::seed_defaults(&store.directory)?;
         Ok(store)
@@ -123,6 +166,42 @@ impl ThemeStore {
         settings["onlineThemeSources"] = value;
         self.write_settings(&settings)?;
         self.sources = sources;
+        Ok(())
+    }
+
+    pub fn recent_files(&self) -> &[PathBuf] {
+        &self.recent_files
+    }
+
+    pub fn last_folder(&self) -> Option<&Path> {
+        self.last_folder.as_deref()
+    }
+
+    pub fn remember_file(&mut self, path: &Path) -> Result<(), String> {
+        if !path.is_absolute() || !path.is_file() {
+            return Err("最近文件必须是已打开的绝对文件路径".into());
+        }
+        let path = path.canonicalize().map_err(|error| error.to_string())?;
+        let mut recent = self.recent_files.clone();
+        recent.retain(|item| item != &path);
+        recent.insert(0, path);
+        recent.truncate(MAX_RECENT_FILES);
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        settings["recentFiles"] = json!(recent);
+        self.write_settings(&settings)?;
+        self.recent_files = recent;
+        Ok(())
+    }
+
+    pub fn remember_folder(&mut self, path: &Path) -> Result<(), String> {
+        if !path.is_absolute() || !path.is_dir() {
+            return Err("最近目录必须是已打开的绝对目录路径".into());
+        }
+        let path = path.canonicalize().map_err(|error| error.to_string())?;
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        settings["lastOpenedDirectory"] = json!(path);
+        self.write_settings(&settings)?;
+        self.last_folder = Some(path);
         Ok(())
     }
 
@@ -392,6 +471,48 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn recent_files_and_folder_persist_without_storing_resume_content() {
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        fs::write(&settings, br#"{"future":{"preserve":true}}"#).unwrap();
+        let mut store = ThemeStore::new(settings.clone(), root.path().join("themes")).unwrap();
+        let folder = root.path().join("resumes");
+        fs::create_dir(&folder).unwrap();
+        let mut paths = Vec::new();
+        for index in 0..14 {
+            let path = folder.join(format!("resume-{index}.json"));
+            fs::write(&path, b"{\"private\":\"never in settings\"}").unwrap();
+            store.remember_file(&path).unwrap();
+            paths.push(path);
+        }
+        store.remember_file(&paths[5]).unwrap();
+        store.remember_folder(&folder).unwrap();
+        let reopened = ThemeStore::new(settings.clone(), root.path().join("themes")).unwrap();
+        assert_eq!(
+            reopened.last_folder(),
+            Some(folder.canonicalize().unwrap().as_path())
+        );
+        assert_eq!(reopened.recent_files().len(), 12);
+        assert_eq!(reopened.recent_files()[0], paths[5].canonicalize().unwrap());
+        assert_eq!(
+            reopened
+                .recent_files()
+                .iter()
+                .filter(|path| **path == paths[5].canonicalize().unwrap())
+                .count(),
+            1
+        );
+        let saved = fs::read(&settings).unwrap();
+        let value: Value = serde_json::from_slice(&saved).unwrap();
+        assert_eq!(value["future"]["preserve"], true);
+        assert!(!String::from_utf8_lossy(&saved).contains("never in settings"));
+        assert_eq!(
+            fs::read(&paths[5]).unwrap(),
+            b"{\"private\":\"never in settings\"}"
+        );
+    }
 
     #[test]
     fn different_files_can_share_a_theme_id_without_being_dropped() {

@@ -34,6 +34,7 @@ pub(super) struct FileUi {
     pub busy: bool,
     pub selected: usize,
     pub scroll: UniformListScrollHandle,
+    pub recent_scroll: UniformListScrollHandle,
     pub actions_only: bool,
     pub anchor_right: bool,
 }
@@ -99,6 +100,51 @@ pub(super) fn register(cx: &mut App) {
 }
 
 impl ResumeOne {
+    fn scroll_to_selected_file(&self) {
+        let folder_count = self
+            .model
+            .folder
+            .as_ref()
+            .map_or(0, |folder| folder.files.len());
+        if self.files.selected < folder_count {
+            self.files
+                .scroll
+                .scroll_to_item(self.files.selected, ScrollStrategy::Center);
+        } else {
+            self.files.recent_scroll.scroll_to_item(
+                self.files.selected.saturating_sub(folder_count),
+                ScrollStrategy::Center,
+            );
+        }
+    }
+
+    fn recent_file_candidates(&self) -> Vec<PathBuf> {
+        self.theme_store
+            .as_ref()
+            .map(|store| {
+                store
+                    .recent_files()
+                    .iter()
+                    .filter(|path| {
+                        self.model
+                            .folder
+                            .as_ref()
+                            .is_none_or(|folder| !folder.files.contains(path))
+                    })
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
+    pub(super) fn remember_file(&mut self, path: &std::path::Path) {
+        if let Some(store) = &mut self.theme_store
+            && let Err(message) = store.remember_file(path)
+        {
+            store.warnings.push(format!("无法记录最近文件：{message}"));
+        }
+    }
+
     pub(super) fn new_resume(
         &mut self,
         _: &NewResume,
@@ -284,6 +330,11 @@ impl ResumeOne {
                 self.offer_opened_file(*opened, window, cx);
             }
             Some(Ok(OpenedPath::Folder(folder))) => {
+                if let Some(store) = &mut self.theme_store
+                    && let Err(message) = store.remember_folder(&folder.path)
+                {
+                    store.warnings.push(format!("无法记录最近目录：{message}"));
+                }
                 self.model.folder = Some(folder);
                 self.show_file_switcher(window, cx);
             }
@@ -351,7 +402,9 @@ impl ResumeOne {
         }
         self.preview_scroll
             .set_offset(gpui::point(px(0.0), px(0.0)));
+        let path = opened.path.clone();
         self.model.apply_opened(opened);
+        self.remember_file(&path);
         self.reset_editor_for_document(window, cx);
         if !self.model.preview_ready && !self.source_mode {
             self.toggle_source(&ToggleSource, window, cx);
@@ -366,22 +419,29 @@ impl ResumeOne {
 
     fn show_file_switcher(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.files.open = true;
-        self.files.actions_only = self.model.folder.is_none();
+        let recent = self.recent_file_candidates();
+        self.files.actions_only = self.model.folder.is_none() && recent.is_empty();
         self.files.anchor_right = false;
-        self.files.selected = self
+        let folder_selected = self.model.folder.as_ref().and_then(|folder| {
+            folder
+                .files
+                .iter()
+                .position(|path| Some(path) == self.model.document_path.as_ref())
+        });
+        let folder_count = self
             .model
             .folder
             .as_ref()
-            .and_then(|folder| {
-                folder
-                    .files
+            .map_or(0, |folder| folder.files.len());
+        self.files.selected = folder_selected
+            .or_else(|| {
+                recent
                     .iter()
                     .position(|path| Some(path) == self.model.document_path.as_ref())
+                    .map(|index| folder_count + index)
             })
             .unwrap_or(0);
-        self.files
-            .scroll
-            .scroll_to_item(self.files.selected, ScrollStrategy::Center);
+        self.scroll_to_selected_file();
         window.focus(&self.focus);
         cx.notify();
     }
@@ -438,12 +498,11 @@ impl ResumeOne {
                 .folder
                 .as_ref()
                 .map_or(0, |folder| folder.files.len())
+                + self.recent_file_candidates().len()
         };
         if self.files.open && count > 0 {
             self.files.selected = (self.files.selected + 1).min(count - 1);
-            self.files
-                .scroll
-                .scroll_to_item(self.files.selected, ScrollStrategy::Center);
+            self.scroll_to_selected_file();
             cx.notify();
         }
     }
@@ -456,9 +515,7 @@ impl ResumeOne {
     ) {
         if self.files.open {
             self.files.selected = self.files.selected.saturating_sub(1);
-            self.files
-                .scroll
-                .scroll_to_item(self.files.selected, ScrollStrategy::Center);
+            self.scroll_to_selected_file();
             cx.notify();
         }
     }
@@ -477,13 +534,24 @@ impl ResumeOne {
             }
             return;
         }
-        if self.files.open
-            && let Some(path) = self
-                .model
+        let folder_count = self
+            .model
+            .folder
+            .as_ref()
+            .map_or(0, |folder| folder.files.len());
+        let path = if self.files.selected < folder_count {
+            self.model
                 .folder
                 .as_ref()
                 .and_then(|folder| folder.files.get(self.files.selected))
                 .cloned()
+        } else {
+            self.recent_file_candidates()
+                .get(self.files.selected.saturating_sub(folder_count))
+                .cloned()
+        };
+        if self.files.open
+            && let Some(path) = path
         {
             self.load_path(path, window, cx);
         }
@@ -519,6 +587,11 @@ impl ResumeOne {
             } else {
                 360.0
             }))
+            .max_h(px((self.viewport_height
+                - crate::chrome::TOOLBAR_HEIGHT
+                - 16.0)
+                .max(180.0)))
+            .overflow_y_scroll()
             .flex()
             .flex_col()
             .p_2()
@@ -696,6 +769,84 @@ impl ResumeOne {
                     .track_scroll(self.files.scroll.clone()),
                 );
             }
+        }
+        let folder_count = self
+            .model
+            .folder
+            .as_ref()
+            .map_or(0, |folder| folder.files.len());
+        let recent = self.recent_file_candidates();
+        if !self.files.actions_only && !recent.is_empty() {
+            menu = menu.child(
+                div()
+                    .mt_2()
+                    .pt_2()
+                    .px_3()
+                    .border_t_1()
+                    .border_color(color(colors.border))
+                    .text_size(px(11.0))
+                    .text_color(color(colors.muted))
+                    .child("最近打开"),
+            );
+            let recent_count = recent.len();
+            menu = menu.child(
+                uniform_list(
+                    "recent-files",
+                    recent_count,
+                    cx.processor(move |this, range: std::ops::Range<usize>, _, cx| {
+                        let colors = &this.model.selected_style().colors;
+                        range
+                            .map(|index| {
+                                let path = recent[index].clone();
+                                let name = path
+                                    .file_name()
+                                    .unwrap_or_default()
+                                    .to_string_lossy()
+                                    .into_owned();
+                                let parent = path
+                                    .parent()
+                                    .map(|parent| parent.to_string_lossy().into_owned())
+                                    .unwrap_or_default();
+                                let selected = this.files.selected == folder_count + index;
+                                let active = this.model.document_path.as_ref() == Some(&path);
+                                div()
+                                    .id(("recent-file", index))
+                                    .debug_selector(move || format!("recent-file-{index}"))
+                                    .h(px(42.0))
+                                    .px_3()
+                                    .flex()
+                                    .items_center()
+                                    .gap_2()
+                                    .rounded_md()
+                                    .cursor_pointer()
+                                    .when(selected, |row| row.bg(color(colors.canvas)))
+                                    .hover(|row| row.bg(color(colors.canvas)))
+                                    .child(
+                                        div()
+                                            .flex_1()
+                                            .min_w_0()
+                                            .flex()
+                                            .flex_col()
+                                            .child(div().truncate().child(name))
+                                            .child(
+                                                div()
+                                                    .truncate()
+                                                    .text_size(px(11.0))
+                                                    .text_color(color(colors.muted))
+                                                    .child(parent),
+                                            ),
+                                    )
+                                    .child(if active { "✓" } else { "" })
+                                    .on_click(cx.listener(move |this, _, window, cx| {
+                                        this.load_path(path.clone(), window, cx)
+                                    }))
+                            })
+                            .collect()
+                    }),
+                )
+                .h(px((recent_count as f32 * 42.0).min(240.0)))
+                .track_scroll(self.files.recent_scroll.clone()),
+            );
         }
         menu
     }

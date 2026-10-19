@@ -119,9 +119,7 @@ impl ResumeOne {
     }
 
     fn apply_online_theme(&mut self, theme: BuiltinTheme) {
-        self.clear_inline();
-        self.cancel_insertion();
-        self.model.applied_online = Some(theme);
+        self.apply_theme_selection(theme);
     }
 
     fn install_online_theme(
@@ -431,6 +429,7 @@ impl ResumeOne {
                             this.apply_online_theme(theme);
                         }
                         this.pump_online(window, cx);
+                        window.focus(&this.focus);
                         cx.notify();
                     }));
                 list = list.child(div().id(("online-theme-row", index)).flex_none().child(

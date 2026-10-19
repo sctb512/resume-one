@@ -668,6 +668,13 @@ mod tests {
         cx.update(|_, cx| assert!(view.read(cx).gutter_rows(cx).is_empty()));
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
+                app.toggle_source(&editor_ui::ToggleSource, window, cx);
+                assert!(
+                    app.source_mode,
+                    "mode switching must not interrupt IME composition"
+                );
+            });
+            view.update(cx, |app, cx| {
                 app.format_json(&editor_ui::FormatJson, window, cx)
             });
             view.update(cx, |app, cx| {

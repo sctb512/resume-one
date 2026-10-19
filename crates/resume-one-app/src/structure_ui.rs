@@ -29,6 +29,26 @@ fn changed_range<'a>(before: &str, after: &'a str) -> Option<(std::ops::Range<us
 
 actions!(resume_one, [UndoVisualEdit, RedoVisualEdit]);
 
+pub(super) enum VisualEdit {
+    Content {
+        before: String,
+        after: String,
+    },
+    Theme {
+        before: Box<crate::model::BuiltinTheme>,
+        after: Box<crate::model::BuiltinTheme>,
+    },
+}
+
+impl VisualEdit {
+    pub fn content_after(&self) -> Option<&str> {
+        match self {
+            Self::Content { after, .. } => Some(after),
+            Self::Theme { .. } => None,
+        }
+    }
+}
+
 pub(super) fn register(cx: &mut App) {
     let modifier = if cfg!(target_os = "macos") {
         "cmd"
@@ -46,6 +66,79 @@ pub(super) fn register(cx: &mut App) {
 }
 
 impl ResumeOne {
+    pub(super) fn apply_theme_selection(&mut self, theme: crate::model::BuiltinTheme) {
+        let before = self.model.applied_theme().clone();
+        self.clear_inline();
+        self.cancel_insertion();
+        self.drawer = None;
+        self.hovered_theme = None;
+        self.online.cancel_interaction();
+        self.theme_hover_generation += 1;
+        self.theme_hover_candidate = None;
+        if before.identity == theme.identity {
+            return;
+        }
+        self.visual_undo.push(VisualEdit::Theme {
+            before: Box::new(before),
+            after: Box::new(theme.clone()),
+        });
+        self.visual_redo.clear();
+        self.restore_theme_selection(&theme);
+    }
+
+    fn restore_theme_selection(&mut self, theme: &crate::model::BuiltinTheme) {
+        if let Some(index) = self
+            .model
+            .themes
+            .iter()
+            .position(|t| t.identity == theme.identity)
+        {
+            self.model.select_theme(index);
+        } else {
+            // A verified snapshot also permits undo after a directory/source
+            // change. No deleted file is recreated and no network is needed.
+            self.model.applied_online = Some(theme.clone());
+        }
+        self.hovered_theme = None;
+        self.theme_hover_generation += 1;
+        self.theme_hover_candidate = None;
+        self.online.cancel_interaction();
+    }
+
+    fn apply_history_entry(
+        &mut self,
+        entry: &VisualEdit,
+        forward: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        match entry {
+            VisualEdit::Content { before, after } => {
+                let (expected, target) = if forward {
+                    (before, after)
+                } else {
+                    (after, before)
+                };
+                if self.editor.as_ref().map(|e| e.buffer.source()) != Some(expected.as_str()) {
+                    return false;
+                }
+                self.replace_editor_source(target, window, cx);
+            }
+            VisualEdit::Theme { before, after } => {
+                let (expected, target) = if forward {
+                    (before, after)
+                } else {
+                    (after, before)
+                };
+                if self.model.applied_theme().identity != expected.identity {
+                    return false;
+                }
+                self.restore_theme_selection(target);
+            }
+        }
+        true
+    }
+
     pub(super) fn structure_enabled(&self) -> bool {
         self.model.preview_ready
             && self
@@ -112,12 +205,17 @@ impl ResumeOne {
         let after = String::from_utf8(result.source).expect("validated JSON is UTF-8");
         if self
             .visual_undo
-            .last()
-            .is_some_and(|(_, latest)| latest != &before)
+            .iter()
+            .rev()
+            .find_map(VisualEdit::content_after)
+            .is_some_and(|latest| latest != before)
         {
             self.visual_undo.clear();
         }
-        self.visual_undo.push((before, after.clone()));
+        self.visual_undo.push(VisualEdit::Content {
+            before,
+            after: after.clone(),
+        });
         self.visual_redo.clear();
         self.replace_editor_source(&after, window, cx);
         self.insertion_before = None;
@@ -176,18 +274,18 @@ impl ResumeOne {
             return;
         }
         self.cancel_insertion();
+        self.close_drawer();
         self.clear_inline();
         cx.notify();
-        let Some((before, after)) = self.visual_undo.pop() else {
+        let Some(entry) = self.visual_undo.pop() else {
             return;
         };
-        if self.editor.as_ref().map(|editor| editor.buffer.source()) != Some(after.as_str()) {
+        if !self.apply_history_entry(&entry, false, window, cx) {
             self.visual_undo.clear();
             self.visual_redo.clear();
             return;
         }
-        self.replace_editor_source(&before, window, cx);
-        self.visual_redo.push((before, after));
+        self.visual_redo.push(entry);
         cx.notify();
     }
 
@@ -201,18 +299,18 @@ impl ResumeOne {
             return;
         }
         self.cancel_insertion();
+        self.close_drawer();
         self.clear_inline();
         cx.notify();
-        let Some((before, after)) = self.visual_redo.pop() else {
+        let Some(entry) = self.visual_redo.pop() else {
             return;
         };
-        if self.editor.as_ref().map(|editor| editor.buffer.source()) != Some(before.as_str()) {
+        if !self.apply_history_entry(&entry, true, window, cx) {
             self.visual_undo.clear();
             self.visual_redo.clear();
             return;
         }
-        self.replace_editor_source(&after, window, cx);
-        self.visual_undo.push((before, after));
+        self.visual_undo.push(entry);
         cx.notify();
     }
 }
@@ -220,6 +318,115 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use gpui::AppContext as _;
+
+    #[gpui::test]
+    fn theme_clicks_undo_without_an_editor_and_hover_never_becomes_history(
+        cx: &mut gpui::TestAppContext,
+    ) {
+        cx.update(register);
+        let model = crate::model::AppModel::load(None).unwrap();
+        let source = model.document.source.clone();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let row = cx.debug_bounds("theme-1").unwrap();
+        cx.simulate_click(row.center(), gpui::Modifiers::none());
+        cx.simulate_click(row.center(), gpui::Modifiers::none());
+        let hover = cx.debug_bounds("theme-2").unwrap();
+        cx.simulate_mouse_move(hover.center(), None, gpui::Modifiers::none());
+        cx.executor()
+            .advance_clock(std::time::Duration::from_millis(160));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.selected_theme, 1);
+            assert_eq!(app.hovered_theme, Some(2));
+            assert_eq!(app.visual_undo.len(), 1);
+            assert!(app.editor.is_none());
+        });
+        cx.simulate_keystrokes("cmd-z");
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.selected_theme, 0);
+            assert!(app.hovered_theme.is_none());
+            assert_eq!(app.model.document.source, source);
+            assert!(app.editor.is_none());
+        });
+        cx.simulate_keystrokes("cmd-shift-z");
+        cx.update(|_, cx| assert_eq!(view.read(cx).model.selected_theme, 1));
+        // Restoring an old verified appearance does not require its directory.
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.model.replace_themes(vec![app.model.themes[1].clone()]);
+                app.undo_visual_edit(&UndoVisualEdit, window, cx);
+                assert_eq!(app.model.applied_theme().manifest.id, "zhibai");
+                assert_eq!(app.model.document.source, source);
+            })
+        });
+    }
+
+    #[gpui::test]
+    fn theme_and_document_history_preserve_operation_order(cx: &mut gpui::TestAppContext) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("history.json");
+        let original = br#"{"basics":{"name":"A"},"custom":{"keep":true}}"#;
+        std::fs::write(&path, original).unwrap();
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view =
+                cx.new(|cx| ResumeOne::new(crate::model::AppModel::load(Some(&path)).unwrap(), cx));
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.apply_visual_structure(
+                    StructureEdit::InsertSection {
+                        id: "work".into(),
+                        before: None,
+                    },
+                    window,
+                    cx,
+                )
+            })
+        });
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.apply_theme_selection(app.model.themes[1].clone());
+                app.undo_visual_edit(&UndoVisualEdit, window, cx);
+                assert_eq!(app.model.selected_theme, 0);
+                assert!(app.model.document.value.get("work").is_some());
+            })
+        });
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.undo_visual_edit(&UndoVisualEdit, window, cx)
+            })
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).model.document.value.get("work").is_none()));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.redo_visual_edit(&RedoVisualEdit, window, cx)
+            })
+        });
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.redo_visual_edit(&RedoVisualEdit, window, cx);
+                assert_eq!(app.model.selected_theme, 1);
+                assert!(app.model.document.value.get("work").is_some());
+                assert_eq!(app.model.document.value["custom"]["keep"], true);
+                assert!(app.model.document.value.get("theme").is_none());
+            })
+        });
+        assert_eq!(std::fs::read(path).unwrap(), original);
+    }
 
     #[test]
     fn minimal_transactions_respect_unicode_crlf_and_disjoint_changes() {

@@ -125,6 +125,14 @@ impl ResumeOne {
         })
     }
 
+    pub(super) fn inline_composing(&self, cx: &App) -> bool {
+        self.inline.form.as_ref().is_some_and(|form| {
+            form.fields
+                .iter()
+                .any(|field| field.input.read(cx).is_composing())
+        })
+    }
+
     pub(super) fn schedule_inline(
         &mut self,
         section: &str,
@@ -354,16 +362,24 @@ impl ResumeOne {
         if form.history_before.is_none() {
             if self
                 .visual_undo
-                .last()
-                .is_some_and(|(_, latest)| latest != &before)
+                .iter()
+                .rev()
+                .find_map(crate::structure_ui::VisualEdit::content_after)
+                .is_some_and(|latest| latest != before)
             {
                 self.visual_undo.clear();
             }
             form.history_before = Some(before.clone());
             form.history_slot = self.visual_undo.len();
-            self.visual_undo.push((before, after.clone()));
-        } else if let Some(entry) = self.visual_undo.get_mut(form.history_slot) {
-            entry.1.clone_from(&after);
+            self.visual_undo
+                .push(crate::structure_ui::VisualEdit::Content {
+                    before,
+                    after: after.clone(),
+                });
+        } else if let Some(crate::structure_ui::VisualEdit::Content { after: latest, .. }) =
+            self.visual_undo.get_mut(form.history_slot)
+        {
+            latest.clone_from(&after);
         }
         self.visual_redo.clear();
         self.replace_editor_source(&after, window, cx);
@@ -452,12 +468,18 @@ impl ResumeOne {
         let page = form.page;
         if self
             .visual_undo
-            .last()
-            .is_some_and(|(_, latest)| latest != &before)
+            .iter()
+            .rev()
+            .find_map(crate::structure_ui::VisualEdit::content_after)
+            .is_some_and(|latest| latest != before)
         {
             self.visual_undo.clear();
         }
-        self.visual_undo.push((before, after.clone()));
+        self.visual_undo
+            .push(crate::structure_ui::VisualEdit::Content {
+                before,
+                after: after.clone(),
+            });
         self.visual_redo.clear();
         self.replace_editor_source(&after, window, cx);
         let owner = cx.entity().downgrade();

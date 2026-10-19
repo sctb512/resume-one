@@ -328,7 +328,13 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
-        if self.theme_manager_open {
+        if self.theme_manager_open
+            || self.inline_composing(cx)
+            || self
+                .editor
+                .as_ref()
+                .is_some_and(|e| e.input.read(cx).is_composing())
+        {
             return;
         }
         let Some(editor) = &self.editor else { return };
@@ -572,7 +578,13 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.theme_manager_open {
+        if self.theme_manager_open
+            || self.inline_composing(cx)
+            || self
+                .editor
+                .as_ref()
+                .is_some_and(|e| e.input.read(cx).is_composing())
+        {
             return;
         }
         self.files.open = false;

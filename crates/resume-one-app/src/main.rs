@@ -90,8 +90,8 @@ struct ResumeOne {
     insertion_before: Option<Option<String>>,
     selected_module: Option<String>,
     selected_item_module: Option<String>,
-    visual_undo: Vec<(String, String)>,
-    visual_redo: Vec<(String, String)>,
+    visual_undo: Vec<structure_ui::VisualEdit>,
+    visual_redo: Vec<structure_ui::VisualEdit>,
     recovery_pending: bool,
     inline: inline_ui::InlineUi,
     preview: preview_ui::PreviewState,
@@ -289,17 +289,9 @@ impl ResumeOne {
                 .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
                     this.hover_local_theme(index, *hovering, window, cx);
                 }))
-                .on_click(cx.listener(move |this, _, _, cx| {
-                    this.drawer = None;
-                    this.theme_hover_generation += 1;
-                    this.theme_hover_candidate = None;
-                    this.hovered_theme = None;
-                    this.clear_inline();
-                    this.cancel_insertion();
-                    this.model.select_theme(index);
-                    this.selected_module = None;
-                    this.selected_item_module = None;
-                    this.insertion_before = None;
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    this.apply_theme_selection(this.model.themes[index].clone());
+                    window.focus(&this.focus);
                     cx.notify();
                 }))
                 .on_mouse_down(

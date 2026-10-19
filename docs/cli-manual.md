@@ -54,7 +54,7 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 
 下载文件名包含来源指纹、主题 ID 和内容摘要，保留原始 UTF-8 字节，不写入样式、HTML、简历正文或缓存元数据；已存在且字节相同则幂等返回，内容不同或为符号链接则拒绝覆盖。缓存与本地安装目录是两回事：缓存可按最近访问时间自动淘汰，总量 256 MiB；本地下载文件不会被缓存清理删除。`--offline` 不产生网络请求，只允许有效缓存。源/主题文件上限各 1 MiB，单份清单最多 500 项，网络请求超时 15 秒，不跟随重定向，也不请求图片、脚本或字体资源。来源、网络、缓存和主题下载错误退出码为 `7`；相对路径参数仍为 `2`。
 
-`verify-theme-source` 只读取所选仓库的 `themes/index.json`、`themes/review.json` 与清单列出的主题文件；不会联网、下载、发布、修改文件或运行第三方主题代码。它要求每项主题有原文件 SHA-256、v2 `adapted` 来源、可用的当前渲染能力，以及与主题 ID、摘要、上游 URL/版本/许可一致的人工验收记录。记录遵循 [`theme-source-review-v1.schema.json`](../spec/theme-source-review-v1.schema.json)，包含审核人、日期、中英文短/长、缺字段、多页及 PDF 检查声明。失败退出码 `7`；成功结果的 `structurallyVerified: true` 只证明记录完整且一致，`humanReviewIndependentlyVerified: false` 明确表明没有机器证明许可或视觉审核真实完成。发布者仍须人工核验上游许可和视觉/PDF 证据，公开 GitHub 仓库并固定真实 commit 后再配置默认源；此命令不代替发布流程。
+`verify-theme-source` 只读取所选仓库的 `themes/index.json`、`themes/review.json`、清单列出的主题文件及 `qa/` 下的验收证据；不会联网、下载、发布、修改文件或运行第三方主题代码。它要求每项主题有原文件 SHA-256、v2 `adapted` 来源、可用的当前渲染能力，以及与主题 ID、摘要、上游 URL/版本/许可一致的人工验收记录。记录遵循 [`theme-source-review-v1.schema.json`](../spec/theme-source-review-v1.schema.json)，包含审核人、日期、中英文短/长、缺字段、多页样例的上游与迁移版 PNG 截图，以及一份多页 PDF；全部证据需附原文件 SHA-256。每主题共 13 个证据文件，截图上限各 8 MiB、PDF 30 MiB、合计 512 MiB；重复路径、缺失文件、摘要不符或符号链接都会失败。证据只允许公开测试简历，不得含私人内容。失败退出码 `7`；成功结果增加 `evidenceFilesVerified`，`structurallyVerified: true` 只证明记录完整且一致，`humanReviewIndependentlyVerified: false` 明确表明没有机器证明许可或视觉审核真实完成。程序只检查 PNG/PDF 文件签名，不完整解码或判断相似度。发布者仍须人工打开上游和迁移版证据，核验上游许可及视觉/PDF 效果，公开 GitHub 仓库并固定真实 commit 后再配置默认源；此命令不代替发布流程。
 
 ## 独立迁移工具
 

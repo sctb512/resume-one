@@ -16,7 +16,7 @@
         "required": [
           "id", "sha256", "upstreamUrl", "upstreamRevision", "upstreamLicense",
           "licenseReviewedBy", "visualReviewedBy", "reviewDate", "visualSamples",
-          "pdfReviewed", "limitations"
+          "visualEvidence", "pdfReviewed", "pdfEvidence", "limitations"
         ],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
@@ -34,7 +34,33 @@
             "uniqueItems": true,
             "items": { "enum": ["zh-short", "zh-long", "en-short", "en-long", "missing-fields", "multi-page"] }
           },
+          "visualEvidence": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sample", "upstream", "upstreamSha256", "migrated", "migratedSha256"],
+              "properties": {
+                "sample": { "enum": ["zh-short", "zh-long", "en-short", "en-long", "missing-fields", "multi-page"] },
+                "upstream": { "type": "string", "pattern": "^qa/[A-Za-z0-9_./-]+\\.png$", "maxLength": 240 },
+                "upstreamSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+                "migrated": { "type": "string", "pattern": "^qa/[A-Za-z0-9_./-]+\\.png$", "maxLength": 240 },
+                "migratedSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+              }
+            }
+          },
           "pdfReviewed": { "const": true },
+          "pdfEvidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": {
+              "path": { "type": "string", "pattern": "^qa/[A-Za-z0-9_./-]+\\.pdf$", "maxLength": 240 },
+              "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+            }
+          },
           "limitations": { "type": "string", "maxLength": 1000 }
         }
       }

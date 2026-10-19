@@ -120,26 +120,50 @@ fn offline_misses_and_invalid_paths_are_machine_readable() {
 fn release_audit_command_is_offline_and_does_not_accept_native_themes_as_migrations() {
     let root = tempfile::tempdir().unwrap();
     std::fs::create_dir(root.path().join("themes")).unwrap();
+    std::fs::create_dir_all(root.path().join("qa/zhibai")).unwrap();
+    let png = b"\x89PNG\r\n\x1a\n\0\0\0\rIHDR\0\0\0\x01\0\0\0\x01";
+    let pdf = b"%PDF-1.7\nfixture";
+    let visual_evidence: Vec<Value> = [
+        "zh-short",
+        "zh-long",
+        "en-short",
+        "en-long",
+        "missing-fields",
+        "multi-page",
+    ]
+    .into_iter()
+    .map(|sample| {
+        let upstream = format!("qa/zhibai/{sample}-upstream.png");
+        let migrated = format!("qa/zhibai/{sample}-migrated.png");
+        std::fs::write(root.path().join(&upstream), png).unwrap();
+        std::fs::write(root.path().join(&migrated), png).unwrap();
+        json!({"sample":sample,"upstream":upstream,"upstreamSha256":sha256(png),
+            "migrated":migrated,"migratedSha256":sha256(png)})
+    })
+    .collect();
+    std::fs::write(root.path().join("qa/zhibai/multi-page.pdf"), pdf).unwrap();
     let bytes = include_bytes!("../../../assets/themes/zhibai.theme.json");
     std::fs::write(root.path().join("themes/zhibai.theme.json"), bytes).unwrap();
+    let mut index = json!({"version":1,"themes":[{
+        "id":"zhibai","name":"知白","manifest":"zhibai.theme.json","sha256":sha256(bytes)
+    }]});
     std::fs::write(
         root.path().join("themes/index.json"),
-        serde_json::to_vec(&json!({"version":1,"themes":[{
-            "id":"zhibai","name":"知白","manifest":"zhibai.theme.json","sha256":sha256(bytes)
-        }]}))
-        .unwrap(),
+        serde_json::to_vec(&index).unwrap(),
     )
     .unwrap();
+    let mut review = json!({"version":1,"themes":[{
+        "id":"zhibai","sha256":sha256(bytes),"upstreamUrl":"https://github.com/example/theme",
+        "upstreamRevision":"abc123","upstreamLicense":"MIT","licenseReviewedBy":"Tester",
+        "visualReviewedBy":"Tester","reviewDate":"2026-10-19","visualSamples":["zh-short",
+        "zh-long","en-short","en-long","missing-fields","multi-page"],
+        "visualEvidence":visual_evidence,"pdfReviewed":true,
+        "pdfEvidence":{"path":"qa/zhibai/multi-page.pdf","sha256":sha256(pdf)},
+        "limitations":"Fixture only"
+    }]});
     std::fs::write(
         root.path().join("themes/review.json"),
-        serde_json::to_vec(&json!({"version":1,"themes":[{
-            "id":"zhibai","sha256":sha256(bytes),"upstreamUrl":"https://github.com/example/theme",
-            "upstreamRevision":"abc123","upstreamLicense":"MIT","licenseReviewedBy":"Tester",
-            "visualReviewedBy":"Tester","reviewDate":"2026-10-19","visualSamples":["zh-short",
-            "zh-long","en-short","en-long","missing-fields","multi-page"],
-            "pdfReviewed":true,"limitations":"Fixture only"
-        }]}))
-        .unwrap(),
+        serde_json::to_vec(&review).unwrap(),
     )
     .unwrap();
     let output = Command::new(env!("CARGO_BIN_EXE_resume-one"))
@@ -154,4 +178,37 @@ fn release_audit_command_is_offline_and_does_not_accept_native_themes_as_migrati
     assert_eq!(output.status.code(), Some(7));
     let result: Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(result["error"]["code"], "RELEASE_NOT_MIGRATED");
+
+    let mut migrated: Value = serde_json::from_slice(bytes).unwrap();
+    migrated["provenance"] = json!({"fidelity":"adapted",
+        "upstreamUrl":"https://github.com/example/theme","upstreamRevision":"abc123",
+        "upstreamAuthor":"Example","upstreamLicense":"MIT","migratedBy":"Tester"});
+    let migrated_bytes = serde_json::to_vec(&migrated).unwrap();
+    let migrated_hash = sha256(&migrated_bytes);
+    std::fs::write(root.path().join("themes/zhibai.theme.json"), migrated_bytes).unwrap();
+    index["themes"][0]["sha256"] = json!(migrated_hash);
+    review["themes"][0]["sha256"] = json!(migrated_hash);
+    std::fs::write(
+        root.path().join("themes/index.json"),
+        serde_json::to_vec(&index).unwrap(),
+    )
+    .unwrap();
+    std::fs::write(
+        root.path().join("themes/review.json"),
+        serde_json::to_vec(&review).unwrap(),
+    )
+    .unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_resume-one"))
+        .args([
+            "--json",
+            "verify-theme-source",
+            "--dir",
+            root.path().to_str().unwrap(),
+        ])
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    let result: Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(result["result"]["evidenceFilesVerified"], 13);
+    assert_eq!(result["result"]["humanReviewIndependentlyVerified"], false);
 }

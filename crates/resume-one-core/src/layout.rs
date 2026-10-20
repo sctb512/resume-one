@@ -276,18 +276,55 @@ impl<'a> PageWriter<'a> {
         } else {
             "   ·   "
         });
-        let mut right_lines = Vec::new();
-        for input in contacts.lines() {
-            for text in self.wrap(input, meta.size_pt, right_width, font) {
-                right_lines.push(HeaderLine {
-                    text,
-                    size: meta.size_pt,
-                    leading: meta.size_pt * meta.line_height,
-                    color: style.colors.muted,
-                    font,
-                });
+        let mut contact_lines = Vec::new();
+        if style.stacked_contacts {
+            for contact in &content.contacts {
+                for input in contact.lines() {
+                    contact_lines.extend(self.wrap(input, meta.size_pt, right_width, font));
+                }
+            }
+        } else {
+            let mut current = String::new();
+            for contact in &content.contacts {
+                for input in contact
+                    .lines()
+                    .map(str::trim)
+                    .filter(|line| !line.is_empty())
+                {
+                    let candidate = if current.is_empty() {
+                        input.to_owned()
+                    } else {
+                        format!("{current}   ·   {input}")
+                    };
+                    if self.text_width(&candidate, meta.size_pt, font) <= right_width {
+                        current = candidate;
+                        continue;
+                    }
+                    if !current.is_empty() {
+                        contact_lines.push(std::mem::take(&mut current));
+                    }
+                    let wrapped = self.wrap(input, meta.size_pt, right_width, font);
+                    if wrapped.len() == 1 {
+                        current = wrapped.into_iter().next().unwrap();
+                    } else {
+                        contact_lines.extend(wrapped);
+                    }
+                }
+            }
+            if !current.is_empty() {
+                contact_lines.push(current);
             }
         }
+        let right_lines: Vec<_> = contact_lines
+            .into_iter()
+            .map(|text| HeaderLine {
+                text,
+                size: meta.size_pt,
+                leading: meta.size_pt * meta.line_height,
+                color: style.colors.muted,
+                font,
+            })
+            .collect();
         let left_height: f32 = left_lines.iter().map(|line| line.leading).sum();
         let right_height: f32 = right_lines.iter().map(|line| line.leading).sum();
         let first_ascent = |lines: &[HeaderLine]| {
@@ -1201,6 +1238,28 @@ mod tests {
         ));
         theme.normalized["composition"] = serde_json::json!({"header":"split"});
         assert!(check_theme(&theme).is_ok());
+        let inline = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let inline_contacts: Vec<_> = inline
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| match element {
+                LayoutElement::Text(text)
+                    if text.target.is_some_and(|target| target.section == "basics")
+                        && text.size_pt == style.typography.meta.size_pt =>
+                {
+                    Some(text.text.as_str())
+                }
+                _ => None,
+            })
+            .collect();
+        assert!(inline_contacts.len() > 2);
+        assert!(
+            inline_contacts
+                .iter()
+                .all(|line| !line.trim_start().starts_with('·'))
+        );
+        assert!(inline_contacts.join(" ").contains("Last contact"));
 
         content.name = "中文姓名 Long Name ".repeat(90);
         let long_result = layout_with_theme(&content, Language::En, &theme).unwrap();

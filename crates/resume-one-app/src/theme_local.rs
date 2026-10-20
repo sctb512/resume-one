@@ -196,6 +196,19 @@ const REFINED_PREVERSION_SHA256: &[(&str, &str)] = &[
     ),
 ];
 
+// The first refined 1.1.0 release remains eligible for exact-byte upgrade
+// when a built-in acquires the split-header composition.
+const REFINED_V1_1_SHA256: &[(&str, &str)] = &[
+    (
+        "danzhu",
+        "f2b2ec11a3b8c86a82e4b85edabac459144b96a73be8ac924427299a5a861b6a",
+    ),
+    (
+        "moxu",
+        "58f3a959e1b3fe62fdcb2e1a6e1837177224f8a1783f43eb8d050bdfd0087762",
+    ),
+];
+
 fn recent_files_from(settings: &Value) -> Vec<PathBuf> {
     let mut files = Vec::new();
     if let Some(items) = settings.get("recentFiles").and_then(Value::as_array) {
@@ -398,6 +411,7 @@ impl ThemeStore {
                         if LEGACY_BUNDLED_SHA256
                             .iter()
                             .chain(REFINED_PREVERSION_SHA256)
+                            .chain(REFINED_V1_1_SHA256)
                             .any(|(id, known_hash)| {
                                 *id == manifest.id && existing_hash == *known_hash
                             })
@@ -741,6 +755,62 @@ mod tests {
         assert_eq!(
             fs::read(preversion_path).unwrap(),
             BUILTIN_THEMES[0].as_bytes()
+        );
+    }
+
+    #[test]
+    fn pristine_refined_themes_upgrade_to_split_header_without_touching_custom_edits() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("themes");
+        fs::create_dir(&directory).unwrap();
+        for (id, old_description, new_description, composition) in [
+            (
+                "danzhu",
+                "无衬线大标题、左侧时间与朱砂细线，现代而克制。",
+                "朱砂无衬线分栏页眉、左侧时间与细线，现代而克制。",
+                "  \"composition\": { \"preset\": \"split-header\", \"header\": \"split\", \"contact\": \"inline\" },\n",
+            ),
+            (
+                "moxu",
+                "无衬线信息层级、左侧时间与墨青细线。",
+                "无衬线分栏页眉、左侧时间与墨青细线。",
+                "  \"composition\": { \"preset\": \"split-header\", \"header\": \"split\", \"contact\": \"stacked\" },\n",
+            ),
+        ] {
+            let current = BUILTIN_THEMES
+                .iter()
+                .find(|source| parse_theme(source.as_bytes()).unwrap().id == id)
+                .unwrap();
+            let old = current
+                .replace(new_description, old_description)
+                .replace("\"version\": \"1.2.0\"", "\"version\": \"1.1.0\"")
+                .replace(composition, "");
+            let expected = REFINED_V1_1_SHA256
+                .iter()
+                .find(|(known_id, _)| *known_id == id)
+                .unwrap()
+                .1;
+            assert_eq!(sha256(old.as_bytes()), expected);
+            fs::write(directory.join(format!("{id}.theme.json")), old).unwrap();
+        }
+        let mut store =
+            ThemeStore::new(root.path().join("settings.json"), directory.clone()).unwrap();
+        for id in ["danzhu", "moxu"] {
+            let current = BUILTIN_THEMES
+                .iter()
+                .find(|source| parse_theme(source.as_bytes()).unwrap().id == id)
+                .unwrap();
+            assert_eq!(
+                fs::read(directory.join(format!("{id}.theme.json"))).unwrap(),
+                current.as_bytes()
+            );
+        }
+        let customized = b"user customized split theme";
+        fs::write(directory.join("danzhu.theme.json"), customized).unwrap();
+        store.load_themes().unwrap();
+        assert_eq!(
+            fs::read(directory.join("danzhu.theme.json")).unwrap(),
+            customized
         );
     }
 

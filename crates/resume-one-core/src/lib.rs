@@ -530,7 +530,10 @@ mod tests {
             assert!(style.colors.ink.contrast(style.colors.paper) >= 4.5);
             assert!(style.colors.accent.contrast(style.colors.paper) >= 4.5);
             assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
-            assert_eq!(style.composition_preset, "single-column");
+            assert!(matches!(
+                style.composition_preset.as_str(),
+                "single-column" | "split-header"
+            ));
             assert!(theme.normalized.get("assets").is_none());
             layout::check_theme(&theme).unwrap();
             // A palette change alone is not a new built-in design. Keep the

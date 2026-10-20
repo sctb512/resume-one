@@ -739,9 +739,16 @@ fn section_styles_export_in_both_formats_without_changing_resume() {
         value["sections"]["work"]["date"] = serde_json::json!("left");
         fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
         let (status, response) = call(&args);
+        assert!(status.status.success(), "{response}");
+        let left_date = fs::read(&out).unwrap();
+        assert_ne!(left_date, right_date);
+        value["sections"]["work"]["items"] = serde_json::json!("cards");
+        fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
+        let (status, response) = call(&args);
         assert_eq!(status.status.code(), Some(6));
         assert_eq!(response["error"]["code"], "EXPORT_RENDER");
-        assert_eq!(fs::read(&out).unwrap(), right_date);
+        assert_eq!(fs::read(&out).unwrap(), left_date);
+        value["sections"]["work"]["items"] = serde_json::json!("compact");
         value["sections"]["work"]["date"] = serde_json::json!("right");
         fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
     }

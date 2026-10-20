@@ -114,10 +114,11 @@ struct PageWriter<'a> {
     target: Option<LayoutTarget>,
 }
 
-pub(crate) struct RightDateLines {
+pub(crate) struct SideDateLines {
     pub heading: Vec<String>,
     pub date: Vec<String>,
     pub same_line: bool,
+    pub date_width_pt: f32,
 }
 
 impl<'a> PageWriter<'a> {
@@ -300,13 +301,13 @@ impl<'a> PageWriter<'a> {
         lines
     }
 
-    fn right_date_lines(
+    fn side_date_lines(
         &self,
         heading: &str,
         date: &str,
         body: &TextStyle,
         meta: &TextStyle,
-    ) -> RightDateLines {
+    ) -> SideDateLines {
         let heading_size = body.size_pt * 1.06;
         let body_font = font_kind(body).expect("theme checked");
         let meta_font = font_kind(meta).expect("theme checked");
@@ -317,23 +318,26 @@ impl<'a> PageWriter<'a> {
         } else {
             self.content_width()
         };
-        RightDateLines {
+        SideDateLines {
             heading: self.wrap(heading, heading_size, heading_width, body_font),
             date: self.wrap(date, meta.size_pt, self.content_width(), meta_font),
             same_line,
+            date_width_pt: date_width,
         }
     }
 
-    fn right_dated_heading(
+    fn side_dated_heading(
         &mut self,
         heading: &str,
         date: &str,
-        body: &TextStyle,
-        meta: &TextStyle,
-        ink: Rgb,
-        muted: Rgb,
+        placement: DatePlacement,
+        style: &ThemeStyle,
     ) {
-        let lines = self.right_date_lines(heading, date, body, meta);
+        let body = &style.typography.body;
+        let meta = &style.typography.meta;
+        let ink = style.colors.ink;
+        let muted = style.colors.muted;
+        let lines = self.side_date_lines(heading, date, body, meta);
         let heading_size = body.size_pt * 1.06;
         let heading_leading = body.size_pt * body.line_height * 1.06;
         let date_leading = meta.size_pt * meta.line_height;
@@ -349,7 +353,12 @@ impl<'a> PageWriter<'a> {
             if let Some(first) = lines.heading.first() {
                 self.ops.push(LayoutElement::Text(LayoutText {
                     text: first.clone(),
-                    x_pt: self.left,
+                    x_pt: self.left
+                        + if placement == DatePlacement::Left {
+                            self.text_width(date, meta.size_pt, meta_font) + 12.0
+                        } else {
+                            0.0
+                        },
                     baseline_y_pt: self.y,
                     size_pt: heading_size,
                     leading_pt: first_height,
@@ -360,7 +369,11 @@ impl<'a> PageWriter<'a> {
             }
             self.ops.push(LayoutElement::Text(LayoutText {
                 text: date.into(),
-                x_pt: self.width - self.right - self.text_width(date, meta.size_pt, meta_font),
+                x_pt: if placement == DatePlacement::Left {
+                    self.left
+                } else {
+                    self.width - self.right - self.text_width(date, meta.size_pt, meta_font)
+                },
                 baseline_y_pt: self.y,
                 size_pt: meta.size_pt,
                 leading_pt: first_height,
@@ -369,18 +382,39 @@ impl<'a> PageWriter<'a> {
                 target: self.target,
             }));
             self.y -= first_height;
+            let continuation_indent = if placement == DatePlacement::Left {
+                self.text_width(date, meta.size_pt, meta_font) + 12.0
+            } else {
+                0.0
+            };
             for line in lines.heading.iter().skip(1) {
-                self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+                self.line(
+                    line,
+                    heading_size,
+                    ink,
+                    body_font,
+                    continuation_indent,
+                    heading_leading,
+                );
             }
         } else {
-            for line in &lines.heading {
-                self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
-            }
-            for line in &lines.date {
-                let indent = (self.content_width()
-                    - self.text_width(line, meta.size_pt, meta_font))
-                .max(0.0);
-                self.line(line, meta.size_pt, muted, meta_font, indent, date_leading);
+            if placement == DatePlacement::Left {
+                for line in &lines.date {
+                    self.line(line, meta.size_pt, muted, meta_font, 0.0, date_leading);
+                }
+                for line in &lines.heading {
+                    self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+                }
+            } else {
+                for line in &lines.heading {
+                    self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+                }
+                for line in &lines.date {
+                    let indent = (self.content_width()
+                        - self.text_width(line, meta.size_pt, meta_font))
+                    .max(0.0);
+                    self.line(line, meta.size_pt, muted, meta_font, indent, date_leading);
+                }
             }
         }
     }
@@ -450,10 +484,10 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             }
             if value["date"]
                 .as_str()
-                .is_some_and(|date| !matches!(date, "inline" | "right"))
+                .is_some_and(|date| !matches!(date, "inline" | "left" | "right"))
             {
                 return Err(format!(
-                    "当前排版引擎暂不支持 sections.{id}.date；目前支持 inline / right"
+                    "当前排版引擎暂不支持 sections.{id}.date；目前支持 inline / left / right"
                 ));
             }
         }
@@ -630,10 +664,10 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let meta_font = font_kind(meta).expect("theme checked");
     let section = style.section(section_id);
     let mut height = section.item_gap_pt();
-    if section.date == DatePlacement::Right
+    if section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
-        let lines = page.right_date_lines(&item.heading, date, body, meta);
+        let lines = page.side_date_lines(&item.heading, date, body, meta);
         let heading_leading = body.size_pt * body.line_height * 1.06;
         let date_leading = meta.size_pt * meta.line_height;
         height += if lines.same_line {
@@ -655,7 +689,7 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
             body.size_pt * body.line_height * 1.06,
         );
     }
-    let details = if section.date == DatePlacement::Right && item.date().is_some() {
+    let details = if section.date != DatePlacement::Inline && item.date().is_some() {
         item.other_details().join("   ·   ")
     } else {
         item.details.join("   ·   ")
@@ -735,14 +769,14 @@ pub fn check_theme(theme: &ThemeManifest) -> Result<(), String> {
 }
 
 /// Share the measured first-line split with editable Word output.
-pub(crate) fn right_date_lines_for_style(
+pub(crate) fn side_date_lines_for_style(
     style: &ThemeStyle,
     heading: &str,
     date: &str,
-) -> RightDateLines {
+) -> SideDateLines {
     let sans_face = Face::parse(SANS_FONT_BYTES, 0).expect("validated bundled font");
     let serif_face = Face::parse(SERIF_FONT_BYTES, 0).expect("validated bundled font");
-    PageWriter::new(sans_face, serif_face, style).right_date_lines(
+    PageWriter::new(sans_face, serif_face, style).side_date_lines(
         heading,
         date,
         &style.typography.body,
@@ -844,10 +878,10 @@ fn layout_with_style(
                 index: Some(index),
             });
             page.gap(section.item_gap_pt());
-            if section.date == DatePlacement::Right
+            if section.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
-                page.right_dated_heading(&item.heading, date, body, meta, ink, muted);
+                page.side_dated_heading(&item.heading, date, section.date, style);
             } else if !item.heading.is_empty() {
                 page.wrapped(
                     &item.heading,
@@ -858,7 +892,7 @@ fn layout_with_style(
                     body.size_pt * body.line_height * 1.06,
                 );
             }
-            let details = if section.date == DatePlacement::Right && item.date().is_some() {
+            let details = if section.date != DatePlacement::Inline && item.date().is_some() {
                 item.other_details().join("   ·   ")
             } else {
                 item.details.join("   ·   ")
@@ -1220,7 +1254,7 @@ mod tests {
         for value in [
             serde_json::json!({"items":"timeline"}),
             serde_json::json!({"items":"cards"}),
-            serde_json::json!({"date":"left"}),
+            serde_json::json!({"date":"sideways"}),
         ] {
             theme.normalized["sections"]["work"] = value;
             assert!(check_theme(&theme).unwrap_err().contains("sections.work"));
@@ -1336,6 +1370,99 @@ mod tests {
                     <= measure.width - measure.right + 0.05,
                 "{}",
                 text.text
+            );
+        }
+    }
+
+    #[test]
+    fn left_dates_align_heading_and_continuations_without_losing_details() {
+        let mut theme = sections_theme();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("left");
+        check_theme(&theme).unwrap();
+        let source = serde_json::json!({"work":[{
+            "position":"Very long cross-platform engineering position with many words to wrap safely",
+            "name":"Example Organization", "startDate":"2020", "endDate":"2022",
+            "location":"Berlin", "summary":"Delivered reliable work"}]});
+        let content = project(&parse_resume(&serde_json::to_vec(&source).unwrap()).unwrap());
+        let style = ThemeStyle::from_manifest(&theme);
+        let measure = PageWriter::new(
+            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            &style,
+        );
+        let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let texts: Vec<_> = layout
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| {
+                if let LayoutElement::Text(text) = element {
+                    Some(text)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let date = texts
+            .iter()
+            .find(|text| text.text == "2020 – 2022")
+            .unwrap();
+        let headings: Vec<_> = texts
+            .iter()
+            .filter(|text| {
+                text.target == date.target
+                    && text.color == style.colors.ink
+                    && (text.size_pt - style.typography.body.size_pt * 1.06).abs() < 0.01
+            })
+            .collect();
+        assert!(headings.len() > 1);
+        assert_eq!(date.x_pt, measure.left);
+        assert_eq!(date.baseline_y_pt, headings[0].baseline_y_pt);
+        let heading_x =
+            measure.left + measure.text_width(&date.text, date.size_pt, date.font) + 12.0;
+        for heading in headings {
+            assert!((heading.x_pt - heading_x).abs() < 0.01);
+            assert!(
+                heading.x_pt + measure.text_width(&heading.text, heading.size_pt, heading.font)
+                    <= measure.width - measure.right + 0.05
+            );
+        }
+        assert_eq!(
+            texts
+                .iter()
+                .filter(|text| text.text == "2020 – 2022")
+                .count(),
+            1
+        );
+        assert!(texts.iter().any(|text| text.text == "Berlin"));
+
+        let mut long_date = content.clone();
+        let item = &mut long_date.sections[0].items[0];
+        item.details[item.date_detail_index.unwrap()] = "2020 – 2022 ".repeat(12);
+        let layout = layout_with_theme(&long_date, Language::En, &theme).unwrap();
+        let dated: Vec<_> = layout
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| {
+                if let LayoutElement::Text(text) = element {
+                    (text.target == date.target).then_some(text)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(
+            dated
+                .iter()
+                .any(|text| text.text.starts_with("2020 – 2022"))
+        );
+        assert_eq!(dated.first().unwrap().x_pt, measure.left);
+        assert!(dated.iter().any(|text| text.color == style.colors.ink));
+        for text in dated {
+            assert!(
+                text.x_pt + measure.text_width(&text.text, text.size_pt, text.font)
+                    <= measure.width - measure.right + 0.05
             );
         }
     }

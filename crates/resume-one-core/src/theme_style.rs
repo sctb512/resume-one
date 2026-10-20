@@ -145,6 +145,7 @@ pub enum ItemLayout {
 pub enum DatePlacement {
     #[default]
     Inline,
+    Left,
     Right,
 }
 
@@ -340,10 +341,10 @@ impl ThemeStyle {
                             } else {
                                 ItemLayout::Stack
                             },
-                            date: if value["date"] == "right" {
-                                DatePlacement::Right
-                            } else {
-                                DatePlacement::Inline
+                            date: match value["date"].as_str() {
+                                Some("left") => DatePlacement::Left,
+                                Some("right") => DatePlacement::Right,
+                                _ => DatePlacement::Inline,
                             },
                         },
                     )
@@ -413,6 +414,11 @@ mod tests {
         assert_eq!(
             ThemeStyle::from_manifest(&theme).section("work").date,
             DatePlacement::Right
+        );
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("left");
+        assert_eq!(
+            ThemeStyle::from_manifest(&theme).section("work").date,
+            DatePlacement::Left
         );
     }
 

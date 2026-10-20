@@ -1,0 +1,21 @@
+{
+  "formatVersion": 2,
+  "id": "left-date",
+  "name": "日期靠左验收",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": {
+    "accent": "#52756B",
+    "seal": "#A14F40",
+    "paper": "#FFFEFA",
+    "canvas": "#F6F3ED"
+  },
+  "modules": ["basics", "work", "education", "projects", "awards"],
+  "sections": {
+    "work": { "heading": "filled", "items": "compact", "date": "left" },
+    "education": { "date": "left" },
+    "projects": { "date": "left" },
+    "awards": { "date": "left" }
+  }
+}

@@ -9,7 +9,7 @@ use docx_rs::{
 };
 
 use crate::ThemeManifest;
-use crate::layout::{PT_PER_MM, check_theme, right_date_lines_for_style};
+use crate::layout::{PT_PER_MM, check_theme, side_date_lines_for_style};
 use crate::render::{Language, title};
 use crate::semantic::ResumeContent;
 use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
@@ -251,19 +251,53 @@ fn build_document(
         );
         for item in &section.items {
             let mut paragraphs = Vec::new();
-            if section_style.date == DatePlacement::Right
+            if section_style.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
-                let lines = right_date_lines_for_style(style, &item.heading, date);
+                let lines = side_date_lines_for_style(style, &item.heading, date);
                 if lines.heading.is_empty() {
-                    paragraphs.push(
-                        paragraph(date, meta, muted, 0.0, 0.0).align(docx_rs::AlignmentType::Right),
-                    );
+                    let mut date_paragraph = paragraph(date, meta, muted, 0.0, 0.0);
+                    if section_style.date == DatePlacement::Right {
+                        date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
+                    }
+                    paragraphs.push(date_paragraph);
                 } else if !lines.same_line {
-                    paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                    let mut date_paragraph = paragraph(date, meta, muted, 0.0, 0.0);
+                    if section_style.date == DatePlacement::Right {
+                        date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
+                        paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                        paragraphs.push(date_paragraph);
+                    } else {
+                        paragraphs.push(date_paragraph);
+                        paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                    }
+                } else if section_style.date == DatePlacement::Left {
+                    let mut heading_run = Run::new()
+                        .add_tab()
+                        .add_text(&lines.heading[0])
+                        .size((heading.size_pt * 2.0).round() as usize)
+                        .color(color(ink))
+                        .fonts(font(&heading));
+                    if heading.weight >= 600 {
+                        heading_run = heading_run.bold();
+                    }
                     paragraphs.push(
-                        paragraph(date, meta, muted, 0.0, 0.0).align(docx_rs::AlignmentType::Right),
+                        paragraph(date, meta, muted, 0.0, 0.0)
+                            .add_tab(
+                                docx_rs::Tab::new()
+                                    .val(docx_rs::TabValueType::Left)
+                                    .pos(twips(lines.date_width_pt + 12.0) as usize),
+                            )
+                            .add_run(heading_run),
                     );
+                    for continuation in lines.heading.iter().skip(1) {
+                        paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0).indent(
+                            Some(twips(lines.date_width_pt + 12.0) as i32),
+                            None,
+                            None,
+                            None,
+                        ));
+                    }
                 } else {
                     let date_run = Run::new()
                         .add_tab()
@@ -289,7 +323,7 @@ fn build_document(
             } else if !item.heading.is_empty() {
                 paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
             }
-            let details = if section_style.date == DatePlacement::Right && item.date().is_some() {
+            let details = if section_style.date != DatePlacement::Inline && item.date().is_some() {
                 item.other_details().join("   ·   ")
             } else {
                 item.details.join("   ·   ")
@@ -540,7 +574,7 @@ mod tests {
         let item = &mut content.sections[0].items[0];
         item.details[item.date_detail_index.unwrap()] = date.into();
         let style = ThemeStyle::from_manifest(&theme);
-        assert!(!right_date_lines_for_style(&style, &item.heading, date).same_line);
+        assert!(!side_date_lines_for_style(&style, &item.heading, date).same_line);
         let package = build_document(&content, Language::En, &style).unwrap();
         let xml = String::from_utf8(package.document).unwrap();
         let heading = xml
@@ -566,7 +600,7 @@ mod tests {
         );
         let style = ThemeStyle::from_manifest(&theme);
         let item = &content.sections[0].items[0];
-        let lines = right_date_lines_for_style(&style, &item.heading, item.date().unwrap());
+        let lines = side_date_lines_for_style(&style, &item.heading, item.date().unwrap());
         assert!(lines.same_line && lines.heading.len() > 1);
         let package = build_document(&content, Language::En, &style).unwrap();
         let xml = String::from_utf8(package.document).unwrap();
@@ -581,6 +615,54 @@ mod tests {
             .unwrap();
         assert!(!continuation.contains("2020 – 2022"));
         assert_eq!(xml.matches("2020 – 2022").count(), 1);
+    }
+
+    #[test]
+    fn left_date_precedes_heading_and_aligns_continuation_in_docx() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["sections"]["work"]["date"] = serde_json::json!("left");
+        check_theme(&theme).unwrap();
+        let content = project(
+            &parse_resume(br#"{"work":[{"position":"Very long cross-platform engineering position with many words to wrap safely","name":"Example Organization","startDate":"2020","endDate":"2022","location":"Berlin"}]}"#).unwrap(),
+        );
+        let style = ThemeStyle::from_manifest(&theme);
+        let item = &content.sections[0].items[0];
+        let lines = side_date_lines_for_style(&style, &item.heading, item.date().unwrap());
+        assert!(lines.same_line && lines.heading.len() > 1);
+        let package = build_document(&content, Language::En, &style).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let first = xml
+            .split("</w:p>")
+            .find(|p| p.contains(&lines.heading[0]))
+            .unwrap();
+        assert!(first.contains("2020 – 2022"));
+        assert!(first.contains("w:val=\"left\""));
+        assert!(first.find("2020 – 2022").unwrap() < first.find(&lines.heading[0]).unwrap());
+        let continuation = xml
+            .split("</w:p>")
+            .find(|p| p.contains(&lines.heading[1]))
+            .unwrap();
+        assert!(continuation.contains("<w:ind"));
+        assert!(!continuation.contains("2020 – 2022"));
+        assert!(xml.contains("Berlin"));
+        assert_eq!(xml.matches("2020 – 2022").count(), 1);
+
+        let mut long_date = content.clone();
+        let item = &mut long_date.sections[0].items[0];
+        item.details[item.date_detail_index.unwrap()] =
+            "An exceptionally long appointment date that needs an entire line".into();
+        let package = build_document(&long_date, Language::En, &style).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let date = xml
+            .split("</w:p>")
+            .find(|p| p.contains("An exceptionally long appointment"))
+            .unwrap();
+        assert!(!date.contains("w:val=\"right\""));
+        assert!(!date.contains("<w:tabs>"));
+        assert!(!date.contains(&lines.heading[0]));
     }
     use std::io::Read;
 

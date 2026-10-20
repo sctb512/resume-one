@@ -10,9 +10,9 @@ esac
 
 cd "$repo_root"
 if [[ "$profile" == release ]]; then
-    cargo build --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
+    cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
 else
-    cargo build -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
+    cargo build --locked -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
 fi
 
 bundle="$repo_root/target/$profile/Resume One.app"

@@ -3,7 +3,7 @@
   "id": "xingye",
   "name": "行野",
   "description": "高效利用纸面，无衬线大字与左侧时间列。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#93523B", "seal": "#93523B", "paper": "#FFFCF8", "canvas": "#F8F2EC" },

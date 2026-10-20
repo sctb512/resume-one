@@ -3,7 +3,7 @@
   "id": "xuanmu",
   "name": "玄木",
   "description": "深玄纸面、温金色底标题与左侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": { "accent": "#D4B98C", "seal": "#B78C79", "paper": "#252322", "canvas": "#1C1B1A" },

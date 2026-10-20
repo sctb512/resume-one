@@ -3,7 +3,7 @@
   "id": "songyan",
   "name": "松烟",
   "description": "松绿强调线、紧凑商务节奏与右侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": { "accent": "#3F5650", "seal": "#83594C", "paper": "#FFFFFF", "canvas": "#F0F3F1" },

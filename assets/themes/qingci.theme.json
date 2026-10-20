@@ -3,7 +3,7 @@
   "id": "qingci",
   "name": "青瓷",
   "description": "居中页眉、青瓷色细线与舒展的行距。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#3B6E70", "seal": "#9A695A", "paper": "#F8FCFC", "canvas": "#EFF6F5" },

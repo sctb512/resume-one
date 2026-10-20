@@ -3,7 +3,7 @@
   "id": "zhuqing",
   "name": "竹青",
   "description": "居中书卷页眉、逐行联系方式与舒缓行距。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": { "accent": "#3D6450", "seal": "#9B6048", "paper": "#F9FBF7", "canvas": "#EEF3EA" },

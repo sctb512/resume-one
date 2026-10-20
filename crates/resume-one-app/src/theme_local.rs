@@ -6,7 +6,7 @@ use gpui::{Context, PathPromptOptions, Window, actions};
 use resume_one_core::export::write_export_unnamed;
 use resume_one_core::parse_theme;
 use resume_one_core::theme_style::ThemeStyle;
-use resume_one_themes::{GithubSource, parse_sources};
+use resume_one_themes::{GithubSource, parse_sources, sha256};
 use serde_json::{Value, json};
 
 use crate::ResumeOne;
@@ -25,6 +25,176 @@ pub(super) struct ThemeStore {
 }
 
 const MAX_RECENT_FILES: usize = 12;
+
+// Exact bytes shipped before the first visual refinement. Only untouched
+// copies of these files may be replaced; a user's edits always win.
+const LEGACY_BUNDLED_SHA256: &[(&str, &str)] = &[
+    (
+        "danzhu",
+        "76b989a8e2b357b7da629fb7416c3b19b40b7aa5bc66499814b30ad13dff78a7",
+    ),
+    (
+        "fenglan",
+        "3987a85a64fcec1104222783a6d98b16089ede680aa391eec449d1b375d4a460",
+    ),
+    (
+        "huanghun",
+        "a731bbbe478c76b90c34eff2b87f63297af68174ae3286a145a7210ca127fb1d",
+    ),
+    (
+        "linquan",
+        "8c563530e830867c984b2c5a5d55fdf2e25dea243a174f1bc576357f5af4771b",
+    ),
+    (
+        "mingsha",
+        "6853f21768e4dbc27a33c0c1ada8b4e95797dd24471690be4568311e44ec7556",
+    ),
+    (
+        "moxu",
+        "a8e01a12b969e532d9fa6bb02a2b30a34573b65ece1704bf136da9081c8866b0",
+    ),
+    (
+        "qingci",
+        "0695c4fcb71cf3f0a6766262b7293fd912c1338fecb064f5f95589dd026f87f1",
+    ),
+    (
+        "qinghe",
+        "b13ae34609e36dd5b6107df189d2570cb219f51b59e1a6b092b27386eddc4d40",
+    ),
+    (
+        "shanshui",
+        "41f2695d1efcf97ef05fa957cc32896934489f7781c00792a68ada9628069f87",
+    ),
+    (
+        "songyan",
+        "7e327f18a21bf288628f7213d593a670ea0bfaa9ddec29e5dfa957145bf072b9",
+    ),
+    (
+        "xiaguang",
+        "faf0a58fbb9add3860e996a9b2b25fa37368a0ab405074cdc890a0b82aa1a6b1",
+    ),
+    (
+        "xingye",
+        "2a36464b0c5d06659d2984a54397f3fa797e63c575ab8111a4a390572afde191",
+    ),
+    (
+        "xuanmu",
+        "45faf93896f02c3027866e5adbf3730ac43e003b2474cf9fe7f5229c4c4144c1",
+    ),
+    (
+        "yanshan",
+        "33e2f54b102dc7d0d9926b9a33e088671907d0d7bd518d7ca6ac78c23e34c3da",
+    ),
+    (
+        "yehe",
+        "ae0781107acf1450250ce1ba7e56f1f1f4f1df57e11cec20adc8a4bf33651654",
+    ),
+    (
+        "yuebai",
+        "07f4ca984b15ade41fdb5d8bafa3d936581347c913a9f496fffe6e90d0237578",
+    ),
+    (
+        "zhegui",
+        "25b6fb7321e926f411c91657de2148e7137b3da618a55e1ffa2f4a2b5e4a8e48",
+    ),
+    (
+        "zhibai",
+        "5ea078182b2d3316fa0bc91373600305a37bf4bc0195aebd81642efbc116a342",
+    ),
+    (
+        "zhimo",
+        "dfaa95444519ad5ea0ad2f19efab7caa58b07da132fcc378bf41521b3b00a6d8",
+    ),
+    (
+        "zhuqing",
+        "fc8d32977a27a8da3f37eca560a6411635aca70b407cd67ad102a8ebe09216d8",
+    ),
+];
+
+// The refined files were briefly available with their old version number.
+// Recognize those exact bytes when promoting them to version 1.1.0.
+const REFINED_PREVERSION_SHA256: &[(&str, &str)] = &[
+    (
+        "danzhu",
+        "da1ea8f383444082c8501794a5bd1691e292f3bf0856daaa1ab1ca6254ee77e8",
+    ),
+    (
+        "fenglan",
+        "26628ec3039e2e9718171ca37acdc0f29de4d8ebde44d7d9634fc1b731e87ab1",
+    ),
+    (
+        "huanghun",
+        "c61fd4142a9d3b54d02c27fc1a87742fb9d5559cdd1435e3bc55df94bb1c778e",
+    ),
+    (
+        "linquan",
+        "c7da3a7d5036971d5b48549e136da82cdc048ebaaaae78a8864f79581388acbf",
+    ),
+    (
+        "mingsha",
+        "5dc4e9d61241704f1fd3ad811c3980fdb327905067305a1d48f08fcbc11015bb",
+    ),
+    (
+        "moxu",
+        "111fd073cce0a86d96dc4ab05e355de41e14044eb9f40c20fbad04a4ce15f73c",
+    ),
+    (
+        "qingci",
+        "0fad71bf56776a4c54aa982cf15d270d2060e2173cd04c19698d0665e8b0914f",
+    ),
+    (
+        "qinghe",
+        "fb4381e576c7ace72a0bfd4da2b2534d47d0294b713ed775eb8b1136cbda1eae",
+    ),
+    (
+        "shanshui",
+        "2a0d5c20b8046129d5a42d747a295481ddaf75e90a608e92c647df04ac533889",
+    ),
+    (
+        "songyan",
+        "d139b260f692743451ac18bacd9f9feba7362e8216ba8b19fefe9d6019237b43",
+    ),
+    (
+        "xiaguang",
+        "7adf482aedb65db61c9b3d23bf1a18055f4e27502c44758c9c751c1e5946b10a",
+    ),
+    (
+        "xingye",
+        "6daf8a58fd8a5ac11136f6bcf934b2936abc1cd95e2cf50acdac9f893de14d68",
+    ),
+    (
+        "xuanmu",
+        "38cd3b9f9ca5b0e41335e83cb625fccfc739934382bac347de882b15bbfd4142",
+    ),
+    (
+        "yanshan",
+        "645a829c2e5e4024778fe21d4f773a934842c59fd65d9a8277c7881eea08097a",
+    ),
+    (
+        "yehe",
+        "5461bcdb453c0c4ed9e7c520419091092d807c9404dcdf0d945920ca6bfcdc2f",
+    ),
+    (
+        "yuebai",
+        "88fd48c5c8de89a6ef259caece926711d16895702c04706e9cfb6675fd444be4",
+    ),
+    (
+        "zhegui",
+        "57d97ee73e5b8043d29063f2a1da5d26549dcfae14b66ad955c68fce6d897488",
+    ),
+    (
+        "zhibai",
+        "fca8d5ddf7ea1b73c4bc751148e2f4ae5ed84a06515425c3ab1f5aef6c98c4ab",
+    ),
+    (
+        "zhimo",
+        "ba4d90280da7bc08082c40c310bc6465767445605d1fcdc8413fa1b28a134b12",
+    ),
+    (
+        "zhuqing",
+        "0c1615db94d144c87d0ffeb0055fc36c68dace5c43e66a9afe92c9a8970832d9",
+    ),
+];
 
 fn recent_files_from(settings: &Value) -> Vec<PathBuf> {
     let mut files = Vec::new();
@@ -110,7 +280,7 @@ impl ThemeStore {
             }
             None => default_dir.clone(),
         };
-        let store = Self {
+        let mut store = Self {
             settings_path,
             default_dir,
             directory,
@@ -119,7 +289,9 @@ impl ThemeStore {
             recent_files,
             last_folder,
         };
-        Self::seed_defaults(&store.directory)?;
+        store
+            .warnings
+            .extend(Self::seed_defaults(&store.directory)?);
         Ok(store)
     }
 
@@ -205,14 +377,46 @@ impl ThemeStore {
         Ok(())
     }
 
-    fn seed_defaults(directory: &Path) -> Result<(), String> {
+    fn seed_defaults(directory: &Path) -> Result<Vec<String>, String> {
         fs::create_dir_all(directory).map_err(|error| format!("无法创建主题目录：{error}"))?;
+        let mut warnings = Vec::new();
         for source in BUILTIN_THEMES {
             let manifest = parse_theme(source.as_bytes())
                 .map_err(|issues| format!("内置主题无效：{issues:?}"))?;
             let target = directory.join(format!("{}.theme.json", manifest.id));
-            if target.exists() {
-                continue;
+            match fs::symlink_metadata(&target) {
+                Ok(metadata) => {
+                    if metadata.file_type().is_file() && metadata.len() <= 1024 * 1024 {
+                        let bytes = match fs::read(&target) {
+                            Ok(bytes) => bytes,
+                            Err(error) => {
+                                warnings.push(format!("无法读取已有主题 {}：{error}", manifest.id));
+                                continue;
+                            }
+                        };
+                        let existing_hash = sha256(&bytes);
+                        if LEGACY_BUNDLED_SHA256
+                            .iter()
+                            .chain(REFINED_PREVERSION_SHA256)
+                            .any(|(id, known_hash)| {
+                                *id == manifest.id && existing_hash == *known_hash
+                            })
+                            && let Err(error) =
+                                write_export_unnamed(&target, source.as_bytes(), true)
+                        {
+                            warnings.push(format!(
+                                "无法升级内置主题 {}：{}",
+                                manifest.id, error.message
+                            ));
+                        }
+                    }
+                    continue;
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+                Err(error) => {
+                    warnings.push(format!("无法检查已有主题 {}：{error}", manifest.id));
+                    continue;
+                }
             }
             if let Err(error) = write_export_unnamed(&target, source.as_bytes(), false)
                 && error.code != "FILE_EXISTS"
@@ -223,7 +427,7 @@ impl ThemeStore {
                 ));
             }
         }
-        Ok(())
+        Ok(warnings)
     }
 
     fn theme_paths(directory: &Path) -> Result<Vec<PathBuf>, String> {
@@ -259,9 +463,8 @@ impl ThemeStore {
     }
 
     fn scan(directory: &Path) -> Result<(Vec<BuiltinTheme>, Vec<String>), String> {
-        Self::seed_defaults(directory)?;
+        let mut warnings = Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
-        let mut warnings = Vec::new();
         for path in Self::theme_paths(directory)? {
             match fs::metadata(&path) {
                 Ok(metadata) if metadata.len() > 1024 * 1024 => {
@@ -471,6 +674,96 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn exact_legacy_defaults_upgrade_but_user_changes_survive() {
+        let legacy = include_bytes!("../tests/fixtures/zhibai-legacy.theme.json");
+        let expected_hash = LEGACY_BUNDLED_SHA256
+            .iter()
+            .find(|(id, _)| *id == "zhibai")
+            .unwrap()
+            .1;
+        assert_eq!(sha256(legacy), expected_hash);
+        let ids: std::collections::HashSet<_> =
+            LEGACY_BUNDLED_SHA256.iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids.len(), BUILTIN_THEMES.len());
+        let refined_ids: std::collections::HashSet<_> = REFINED_PREVERSION_SHA256
+            .iter()
+            .map(|(id, _)| *id)
+            .collect();
+        assert_eq!(refined_ids, ids);
+        for source in BUILTIN_THEMES {
+            assert!(ids.contains(parse_theme(source.as_bytes()).unwrap().id.as_str()));
+        }
+        let refined_preversion =
+            BUILTIN_THEMES[0].replace("\"version\": \"1.1.0\"", "\"version\": \"1.0.0\"");
+        let expected_refined_hash = REFINED_PREVERSION_SHA256
+            .iter()
+            .find(|(id, _)| *id == "zhibai")
+            .unwrap()
+            .1;
+        assert_eq!(sha256(refined_preversion.as_bytes()), expected_refined_hash);
+
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("themes");
+        fs::create_dir(&directory).unwrap();
+        let legacy_path = directory.join("zhibai.theme.json");
+        fs::write(&legacy_path, legacy).unwrap();
+        let custom_path = directory.join("moxu.theme.json");
+        let mut custom: Value = serde_json::from_str(BUILTIN_THEMES[1]).unwrap();
+        custom["description"] = json!("用户已经修改");
+        let custom_bytes = serde_json::to_vec_pretty(&custom).unwrap();
+        fs::write(&custom_path, &custom_bytes).unwrap();
+        let settings = root.path().join("settings.json");
+        fs::write(&settings, br#"{"future":{"preserve":true}}"#).unwrap();
+
+        let mut store = ThemeStore::new(settings.clone(), directory).unwrap();
+        assert_eq!(
+            fs::read(&legacy_path).unwrap(),
+            BUILTIN_THEMES[0].as_bytes()
+        );
+        assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
+        assert_eq!(store.load_themes().unwrap().len(), 20);
+        assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
+        assert_eq!(
+            fs::read(&settings).unwrap(),
+            br#"{"future":{"preserve":true}}"#
+        );
+        fs::write(&legacy_path, b"user edit after upgrade").unwrap();
+        store.load_themes().unwrap();
+        assert_eq!(fs::read(&legacy_path).unwrap(), b"user edit after upgrade");
+
+        let preversion_dir = root.path().join("refined-preversion");
+        fs::create_dir(&preversion_dir).unwrap();
+        let preversion_path = preversion_dir.join("zhibai.theme.json");
+        fs::write(&preversion_path, refined_preversion).unwrap();
+        ThemeStore::new(root.path().join("other-settings.json"), preversion_dir).unwrap();
+        assert_eq!(
+            fs::read(preversion_path).unwrap(),
+            BUILTIN_THEMES[0].as_bytes()
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn symlinked_old_default_is_never_replaced() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path().join("themes");
+        fs::create_dir(&directory).unwrap();
+        let external = root.path().join("external.theme.json");
+        let legacy = include_bytes!("../tests/fixtures/zhibai-legacy.theme.json");
+        fs::write(&external, legacy).unwrap();
+        let link = directory.join("zhibai.theme.json");
+        std::os::unix::fs::symlink(&external, &link).unwrap();
+        ThemeStore::new(root.path().join("settings.json"), directory).unwrap();
+        assert!(
+            fs::symlink_metadata(&link)
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+        assert_eq!(fs::read(&external).unwrap(), legacy);
+    }
 
     #[test]
     fn recent_files_and_folder_persist_without_storing_resume_content() {

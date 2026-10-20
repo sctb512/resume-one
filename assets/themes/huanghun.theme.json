@@ -3,7 +3,7 @@
   "id": "huanghun",
   "name": "黄昏",
   "description": "居中书卷页眉、宽阔暖色留白与右侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": { "accent": "#95643E", "seal": "#9B5445", "paper": "#FFFBF6", "canvas": "#F8F0E6" },

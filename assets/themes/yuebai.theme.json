@@ -3,7 +3,7 @@
   "id": "yuebai",
   "name": "月白",
   "description": "Letter 纸张、居中无衬线与月蓝强调线。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#3D6373", "seal": "#8C6757", "paper": "#FAFCFD", "canvas": "#F0F5F7" },

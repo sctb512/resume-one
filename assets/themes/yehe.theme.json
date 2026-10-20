@@ -3,7 +3,7 @@
   "id": "yehe",
   "name": "夜河",
   "description": "深青纸面、居中页眉与柔和高亮线。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#A8CAC2", "seal": "#D3A47F", "paper": "#1A282C", "canvas": "#111B1E" },

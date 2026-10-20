@@ -3,7 +3,7 @@
   "id": "xiaguang",
   "name": "霞光",
   "description": "居中大字、赭粉色底模块与柔和创意气质。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#955C58", "seal": "#955C58", "paper": "#FFF9F7", "canvas": "#F9EFEC" },

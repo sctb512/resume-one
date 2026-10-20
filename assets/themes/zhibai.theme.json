@@ -3,7 +3,7 @@
   "id": "zhibai",
   "name": "知白",
   "description": "无饰留白、无衬线层级与右侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#4E5757", "seal": "#8C5B4C", "paper": "#FFFFFF", "canvas": "#F7F7F5" },

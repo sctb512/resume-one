@@ -3,7 +3,7 @@
   "id": "zhegui",
   "name": "折桂",
   "description": "古铜色底、居中大标题与米纸上的规整细线。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": { "accent": "#71663F", "seal": "#8A624D", "paper": "#FCFAF3", "canvas": "#F5F1E5" },

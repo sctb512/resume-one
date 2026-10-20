@@ -3,7 +3,7 @@
   "id": "mingsha",
   "name": "明砂",
   "description": "暖砂纸面、稳重色底标题与右侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#75504A", "seal": "#A76450", "paper": "#FBF6F0", "canvas": "#F3EAE2" },

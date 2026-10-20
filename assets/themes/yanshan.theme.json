@@ -3,7 +3,7 @@
   "id": "yanshan",
   "name": "砚山",
   "description": "冷蓝无衬线、大块模块标题与左侧日期。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#394F61", "seal": "#87584F", "paper": "#F9FAFC", "canvas": "#F0F2F5" },

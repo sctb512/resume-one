@@ -3,7 +3,7 @@
   "id": "danzhu",
   "name": "丹朱",
   "description": "无衬线大标题、左侧时间与朱砂细线，现代而克制。",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#974D43", "seal": "#974D43", "paper": "#FFFCF9", "canvas": "#F8F1EC" },

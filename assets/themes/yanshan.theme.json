@@ -2,13 +2,14 @@
   "formatVersion": 2,
   "id": "yanshan",
   "name": "砚山",
-  "description": "冷调无衬线，适合清晰的作品履历。",
+  "description": "冷蓝无衬线、大块模块标题与左侧日期。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#394F61", "seal": "#87584F", "paper": "#F9FAFC", "canvas": "#F0F2F5" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 7 },
-  "typography": { "name": { "family": "cjk-sans", "weight": 400, "sizePt": 28 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 13 } },
+  "page": { "size": "A4", "sectionGapMm": 6.5, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
+  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.44 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 29 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12.5 } },
+  "sections": { "work": { "heading": "filled", "date": "left" }, "projects": { "heading": "filled", "date": "left" }, "education": { "heading": "line", "date": "left" } },
   "provenance": { "fidelity": "native" }
 }

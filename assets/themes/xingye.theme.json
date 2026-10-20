@@ -2,13 +2,14 @@
   "formatVersion": 2,
   "id": "xingye",
   "name": "行野",
-  "description": "暖色强调，现代而不喧闹。",
+  "description": "高效利用纸面，无衬线大字与左侧时间列。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#93523B", "seal": "#93523B", "paper": "#FFFCF8", "canvas": "#F8F2EC" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6 },
-  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13.5 } },
+  "page": { "size": "A4", "sectionGapMm": 5, "marginsMm": { "top": 14, "right": 15, "bottom": 14, "left": 15 } },
+  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.36 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 30 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 13 } },
+  "sections": { "work": { "heading": "filled", "items": "compact", "date": "left" }, "projects": { "heading": "accent-line", "items": "compact", "date": "left" }, "education": { "heading": "accent-line", "items": "compact", "date": "left" }, "skills": { "items": "compact" } },
   "provenance": { "fidelity": "native" }
 }

@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "yehe",
   "name": "夜河",
-  "description": "深色纸面与柔和青金。",
+  "description": "深青纸面、居中页眉与柔和高亮线。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#A8CAC2", "seal": "#D3A47F", "paper": "#1A282C", "canvas": "#111B1E" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6 },
-  "typography": { "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13 } },
+  "page": { "size": "A4", "sectionGapMm": 7, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
+  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
+  "typography": { "body": { "lineHeight": 1.46 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13.5 }, "meta": { "sizePt": 8.7 } },
+  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" } },
   "provenance": { "fidelity": "native" }
 }

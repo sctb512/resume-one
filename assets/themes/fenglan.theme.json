@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "fenglan",
   "name": "风岚",
-  "description": "蓝灰细则，兼顾中英文阅读。",
+  "description": "Letter 纸张、逐行联系方式与蓝灰细则，适合双语履历。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": { "accent": "#4A5D74", "seal": "#95624F", "paper": "#FFFFFF", "canvas": "#F1F3F7" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "Letter", "sectionGapMm": 5 },
-  "typography": { "name": { "sizePt": 24 }, "sectionTitle": { "sizePt": 12.5 } },
+  "page": { "size": "Letter", "sectionGapMm": 5.5, "marginsMm": { "top": 16, "right": 17, "bottom": 16, "left": 17 } },
+  "composition": { "preset": "single-column", "header": "stacked", "contact": "stacked" },
+  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.42 }, "name": { "sizePt": 25 }, "sectionTitle": { "sizePt": 12.5 }, "meta": { "sizePt": 8.4 } },
+  "sections": { "work": { "heading": "line" }, "projects": { "heading": "line" }, "education": { "heading": "line" }, "skills": { "heading": "line" } },
   "provenance": { "fidelity": "native" }
 }

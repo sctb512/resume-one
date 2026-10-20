@@ -2,13 +2,14 @@
   "formatVersion": 2,
   "id": "qinghe",
   "name": "青禾",
-  "description": "温润留白，适合中文与双语履历。",
+  "description": "青绿色强调线、右侧时间与温润平衡的文字层级。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": { "accent": "#52756B", "seal": "#A14F40", "paper": "#FFFEFA", "canvas": "#F6F3ED" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 5.5 },
-  "typography": { "name": { "sizePt": 26 }, "sectionTitle": { "sizePt": 13 } },
+  "page": { "size": "A4", "sectionGapMm": 6 },
+  "typography": { "body": { "lineHeight": 1.45 }, "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 }, "meta": { "sizePt": 8.7 } },
+  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" } },
   "provenance": { "fidelity": "native" }
 }

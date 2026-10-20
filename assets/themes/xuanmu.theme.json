@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "xuanmu",
   "name": "玄木",
-  "description": "沉静的玄色与温金线条。",
+  "description": "深玄纸面、温金色底标题与左侧日期。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": { "accent": "#D4B98C", "seal": "#B78C79", "paper": "#252322", "canvas": "#1C1B1A" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "Letter", "sectionGapMm": 5.5 },
-  "typography": { "name": { "sizePt": 26 }, "sectionTitle": { "sizePt": 13 } },
+  "page": { "size": "Letter", "sectionGapMm": 7, "marginsMm": { "top": 20, "right": 20, "bottom": 20, "left": 20 } },
+  "composition": { "preset": "single-column", "header": "centered", "contact": "stacked" },
+  "typography": { "body": { "lineHeight": 1.47 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13.5 } },
+  "sections": { "work": { "heading": "filled", "date": "left" }, "projects": { "heading": "filled", "date": "left" }, "education": { "heading": "filled", "date": "left" } },
   "provenance": { "fidelity": "native" }
 }

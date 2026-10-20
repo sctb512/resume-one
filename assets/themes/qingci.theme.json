@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "qingci",
   "name": "青瓷",
-  "description": "清透的青瓷色与现代横线。",
+  "description": "居中页眉、青瓷色细线与舒展的行距。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "modern",
   "colors": { "accent": "#3B6E70", "seal": "#9A695A", "paper": "#F8FCFC", "canvas": "#EFF6F5" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6 },
-  "typography": { "name": { "sizePt": 26 }, "sectionTitle": { "sizePt": 13 } },
+  "page": { "size": "A4", "sectionGapMm": 7, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
+  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
+  "typography": { "body": { "sizePt": 10.1, "lineHeight": 1.48 }, "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13 }, "meta": { "sizePt": 8.8 } },
+  "sections": { "work": { "heading": "line" }, "projects": { "heading": "line" }, "education": { "heading": "line" } },
   "provenance": { "fidelity": "native" }
 }

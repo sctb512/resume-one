@@ -1468,6 +1468,57 @@ mod tests {
     }
 
     #[test]
+    fn bundled_theme_visual_sample_stays_inside_every_page() {
+        let content = project(
+            &parse_resume(include_bytes!(
+                "../../resume-one-cli/tests/fixtures/visual-qa.json"
+            ))
+            .unwrap(),
+        );
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/themes");
+        for entry in std::fs::read_dir(root).unwrap() {
+            let path = entry.unwrap().path();
+            let theme = crate::parse_theme(&std::fs::read(&path).unwrap()).unwrap();
+            let style = ThemeStyle::from_manifest(&theme);
+            let measure = PageWriter::new(
+                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                &style,
+            );
+            let layout = layout_with_theme(&content, Language::Zh, &theme).unwrap();
+            assert!(!layout.pages.is_empty(), "{}", theme.id);
+            let mut has_award = false;
+            for page in &layout.pages {
+                for element in page {
+                    let LayoutElement::Text(text) = element else {
+                        continue;
+                    };
+                    if text.target.is_none() {
+                        continue;
+                    }
+                    has_award |= text.text.contains("年度体验设计奖");
+                    assert!(
+                        text.x_pt >= measure.left - 0.1
+                            && text.x_pt + measure.text_width(&text.text, text.size_pt, text.font)
+                                <= measure.width - measure.right + 0.1,
+                        "{}: horizontal overflow: {}",
+                        theme.id,
+                        text.text
+                    );
+                    assert!(
+                        text.baseline_y_pt >= measure.bottom - 0.1
+                            && text.baseline_y_pt <= measure.height - measure.top + 0.1,
+                        "{}: vertical overflow: {}",
+                        theme.id,
+                        text.text
+                    );
+                }
+            }
+            assert!(has_award, "{} lost trailing content", theme.id);
+        }
+    }
+
+    #[test]
     fn shared_layout_keeps_multilingual_content_and_pagination_in_page_coordinates() {
         let source = serde_json::json!({
             "basics": {"name": "林清和", "summary": "跨平台排版验收"},

@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "huanghun",
   "name": "黄昏",
-  "description": "纸张的暖意与暮色金棕。",
+  "description": "居中书卷页眉、宽阔暖色留白与右侧日期。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": { "accent": "#95643E", "seal": "#9B5445", "paper": "#FFFBF6", "canvas": "#F8F0E6" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6.5 },
-  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 } },
+  "page": { "size": "A4", "sectionGapMm": 8, "marginsMm": { "top": 20, "right": 20, "bottom": 20, "left": 20 } },
+  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
+  "typography": { "body": { "sizePt": 10.2, "lineHeight": 1.54 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13 } },
+  "sections": { "work": { "date": "right" }, "projects": { "date": "right" }, "education": { "date": "right" }, "awards": { "date": "right" } },
   "provenance": { "fidelity": "native" }
 }

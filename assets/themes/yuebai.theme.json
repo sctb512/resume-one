@@ -2,13 +2,15 @@
   "formatVersion": 2,
   "id": "yuebai",
   "name": "月白",
-  "description": "浅蓝白纸，适合英文与科技背景。",
+  "description": "Letter 纸张、居中无衬线与月蓝强调线。",
   "version": "1.0.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": { "accent": "#3D6373", "seal": "#8C6757", "paper": "#FAFCFD", "canvas": "#F0F5F7" },
   "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "Letter", "sectionGapMm": 6 },
-  "typography": { "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 12.5 } },
+  "page": { "size": "Letter", "sectionGapMm": 6.5, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
+  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
+  "typography": { "body": { "lineHeight": 1.45 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 29 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12 }, "meta": { "sizePt": 8.5 } },
+  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" } },
   "provenance": { "fidelity": "native" }
 }

@@ -509,6 +509,7 @@ mod tests {
         assert_eq!(paths.len(), 20, "expected twenty bundled theme files");
         let mut ids = HashSet::new();
         let mut names = HashSet::new();
+        let mut visual_structures = HashSet::new();
         for path in paths {
             let filename = path.file_name().unwrap();
             let theme = load_theme(&root, Path::new(filename)).unwrap();
@@ -531,6 +532,41 @@ mod tests {
             assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
             assert_eq!(style.composition_preset, "single-column");
             assert!(theme.normalized.get("assets").is_none());
+            layout::check_theme(&theme).unwrap();
+            // A palette change alone is not a new built-in design. Keep the
+            // page archetypes distinct even before a human reviews renders.
+            let source = &theme.normalized;
+            let structure = [
+                source["layout"].as_str().unwrap(),
+                source["page"]["size"].as_str().unwrap_or("A4"),
+                source["composition"]["header"]
+                    .as_str()
+                    .unwrap_or("stacked"),
+                source["composition"]["contact"]
+                    .as_str()
+                    .unwrap_or("inline"),
+                source["typography"]["name"]["family"]
+                    .as_str()
+                    .unwrap_or("cjk-serif"),
+                source["sections"]["work"]["heading"]
+                    .as_str()
+                    .unwrap_or("plain"),
+                source["sections"]["work"]["date"]
+                    .as_str()
+                    .unwrap_or("inline"),
+                source["sections"]["work"]["items"]
+                    .as_str()
+                    .unwrap_or("stack"),
+                source["sections"]["projects"]["heading"]
+                    .as_str()
+                    .unwrap_or("plain"),
+            ]
+            .join("|");
+            assert!(
+                visual_structures.insert(structure),
+                "duplicated non-color page structure: {}",
+                theme.id
+            );
         }
     }
 }

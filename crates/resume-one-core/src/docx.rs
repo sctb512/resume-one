@@ -5,7 +5,8 @@ use std::io::{Cursor, Write};
 
 use docx_rs::{
     Docx, LineSpacing, LineSpacingType, PageMargin, Paragraph, ParagraphBorder,
-    ParagraphBorderPosition, ParagraphBorders, Run, RunFonts, XMLDocx,
+    ParagraphBorderPosition, ParagraphBorders, Run, RunFonts, Table, TableCell, TableCellMargins,
+    TableLayoutType, TableRow, WidthType, XMLDocx,
 };
 
 use crate::ThemeManifest;
@@ -181,49 +182,68 @@ fn build_document(
             footer: 0,
             gutter: 0,
         });
-    let mut header = Vec::new();
-    if !content.name.is_empty() {
-        header.push(paragraph(
-            &content.name,
-            &style.typography.name,
-            ink,
-            0.0,
-            0.0,
-        ));
-    }
-    if !content.label.is_empty() {
-        header.push(paragraph(&content.label, body, accent, 0.0, 0.0));
-    }
-    if !content.contacts.is_empty() {
-        header.push(paragraph(
-            &content.contacts.join(if style.stacked_contacts {
-                "\n"
-            } else {
-                "   ·   "
-            }),
-            meta,
-            muted,
-            0.0,
-            0.0,
-        ));
-    }
-    if style.centered_header {
-        header = header
-            .into_iter()
-            .map(|p| p.align(docx_rs::AlignmentType::Center))
-            .collect();
-    }
-    // A real paragraph border, not an image/table: reflows with the editable header.
-    if let Some(last) = header.last_mut() {
-        let spacing = last.property.line_spacing.take().unwrap_or_default();
-        last.property.line_spacing = Some(spacing.after(twips(gap)));
+    let split_header = style.split_header
+        && (!content.name.is_empty() || !content.label.is_empty())
+        && !content.contacts.is_empty();
+    if split_header {
+        let total =
+            twips((page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM) as usize;
+        let left_width = (total as f32 * 0.58).round() as usize;
+        let right_width = total - left_width;
+        let mut left = TableCell::new().width(left_width, WidthType::Dxa);
+        if !content.name.is_empty() {
+            left = left.add_paragraph(paragraph(
+                &content.name,
+                &style.typography.name,
+                ink,
+                0.0,
+                0.0,
+            ));
+        }
+        if !content.label.is_empty() {
+            left = left.add_paragraph(paragraph(&content.label, body, accent, 0.0, 0.0));
+        }
+        let mut right = TableCell::new()
+            .width(right_width, WidthType::Dxa)
+            .add_paragraph(
+                paragraph(
+                    &content.contacts.join(if style.stacked_contacts {
+                        "\n"
+                    } else {
+                        "   ·   "
+                    }),
+                    meta,
+                    muted,
+                    0.0,
+                    0.0,
+                )
+                .align(docx_rs::AlignmentType::Right),
+            );
+        right.property = right
+            .property
+            .margin_left(twips(14.0) as usize, WidthType::Dxa);
+        document = document.add_table(
+            Table::without_borders(vec![TableRow::new(vec![left, right])])
+                .set_grid(vec![left_width, right_width])
+                .layout(TableLayoutType::Fixed)
+                .width(total, WidthType::Dxa)
+                .margins(TableCellMargins::new().margin(0, 0, 0, 0)),
+        );
+        let mut separator = Paragraph::new()
+            .line_spacing(
+                LineSpacing::new()
+                    .after(twips(gap))
+                    .line_rule(LineSpacingType::AtLeast)
+                    .line(twips(2.0) as i32),
+            )
+            .keep_next(!content.summary.is_empty() || !content.sections.is_empty());
         if style.layout != "minimal" {
             let (rule_color, eighth_points) = match style.layout.as_str() {
                 "modern" => (accent, 16),
                 "rules" => (accent, 10),
                 _ => (style.colors.border, 6),
             };
-            last.property.borders = Some(
+            separator.property.borders = Some(
                 ParagraphBorders::with_empty().set(
                     ParagraphBorder::new(ParagraphBorderPosition::Bottom)
                         .color(color(rule_color))
@@ -232,10 +252,64 @@ fn build_document(
                 ),
             );
         }
-    }
-    let header_count = header.len();
-    for (index, p) in header.into_iter().enumerate() {
-        document = document.add_paragraph(p.keep_next(index + 1 < header_count));
+        document = document.add_paragraph(separator);
+    } else {
+        let mut header = Vec::new();
+        if !content.name.is_empty() {
+            header.push(paragraph(
+                &content.name,
+                &style.typography.name,
+                ink,
+                0.0,
+                0.0,
+            ));
+        }
+        if !content.label.is_empty() {
+            header.push(paragraph(&content.label, body, accent, 0.0, 0.0));
+        }
+        if !content.contacts.is_empty() {
+            header.push(paragraph(
+                &content.contacts.join(if style.stacked_contacts {
+                    "\n"
+                } else {
+                    "   ·   "
+                }),
+                meta,
+                muted,
+                0.0,
+                0.0,
+            ));
+        }
+        if style.centered_header {
+            header = header
+                .into_iter()
+                .map(|p| p.align(docx_rs::AlignmentType::Center))
+                .collect();
+        }
+        // A real paragraph border, not an image/table: reflows with the editable header.
+        if let Some(last) = header.last_mut() {
+            let spacing = last.property.line_spacing.take().unwrap_or_default();
+            last.property.line_spacing = Some(spacing.after(twips(gap)));
+            if style.layout != "minimal" {
+                let (rule_color, eighth_points) = match style.layout.as_str() {
+                    "modern" => (accent, 16),
+                    "rules" => (accent, 10),
+                    _ => (style.colors.border, 6),
+                };
+                last.property.borders = Some(
+                    ParagraphBorders::with_empty().set(
+                        ParagraphBorder::new(ParagraphBorderPosition::Bottom)
+                            .color(color(rule_color))
+                            .size(eighth_points)
+                            .space(6),
+                    ),
+                );
+            }
+        }
+        let header_count = header.len();
+        for (index, p) in header.into_iter().enumerate() {
+            document = document.add_paragraph(p.keep_next(index + 1 < header_count));
+        }
     }
     if !content.summary.is_empty() {
         document = document.add_paragraph(paragraph(&content.summary, body, ink, 0.0, gap / 2.0));
@@ -456,6 +530,52 @@ fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn split_header_is_an_editable_borderless_two_cell_table() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/centered-header.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["composition"] =
+            serde_json::json!({"preset":"split-header","header":"split","contact":"stacked"});
+        check_theme(&theme).unwrap();
+        let mut content = project(
+            &parse_resume(br#"{"basics":{"name":"Name","label":"Designer","summary":"Summary"},"work":[{"name":"Company"}]}"#).unwrap(),
+        );
+        content.contacts = vec!["first@example.com".into(), "Last contact".into()];
+        let package =
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme)).unwrap();
+        let xml = String::from_utf8(package.document).unwrap();
+        let table = xml
+            .split("<w:tbl>")
+            .nth(1)
+            .unwrap()
+            .split("</w:tbl>")
+            .next()
+            .unwrap();
+        assert_eq!(table.matches("<w:tc>").count(), 2);
+        assert!(table.contains("w:type=\"fixed\""));
+        assert!(table.contains("<w:tblGrid>"));
+        assert!(table.contains("Name</w:t>"));
+        assert!(table.contains("Designer</w:t>"));
+        assert!(table.contains("first@example.com"));
+        assert!(table.contains("Last contact"));
+        assert!(table.contains("<w:br"));
+        assert!(table.contains("w:val=\"right\""));
+        assert!(!table.contains("Summary"));
+        assert!(xml.find("</w:tbl>").unwrap() < xml.find("Summary").unwrap());
+        assert!(package.media.is_empty());
+
+        content.contacts.clear();
+        let fallback =
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme)).unwrap();
+        assert!(
+            !String::from_utf8(fallback.document)
+                .unwrap()
+                .contains("<w:tbl>")
+        );
+    }
 
     #[test]
     fn centered_identity_and_stacked_contacts_are_native_and_do_not_center_summary() {

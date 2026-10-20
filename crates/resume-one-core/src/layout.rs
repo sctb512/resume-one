@@ -121,6 +121,14 @@ pub(crate) struct SideDateLines {
     pub date_width_pt: f32,
 }
 
+struct HeaderLine {
+    text: String,
+    size: f32,
+    leading: f32,
+    color: Rgb,
+    font: FontKind,
+}
+
 impl<'a> PageWriter<'a> {
     fn new(sans_face: Face<'a>, serif_face: Face<'a>, style: &ThemeStyle) -> Self {
         let width = style.page.width_mm * PT_PER_MM;
@@ -235,6 +243,101 @@ impl<'a> PageWriter<'a> {
                 );
             }
         }
+    }
+
+    fn split_header(&mut self, content: &ResumeContent, style: &ThemeStyle) {
+        // Fixed two-column header: the body remains full width. The right cell
+        // has an inner gutter, matching the editable DOCX table.
+        let split = self.content_width() * 0.58;
+        let gutter = 14.0;
+        let right_width = self.content_width() - split - gutter;
+        let mut left_lines = Vec::new();
+        for (value, text_style, color) in [
+            (&content.name, &style.typography.name, style.colors.ink),
+            (&content.label, &style.typography.body, style.colors.accent),
+        ] {
+            let font = font_kind(text_style).expect("theme checked");
+            for input in value.lines() {
+                for text in self.wrap(input, text_style.size_pt, split, font) {
+                    left_lines.push(HeaderLine {
+                        text,
+                        size: text_style.size_pt,
+                        leading: text_style.size_pt * text_style.line_height,
+                        color,
+                        font,
+                    });
+                }
+            }
+        }
+        let meta = &style.typography.meta;
+        let font = font_kind(meta).expect("theme checked");
+        let contacts = content.contacts.join(if style.stacked_contacts {
+            "\n"
+        } else {
+            "   ·   "
+        });
+        let mut right_lines = Vec::new();
+        for input in contacts.lines() {
+            for text in self.wrap(input, meta.size_pt, right_width, font) {
+                right_lines.push(HeaderLine {
+                    text,
+                    size: meta.size_pt,
+                    leading: meta.size_pt * meta.line_height,
+                    color: style.colors.muted,
+                    font,
+                });
+            }
+        }
+        let left_height: f32 = left_lines.iter().map(|line| line.leading).sum();
+        let right_height: f32 = right_lines.iter().map(|line| line.leading).sum();
+        let first_ascent = |lines: &[HeaderLine]| {
+            lines
+                .first()
+                .map_or(0.0, |line| line.font.vertical_metrics().0 * line.size)
+        };
+        let height = first_ascent(&left_lines).max(first_ascent(&right_lines))
+            + left_height.max(right_height);
+        if height > self.height - self.top - self.bottom {
+            // A pathological header must flow rather than escape the page.
+            self.header_text(
+                &content.name,
+                &style.typography.name,
+                style.colors.ink,
+                false,
+            );
+            self.header_text(
+                &content.label,
+                &style.typography.body,
+                style.colors.accent,
+                false,
+            );
+            self.header_text(&contacts, meta, style.colors.muted, false);
+            return;
+        }
+        self.ensure(height);
+        let visible_top = self.y;
+        for (lines, right_aligned) in [(&left_lines, false), (&right_lines, true)] {
+            let mut baseline = visible_top - first_ascent(lines);
+            for line in lines {
+                let width = self.text_width(&line.text, line.size, line.font);
+                self.ops.push(LayoutElement::Text(LayoutText {
+                    text: line.text.clone(),
+                    x_pt: if right_aligned {
+                        self.left + split + gutter + right_width - width
+                    } else {
+                        self.left
+                    },
+                    baseline_y_pt: baseline,
+                    size_pt: line.size,
+                    leading_pt: line.leading,
+                    color: line.color,
+                    font: line.font,
+                    target: self.target,
+                }));
+                baseline -= line.leading;
+            }
+        }
+        self.y -= height;
     }
 
     fn text_width(&self, text: &str, size: f32, kind: FontKind) -> f32 {
@@ -454,10 +557,16 @@ fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
 fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), String> {
     let source = &theme.normalized;
     let composition = &source["composition"];
-    if style.composition_preset != "single-column"
-        || composition["header"]
-            .as_str()
-            .is_some_and(|value| !matches!(value, "stacked" | "centered"))
+    if !matches!(
+        style.composition_preset.as_str(),
+        "single-column" | "split-header"
+    ) || composition["header"]
+        .as_str()
+        .is_some_and(|value| !matches!(value, "stacked" | "centered" | "split"))
+        || (style.composition_preset == "split-header"
+            && composition["header"]
+                .as_str()
+                .is_some_and(|value| value != "split"))
         || composition["contact"]
             .as_str()
             .is_some_and(|value| !matches!(value, "inline" | "stacked"))
@@ -468,7 +577,7 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             .is_some_and(|value| !value.is_empty())
     {
         return Err(
-            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠/居中页眉与行内/逐行联系方式"
+            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠/居中/分栏页眉与行内/逐行联系方式"
                 .into(),
         );
     }
@@ -817,23 +926,30 @@ fn layout_with_style(
     let accent = style.colors.accent;
     let muted = style.colors.muted;
     let section_gap = style.page.section_gap_mm * PT_PER_MM;
-    if !content.name.is_empty() {
-        page.header_text(&content.name, name, ink, style.centered_header);
-    }
-    if !content.label.is_empty() {
-        page.header_text(&content.label, body, accent, style.centered_header);
-    }
-    if !content.contacts.is_empty() {
-        page.header_text(
-            &content.contacts.join(if style.stacked_contacts {
-                "\n"
-            } else {
-                "   ·   "
-            }),
-            meta,
-            muted,
-            style.centered_header,
-        );
+    if style.split_header
+        && (!content.name.is_empty() || !content.label.is_empty())
+        && !content.contacts.is_empty()
+    {
+        page.split_header(content, style);
+    } else {
+        if !content.name.is_empty() {
+            page.header_text(&content.name, name, ink, style.centered_header);
+        }
+        if !content.label.is_empty() {
+            page.header_text(&content.label, body, accent, style.centered_header);
+        }
+        if !content.contacts.is_empty() {
+            page.header_text(
+                &content.contacts.join(if style.stacked_contacts {
+                    "\n"
+                } else {
+                    "   ·   "
+                }),
+                meta,
+                muted,
+                style.centered_header,
+            );
+        }
     }
     page.gap(section_gap.max(4.0));
     if style.layout != "minimal" {
@@ -1033,6 +1149,89 @@ mod tests {
     }
 
     #[test]
+    fn split_header_keeps_identity_and_contacts_in_separate_bounded_columns() {
+        let mut theme = sections_theme();
+        theme.normalized["composition"] =
+            serde_json::json!({"preset":"split-header","header":"split","contact":"stacked"});
+        theme.normalized["page"]["marginsMm"] =
+            serde_json::json!({"top":16,"right":11,"bottom":16,"left":23});
+        let mut content = project(
+            &parse_resume(br#"{"basics":{"name":"Name","label":"Designer","summary":"Summary"},"work":[{"name":"Company"}]}"#).unwrap(),
+        );
+        content.name = "中文姓名 Long Name ".repeat(5);
+        content.contacts = vec![
+            "first@example.com".into(),
+            "https://example.com/a/very/long/contact".repeat(4),
+            "Last contact".into(),
+        ];
+        let style = ThemeStyle::from_manifest(&theme);
+        let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let measure = PageWriter::new(
+            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            &style,
+        );
+        let mut left_count = 0;
+        let mut right_count = 0;
+        for element in result.pages.iter().flatten() {
+            if let LayoutElement::Text(text) = element
+                && text.target.is_some_and(|target| target.section == "basics")
+                && text.text != "Summary"
+            {
+                let width = measure.text_width(&text.text, text.size_pt, text.font);
+                if text.size_pt == style.typography.meta.size_pt {
+                    right_count += 1;
+                    assert!(text.x_pt >= measure.left + measure.content_width() * 0.58 + 13.9);
+                    assert!((text.x_pt + width - (measure.width - measure.right)).abs() < 0.02);
+                } else {
+                    left_count += 1;
+                    assert!((text.x_pt - measure.left).abs() < 0.02);
+                    assert!(
+                        text.x_pt + width <= measure.left + measure.content_width() * 0.58 + 0.02
+                    );
+                }
+                assert!(text.baseline_y_pt > measure.bottom);
+                assert!(text.baseline_y_pt < measure.height);
+            }
+        }
+        assert!(left_count > 5);
+        assert!(right_count > 5);
+        assert!(result.pages.iter().flatten().any(
+            |element| matches!(element, LayoutElement::Text(text) if text.text == "Company" && text.x_pt == measure.left)
+        ));
+        theme.normalized["composition"] = serde_json::json!({"header":"split"});
+        assert!(check_theme(&theme).is_ok());
+
+        content.name = "中文姓名 Long Name ".repeat(90);
+        let long_result = layout_with_theme(&content, Language::En, &theme).unwrap();
+        assert!(long_result.pages.len() > 1);
+        let names: String = long_result
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| match element {
+                LayoutElement::Text(text) if text.font == FontKind::Serif => {
+                    Some(text.text.as_str())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(names.matches("中文姓名").count(), 90);
+        assert!(
+            long_result
+                .pages
+                .iter()
+                .flatten()
+                .all(|element| match element {
+                    LayoutElement::Text(text) if text.target.is_some() => {
+                        text.baseline_y_pt >= measure.bottom - 0.01
+                    }
+                    _ => true,
+                })
+        );
+    }
+
+    #[test]
     fn header_defaults_are_legacy_identical_and_unsupported_variants_still_fail() {
         let mut theme = sections_theme();
         let mut content = project(
@@ -1055,9 +1254,9 @@ mod tests {
             }
         }
         for composition in [
-            serde_json::json!({"header":"split"}),
             serde_json::json!({"contact":"icons"}),
-            serde_json::json!({"preset":"split-header"}),
+            serde_json::json!({"preset":"split-header","header":"centered"}),
+            serde_json::json!({"preset":"sidebar-left"}),
         ] {
             theme.normalized["composition"] = composition;
             assert!(check_theme(&theme).unwrap_err().contains("composition"));

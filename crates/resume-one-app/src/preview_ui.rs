@@ -139,6 +139,32 @@ mod tests {
     }
 
     #[gpui::test]
+    fn split_header_preview_uses_print_geometry_and_keeps_basics_editable(cx: &mut TestAppContext) {
+        let mut model = AppModel::load(None).unwrap();
+        let manifest = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/split-header.theme.json"
+        ))
+        .unwrap();
+        model.themes = vec![BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            identity: "test:split-header".into(),
+            path: None,
+        }];
+        let preview = cx.update(PreviewState::new);
+        let data = preview.resolve(&model, &model.themes[0]).unwrap();
+        let expected =
+            layout::layout_with_theme(&model.content, Language::Zh, &model.themes[0].manifest)
+                .unwrap();
+        assert_eq!(data.layout, expected);
+        assert!(
+            data.regions
+                .iter()
+                .any(|region| region.target.section == "basics" && region.text)
+        );
+    }
+
+    #[gpui::test]
     fn decorated_headings_keep_item_hit_targets_and_shared_page_geometry(cx: &mut TestAppContext) {
         let mut model = AppModel::load(None).unwrap();
         let manifest = resume_one_core::parse_theme(include_bytes!(

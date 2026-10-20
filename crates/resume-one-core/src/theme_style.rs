@@ -183,6 +183,7 @@ pub struct ThemeStyle {
     pub typography: Typography,
     pub composition_preset: String,
     pub centered_header: bool,
+    pub split_header: bool,
     pub stacked_contacts: bool,
     pub sections: BTreeMap<String, SectionStyle>,
 }
@@ -320,6 +321,8 @@ impl ThemeStyle {
                 .unwrap_or("single-column")
                 .to_owned(),
             centered_header: manifest["composition"]["header"] == "centered",
+            split_header: manifest["composition"]["header"] == "split"
+                || manifest["composition"]["preset"] == "split-header",
             stacked_contacts: manifest["composition"]["contact"] == "stacked",
             sections: manifest
                 .get("sections")
@@ -369,17 +372,35 @@ mod tests {
         let mut theme =
             crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
         for (composition, expected) in [
-            (serde_json::json!({}), (false, false)),
-            (serde_json::json!({"header":"centered"}), (true, false)),
-            (serde_json::json!({"contact":"stacked"}), (false, true)),
+            (serde_json::json!({}), (false, false, false)),
+            (
+                serde_json::json!({"header":"centered"}),
+                (true, false, false),
+            ),
+            (
+                serde_json::json!({"contact":"stacked"}),
+                (false, false, true),
+            ),
             (
                 serde_json::json!({"header":"centered","contact":"stacked"}),
-                (true, true),
+                (true, false, true),
+            ),
+            (serde_json::json!({"header":"split"}), (false, true, false)),
+            (
+                serde_json::json!({"preset":"split-header"}),
+                (false, true, false),
             ),
         ] {
             theme.normalized["composition"] = composition;
             let style = ThemeStyle::from_manifest(&theme);
-            assert_eq!((style.centered_header, style.stacked_contacts), expected);
+            assert_eq!(
+                (
+                    style.centered_header,
+                    style.split_header,
+                    style.stacked_contacts
+                ),
+                expected
+            );
         }
     }
 

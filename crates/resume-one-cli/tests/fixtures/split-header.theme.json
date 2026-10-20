@@ -1,0 +1,20 @@
+{
+  "formatVersion": 2,
+  "id": "split-header-fixture",
+  "name": "分栏页眉验收",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": {
+    "accent": "#526F65",
+    "seal": "#9C4D3E",
+    "paper": "#FFFEFA",
+    "canvas": "#F6F3ED"
+  },
+  "modules": ["basics", "work", "education", "projects", "skills", "languages", "awards"],
+  "composition": {
+    "preset": "split-header",
+    "header": "split",
+    "contact": "stacked"
+  }
+}

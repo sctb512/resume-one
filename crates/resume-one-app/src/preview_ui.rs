@@ -26,7 +26,7 @@ pub(super) struct PreviewState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gpui::{TestAppContext, px};
+    use gpui::{Modifiers, TestAppContext, point, px};
     use resume_one_core::{resume::parse_resume, semantic::project};
 
     #[gpui::test]
@@ -73,6 +73,38 @@ mod tests {
             assert!(paper.left() >= preview.left());
             assert!(paper.right() <= preview.right());
         }
+    }
+
+    #[gpui::test]
+    fn remove_control_only_exists_for_hovered_region_and_survives_pointer_handoff(
+        cx: &mut TestAppContext,
+    ) {
+        let model = AppModel::load(None).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, _| window.refresh());
+        let item = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        assert!(cx.debug_bounds("remove-preview-work-Some(0)-0").is_none());
+
+        cx.simulate_mouse_move(item.center(), None, Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            assert_eq!(
+                view.read(cx).hovered_item,
+                Some(("work".into(), 0, 0)),
+                "item={item:?}"
+            );
+        });
+        let remove = cx.debug_bounds("remove-preview-work-Some(0)-0").unwrap();
+        cx.simulate_mouse_move(remove.center(), None, Modifiers::none());
+        cx.run_until_parked();
+        assert!(cx.debug_bounds("remove-preview-work-Some(0)-0").is_some());
+        cx.update(|_, cx| {
+            assert_eq!(view.read(cx).hovered_item, Some(("work".into(), 0, 0)));
+        });
+
+        cx.simulate_mouse_move(point(px(20.), px(100.)), None, Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).hovered_item.is_none()));
     }
 
     #[test]
@@ -786,19 +818,18 @@ impl ResumeOne {
                     }
                 }),
             );
-        if valid {
+        if valid && hovered {
+            let remove_selector =
+                format!("remove-preview-{}-{:?}-{}", id, target.index, region.page);
             hit = hit.child(
                 div()
-                    .id(gpui::SharedString::from(format!(
-                        "remove-preview-{}-{:?}-{}",
-                        id, target.index, region.page
-                    )))
+                    .id(gpui::SharedString::from(remove_selector.clone()))
+                    .debug_selector(move || remove_selector.clone())
                     .absolute()
                     .right_0()
                     .top_0()
                     .px_2()
                     .cursor_pointer()
-                    .opacity(if hovered { 1.0 } else { 0.0 })
                     .text_color(color(style.colors.seal))
                     .child("−")
                     .on_click(cx.listener(move |this, _, window, cx| {

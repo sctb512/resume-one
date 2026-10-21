@@ -150,7 +150,16 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.inline_matches(section, index) || self.inline_focused(window, cx) {
+        if self.inline_focused(window, cx) {
+            return;
+        }
+        if self.inline_matches(section, index) {
+            if let Some(form) = &mut self.inline.form
+                && form.page != Some(page)
+            {
+                form.page = Some(page);
+                cx.notify();
+            }
             return;
         }
         self.inline.generation += 1;
@@ -1174,6 +1183,60 @@ mod tests {
                 app.inline.form_hovered = false;
                 app.close_inline_outside(window, cx);
                 assert!(app.inline.form.is_none());
+            });
+        });
+    }
+
+    #[gpui::test]
+    fn a_spanning_item_moves_its_unfocused_form_to_the_hovered_page(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("spanning.json");
+        let highlights = vec![
+            "A long achievement with enough words to wrap across the page and preserve its editable item identity.";
+            35
+        ];
+        let resume = serde_json::json!({
+            "basics": {"name": "A"},
+            "work": [{"name": "B", "highlights": highlights}]
+        });
+        std::fs::write(&path, serde_json::to_vec(&resume).unwrap()).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let layout = resume_one_core::layout::layout_with_theme(
+            &model.content,
+            resume_one_core::render::Language::Zh,
+            &model.applied_theme().manifest,
+        )
+        .unwrap();
+        let pages = layout
+            .pages
+            .iter()
+            .enumerate()
+            .filter_map(|(page, elements)| {
+                elements
+                    .iter()
+                    .any(|element| matches!(element,
+                        resume_one_core::layout::LayoutElement::Text(text)
+                            if text.target.is_some_and(|target| target.section == "work" && target.index == Some(0))
+                    ))
+                    .then_some(page)
+            })
+            .collect::<Vec<_>>();
+        assert!(pages.len() > 1, "test item must actually span pages");
+        let first = pages[0];
+        let next = pages[1];
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.open_inline("work", Some(0), window, cx);
+                app.inline.form.as_mut().unwrap().page = Some(first);
+                let epoch = app.inline.form_epoch;
+                app.schedule_inline("work", Some(0), next, window, cx);
+                assert_eq!(app.inline.form.as_ref().unwrap().page, Some(next));
+                assert_eq!(
+                    app.inline.form_epoch, epoch,
+                    "same item must not rebuild its fields"
+                );
             });
         });
     }

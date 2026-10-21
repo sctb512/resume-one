@@ -18,10 +18,19 @@ actions!(resume_one, [OpenInline, DismissInline]);
 pub(super) struct InlineUi {
     pub form: Option<InlineForm>,
     generation: u64,
-    pub paper_hovered: bool,
+    form_epoch: u64,
+    close_generation: u64,
+    pub paper_hovered: Option<usize>,
     form_hovered: bool,
+    closing: bool,
+    suppress_arrival: bool,
     scroll: ScrollHandle,
 }
+
+const INLINE_HOVER_DELAY: Duration = Duration::from_millis(180);
+const INLINE_SWITCH_DELAY: Duration = Duration::from_millis(110);
+const INLINE_CLOSE_GRACE: Duration = Duration::from_millis(120);
+const INLINE_FADE_OUT: Duration = Duration::from_millis(120);
 
 pub(super) struct InlineForm {
     pub section: String,
@@ -147,13 +156,20 @@ impl ResumeOne {
         self.inline.generation += 1;
         let generation = self.inline.generation;
         let section = section.to_owned();
-        let timer = cx.background_executor().timer(Duration::from_millis(180));
+        let delay = if self.inline.form.is_some() {
+            INLINE_SWITCH_DELAY
+        } else {
+            INLINE_HOVER_DELAY
+        };
+        let timer = cx.background_executor().timer(delay);
         cx.spawn_in(window, async move |this, cx| {
             timer.await;
             this.update_in(cx, |this, window, cx| {
                 let still_hovered = match index {
-                    Some(index) => this.hovered_item.as_ref() == Some(&(section.clone(), index)),
-                    None => this.hovered_section.as_deref() == Some(section.as_str()),
+                    Some(index) => {
+                        this.hovered_item.as_ref() == Some(&(section.clone(), index, page))
+                    }
+                    None => this.hovered_section.as_ref() == Some(&(section.clone(), page)),
                 };
                 if generation == this.inline.generation
                     && still_hovered
@@ -177,12 +193,19 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.source_mode
-            || !self.structure_enabled()
-            || self.inline_matches(section, index)
-            || !self.ensure_editor(window, cx)
-            || self.recovery_pending
-        {
+        if self.source_mode || !self.structure_enabled() || self.recovery_pending {
+            return;
+        }
+        if self.inline_matches(section, index) {
+            self.inline.close_generation += 1;
+            if self.inline.closing {
+                self.inline.closing = false;
+                self.inline.suppress_arrival = true;
+                cx.notify();
+            }
+            return;
+        }
+        if !self.ensure_editor(window, cx) {
             return;
         }
         // Preview-first users may never have toggled the JSON editor, where
@@ -207,6 +230,11 @@ impl ResumeOne {
             return;
         }
         self.inline.generation += 1;
+        self.inline.form_epoch += 1;
+        self.inline.close_generation += 1;
+        self.inline.form_hovered = false;
+        self.inline.closing = false;
+        self.inline.suppress_arrival = false;
         self.inline.scroll = ScrollHandle::new();
         let mut fields: Vec<_> = text_fields(section)
             .iter()
@@ -537,29 +565,114 @@ impl ResumeOne {
         }
     }
 
+    pub(super) fn paper_hover_changed(
+        &mut self,
+        page: usize,
+        hovering: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if hovering {
+            self.inline.paper_hovered = Some(page);
+            self.inline.close_generation += 1;
+            if self.inline.closing {
+                self.inline.closing = false;
+                self.inline.suppress_arrival = true;
+                cx.notify();
+            }
+        } else if self.inline.paper_hovered == Some(page) {
+            self.inline.paper_hovered = None;
+            self.defer_inline_close(window, cx);
+        }
+    }
+
+    pub(super) fn form_hover_changed(
+        &mut self,
+        form_epoch: u64,
+        hovering: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if form_epoch != self.inline.form_epoch {
+            return;
+        }
+        self.inline.form_hovered = hovering;
+        if hovering {
+            self.inline.close_generation += 1;
+            if self.inline.closing {
+                self.inline.closing = false;
+                self.inline.suppress_arrival = true;
+                cx.notify();
+            }
+        } else {
+            self.defer_inline_close(window, cx);
+        }
+    }
+
     pub(super) fn close_inline_outside(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if !self.inline.paper_hovered
+        if self.inline.form.is_some()
+            && self.inline.paper_hovered.is_none()
             && !self.inline.form_hovered
             && !self.inline_focused(window, cx)
         {
-            self.clear_inline();
+            if self.reduce_motion {
+                self.clear_inline();
+            } else if self.inline.form.is_some() && !self.inline.closing {
+                self.inline.closing = true;
+                self.inline.close_generation += 1;
+                let generation = self.inline.close_generation;
+                let timer = cx.background_executor().timer(INLINE_FADE_OUT);
+                cx.spawn_in(window, async move |this, cx| {
+                    timer.await;
+                    this.update_in(cx, |this, window, cx| {
+                        if generation == this.inline.close_generation {
+                            if this.inline.paper_hovered.is_none()
+                                && !this.inline.form_hovered
+                                && !this.inline_focused(window, cx)
+                            {
+                                this.clear_inline();
+                            } else {
+                                this.inline.closing = false;
+                                this.inline.suppress_arrival = true;
+                            }
+                            cx.notify();
+                        }
+                    })
+                    .ok();
+                })
+                .detach();
+            }
             cx.notify();
         }
     }
 
     pub(super) fn defer_inline_close(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let owner = cx.entity().downgrade();
-        window.defer(cx, move |window, cx| {
-            if let Some(owner) = owner.upgrade() {
-                owner.update(cx, |this, cx| this.close_inline_outside(window, cx));
-            }
-        });
+        if self.inline.form.is_none() {
+            return;
+        }
+        self.inline.close_generation += 1;
+        let generation = self.inline.close_generation;
+        let timer = cx.background_executor().timer(INLINE_CLOSE_GRACE);
+        cx.spawn_in(window, async move |this, cx| {
+            timer.await;
+            this.update_in(cx, |this, window, cx| {
+                if generation == this.inline.close_generation {
+                    this.close_inline_outside(window, cx);
+                }
+            })
+            .ok();
+        })
+        .detach();
     }
 
     pub(super) fn clear_inline(&mut self) {
         self.inline.form = None;
         self.inline.form_hovered = false;
+        self.inline.closing = false;
+        self.inline.suppress_arrival = false;
         self.inline.generation += 1;
+        self.inline.form_epoch += 1;
+        self.inline.close_generation += 1;
     }
 
     pub(super) fn dismiss_inline(
@@ -601,6 +714,9 @@ impl ResumeOne {
         let form = self.inline.form.as_ref().expect("active inline form");
         let style = self.active_style();
         let reduce_motion = self.reduce_motion;
+        let form_epoch = self.inline.form_epoch;
+        let closing = self.inline.closing;
+        let suppress_arrival = self.inline.suppress_arrival;
         let width = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
             * 3.0
             * self.preview_scale;
@@ -794,11 +910,8 @@ impl ResumeOne {
                     .border_l(px(3.))
                     .border_color(color(style.colors.accent.mix(style.colors.paper, 0.55)))
                     .bg(color(crate::chrome::Palette::new(style).panel))
-                    .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
-                        this.inline.form_hovered = *hovering;
-                        if !hovering {
-                            this.defer_inline_close(window, cx);
-                        }
+                    .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                        this.form_hover_changed(form_epoch, *hovering, window, cx);
                     }))
                     .on_click(|_, _, cx| cx.stop_propagation())
                     .child(
@@ -837,18 +950,27 @@ impl ResumeOne {
                         )
                     })
                     .with_animation(
-                        gpui::SharedString::from(format!(
-                            "inline-arrival-{}-{:?}",
-                            form.section, form.index
-                        )),
-                        Animation::new(Duration::from_millis(160)),
+                        gpui::SharedString::from(if closing {
+                            format!("inline-departure-{form_epoch}")
+                        } else {
+                            format!("inline-arrival-{form_epoch}")
+                        }),
+                        Animation::new(if closing {
+                            INLINE_FADE_OUT
+                        } else {
+                            Duration::from_millis(160)
+                        }),
                         move |v, t| {
-                            let t = if reduce_motion {
+                            let t = if reduce_motion || (suppress_arrival && !closing) {
                                 1.
                             } else {
                                 t * t * (3. - 2. * t)
                             };
-                            v.relative().top(px(4. * (1. - t))).opacity(t)
+                            if closing {
+                                v.relative().top(px(2. * t)).opacity(1. - t)
+                            } else {
+                                v.relative().top(px(4. * (1. - t))).opacity(t)
+                            }
                         },
                     ),
             ),
@@ -940,6 +1062,123 @@ mod tests {
     use std::{cell::RefCell, rc::Rc};
 
     #[gpui::test]
+    fn hover_handoff_has_grace_and_ignores_stale_page_or_form_events(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("hover.json");
+        std::fs::write(&path, br#"{"basics":{"name":"A"},"work":[{"name":"B"}]}"#).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.reduce_motion = false;
+                app.open_inline("basics", None, window, cx);
+                app.paper_hover_changed(0, true, window, cx);
+                app.paper_hover_changed(1, true, window, cx);
+                app.paper_hover_changed(0, false, window, cx);
+                assert_eq!(app.inline.paper_hovered, Some(1));
+                assert!(app.inline.form.is_some());
+            });
+        });
+        executor.advance_clock(INLINE_CLOSE_GRACE);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.paper_hover_changed(1, false, window, cx);
+            });
+        });
+        executor.advance_clock(Duration::from_millis(90));
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.paper_hover_changed(0, true, window, cx);
+            });
+        });
+        executor.advance_clock(Duration::from_millis(90));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx));
+        });
+        executor.advance_clock(INLINE_CLOSE_GRACE);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+        executor.advance_clock(INLINE_FADE_OUT / 2);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.paper_hover_changed(0, true, window, cx);
+                assert!(!app.inline.closing);
+                assert!(app.inline.suppress_arrival);
+            });
+        });
+        executor.advance_clock(INLINE_FADE_OUT);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx));
+        });
+        executor.advance_clock(INLINE_CLOSE_GRACE);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.inline.closing);
+                app.open_inline("basics", None, window, cx);
+                assert!(!app.inline.closing);
+                assert!(app.inline.suppress_arrival);
+                app.paper_hover_changed(0, true, window, cx);
+            });
+        });
+        executor.advance_clock(INLINE_FADE_OUT);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline_matches("basics", None)));
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                let old_epoch = app.inline.form_epoch;
+                app.hovered_item = Some(("work".into(), 0, 0));
+                app.schedule_inline("work", Some(0), 0, window, cx);
+                app.form_hover_changed(old_epoch, true, window, cx);
+            });
+        });
+        executor.advance_clock(INLINE_SWITCH_DELAY);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.inline_matches("work", Some(0)));
+                let current_epoch = app.inline.form_epoch;
+                app.form_hover_changed(current_epoch - 1, false, window, cx);
+                assert_eq!(app.inline.form_epoch, current_epoch);
+                assert!(!app.inline.form_hovered);
+                app.paper_hover_changed(0, false, window, cx);
+            });
+        });
+        executor.advance_clock(INLINE_CLOSE_GRACE);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+        executor.advance_clock(INLINE_FADE_OUT);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.reduce_motion = true;
+                app.open_inline("basics", None, window, cx);
+                assert!(app.inline.form.is_some());
+                app.inline.paper_hovered = None;
+                app.inline.form_hovered = false;
+                app.close_inline_outside(window, cx);
+                assert!(app.inline.form.is_none());
+            });
+        });
+    }
+
+    #[gpui::test]
     fn preview_first_forms_sync_palette_without_source_mode_or_content_changes(
         cx: &mut TestAppContext,
     ) {
@@ -1002,7 +1241,7 @@ mod tests {
         let view = child.borrow_mut().take().unwrap();
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                app.inline.paper_hovered = true;
+                app.inline.paper_hovered = Some(0);
                 app.open_inline("basics", None, window, cx);
             })
         });
@@ -1107,7 +1346,7 @@ mod tests {
         let view = child.borrow_mut().take().unwrap();
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                app.inline.paper_hovered = true;
+                app.inline.paper_hovered = Some(0);
                 app.open_inline("skills", Some(0), window, cx);
             })
         });
@@ -1225,6 +1464,7 @@ mod tests {
         });
         let view = child.borrow_mut().take().unwrap();
         cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| view.update(cx, |app, _| app.reduce_motion = false));
         let paper_before = cx.debug_bounds("resume-paper").unwrap();
         let right_before = cx.debug_bounds("module-panel").unwrap();
         let header = cx.debug_bounds("preview-basics").unwrap();
@@ -1244,6 +1484,15 @@ mod tests {
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
         cx.simulate_mouse_move(point(px(20.0), px(100.0)), None, Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+        executor.advance_clock(INLINE_CLOSE_GRACE - Duration::from_millis(1));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+        executor.advance_clock(Duration::from_millis(1));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+        executor.advance_clock(INLINE_FADE_OUT);
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
@@ -1293,7 +1542,7 @@ mod tests {
                 assert!(!app.editor.as_ref().unwrap().buffer.issues().is_empty());
                 assert!(app.inline.form.as_ref().unwrap().error.is_some());
                 assert_eq!(app.model.document.value["basics"]["email"], "a@example.com");
-                app.inline.paper_hovered = false;
+                app.inline.paper_hovered = None;
                 app.close_inline_outside(window, cx);
                 assert!(app.inline.form.is_some());
             });

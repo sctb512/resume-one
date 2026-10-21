@@ -552,11 +552,8 @@ impl ResumeOne {
                 .flex_none()
                 .bg(color(data.layout.paper))
                 .shadow_md()
-                .on_hover(cx.listener(|this, hovering: &bool, window, cx| {
-                    this.inline.paper_hovered = *hovering;
-                    if !hovering {
-                        this.defer_inline_close(window, cx);
-                    }
+                .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                    this.paper_hover_changed(page_index, *hovering, window, cx);
                 }))
                 .child(
                     div()
@@ -723,8 +720,8 @@ impl ResumeOne {
         };
         let editable = target.index.is_some() || target.section == "basics";
         let hovered = match target.index {
-            Some(index) => self.hovered_item.as_ref() == Some(&(id.clone(), index)),
-            None => self.hovered_section.as_deref() == Some(target.section),
+            Some(index) => self.hovered_item.as_ref() == Some(&(id.clone(), index, region.page)),
+            None => self.hovered_section.as_ref() == Some(&(id.clone(), region.page)),
         };
         let mut hit = div()
             .id(gpui::SharedString::from(format!(
@@ -754,13 +751,15 @@ impl ResumeOne {
             .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
                 if let Some(index) = target.index {
                     if *hovering {
-                        this.hovered_item = Some((hover_id.clone(), index));
-                    } else if this.hovered_item.as_ref() == Some(&(hover_id.clone(), index)) {
+                        this.hovered_item = Some((hover_id.clone(), index, region.page));
+                    } else if this.hovered_item.as_ref()
+                        == Some(&(hover_id.clone(), index, region.page))
+                    {
                         this.hovered_item = None;
                     }
                 } else if *hovering {
-                    this.hovered_section = Some(hover_id.clone());
-                } else if this.hovered_section.as_deref() == Some(hover_id.as_str()) {
+                    this.hovered_section = Some((hover_id.clone(), region.page));
+                } else if this.hovered_section.as_ref() == Some(&(hover_id.clone(), region.page)) {
                     this.hovered_section = None;
                 }
                 if *hovering && editable && valid {

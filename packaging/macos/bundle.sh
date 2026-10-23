@@ -17,7 +17,9 @@ fi
 
 bundle="$repo_root/target/$profile/Resume One.app"
 mkdir -p "$bundle/Contents/MacOS"
+mkdir -p "$bundle/Contents/Resources"
 cp "$repo_root/packaging/macos/Info.plist" "$bundle/Contents/Info.plist"
+cp "$repo_root/assets/app-icon.icns" "$bundle/Contents/Resources/app-icon.icns"
 cp "$repo_root/target/$profile/resume-one-app" "$bundle/Contents/MacOS/resume-one-app"
 cp "$repo_root/target/$profile/resume-one" "$bundle/Contents/MacOS/resume-one"
 cp "$repo_root/target/$profile/resume-one-theme-migrate" "$bundle/Contents/MacOS/resume-one-theme-migrate"

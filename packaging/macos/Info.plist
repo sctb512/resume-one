@@ -6,6 +6,8 @@
     <string>zh_CN</string>
     <key>CFBundleExecutable</key>
     <string>resume-one-app</string>
+	<key>CFBundleIconFile</key>
+	<string>app-icon.icns</string>
     <key>CFBundleIdentifier</key>
     <string>one.resume.app</string>
     <key>CFBundleInfoDictionaryVersion</key>

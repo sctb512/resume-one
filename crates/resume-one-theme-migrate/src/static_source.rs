@@ -193,6 +193,68 @@ fn colors_from_text(bytes: &[u8], counts: &mut HashMap<String, usize>) {
     }
 }
 
+fn rgb_colors_from_text(bytes: &[u8], counts: &mut HashMap<String, usize>) {
+    let lower = bytes.to_ascii_lowercase();
+    let mut index = 0;
+    while index < lower.len() {
+        let (prefix, has_alpha) = if lower[index..].starts_with(b"rgba(") {
+            (5, true)
+        } else if lower[index..].starts_with(b"rgb(") {
+            (4, false)
+        } else {
+            index += 1;
+            continue;
+        };
+        if index > 0 && (lower[index - 1].is_ascii_alphanumeric() || lower[index - 1] == b'-') {
+            index += prefix;
+            continue;
+        }
+        let start = index + prefix;
+        let Some(end) = lower[start..]
+            .iter()
+            .take(64)
+            .position(|byte| *byte == b')')
+            .map(|offset| start + offset)
+        else {
+            index = start;
+            continue;
+        };
+        let value = &lower[start..end];
+        let channels = if value.contains(&b',') {
+            value.split(|byte| *byte == b',').collect::<Vec<_>>()
+        } else {
+            value
+                .split(u8::is_ascii_whitespace)
+                .filter(|part| !part.is_empty())
+                .collect::<Vec<_>>()
+        };
+        if channels.len() == if has_alpha { 4 } else { 3 }
+            && (!has_alpha
+                || std::str::from_utf8(channels[3])
+                    .ok()
+                    .is_some_and(|alpha| matches!(alpha.trim(), "1" | "1.0" | "1.00" | "1.000")))
+        {
+            let parsed = channels[..3]
+                .iter()
+                .map(|channel| {
+                    std::str::from_utf8(channel)
+                        .ok()
+                        .and_then(|channel| channel.trim().parse::<u8>().ok())
+                })
+                .collect::<Option<Vec<_>>>();
+            if let Some(channels) = parsed {
+                *counts
+                    .entry(format!(
+                        "#{:02X}{:02X}{:02X}",
+                        channels[0], channels[1], channels[2]
+                    ))
+                    .or_default() += 1;
+            }
+        }
+        index = end + 1;
+    }
+}
+
 fn style_hints_from_text(
     bytes: &[u8],
     fonts: &mut HashMap<String, usize>,
@@ -380,6 +442,7 @@ pub fn extract(path: &Path) -> Result<StaticCandidate, StaticError> {
         }
         fingerprint_file(&mut fingerprint, &name, &bytes);
         colors_from_text(&bytes, &mut colors);
+        rgb_colors_from_text(&bytes, &mut colors);
         style_hints_from_text(&bytes, &mut fonts, &mut layout_signals);
         executable_source_present |= matches!(
             file.extension().and_then(|ext| ext.to_str()),
@@ -473,6 +536,17 @@ mod tests {
         assert_eq!(counts["#AABBCC"], 2);
         assert_eq!(counts["#123456"], 1);
         assert_eq!(counts.len(), 2);
+    }
+
+    #[test]
+    fn rgb_extraction_keeps_only_opaque_integer_colors() {
+        let mut counts = HashMap::new();
+        rgb_colors_from_text(
+            b"rgb(69, 106, 93); RGB(69 106 93); rgba(69,106,93, 1); rgba(255,0,0,0.2); rgb(300,0,0); myrgb(1,2,3); rgb(var(--red),2,3); rgb(1,2,3,4)",
+            &mut counts,
+        );
+        assert_eq!(counts["#456A5D"], 3);
+        assert_eq!(counts.len(), 1);
     }
 
     #[test]

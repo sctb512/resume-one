@@ -155,7 +155,7 @@ fn extracts_third_party_package_without_executing_its_code() {
     .unwrap();
     fs::write(
         source.join("src/style.css"),
-        "body { background: #fff; color: #456A5D; font-family: 'Noto Serif SC', serif } h1 { color: #456A5D } a { color: #123456 } .resume { display: grid; grid-template-columns: 1fr 2fr }",
+        "body { background: #fff; color: rgb(69, 106, 93); font-family: 'Noto Serif SC', serif } h1 { color: #456A5D } a { color: #123456 } .resume { display: grid; grid-template-columns: 1fr 2fr }",
     )
     .unwrap();
     fs::write(
@@ -178,6 +178,10 @@ fn extracts_third_party_package_without_executing_its_code() {
         true
     );
     assert_eq!(report["result"]["extraction"]["selectedAccent"], "#456A5D");
+    assert_eq!(
+        report["result"]["extraction"]["colorsFound"][0]["occurrences"],
+        2
+    );
     assert_eq!(
         report["result"]["extraction"]["fontFamiliesFound"][0]["declaration"],
         "'Noto Serif SC', serif"

@@ -70,6 +70,6 @@ resume-one-theme-migrate --source /absolute/old.theme.json --out /absolute/new.t
 resume-one-theme-migrate --source /absolute/jsonresume-theme-example --out /absolute/example.theme.json --upstream-url https://github.com/owner/jsonresume-theme-example --dry-run
 ```
 
-`--source` 可指向主题目录或单个 CSS/HTML/JS/TS 等静态源码文件。工具只读取 `package.json` 和浅层样式源码，不运行 JS、模板或安装依赖，也不读取任何简历；从目录提取时最多扫描两层子目录、64 个样式文件、每文件 512 KiB、总共 4 MiB，跳过符号链接和超限文件。候选只包含可识别的十六进制配色、包名、版本与许可声明；布局固定为安全的单栏保底样式。报告另列 `fontFamiliesFound`（原始字体声明）与 `layoutSignals`（如 grid、分栏、打印页面），每项都只是有界静态文本线索，可能来自注释或脚本字符串，**不会自动写入候选主题**；字体、模块构件、条件逻辑和原视觉效果没有自动迁移。`extraction.confidence` 为 `low`，`unmapped` 列出差异；缺少可信配色时使用保底色。该候选可供人工继续编辑，不能直接收入默认在线主题仓库。
+`--source` 可指向主题目录或单个 CSS/HTML/JS/TS 等静态源码文件。工具只读取 `package.json` 和浅层样式源码，不运行 JS、模板或安装依赖，也不读取任何简历；从目录提取时最多扫描两层子目录、64 个样式文件、每文件 512 KiB、总共 4 MiB，跳过符号链接和超限文件。候选配色可从十六进制或不透明、整数通道的 `rgb(...)` / `rgba(..., 1)` 静态文本提取；半透明颜色需要背景合成，故不猜测结果。候选还包含包名、版本与许可声明；布局固定为安全的单栏保底样式。报告另列 `fontFamiliesFound`（原始字体声明）与 `layoutSignals`（如 grid、分栏、打印页面），每项都只是有界静态文本线索，可能来自注释或脚本字符串，**不会自动写入候选主题**；字体、模块构件、条件逻辑和原视觉效果没有自动迁移。`extraction.confidence` 为 `low`，`unmapped` 列出差异；缺少可信配色时使用保底色。该候选可供人工继续编辑，不能直接收入默认在线主题仓库。
 
 去掉 `--dry-run` 才写入。目标为新的 `*.theme.json` 或 `theme.json`，默认不覆盖，`--overwrite` 也绝不覆盖来源。`--license`、`--upstream-url` 和 `--upstream-revision` 只记录声明，迁移器不会联网核实；没有许可声明时使用 `NOASSERTION`。程序始终返回单行 JSON，含 v2 `candidate`、来源/候选 SHA-256、`written` 和人工审核清单；`licenseVerified`、`visualVerified` 均为 `false`。目录来源的 SHA-256 是本次实际读取文件的有序内容指纹，不代表未扫描或被跳过文件。v1 升级仅转换数据结构；第三方提取仅为人工移植起点，都不构成视觉或再分发许可验收。

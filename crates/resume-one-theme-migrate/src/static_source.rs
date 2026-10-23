@@ -193,6 +193,69 @@ fn colors_from_text(bytes: &[u8], counts: &mut HashMap<String, usize>) {
     }
 }
 
+fn style_hints_from_text(
+    bytes: &[u8],
+    fonts: &mut HashMap<String, usize>,
+    signals: &mut std::collections::BTreeSet<&'static str>,
+) {
+    let lower = bytes.to_ascii_lowercase();
+    for (needle, signal) in [
+        (b"grid-template-columns".as_slice(), "grid-columns"),
+        (b"column-count".as_slice(), "multi-column"),
+        (b"@page".as_slice(), "print-page"),
+        (b"@font-face".as_slice(), "font-face"),
+    ] {
+        if lower.windows(needle.len()).any(|part| part == needle) {
+            signals.insert(signal);
+        }
+    }
+    for (needle, signal) in [
+        (b"display:grid".as_slice(), "grid"),
+        (b"display: grid".as_slice(), "grid"),
+        (b"display:flex".as_slice(), "flex"),
+        (b"display: flex".as_slice(), "flex"),
+        (b"position:absolute".as_slice(), "absolute-position"),
+        (b"position: absolute".as_slice(), "absolute-position"),
+    ] {
+        if lower.windows(needle.len()).any(|part| part == needle) {
+            signals.insert(signal);
+        }
+    }
+
+    const PROPERTY: &[u8] = b"font-family";
+    let mut index = 0;
+    while index + PROPERTY.len() < lower.len() {
+        if lower[index..].starts_with(PROPERTY)
+            && (index == 0 || !lower[index - 1].is_ascii_alphanumeric())
+        {
+            let mut value_start = index + PROPERTY.len();
+            while lower.get(value_start).is_some_and(u8::is_ascii_whitespace) {
+                value_start += 1;
+            }
+            if lower.get(value_start) == Some(&b':') {
+                value_start += 1;
+                let mut value_end = value_start;
+                while value_end < bytes.len()
+                    && value_end - value_start <= 160
+                    && !matches!(bytes[value_end], b';' | b'}' | b'\n' | b'\r')
+                {
+                    value_end += 1;
+                }
+                if value_end - value_start <= 160 {
+                    let value = String::from_utf8_lossy(&bytes[value_start..value_end]);
+                    let value = value.trim();
+                    if !value.is_empty() && !value.contains('\u{fffd}') {
+                        *fonts.entry(value.to_owned()).or_default() += 1;
+                    }
+                }
+                index = value_end;
+                continue;
+            }
+        }
+        index += 1;
+    }
+}
+
 fn accent_score(hex: &str, count: usize) -> i32 {
     let channel = |start| u8::from_str_radix(&hex[start..start + 2], 16).unwrap() as i32;
     let (r, g, b) = (channel(1), channel(3), channel(5));
@@ -291,6 +354,8 @@ pub fn extract(path: &Path) -> Result<StaticCandidate, StaticError> {
         fingerprint_file(&mut fingerprint, "package.json", bytes);
     }
     let mut colors = HashMap::new();
+    let mut fonts = HashMap::new();
+    let mut layout_signals = std::collections::BTreeSet::new();
     let mut scanned = Vec::new();
     let mut executable_source_present = false;
     for file in files {
@@ -315,6 +380,7 @@ pub fn extract(path: &Path) -> Result<StaticCandidate, StaticError> {
         }
         fingerprint_file(&mut fingerprint, &name, &bytes);
         colors_from_text(&bytes, &mut colors);
+        style_hints_from_text(&bytes, &mut fonts, &mut layout_signals);
         executable_source_present |= matches!(
             file.extension().and_then(|ext| ext.to_str()),
             Some("js" | "jsx" | "ts" | "tsx")
@@ -326,6 +392,8 @@ pub fn extract(path: &Path) -> Result<StaticCandidate, StaticError> {
     }
     let mut ranked = colors.into_iter().collect::<Vec<_>>();
     ranked.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+    let mut ranked_fonts = fonts.into_iter().collect::<Vec<_>>();
+    ranked_fonts.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
     let accent = ranked
         .iter()
         .max_by_key(|(hex, count)| accent_score(hex, *count))
@@ -375,11 +443,13 @@ pub fn extract(path: &Path) -> Result<StaticCandidate, StaticError> {
         "filesScanned": scanned,
         "filesSkipped": skipped,
         "colorsFound": ranked.into_iter().take(20).map(|(hex, count)| json!({"hex": hex, "occurrences": count})).collect::<Vec<_>>(),
+        "fontFamiliesFound": ranked_fonts.into_iter().take(20).map(|(value, count)| json!({"declaration": value, "occurrences": count})).collect::<Vec<_>>(),
+        "layoutSignals": layout_signals,
         "selectedAccent": accent,
         "executableSourcePresent": executable_source_present,
         "executedSourceCode": false,
         "unmapped": ["HTML/CSS/JS 布局与条件逻辑", "主题字体与图标", "分页和模块构件", "原主题视觉保真度"],
-        "note": "只提取静态色值和包元数据；候选不是原主题的等效移植，禁止未经人工许可与视觉验收直接发布。"
+        "note": "字体声明和布局线索只来自静态文本匹配，可能包含注释或脚本字符串，不会自动写进主题配置；候选不是原主题的等效移植，禁止未经人工许可与视觉验收直接发布。"
     });
     Ok(StaticCandidate {
         manifest,
@@ -412,5 +482,28 @@ mod tests {
         assert!(valid_version("1.2.3"));
         assert!(!valid_version("1.2.3-beta"));
         assert!(!valid_version("01.2.3"));
+    }
+
+    #[test]
+    fn static_style_hints_are_bounded_and_do_not_become_theme_rules() {
+        let mut fonts = HashMap::new();
+        let mut signals = std::collections::BTreeSet::new();
+        style_hints_from_text(
+            "@page { size: A4 } h1 { FONT-FAMILY : '思源宋体', serif; } .body { font-family: '思源宋体', serif; display: flex; column-count: 2; }".as_bytes(),
+            &mut fonts,
+            &mut signals,
+        );
+        assert_eq!(fonts["'思源宋体', serif"], 2);
+        assert_eq!(
+            signals.into_iter().collect::<Vec<_>>(),
+            ["flex", "multi-column", "print-page"]
+        );
+        let mut too_long = HashMap::new();
+        style_hints_from_text(
+            format!("font-family: {};", "x".repeat(161)).as_bytes(),
+            &mut too_long,
+            &mut std::collections::BTreeSet::new(),
+        );
+        assert!(too_long.is_empty());
     }
 }

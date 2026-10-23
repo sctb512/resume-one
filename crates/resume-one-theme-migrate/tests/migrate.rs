@@ -155,7 +155,7 @@ fn extracts_third_party_package_without_executing_its_code() {
     .unwrap();
     fs::write(
         source.join("src/style.css"),
-        "body { background: #fff; color: #456A5D } h1 { color: #456A5D } a { color: #123456 }",
+        "body { background: #fff; color: #456A5D; font-family: 'Noto Serif SC', serif } h1 { color: #456A5D } a { color: #123456 } .resume { display: grid; grid-template-columns: 1fr 2fr }",
     )
     .unwrap();
     fs::write(
@@ -178,6 +178,16 @@ fn extracts_third_party_package_without_executing_its_code() {
         true
     );
     assert_eq!(report["result"]["extraction"]["selectedAccent"], "#456A5D");
+    assert_eq!(
+        report["result"]["extraction"]["fontFamiliesFound"][0]["declaration"],
+        "'Noto Serif SC', serif"
+    );
+    assert_eq!(
+        report["result"]["extraction"]["layoutSignals"],
+        serde_json::json!(["grid", "grid-columns"])
+    );
+    assert!(report["result"]["candidate"]["typography"].is_null());
+    assert!(report["result"]["candidate"]["composition"].is_null());
     assert!(!source.join("EXECUTED").exists());
     assert!(!root.path().join("EXECUTED").exists());
     let theme = parse_theme(&fs::read(&out).unwrap()).unwrap();

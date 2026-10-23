@@ -16,7 +16,7 @@ JSON 有错误时，预览明确标明正在显示上次有效内容，结构增
 
 状态：产品正在开发，当前没有正式桌面安装包。源码已支持本地文件/目录打开、预览、原生 JSON 编辑、四种桌面导出、本地主题目录和多来源在线主题浏览：左侧初始显示 20 套本地主题，悬停临时预览、点击选中；中央渲染当前 JSON Resume 或显示源码，右侧始终显示模块及条目数。预览页现可增删标准模块与条目，并撤销、重做；标准文本字段可通过悬停表单编辑。启动方式为 `cargo run -p resume-one-app`，也可附加一个 JSON 文件或目录路径。macOS 本机包用 `bash packaging/macos/bundle.sh release` 构建；`.app/Contents/MacOS/` 内同时包含 `resume-one` 与 `resume-one-theme-migrate`，可在终端用完整路径调用，不会自动加入 PATH。Windows 在安装 Rust 1.99 MSVC、Visual Studio C++ Build Tools 与 Windows SDK 后，可在 PowerShell 用 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate` 构建三个 `.exe`；该命令仍待 Windows 实机验收。完整命令见 [README 本地构建](../README.md#本地构建)。正式默认 GitHub 源和完整主题排版尚未交付。
 
-macOS 本机包装配后已进行临时签名与严格封签校验，但没有 Developer ID 签名或公证，仅供本机测试，不是可通过 Gatekeeper 的公开分发包。
+macOS 本机包装配后已进行临时签名与严格封签校验。运行 `bash packaging/macos/archive.sh release` 可在 `target/release/` 生成本地评估 ZIP；归档会被解包并再次校验，已有同名 ZIP 不会覆盖。它没有 Developer ID 签名或公证，仅供本机测试，不是可通过 Gatekeeper 的公开分发包。
 
 已实现的打开操作：点击右上角“打开”，选择“打开 JSON”或“打开目录”；macOS 快捷键分别为 `⌘O`、`⌘⇧O`，Windows 为 `Ctrl+O`、`Ctrl+Shift+O`。打开目录只列出该目录第一层的普通 `.json` 文件（扩展名不区分大小写，不递归扫描，不跟随目录内符号链接），从顶栏文件名或 `⌘P`/`Ctrl+P` 打开切换器，用上下方向键和 Enter 选择，Esc 或点外部收起。“刷新”重新扫描目录，目录为空时会明确显示空状态；取消或读取失败保留当前简历与主题。
 

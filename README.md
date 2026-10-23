@@ -30,7 +30,7 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 
 ## 本地构建
 
-仓库固定使用 Rust 1.99。macOS 需要 Xcode 与 Metal Toolchain；在仓库根目录运行 `rustup toolchain install 1.99.0`，然后执行 `bash packaging/macos/bundle.sh release`。输出为 `target/release/Resume One.app`，其中 `Contents/MacOS/` 包含桌面程序、`resume-one` 和 `resume-one-theme-migrate`。脚本对装配后的程序做临时签名，`codesign --verify --deep --strict` 必须通过；可以用 `open 'target/release/Resume One.app'` 在本机启动。该包没有 Developer ID 签名或公证，Gatekeeper 会拒绝把它当公开分发包。
+仓库固定使用 Rust 1.99。macOS 需要 Xcode 与 Metal Toolchain；在仓库根目录运行 `rustup toolchain install 1.99.0`，然后执行 `bash packaging/macos/bundle.sh release`。输出为 `target/release/Resume One.app`，其中 `Contents/MacOS/` 包含桌面程序、`resume-one` 和 `resume-one-theme-migrate`。脚本对装配后的程序做临时签名，`codesign --verify --deep --strict` 必须通过；可以用 `open 'target/release/Resume One.app'` 在本机启动。需要单文件本地评估包时，再运行 `bash packaging/macos/archive.sh release`，得到 `target/release/Resume-One-macOS-unsigned.zip`；归档脚本会在解包后再次验证封签，已有目标不会被覆盖。该包没有 Developer ID 签名或公证，Gatekeeper 会拒绝把它当公开分发包。
 
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
 

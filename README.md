@@ -26,11 +26,11 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 
 单栏正文的页眉已支持 `composition.header: stacked/centered/split`，联系方式支持 `composition.contact: inline/stacked`；`split` 或 `preset: split-header` 将姓名/职业与联系方式分列排版，正文仍为单栏。居中按实际内容区逐行计算，长文本自动换行；分栏页眉遇到超长内容会退回全宽流式页眉，避免越界。预览、PDF、可编辑 DOCX 及本地/在线主题能力检查保持一致；图标联系方式和正文侧栏仍明确拒绝。配置只属于主题，不写入简历 JSON。
 
-运行已实现的检查：`cargo test --workspace`；从源码使用 CLI：`cargo run -p resume-one-cli -- --help`。macOS 上可通过 `cargo run -p resume-one-app` 打开内置示例，或用 `cargo run -p resume-one-app -- /absolute/resume.json` 打开 JSON Resume 文件；有语法或 Schema 错误的 UTF-8 文件会直接进入源码修复界面。按 `⌘/` 切换预览和源码。macOS 开发包 `bash packaging/macos/bundle.sh debug` 会同时装入桌面程序、CLI 与独立迁移工具，但未签名或公证，也不代表正式安装包。首次构建 GPUI 需要安装 Xcode Metal Toolchain。Windows 运行与安装包尚未验收。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
+运行已实现的检查：`cargo test --workspace`；从源码使用 CLI：`cargo run -p resume-one-cli -- --help`。macOS 上可通过 `cargo run -p resume-one-app` 打开内置示例，或用 `cargo run -p resume-one-app -- /absolute/resume.json` 打开 JSON Resume 文件；有语法或 Schema 错误的 UTF-8 文件会直接进入源码修复界面。按 `⌘/` 切换预览和源码。macOS 开发包 `bash packaging/macos/bundle.sh debug` 会同时装入桌面程序、CLI 与独立迁移工具；装配后做本机临时签名及严格资源封签校验，但没有 Developer ID 签名或公证，不代表正式安装包。首次构建 GPUI 需要安装 Xcode Metal Toolchain。Windows 运行与安装包尚未验收。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
 
 ## 本地构建
 
-仓库固定使用 Rust 1.99。macOS 需要 Xcode 与 Metal Toolchain；在仓库根目录运行 `rustup toolchain install 1.99.0`，然后执行 `bash packaging/macos/bundle.sh release`。输出为 `target/release/Resume One.app`，其中 `Contents/MacOS/` 包含桌面程序、`resume-one` 和 `resume-one-theme-migrate`。可以用 `open 'target/release/Resume One.app'` 启动。该包只用于本机测试，未签名、公证。
+仓库固定使用 Rust 1.99。macOS 需要 Xcode 与 Metal Toolchain；在仓库根目录运行 `rustup toolchain install 1.99.0`，然后执行 `bash packaging/macos/bundle.sh release`。输出为 `target/release/Resume One.app`，其中 `Contents/MacOS/` 包含桌面程序、`resume-one` 和 `resume-one-theme-migrate`。脚本对装配后的程序做临时签名，`codesign --verify --deep --strict` 必须通过；可以用 `open 'target/release/Resume One.app'` 在本机启动。该包没有 Developer ID 签名或公证，Gatekeeper 会拒绝把它当公开分发包。
 
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
 

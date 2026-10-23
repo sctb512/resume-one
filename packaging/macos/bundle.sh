@@ -22,6 +22,11 @@ cp "$repo_root/target/$profile/resume-one-app" "$bundle/Contents/MacOS/resume-on
 cp "$repo_root/target/$profile/resume-one" "$bundle/Contents/MacOS/resume-one"
 cp "$repo_root/target/$profile/resume-one-theme-migrate" "$bundle/Contents/MacOS/resume-one-theme-migrate"
 plutil -lint -s "$bundle/Contents/Info.plist"
+for name in resume-one resume-one-theme-migrate; do
+    codesign --force --sign - "$bundle/Contents/MacOS/$name"
+done
+codesign --force --sign - "$bundle"
+codesign --verify --deep --strict --verbose=2 "$bundle"
 "$bundle/Contents/MacOS/resume-one" --version >/dev/null
 "$bundle/Contents/MacOS/resume-one-theme-migrate" --version >/dev/null
 echo "$bundle"

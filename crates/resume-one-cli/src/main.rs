@@ -508,7 +508,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
             let outcome = patch_resume(&file, &bytes, &if_match, dry_run).map_err(|err| {
                 let exit = match err.code {
                     "REVISION_CONFLICT" => 4,
-                    "RESUME_IO" => 5,
+                    "RESUME_IO" | "RESUME_BUSY" => 5,
                     "INVALID_REVISION" => 2,
                     _ => 3,
                 };
@@ -576,7 +576,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 replace_resume(&file, &next.source, &if_match).map_err(|error| {
                     let exit = match error.code {
                         "REVISION_CONFLICT" => 4,
-                        "RESUME_IO" => 5,
+                        "RESUME_IO" | "RESUME_BUSY" => 5,
                         "INVALID_REVISION" => 2,
                         _ => 3,
                     };
@@ -637,7 +637,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 replace_resume(&file, &next.source, &if_match).map_err(|error| {
                     let exit = match error.code {
                         "REVISION_CONFLICT" => 4,
-                        "RESUME_IO" => 5,
+                        "RESUME_IO" | "RESUME_BUSY" => 5,
                         "INVALID_REVISION" => 2,
                         _ => 3,
                     };

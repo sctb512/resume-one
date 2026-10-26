@@ -1007,6 +1007,91 @@ mod tests {
     use super::automatic_pair;
 
     #[gpui::test]
+    fn busy_save_keeps_draft_and_clears_saving_then_retry_updates_baseline(
+        cx: &mut gpui::TestAppContext,
+    ) {
+        use super::*;
+        use crate::model::AppModel;
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("busy.json");
+        let original = br#"{"basics":{"name":"Original"}}"#;
+        let edited = r#"{"basics":{"name":"Edited"}}"#;
+        std::fs::write(&path, original).unwrap();
+        let guard = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(root.path().join(".busy.json.resume-one.lock"))
+            .unwrap();
+        guard.lock().unwrap();
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.toggle_source(&ToggleSource, window, cx);
+                app.reduce_motion = true;
+                app.begin_mode_transition();
+                app.editor
+                    .as_ref()
+                    .unwrap()
+                    .input
+                    .clone()
+                    .update(cx, |state, cx| {
+                        state.set_value(edited, window, cx);
+                    });
+            });
+        });
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.save_json(&Save, window, cx));
+        });
+        cx.run_until_parked();
+        assert!(cx.has_pending_prompt());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            let editor = app.editor.as_ref().unwrap();
+            assert!(!editor.saving);
+            assert!(editor.buffer.is_dirty());
+            assert_eq!(editor.buffer.source(), edited);
+            assert_eq!(
+                editor.buffer.baseline_revision(),
+                resume_one_core::resume::revision(original)
+            );
+            assert_eq!(editor.store.load().unwrap().unwrap().source, edited);
+        });
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        cx.simulate_prompt_answer("确定");
+        cx.run_until_parked();
+        drop(guard);
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.save_json(&Save, window, cx);
+                app.toggle_source(&ToggleSource, window, cx);
+            });
+        });
+        cx.run_until_parked();
+        assert!(!cx.has_pending_prompt());
+        assert_eq!(std::fs::read(&path).unwrap(), edited.as_bytes());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            let editor = app.editor.as_ref().unwrap();
+            assert!(!app.source_mode);
+            assert!(!editor.saving);
+            assert!(!editor.buffer.is_dirty());
+            assert!(editor.store.load().unwrap().is_none());
+            assert_eq!(app.model.opened_source, edited.as_bytes());
+        });
+    }
+
+    #[gpui::test]
     fn recovery_notice_keeps_views_available_and_preserves_external_revision(
         cx: &mut gpui::TestAppContext,
     ) {

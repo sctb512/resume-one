@@ -68,8 +68,15 @@ fn lock_target(path: &Path, dry_run: bool) -> Result<(PathBuf, Option<File>), St
             .truncate(false)
             .open(lock_path)
             .map_err(|err| error("RESUME_IO", err.to_string()))?;
-        lock.lock()
-            .map_err(|err| error("RESUME_IO", format!("无法锁定简历：{err}")))?;
+        // A paused GUI/Agent may hold this lock indefinitely. Do not strand
+        // another editor in its saving state while waiting for that process.
+        lock.try_lock().map_err(|err| match err {
+            fs::TryLockError::WouldBlock => error(
+                "RESUME_BUSY",
+                "文件正在被其他进程保存；本次未写入，请稍后重试",
+            ),
+            fs::TryLockError::Error(err) => error("RESUME_IO", format!("无法锁定简历：{err}")),
+        })?;
         Some(lock)
     };
     Ok((target, lock))
@@ -337,7 +344,7 @@ mod tests {
                 .filter(|result| result
                     .as_ref()
                     .err()
-                    .is_some_and(|error| error.code == "REVISION_CONFLICT"))
+                    .is_some_and(|error| matches!(error.code, "REVISION_CONFLICT" | "RESUME_BUSY")))
                 .count(),
             1
         );
@@ -365,6 +372,40 @@ mod tests {
             revision(next.as_bytes())
         );
         assert_eq!(fs::read(&path).unwrap(), next.as_bytes());
+    }
+
+    #[test]
+    fn held_lock_rejects_save_and_patch_without_waiting_or_losing_source() {
+        use std::sync::mpsc;
+        use std::time::Duration;
+
+        let (_root, path, before) = fixture();
+        let original = fs::read(&path).unwrap();
+        let (_, guard) = lock_target(&path, false).unwrap();
+        let next = br#"{"basics":{"name":"Saved"}}"#;
+        let (sender, receiver) = mpsc::channel();
+        let worker = {
+            let path = path.clone();
+            let before = before.clone();
+            std::thread::spawn(move || {
+                let save = replace_resume(&path, next, &before);
+                let patch = patch_resume(&path, br#"[]"#, &before, false);
+                sender.send((save, patch)).unwrap();
+            })
+        };
+        let result = receiver.recv_timeout(Duration::from_secs(2));
+        // Release before asserting/joining, so a regression cannot hang tests.
+        drop(guard);
+        worker.join().unwrap();
+        let (save, patch) = result.expect("a held lock must not block either writer");
+        assert_eq!(save.unwrap_err().code, "RESUME_BUSY");
+        assert_eq!(patch.unwrap_err().code, "RESUME_BUSY");
+        assert_eq!(fs::read(&path).unwrap(), original);
+        assert_eq!(
+            replace_resume(&path, next, &before).unwrap(),
+            revision(next)
+        );
+        assert_eq!(fs::read(&path).unwrap(), next);
     }
 
     #[test]
@@ -418,7 +459,7 @@ mod tests {
                 .iter()
                 .filter(|result| result
                     .as_ref()
-                    .is_err_and(|err| err.code == "REVISION_CONFLICT"))
+                    .is_err_and(|err| matches!(err.code, "REVISION_CONFLICT" | "RESUME_BUSY")))
                 .count(),
             1
         );

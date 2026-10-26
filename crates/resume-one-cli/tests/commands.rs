@@ -21,6 +21,57 @@ fn path(path: &Path) -> &str {
 }
 
 #[test]
+fn locked_document_returns_retryable_io_error_without_waiting() {
+    use std::sync::mpsc;
+    use std::time::Duration;
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("busy.json");
+    let patch = root.path().join("patch.json");
+    let original = br#"{"basics":{"name":"Original"}}"#;
+    fs::write(&file, original).unwrap();
+    fs::write(
+        &patch,
+        br#"[{"op":"replace","path":"/basics/name","value":"Changed"}]"#,
+    )
+    .unwrap();
+    let revision = resume_one_core::resume::revision(original);
+    let guard = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(root.path().join(".busy.json.resume-one.lock"))
+        .unwrap();
+    guard.lock().unwrap();
+    let (sender, receiver) = mpsc::channel();
+    let worker = {
+        let file = file.clone();
+        let revision = revision.clone();
+        std::thread::spawn(move || {
+            sender
+                .send(call(&[
+                    "patch",
+                    "--file",
+                    path(&file),
+                    "--patch",
+                    path(&patch),
+                    "--if-match",
+                    &revision,
+                    "--json",
+                ]))
+                .unwrap();
+        })
+    };
+    let result = receiver.recv_timeout(Duration::from_secs(3));
+    drop(guard);
+    worker.join().unwrap();
+    let (output, value) = result.expect("CLI must finish while another process holds the lock");
+    assert_eq!(output.status.code(), Some(5));
+    assert_eq!(value["error"]["code"], "RESUME_BUSY");
+    assert_eq!(fs::read(file).unwrap(), original);
+}
+
+#[test]
 fn init_inspect_read_and_schema_are_agent_safe() {
     let root = tempfile::tempdir().unwrap();
     let file = root.path().join("简历 one.json");
@@ -480,7 +531,13 @@ fn two_cli_processes_cannot_commit_the_same_revision() {
     assert_eq!(
         outcomes
             .iter()
-            .filter(|output| output.status.code() == Some(4))
+            .filter(|output| {
+                let value: Value = serde_json::from_slice(&output.stdout).unwrap();
+                matches!(
+                    (output.status.code(), value["error"]["code"].as_str()),
+                    (Some(4), Some("REVISION_CONFLICT")) | (Some(5), Some("RESUME_BUSY"))
+                )
+            })
             .count(),
         1
     );

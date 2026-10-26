@@ -1,5 +1,7 @@
 # Resume One CLI 手册
 
+锁竞争：`patch`、`structure`、`set-field` 在其他写入者持锁时立即以退出码 `5` 和错误码 `RESUME_BUSY` 返回，不无限等待、不覆盖原文件。稍后重新 `inspect` 获取 revision 后再决定是否重试；不要删除旁路锁文件。
+
 状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 和 DOCX 支持主题的单栏基础视觉参数；独立迁移工具支持 v1→v2 及第三方主题低置信度静态提取。完整主题排版仍在开发。
 
 `resume-one` 是独立本地程序，不依赖桌面应用运行，不会自动读取 GUI 当前打开的简历。所有文件操作都需要显式的**绝对路径** `--file` 或 `--dir`。从仓库运行时可使用 `cargo run -p resume-one-cli -- <命令>`；构建后的程序名为 `resume-one`。Windows PowerShell 中路径应加引号，例如 `--file 'C:\Users\Me\Documents\resume.json'`。

@@ -4,6 +4,10 @@
 
 ## 当前实现状态
 
+本地验收版提供 macOS 应用、文档 CLI、独立主题迁移器、20 套声明式主题、主题规范和两份手册。macOS 打包后，命令行工具位于 `.app/Contents/MacOS/`，规范、手册、主题文件和完整示例位于 `.app/Contents/Resources/`。它采用临时签名，仅供当前约定的本地交付；Windows 原生环境、Microsoft Word 实机验收和公开默认主题源仍是正式发布的未完成项。
+
+本轮交互精修：360ms 视图切换从 62% 时程开始内容交接，右栏固定；外壳配色以 160ms 过渡；预览空白处不再自动展开表单，字段区提供常驻溢出滚动条。草稿恢复使用中央提示，选择前保留原文件与草稿并暂时锁定修改。macOS 窗口按钮与工具栏合并为一行。完整示例仍是干净的 JSON Resume，不含样式或应用元数据。
+
 桌面已补齐三档响应布局：宽窗双侧栏、中窗主题抽屉、窄窗互斥双抽屉，纸张不因抽屉开合重排。支持系统减少动态效果、表单短入场、主题悬停/应用区分、只读旧预览提示及顶栏键盘入口。Windows 的系统设置联动仍需实机验收；GPUI 屏幕阅读器语义覆盖尚不完整。
 
 CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验、revision 守卫与预演，结果不回显简历正文；详见 [CLI 手册](./docs/cli-manual.md)。
@@ -33,6 +37,10 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 仓库固定使用 Rust 1.99。macOS 需要 Xcode 与 Metal Toolchain；在仓库根目录运行 `rustup toolchain install 1.99.0`，然后执行 `bash packaging/macos/bundle.sh release`。输出为 `target/release/Resume One.app`，其中 `Contents/MacOS/` 包含桌面程序、`resume-one` 和 `resume-one-theme-migrate`。脚本对装配后的程序做临时签名，`codesign --verify --deep --strict` 必须通过；可以用 `open 'target/release/Resume One.app'` 在本机启动。需要单文件本地评估包时，再运行 `bash packaging/macos/archive.sh release`，得到 `target/release/Resume-One-macOS-unsigned.zip`；归档脚本会在解包后再次验证封签，已有目标不会被覆盖。该包没有 Developer ID 签名或公证，Gatekeeper 会拒绝把它当公开分发包。
 
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
+
+Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配本地便携 ZIP；脚本自动定位 Windows SDK 的 `x64/fxc.exe`（也可设置 `GPUI_FXC_PATH`），同时附带规范、手册、20 套主题和示例，拒绝覆盖已有 ZIP。该脚本仍待原生 Windows 运行验收。当前固定版本 GPUI 在 macOS 主机构建 Windows 时不会生成 DirectX 着色器，因此不能仅靠交叉编译得到有效桌面程序；命令行工具可独立交叉编译，但不等于 Windows GUI 或原生运行验收通过。
+
+macOS 如需保留已有应用，可向 `bundle.sh` 传第二个参数指定尚不存在的绝对 `.app` 路径；向 `archive.sh` 传第三个参数指定该应用归档。归档前后均检查封签。项目采用 [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt)，第三方与字体声明保留在包内。
 
 JSON Resume Schema 来自 `@jsonresume/schema@1.3.1`，其原始包声明 MIT 许可证，Copyright © 2024 JSON Resume；原文件 SHA-256 为 `a07eedd3d86ac5bb61d72e136d788269e35baf42c35391e15d0be39b3dc5a4bd`。PDF / DOCX 内置 Noto Sans SC 和 Noto Serif SC 静态字体按 OFL 1.1 分发。许可全文与随附声明见 [第三方许可](./spec/THIRD_PARTY_LICENSES.md)。
 

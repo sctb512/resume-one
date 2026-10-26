@@ -5,12 +5,12 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 profile="${1:-release}"
 case "$profile" in
     debug|release) ;;
-    *) echo "usage: $0 [debug|release] [absolute-output.zip]" >&2; exit 2 ;;
+    *) echo "usage: $0 [debug|release] [absolute-output.zip] [absolute-input.app]" >&2; exit 2 ;;
 esac
 
-bundle="$repo_root/target/$profile/Resume One.app"
+bundle="${3:-$repo_root/target/$profile/Resume One.app}"
 output="${2:-$repo_root/target/$profile/Resume-One-macOS-unsigned.zip}"
-if [[ ! -d "$bundle" ]]; then
+if [[ "$bundle" != /* || "$bundle" != *.app || ! -d "$bundle" || -L "$bundle" ]]; then
     echo "missing app bundle: $bundle; run packaging/macos/bundle.sh first" >&2
     exit 3
 fi

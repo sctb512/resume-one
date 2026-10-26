@@ -289,23 +289,43 @@ impl ResumeOne {
         div()
             .id("toolbar")
             .debug_selector(|| "toolbar".into())
+            .w_full()
             .h(px(TOOLBAR_HEIGHT))
             .flex_none()
             .flex()
             .items_center()
             .gap(px(if compact { 8. } else { 18. }))
             .px(px(if compact { 16. } else { 26. }))
+            .when(cfg!(target_os = "macos"), |v| v.pl(px(90.)))
             .border_b_1()
             .border_color(color(p.line))
             .bg(color(p.panel))
             .on_mouse_down(
                 MouseButton::Left,
-                cx.listener(|this, _, _, cx| {
+                cx.listener(|this, event: &gpui::MouseDownEvent, window, cx| {
                     this.files.open = false;
                     this.export_menu_open = false;
+                    if cfg!(target_os = "macos") {
+                        if event.click_count == 2 {
+                            window.titlebar_double_click();
+                        } else {
+                            this.window_drag_pending = true;
+                        }
+                    }
                     cx.notify();
                 }),
             )
+            .on_mouse_down_out(cx.listener(|this, _, _, _| this.window_drag_pending = false))
+            .on_mouse_up(
+                MouseButton::Left,
+                cx.listener(|this, _, _, _| this.window_drag_pending = false),
+            )
+            .on_mouse_move(cx.listener(|this, _, window, _| {
+                if this.window_drag_pending {
+                    this.window_drag_pending = false;
+                    window.start_window_move();
+                }
+            }))
             .child(
                 div()
                     .flex()

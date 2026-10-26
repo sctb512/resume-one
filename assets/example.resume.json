@@ -1,0 +1,53 @@
+{
+  "basics": {
+    "name": "林清和",
+    "label": "产品设计师 · Product Designer",
+    "email": "hello@example.com",
+    "url": "https://example.com",
+    "location": { "city": "上海", "countryCode": "CN" },
+    "summary": "专注于清晰、克制且有温度的体验设计。以用户研究连接产品策略与细节，擅长将复杂流程整理为自然、易用的工具。"
+  },
+  "work": [
+    {
+      "name": "示例工作室",
+      "position": "高级产品设计师",
+      "location": "上海",
+      "startDate": "2022-01",
+      "summary": "负责桌面效率工具从概念、原型到交付的完整体验。",
+      "highlights": [
+        "重构内容编辑流程，将常用操作收敛到文档上下文中。",
+        "建立跨平台设计系统，统一组件、动效与键盘操作。"
+      ]
+    },
+    {
+      "name": "远山设计",
+      "position": "产品设计师",
+      "startDate": "2019-07",
+      "endDate": "2021-12",
+      "highlights": ["通过访谈与可用性测试，持续改善信息架构和关键任务流程。"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "纸间 · Paper Notes",
+      "roles": ["体验设计", "交互原型"],
+      "startDate": "2024-03",
+      "endDate": "2024-09",
+      "description": "一款关注阅读与写作的本地笔记工具，用留白和轻量交互保留专注。"
+    }
+  ],
+  "education": [
+    {
+      "institution": "示例大学",
+      "area": "视觉传达设计",
+      "studyType": "学士",
+      "startDate": "2015-09",
+      "endDate": "2019-06"
+    }
+  ],
+  "skills": [
+    { "name": "设计方法", "keywords": ["用户研究", "信息架构", "交互设计"] },
+    { "name": "设计工具", "keywords": ["Figma", "原型设计", "Design Systems"] }
+  ],
+  "languages": [{ "language": "英语", "fluency": "工作交流" }]
+}

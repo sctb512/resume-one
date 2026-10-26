@@ -58,6 +58,7 @@ fn label(id: &str) -> &str {
 struct ResumeOne {
     model: AppModel,
     shell: chrome::Shell,
+    window_drag_pending: bool,
     hovered_theme: Option<usize>,
     theme_hover_generation: u64,
     theme_hover_candidate: Option<String>,
@@ -107,6 +108,7 @@ impl ResumeOne {
         };
         Self {
             shell: chrome::Shell::new(model.selected_style()),
+            window_drag_pending: false,
             model,
             hovered_theme: None,
             theme_hover_generation: 0,
@@ -1183,6 +1185,12 @@ fn main() {
             WindowOptions {
                 window_bounds: Some(WindowBounds::Windowed(bounds)),
                 window_min_size: Some(size(px(720.0), px(480.0))),
+                #[cfg(target_os = "macos")]
+                titlebar: Some(gpui::TitlebarOptions {
+                    appears_transparent: true,
+                    traffic_light_position: Some(gpui::point(px(16.), px(23.))),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
             move |window, cx| {
@@ -1765,6 +1773,7 @@ mod tests {
     #[gpui::test]
     fn preview_window_renders_all_three_panes(cx: &mut TestAppContext) {
         let model = AppModel::load(None).unwrap();
+        let original_sections = model.content.sections.len();
         let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.update(|window, _| window.refresh());
         let theme = cx.debug_bounds("theme-panel").unwrap();
@@ -1785,7 +1794,7 @@ mod tests {
             let app = view.read(cx);
             assert_eq!(app.model.themes.len(), 20);
             assert_eq!(app.model.content.name, "林清和");
-            assert_eq!(app.model.content.sections.len(), 3);
+            assert_eq!(app.model.content.sections.len(), original_sections);
             assert_eq!(app.hovered_theme, Some(1));
             assert_eq!(app.model.selected_theme, 0);
         });

@@ -30,25 +30,7 @@ pub(crate) const BUILTIN_THEMES: &[&str] = &[
     include_str!("../../../assets/themes/xingye.theme.json"),
 ];
 
-const EXAMPLE_RESUME: &[u8] = br#"{
-  "basics": {
-    "name": "\u6797\u6e05\u548c",
-    "label": "\u4ea7\u54c1\u8bbe\u8ba1\u5e08",
-    "email": "hello@example.com",
-    "summary": "\u4e13\u6ce8\u4e8e\u6e05\u6670\u3001\u514b\u5236\u4e14\u6709\u6e29\u5ea6\u7684\u4f53\u9a8c\u8bbe\u8ba1\u3002"
-  },
-  "work": [{
-    "name": "\u793a\u4f8b\u5de5\u4f5c\u5ba4",
-    "position": "\u4ea7\u54c1\u8bbe\u8ba1\u5e08",
-    "startDate": "2022-01",
-    "summary": "\u4ece\u6982\u5ff5\u5230\u4ea4\u4ed8\u7684\u5b8c\u6574\u8bbe\u8ba1\u3002"
-  }],
-  "education": [{
-    "institution": "\u793a\u4f8b\u5927\u5b66",
-    "area": "\u8bbe\u8ba1\u5b66"
-  }],
-  "skills": [{"name": "\u8bbe\u8ba1\u5de5\u5177", "keywords": ["Figma", "\u539f\u578b\u8bbe\u8ba1"]}]
-}"#;
+const EXAMPLE_RESUME: &[u8] = include_bytes!("../../../assets/example.resume.json");
 
 #[derive(Clone)]
 pub struct BuiltinTheme {
@@ -100,7 +82,7 @@ impl AppModel {
             .as_deref()
             .and_then(Path::file_name)
             .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "示例简历 · 未保存".to_string());
+            .unwrap_or_else(|| "示例简历".to_string());
         let themes = BUILTIN_THEMES
             .iter()
             .map(|source| {

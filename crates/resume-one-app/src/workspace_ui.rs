@@ -85,7 +85,7 @@ impl ResumeOne {
     }
 
     pub(super) fn drawer_button(&self, drawer: Drawer, cx: &mut Context<Self>) -> impl IntoElement {
-        let p = chrome::Palette::new(self.active_style());
+        let p = chrome::Palette::new(self.shell_style());
         let (id, title) = match drawer {
             Drawer::Themes => ("show-themes", "主题"),
             Drawer::Modules => ("show-modules", "模块"),
@@ -122,7 +122,7 @@ impl ResumeOne {
 
     pub(super) fn drawer_overlay(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let drawer = self.drawer.expect("open drawer");
-        let colors = self.active_style().colors;
+        let colors = self.shell_style().colors;
         let reduce_motion = self.reduce_motion;
         div()
             .id("drawer-overlay")

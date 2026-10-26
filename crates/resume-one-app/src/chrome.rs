@@ -2,7 +2,8 @@
 use gpui::{
     Context, FontWeight, IntoElement, MouseButton, PathBuilder, canvas, div, point, prelude::*, px,
 };
-use resume_one_core::theme_style::{Rgb, ThemeStyle};
+use resume_one_core::theme_style::{Colors, Rgb, ThemeStyle};
+use std::time::{Duration, Instant};
 
 use crate::ResumeOne;
 use crate::color;
@@ -13,6 +14,74 @@ pub const MODULE_WIDTH: f32 = 230.0;
 pub const THEME_ROW_HEIGHT: f32 = 95.0;
 pub const SERIF: &str = "Noto Serif SC";
 pub const SANS: &str = "Noto Sans SC";
+
+/// Only screen chrome is interpolated. Paper layout and export tokens always
+/// come straight from the verified theme.
+pub(super) struct Shell {
+    pub style: ThemeStyle,
+    from: Colors,
+    target: Colors,
+    started: Option<Instant>,
+}
+
+fn color_key(c: Colors) -> [Rgb; 9] {
+    [
+        c.accent, c.seal, c.paper, c.canvas, c.ink, c.muted, c.border, c.sidebar, c.chrome,
+    ]
+}
+
+impl Shell {
+    pub fn new(style: &ThemeStyle) -> Self {
+        Self {
+            style: style.clone(),
+            from: style.colors,
+            target: style.colors,
+            started: None,
+        }
+    }
+
+    pub fn advance(&mut self, target: Colors, now: Instant, reduced: bool) -> bool {
+        if reduced {
+            self.style.colors = target;
+            self.target = target;
+            self.started = None;
+            return false;
+        }
+        // Sample before retargeting: scanning adjacent themes never jumps back
+        // to the previous theme's endpoint.
+        self.sample(now);
+        if color_key(target) != color_key(self.target) {
+            self.from = self.style.colors;
+            self.target = target;
+            self.started = Some(now);
+        }
+        self.started.is_some()
+    }
+
+    fn sample(&mut self, now: Instant) {
+        let Some(started) = self.started else { return };
+        let t = (now.saturating_duration_since(started).as_secs_f32()
+            / Duration::from_millis(160).as_secs_f32())
+        .clamp(0., 1.);
+        let t = t * t * (3. - 2. * t);
+        let a = self.from;
+        let b = self.target;
+        self.style.colors = Colors {
+            accent: a.accent.mix(b.accent, t),
+            seal: a.seal.mix(b.seal, t),
+            paper: a.paper.mix(b.paper, t),
+            canvas: a.canvas.mix(b.canvas, t),
+            ink: a.ink.mix(b.ink, t),
+            muted: a.muted.mix(b.muted, t),
+            border: a.border.mix(b.border, t),
+            sidebar: a.sidebar.mix(b.sidebar, t),
+            chrome: a.chrome.mix(b.chrome, t),
+        };
+        if t >= 1. {
+            self.started = None;
+        }
+    }
+}
 
 pub(super) fn activation_key(event: &gpui::KeyDownEvent) -> bool {
     matches!(event.keystroke.key.as_str(), "enter" | "space")
@@ -198,15 +267,15 @@ pub fn icon(kind: &'static str, ink: Rgb) -> impl IntoElement {
 
 impl ResumeOne {
     pub(super) fn toolbar(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let style = self.active_style();
+        let style = self.shell_style();
         let p = Palette::new(style);
         let compact = self.layout == crate::workspace_ui::Layout::Compact;
         let export_ink = readable_on(style.colors.paper, style.colors.accent);
         let dirty = self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty());
         let status = if self.editor.as_ref().is_some_and(|e| e.saving) {
             "保存中…"
-        } else if self.model.document_path.is_none() && self.model.is_example {
-            "示例预览 · 未保存"
+        } else if self.model.document_path.is_none() && self.model.is_example && !dirty {
+            "示例预览"
         } else if dirty || self.model.document_path.is_none() {
             "未保存"
         } else {
@@ -422,6 +491,39 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn shell_retargets_from_visible_colors_and_keeps_intermediate_text_readable() {
+        let model = crate::model::AppModel::load(None).unwrap();
+        let light = &model.themes[0].style;
+        let dark = model
+            .themes
+            .iter()
+            .find(|t| t.manifest.id == "yehe")
+            .unwrap();
+        let now = Instant::now();
+        let mut shell = Shell::new(light);
+        assert!(shell.advance(dark.style.colors, now, false));
+        assert_eq!(color_key(shell.style.colors), color_key(light.colors));
+        for frame in 1..=8 {
+            shell.advance(
+                dark.style.colors,
+                now + Duration::from_millis(frame * 10),
+                false,
+            );
+            let p = Palette::new(&shell.style);
+            for text in [p.ink, p.muted, p.accent] {
+                assert!(text.contrast(p.panel) >= 4.5);
+            }
+        }
+        let middle = color_key(shell.style.colors);
+        shell.advance(light.colors, now + Duration::from_millis(80), false);
+        assert_eq!(color_key(shell.style.colors), middle);
+        assert!(!shell.advance(light.colors, now + Duration::from_millis(240), false));
+        assert_eq!(color_key(shell.style.colors), color_key(light.colors));
+        assert!(!shell.advance(dark.style.colors, now, true));
+        assert_eq!(color_key(shell.style.colors), color_key(dark.style.colors));
+    }
     #[test]
     fn panel_text_remains_readable_in_light_and_dark_themes() {
         let mut model = crate::model::AppModel::load(None).unwrap();

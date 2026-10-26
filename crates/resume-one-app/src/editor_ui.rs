@@ -828,7 +828,7 @@ impl ResumeOne {
             .h_full()
             .flex()
             .flex_col()
-            .bg(color(style.colors.canvas))
+            .bg(color(self.shell_style().colors.canvas))
             .px_5()
             .pt_5()
             .pb_4()

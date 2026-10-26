@@ -44,7 +44,8 @@ pub(super) struct ModeTransition {
 
 impl ModeTransition {
     /// Keep the outgoing document intact during the physical rail movement.
-    /// Both directions use the final 24% for a short, continuous handoff.
+    /// Both directions overlap the final 38% with the content handoff, so the
+    /// new view arrives while the rail is still settling.
     pub fn handoff(&self, now: Instant) -> f32 {
         if self.duration.is_zero() {
             return 1.0;
@@ -73,7 +74,7 @@ impl ModeTransition {
             to,
             started: now,
             duration: duration.mul_f32(distance),
-            handoff_start: 0.76,
+            handoff_start: 0.62,
         }
     }
 
@@ -102,8 +103,8 @@ mod tests {
         assert!(!done);
         assert!((mid - 0.5).abs() < 0.001);
         assert_eq!(forward.sample(now + MODE_DURATION), (1.0, true));
-        assert_eq!(forward.handoff(now + MODE_DURATION.mul_f32(0.75)), 0.0);
-        assert!(forward.handoff(now + MODE_DURATION.mul_f32(0.88)) > 0.45);
+        assert_eq!(forward.handoff(now + MODE_DURATION.mul_f32(0.60)), 0.0);
+        assert!(forward.handoff(now + MODE_DURATION.mul_f32(0.81)) > 0.49);
         assert_eq!(forward.handoff(now + MODE_DURATION), 1.0);
         let reverse = ModeTransition::new(mid, 0.0, now);
         assert_eq!(reverse.sample(now).0, mid);

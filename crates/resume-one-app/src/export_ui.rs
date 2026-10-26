@@ -148,7 +148,7 @@ impl ResumeOne {
         cx.notify();
     }
     pub(super) fn export_popup(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let p = crate::chrome::Palette::new(self.active_style());
+        let p = crate::chrome::Palette::new(self.shell_style());
         let mut menu = div()
             .id("export-popup")
             .debug_selector(|| "export-popup".into())

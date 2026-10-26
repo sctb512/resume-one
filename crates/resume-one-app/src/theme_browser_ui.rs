@@ -171,7 +171,7 @@ impl ResumeOne {
     }
 
     pub(super) fn theme_navigation(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let style = self.active_style();
+        let style = self.shell_style();
         let p = crate::chrome::Palette::new(style);
         let mut tabs = div()
             .flex()
@@ -281,7 +281,7 @@ impl ResumeOne {
     }
 
     pub(super) fn online_theme_list(&self, cx: &mut Context<Self>) -> gpui::Stateful<gpui::Div> {
-        let style = self.active_style();
+        let style = self.shell_style();
         let p = crate::chrome::Palette::new(style);
         let mut list = div()
             .id("theme-list")

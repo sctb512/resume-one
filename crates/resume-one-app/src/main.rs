@@ -57,6 +57,7 @@ fn label(id: &str) -> &str {
 
 struct ResumeOne {
     model: AppModel,
+    shell: chrome::Shell,
     hovered_theme: Option<usize>,
     theme_hover_generation: u64,
     theme_hover_candidate: Option<String>,
@@ -105,6 +106,7 @@ impl ResumeOne {
             ..Default::default()
         };
         Self {
+            shell: chrome::Shell::new(model.selected_style()),
             model,
             hovered_theme: None,
             theme_hover_generation: 0,
@@ -149,6 +151,10 @@ impl ResumeOne {
     }
     fn active_style(&self) -> &ThemeStyle {
         &self.display_theme().style
+    }
+
+    fn shell_style(&self) -> &ThemeStyle {
+        &self.shell.style
     }
 
     fn display_theme(&self) -> &model::BuiltinTheme {
@@ -206,7 +212,7 @@ impl ResumeOne {
     }
 
     fn theme_sidebar(&self, width: f32, cx: &mut Context<Self>) -> impl IntoElement {
-        let palette = chrome::Palette::new(self.active_style());
+        let palette = chrome::Palette::new(self.shell_style());
         let accent = color(palette.accent);
         let mut list = div()
             .id("theme-list")
@@ -599,7 +605,7 @@ impl ResumeOne {
             .h_full()
             .overflow_scroll()
             .track_scroll(&self.preview_scroll)
-            .bg(color(style.colors.canvas))
+            .bg(color(self.shell_style().colors.canvas))
             .when(!self.structure_enabled() && self.model.preview_ready, |view| {
                 let p = chrome::Palette::new(style);
                 view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
@@ -637,7 +643,7 @@ impl ResumeOne {
     }
 
     fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let palette = chrome::Palette::new(self.active_style());
+        let palette = chrome::Palette::new(self.shell_style());
         let accent = color(palette.accent);
         let enabled = self.structure_enabled();
         let mut list = div()
@@ -882,7 +888,7 @@ impl ResumeOne {
                     {
                         "选择文档中的插入位置 · Esc 取消"
                     } else {
-                        "先选模块，再选文档中的插入位置"
+                        "点击文档中的＋，或先选模块"
                     }),
             )
     }
@@ -908,6 +914,14 @@ impl Render for ResumeOne {
             self.mode_transition = None;
             self.sidebar_progress = if self.source_mode { 1. } else { 0. };
             self.view_blend = self.sidebar_progress;
+        }
+        let shell_target = self.active_style().colors;
+        if self
+            .shell
+            .advance(shell_target, Instant::now(), self.reduce_motion)
+        {
+            cx.on_next_frame(window, |_, _, cx| cx.notify());
+            window.request_animation_frame();
         }
         if self.insertion_before.is_some() && !self.layout.modules_docked() {
             self.drawer = Some(workspace_ui::Drawer::Modules);
@@ -969,7 +983,7 @@ impl Render for ResumeOne {
         let progress = self.sidebar_progress;
         let preview_alpha = 1.0 - self.view_blend;
         let json_alpha = self.view_blend;
-        let style = self.active_style();
+        let style = self.shell_style();
         div()
             .relative()
             .size_full()

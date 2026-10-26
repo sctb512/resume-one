@@ -237,7 +237,7 @@ impl ResumeOne {
             }
             return;
         }
-        if !self.ensure_editor(window, cx) {
+        if !self.ensure_editor(window, cx) || self.recovery_pending {
             return;
         }
         // Preview-first users may never have toggled the JSON editor, where

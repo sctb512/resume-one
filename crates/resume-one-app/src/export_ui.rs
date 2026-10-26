@@ -301,7 +301,7 @@ impl ResumeOne {
     }
 
     fn start_export(&mut self, kind: ExportKind, window: &mut Window, cx: &mut Context<Self>) {
-        if self.theme_manager_open || self.export_busy {
+        if self.theme_manager_open || self.export_busy || self.recovery_pending {
             return;
         }
         if let Some(issue) = self

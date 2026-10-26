@@ -30,6 +30,7 @@ pub(super) struct EditorUi {
     pub generation: u64,
     pub saving: bool,
     pub journal_error: Option<String>,
+    recovery: Option<RecoveryDraft>,
     pub source_anchors: Arc<Vec<resume_one_core::source_map::Anchor>>,
     pub source_generation: u64,
     _subscription: Subscription,
@@ -103,6 +104,19 @@ pub(super) fn apply_editor_theme(style: &ThemeStyle, cx: &mut App) {
     theme.colors.ring = color(style.colors.accent).into();
 }
 
+#[cfg(test)]
+fn drafts_root() -> Result<PathBuf, String> {
+    use std::hash::{Hash, Hasher};
+    static ROOT: std::sync::OnceLock<tempfile::TempDir> = std::sync::OnceLock::new();
+    let mut key = std::hash::DefaultHasher::new();
+    std::thread::current().id().hash(&mut key);
+    Ok(ROOT
+        .get_or_init(|| tempfile::tempdir().expect("test draft directory"))
+        .path()
+        .join(format!("{:x}", key.finish())))
+}
+
+#[cfg(not(test))]
 fn drafts_root() -> Result<PathBuf, String> {
     dirs::data_local_dir()
         .map(|directory| directory.join("Resume One").join("drafts"))
@@ -151,6 +165,7 @@ impl ResumeOne {
     pub(super) fn focus_current(&self, window: &mut Window, cx: &mut Context<Self>) {
         if self.source_mode
             && !self.files.open
+            && !self.recovery_pending
             && let Some(editor) = &self.editor
         {
             editor.input.update(cx, |input, cx| input.focus(window, cx));
@@ -210,6 +225,7 @@ impl ResumeOne {
         );
         editor.generation = 0;
         editor.journal_error = None;
+        editor.recovery = None;
         let input = cx.new(|cx| {
             InputState::new(window, cx)
                 .code_editor("json")
@@ -224,7 +240,7 @@ impl ResumeOne {
         editor.input = input;
         editor._subscription = subscription;
         if offer_recovery {
-            self.prompt_recovery(window, cx);
+            self.load_recovery(window, cx);
         }
     }
 
@@ -275,6 +291,9 @@ impl ResumeOne {
     }
 
     pub(super) fn flush_draft_on_quit(&mut self) {
+        if self.recovery_pending {
+            return;
+        }
         let Some(editor) = &mut self.editor else {
             return;
         };
@@ -295,7 +314,7 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if !self.source_mode {
+        if !self.source_mode || self.recovery_pending {
             return;
         }
         let Some(editor) = &mut self.editor else {
@@ -328,7 +347,8 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
-        if self.theme_manager_open
+        if self.recovery_pending
+            || self.theme_manager_open
             || self.inline_composing(cx)
             || self
                 .editor
@@ -356,7 +376,7 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json_as(&mut self, _: &SaveAs, window: &mut Window, cx: &mut Context<Self>) {
-        if self.theme_manager_open {
+        if self.theme_manager_open || self.recovery_pending {
             return;
         }
         let Some(editor) = &self.editor else { return };
@@ -568,9 +588,10 @@ impl ResumeOne {
                 generation: 0,
                 saving: false,
                 journal_error: None,
+                recovery: None,
                 _subscription: subscription,
             });
-            self.prompt_recovery(window, cx);
+            self.load_recovery(window, cx);
         }
         true
     }
@@ -608,50 +629,38 @@ impl ResumeOne {
         apply_editor_theme(self.model.selected_style(), cx);
         self.source_mode = true;
         self.begin_mode_transition();
-        if let Some(editor) = &self.editor {
+        if !self.recovery_pending
+            && let Some(editor) = &self.editor
+        {
             editor.input.update(cx, |state, cx| state.focus(window, cx));
         }
         cx.notify();
     }
 
-    fn prompt_recovery(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(editor) = &self.editor else { return };
-        let input = editor.input.clone();
-        let generation = editor.generation;
+    fn load_recovery(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(editor) = &mut self.editor else {
+            return;
+        };
         match editor.store.load() {
             Ok(Some(draft)) => {
+                editor.recovery = Some(draft);
                 self.recovery_pending = true;
-                let choice = window.prompt(
-                    PromptLevel::Info,
-                    "发现未保存的编辑草稿",
-                    Some("恢复后会保留原文件的版本检查，避免覆盖外部修改。"),
-                    &["恢复草稿", "暂不恢复"],
-                    cx,
-                );
-                cx.spawn_in(window, async move |this, cx| {
-                    let answer = choice.await.ok();
-                    this.update_in(cx, |this, window, cx| {
-                        if this.editor.as_ref().is_some_and(|editor| {
-                            editor.input == input && editor.generation == generation
-                        }) {
-                            this.recovery_pending = false;
-                            if answer == Some(0) {
-                                this.restore_draft(draft, window, cx);
-                            }
-                        }
-                    })
-                    .ok();
-                })
-                .detach();
+                window.focus(&self.focus);
+                cx.notify();
             }
             Ok(None) => {}
             Err(message) => self.editor_warning("无法读取恢复草稿", &message, window, cx),
         }
     }
 
-    fn restore_draft(&mut self, draft: RecoveryDraft, window: &mut Window, cx: &mut Context<Self>) {
+    fn restore_draft(
+        &mut self,
+        draft: RecoveryDraft,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
         let Some(editor) = &mut self.editor else {
-            return;
+            return false;
         };
         match ResumeBuffer::restore(self.model.opened_source.clone(), &draft) {
             Ok(buffer) => {
@@ -667,9 +676,119 @@ impl ResumeOne {
                     .update(cx, |state, cx| state.set_value(draft.source, window, cx));
                 self.refresh_preview_from_buffer();
                 cx.notify();
+                true
             }
-            Err(issue) => self.editor_warning("无法恢复草稿", &issue.message, window, cx),
+            Err(issue) => {
+                self.editor_warning("无法恢复草稿", &issue.message, window, cx);
+                false
+            }
         }
+    }
+
+    fn choose_recovery(
+        &mut self,
+        restore: bool,
+        owner: &Entity<InputState>,
+        generation: u64,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(editor) = &self.editor else { return };
+        if !self.recovery_pending
+            || editor.input != *owner
+            || editor.source_generation != generation
+        {
+            return;
+        }
+        let Some(draft) = editor.recovery.clone() else {
+            return;
+        };
+        if restore {
+            if !self.restore_draft(draft, window, cx) {
+                return;
+            }
+        } else {
+            let editor = self.editor.as_mut().unwrap();
+            editor.generation += 1;
+            if let Err(message) = editor.store.clear_if_newer(editor.generation) {
+                self.editor_warning("无法丢弃草稿", &message, window, cx);
+                return;
+            }
+            let display = editor.last_display.clone();
+            editor
+                .input
+                .update(cx, |state, cx| state.set_value(display, window, cx));
+        }
+        self.editor.as_mut().unwrap().recovery = None;
+        self.recovery_pending = false;
+        self.visual_undo.clear();
+        self.visual_redo.clear();
+        self.focus_current(window, cx);
+        cx.notify();
+    }
+
+    pub(super) fn recovery_notice(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let p = crate::chrome::Palette::new(self.shell_style());
+        let editor = self.editor.as_ref().expect("pending recovery has editor");
+        let generation = editor.source_generation;
+        let mut notice = div()
+            .id("recovery-notice")
+            .debug_selector(|| "recovery-notice".into())
+            .flex_none()
+            .mx_5()
+            .mt_3()
+            .mb_1()
+            .px_4()
+            .py_3()
+            .rounded_md()
+            .border_1()
+            .border_color(color(p.line))
+            .bg(color(p.panel))
+            .flex()
+            .items_center()
+            .gap_3()
+            .child(
+                div()
+                    .flex_1()
+                    .min_w_0()
+                    .text_size(px(12.))
+                    .text_color(color(p.ink))
+                    .child("发现未保存的草稿，恢复或丢弃后继续编辑"),
+            );
+        for (restore, id, title) in [
+            (true, "recover-draft", "恢复草稿"),
+            (false, "discard-draft", "丢弃草稿"),
+        ] {
+            let click_owner = editor.input.clone();
+            let key_owner = editor.input.clone();
+            notice = notice.child(
+                div()
+                    .id(id)
+                    .debug_selector(move || id.into())
+                    .tab_index(0)
+                    .flex_none()
+                    .px_3()
+                    .py_2()
+                    .rounded(px(4.))
+                    .cursor_pointer()
+                    .text_size(px(12.))
+                    .text_color(color(p.accent))
+                    .when(restore, |v| v.bg(color(p.soft)))
+                    .hover(|v| v.bg(color(p.soft)))
+                    .focus(|v| v.bg(color(p.soft)))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.choose_recovery(restore, &click_owner, generation, window, cx)
+                    }))
+                    .on_key_down(cx.listener(move |this, event, window, cx| {
+                        if crate::chrome::activation_key(event) {
+                            this.choose_recovery(restore, &key_owner, generation, window, cx);
+                            cx.stop_propagation();
+                        }
+                    }))
+                    .child(title),
+            );
+        }
+        notice
     }
 
     fn editor_changed(
@@ -678,6 +797,9 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.recovery_pending {
+            return;
+        }
         if self.source_mode {
             self.cancel_insertion();
         }
@@ -846,6 +968,7 @@ impl ResumeOne {
                     .bg(color(style.colors.paper))
                     .child(
                         Input::new(&editor.input)
+                            .disabled(self.recovery_pending)
                             .text_size(px(13.))
                             .line_height(px(21.))
                             .opacity(1.0 - 0.65 * self.spotlight_progress)
@@ -882,6 +1005,133 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::automatic_pair;
+
+    #[gpui::test]
+    fn recovery_notice_keeps_views_available_and_preserves_external_revision(
+        cx: &mut gpui::TestAppContext,
+    ) {
+        use super::*;
+        use crate::model::AppModel;
+        use gpui::Modifiers;
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("recovery.json");
+        let old = br#"{"basics":{"name":"Original"}}"#;
+        let external = br#"{"basics":{"name":"External"}}"#;
+        std::fs::write(&path, external).unwrap();
+        let draft = RecoveryDraft {
+            source: r#"{"basics":{"name":"Recovered"}}"#.into(),
+            if_match: resume_one_core::resume::revision(old),
+        };
+        let store = DraftStore::new(root.path().join("drafts"), Some(path.clone()));
+        store.write_if_newer(1, &draft).unwrap();
+        let output = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let child = output.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+            *child.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = output.borrow_mut().take().unwrap();
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.ensure_editor(window, cx));
+                app.editor.as_mut().unwrap().store =
+                    DraftStore::new(root.path().join("drafts"), Some(path.clone()));
+                app.load_recovery(window, cx);
+                app.open_inline("basics", None, window, cx);
+                assert!(app.inline.form.is_none());
+                app.toggle_source(&ToggleSource, window, cx);
+                assert!(app.source_mode);
+                app.mode_transition = None;
+                app.sidebar_progress = 1.;
+                app.view_blend = 1.;
+                app.format_json(&FormatJson, window, cx);
+                app.save_json(&Save, window, cx);
+                app.flush_draft_on_quit();
+                assert_eq!(
+                    app.editor.as_ref().unwrap().buffer.source().as_bytes(),
+                    external
+                );
+                assert_eq!(
+                    app.editor.as_ref().unwrap().store.load().unwrap(),
+                    Some(draft.clone())
+                );
+                cx.notify();
+            })
+        });
+        assert!(!cx.has_pending_prompt());
+        assert!(cx.debug_bounds("recovery-notice").is_some());
+        let editor_top_with_notice = cx.debug_bounds("resume-json-editor").unwrap().top();
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        let recover = cx.debug_bounds("recover-draft").unwrap();
+        cx.simulate_click(recover.center(), Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(!app.recovery_pending);
+            let editor = app.editor.as_ref().unwrap();
+            assert_eq!(editor.buffer.source(), draft.source);
+            assert_eq!(editor.buffer.baseline_revision(), draft.if_match);
+            assert_eq!(app.model.content.name, "Recovered");
+        });
+        assert!(cx.debug_bounds("resume-json-editor").unwrap().top() < editor_top_with_notice);
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        assert_eq!(std::fs::read(path).unwrap(), external);
+    }
+
+    #[gpui::test]
+    fn explicit_discard_removes_only_the_pending_draft_and_stale_choice_is_ignored(
+        cx: &mut gpui::TestAppContext,
+    ) {
+        use super::*;
+        use crate::model::AppModel;
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("discard.json");
+        let source = br#"{"basics":{"name":"Keep disk"}}"#;
+        std::fs::write(&path, source).unwrap();
+        let draft = RecoveryDraft {
+            source: "{".into(),
+            if_match: resume_one_core::resume::revision(source),
+        };
+        let store = DraftStore::new(root.path().join("drafts"), Some(path.clone()));
+        store.write_if_newer(1, &draft).unwrap();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.ensure_editor(window, cx);
+                let editor = app.editor.as_mut().unwrap();
+                editor.store = DraftStore::new(root.path().join("drafts"), Some(path.clone()));
+                let owner = editor.input.clone();
+                let generation = editor.source_generation;
+                app.load_recovery(window, cx);
+                app.choose_recovery(false, &owner, generation + 1, window, cx);
+                assert!(app.recovery_pending);
+                assert_eq!(
+                    app.editor.as_ref().unwrap().store.load().unwrap(),
+                    Some(draft)
+                );
+                app.choose_recovery(false, &owner, generation, window, cx);
+                assert!(!app.recovery_pending);
+                assert!(app.editor.as_ref().unwrap().store.load().unwrap().is_none());
+                assert_eq!(
+                    app.editor.as_ref().unwrap().buffer.source().as_bytes(),
+                    source
+                );
+                app.model.new_document();
+                app.reset_editor_for_new_document(window, cx);
+                app.choose_recovery(true, &owner, generation, window, cx);
+                assert_eq!(app.model.document.value, serde_json::json!({"basics":{}}));
+            })
+        });
+        assert!(!cx.has_pending_prompt());
+        assert_eq!(std::fs::read(path).unwrap(), source);
+    }
 
     #[gpui::test]
     fn source_menus_follow_each_resume_palette(cx: &mut gpui::TestAppContext) {

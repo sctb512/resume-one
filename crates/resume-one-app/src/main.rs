@@ -606,7 +606,7 @@ impl ResumeOne {
             .overflow_scroll()
             .track_scroll(&self.preview_scroll)
             .bg(color(self.shell_style().colors.canvas))
-            .when(!self.structure_enabled() && self.model.preview_ready, |view| {
+            .when(!self.recovery_pending && !self.structure_enabled() && self.model.preview_ready, |view| {
                 let p = chrome::Palette::new(style);
                 view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
                     .mx_4().mt_3().px_4().py_2().rounded_md()
@@ -1047,36 +1047,47 @@ impl Render for ResumeOne {
                     )
                     .child(
                         div()
-                            .relative()
                             .flex_1()
                             .min_w_0()
                             .h_full()
-                            .overflow_hidden()
-                            .bg(color(style.colors.canvas))
-                            .when(progress < 1.0 || !self.source_mode, |surface| {
-                                surface.child(
-                                    div()
-                                        .absolute()
-                                        .size_full()
-                                        .opacity(preview_alpha)
-                                        .child(self.preview_surface(cx)),
-                                )
+                            .flex()
+                            .flex_col()
+                            .when(self.recovery_pending, |surface| {
+                                surface.child(self.recovery_notice(cx))
                             })
-                            .when(progress > 0.0 || self.source_mode, |surface| {
-                                surface.child(
-                                    div()
-                                        .absolute()
-                                        .size_full()
-                                        .flex()
-                                        .opacity(json_alpha)
-                                        .child(self.json_editor(cx)),
-                                )
-                            })
-                            // Invisible incoming layers must never intercept a
-                            // click while the outgoing view is still visible.
-                            .when(self.mode_transition.is_some(), |surface| {
-                                surface.child(div().absolute().size_full().occlude())
-                            }),
+                            .child(
+                                div()
+                                    .relative()
+                                    .flex_1()
+                                    .min_h_0()
+                                    .w_full()
+                                    .overflow_hidden()
+                                    .bg(color(style.colors.canvas))
+                                    .when(progress < 1.0 || !self.source_mode, |surface| {
+                                        surface.child(
+                                            div()
+                                                .absolute()
+                                                .size_full()
+                                                .opacity(preview_alpha)
+                                                .child(self.preview_surface(cx)),
+                                        )
+                                    })
+                                    .when(progress > 0.0 || self.source_mode, |surface| {
+                                        surface.child(
+                                            div()
+                                                .absolute()
+                                                .size_full()
+                                                .flex()
+                                                .opacity(json_alpha)
+                                                .child(self.json_editor(cx)),
+                                        )
+                                    })
+                                    // Invisible incoming layers must never intercept a
+                                    // click while the outgoing view is still visible.
+                                    .when(self.mode_transition.is_some(), |surface| {
+                                        surface.child(div().absolute().size_full().occlude())
+                                    }),
+                            ),
                     )
                     .when(self.layout.modules_docked(), |view| {
                         view.child(self.module_sidebar(cx))

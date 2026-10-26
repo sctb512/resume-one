@@ -140,7 +140,8 @@ impl ResumeOne {
     }
 
     pub(super) fn structure_enabled(&self) -> bool {
-        self.model.preview_ready
+        !self.recovery_pending
+            && self.model.preview_ready
             && self
                 .editor
                 .as_ref()

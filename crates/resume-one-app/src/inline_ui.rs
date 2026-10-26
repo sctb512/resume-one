@@ -973,8 +973,14 @@ impl ResumeOne {
                     )
                     .child(
                         div().relative().min_h_0().child(fields).child(
-                            Scrollbar::vertical(&self.inline.scroll)
-                                .scrollbar_show(ScrollbarShow::Always),
+                            div()
+                                .debug_selector(|| "inline-scrollbar-viewport".into())
+                                .absolute()
+                                .inset_0()
+                                .child(
+                                    Scrollbar::vertical(&self.inline.scroll)
+                                        .scrollbar_show(ScrollbarShow::Always),
+                                ),
                         ),
                     )
                     .when_some(form.error.clone(), |view, message| {
@@ -1362,6 +1368,11 @@ mod tests {
         cx.update(|window, _| window.refresh());
         cx.run_until_parked();
         let viewport = cx.debug_bounds("inline-fields").unwrap();
+        assert_eq!(
+            viewport,
+            cx.debug_bounds("inline-scrollbar-viewport").unwrap(),
+            "scrollbar must cover the field viewport, not its static position below it"
+        );
         let field = cx.debug_bounds("inline-field-location.city").unwrap();
         assert!(
             field.top() >= viewport.top() && field.bottom() <= viewport.bottom(),

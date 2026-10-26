@@ -882,7 +882,9 @@ impl ResumeOne {
                     .border_color(color(palette.line))
                     .text_size(px(12.))
                     .text_color(color(palette.muted))
-                    .child(if !enabled {
+                    .child(if self.recovery_pending {
+                        "请先恢复或丢弃草稿，再编辑模块"
+                    } else if !enabled {
                         "请先修复 JSON，结构操作暂不可用"
                     } else if self.insertion_before.is_some() {
                         "选择要添加的模块 · Esc 取消"

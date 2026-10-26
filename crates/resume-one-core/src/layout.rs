@@ -38,6 +38,32 @@ impl FontKind {
             -(face.descender() as f32) / face.units_per_em() as f32,
         )
     }
+
+    /// The same bundled-font advances used for print layout, in points.
+    pub fn text_width_pt(self, text: &str, size: f32) -> f32 {
+        let bytes = match self {
+            Self::Sans => SANS_FONT_BYTES,
+            Self::Serif => SERIF_FONT_BYTES,
+        };
+        measured_width(
+            &Face::parse(bytes, 0).expect("validated bundled font"),
+            text,
+            size,
+        )
+    }
+}
+
+fn measured_width(face: &Face<'_>, text: &str, size: f32) -> f32 {
+    let units = face.units_per_em() as f32;
+    text.chars()
+        .map(|character| {
+            face.glyph_index(character)
+                .and_then(|glyph| face.glyph_hor_advance(glyph))
+                .unwrap_or(face.units_per_em()) as f32
+                * size
+                / units
+        })
+        .sum()
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -378,17 +404,7 @@ impl<'a> PageWriter<'a> {
     }
 
     fn text_width(&self, text: &str, size: f32, kind: FontKind) -> f32 {
-        let face = self.face(kind);
-        let units = face.units_per_em() as f32;
-        text.chars()
-            .map(|character| {
-                face.glyph_index(character)
-                    .and_then(|glyph| face.glyph_hor_advance(glyph))
-                    .unwrap_or(face.units_per_em()) as f32
-                    * size
-                    / units
-            })
-            .sum()
+        measured_width(self.face(kind), text, size)
     }
 
     fn wrap(&self, input: &str, size: f32, maximum: f32, kind: FontKind) -> Vec<String> {

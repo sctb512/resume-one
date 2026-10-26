@@ -5,6 +5,7 @@ use gpui::{
     ScrollHandle, Subscription, Window, actions, anchored, deferred, div, prelude::*, px,
 };
 use gpui_component::input::{Input, InputEvent, InputState};
+use gpui_component::scroll::{Scrollbar, ScrollbarShow};
 use resume_one_core::content_edit::{
     ProfileChange, StringListChange, StringListEdit, TextEdit, list_fields, prepare_list_edit,
     prepare_profile_edit, prepare_text_edit, text_fields,
@@ -24,6 +25,7 @@ pub(super) struct InlineUi {
     form_hovered: bool,
     closing: bool,
     suppress_arrival: bool,
+    ink_hover: Option<(String, Option<usize>, usize, usize)>,
     scroll: ScrollHandle,
 }
 
@@ -108,6 +110,27 @@ fn field_label(key: &str) -> &str {
 }
 
 impl ResumeOne {
+    #[allow(clippy::too_many_arguments)]
+    pub(super) fn inline_ink_hover(
+        &mut self,
+        section: &str,
+        index: Option<usize>,
+        page: usize,
+        segment: usize,
+        hovering: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let target = (section.to_owned(), index, page, segment);
+        if hovering {
+            self.inline.ink_hover = Some(target);
+            self.schedule_inline(section, index, page, window, cx);
+        } else if self.inline.ink_hover.as_ref() == Some(&target) {
+            self.inline.ink_hover = None;
+            self.inline.generation += 1;
+        }
+    }
+
     pub(super) fn inline_matches(&self, section: &str, index: Option<usize>) -> bool {
         self.inline
             .form
@@ -679,6 +702,7 @@ impl ResumeOne {
         self.inline.form_hovered = false;
         self.inline.closing = false;
         self.inline.suppress_arrival = false;
+        self.inline.ink_hover = None;
         self.inline.generation += 1;
         self.inline.form_epoch += 1;
         self.inline.close_generation += 1;
@@ -734,12 +758,12 @@ impl ResumeOne {
             .debug_selector(|| "inline-fields".into())
             .flex()
             .flex_col()
-            .gap(px(16.))
-            .max_h(px((self.viewport_height - 220.).clamp(160., 440.)))
+            .gap(px(12.))
+            .max_h(px((self.viewport_height - 240.).clamp(120., 360.)))
             .overflow_y_scroll()
             .track_scroll(&self.inline.scroll)
-            .px(px(20.))
-            .py(px(18.));
+            .px(px(18.))
+            .py(px(16.));
         let mut text_fields = div()
             .grid()
             .grid_cols(if width >= 440. { 2 } else { 1 })
@@ -947,7 +971,12 @@ impl ResumeOne {
                                     })),
                             ),
                     )
-                    .child(fields)
+                    .child(
+                        div().relative().min_h_0().child(fields).child(
+                            Scrollbar::vertical(&self.inline.scroll)
+                                .scrollbar_show(ScrollbarShow::Always),
+                        ),
+                    )
                     .when_some(form.error.clone(), |view, message| {
                         view.child(
                             div()

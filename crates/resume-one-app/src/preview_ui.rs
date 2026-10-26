@@ -107,6 +107,40 @@ mod tests {
         cx.update(|_, cx| assert!(view.read(cx).hovered_item.is_none()));
     }
 
+    #[gpui::test]
+    fn blank_space_does_not_open_forms_and_leaving_text_cancels_pending_hover(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("ink-hover.json");
+        let source = br#"{"basics":{"name":"A"},"work":[{"name":"Short"}]}"#;
+        std::fs::write(&path, source).unwrap();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let row = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
+        let blank = point(row.right() - px(40.), row.center().y);
+        cx.simulate_mouse_move(blank, None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(220));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(90));
+        cx.run_until_parked();
+        cx.simulate_mouse_move(blank, None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(200));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(200));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
+        assert_eq!(std::fs::read(path).unwrap(), source);
+    }
+
     #[test]
     fn hit_regions_preserve_empty_item_indices_and_exclude_page_footers() {
         let document =
@@ -310,13 +344,22 @@ struct PreviewData {
     regions: Vec<Region>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct Region {
     page: usize,
     target: LayoutTarget,
     top: f32,
     bottom: f32,
     text: bool,
+    ink: Vec<Ink>,
+}
+
+#[derive(Clone)]
+struct Ink {
+    left: f32,
+    top: f32,
+    width: f32,
+    height: f32,
 }
 
 impl PreviewState {
@@ -399,6 +442,16 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                 }
                 LayoutElement::Rule(_) | LayoutElement::Fill(_) => continue,
             };
+            let ink = if let LayoutElement::Text(line) = element {
+                Some(Ink {
+                    left: line.x_pt,
+                    top,
+                    width: line.font.text_width_pt(&line.text, line.size_pt),
+                    height: bottom - top,
+                })
+            } else {
+                None
+            };
             if let Some(region) = regions
                 .iter_mut()
                 .find(|region| region.page == page && region.target == target)
@@ -411,6 +464,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                     region.bottom = region.bottom.max(bottom);
                 }
                 region.text |= text;
+                region.ink.extend(ink);
             } else {
                 regions.push(Region {
                     page,
@@ -418,6 +472,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                     top,
                     bottom,
                     text,
+                    ink: ink.into_iter().collect(),
                 });
             }
         }
@@ -626,7 +681,7 @@ impl ResumeOne {
                             .page
                     });
                 page = page.child(self.preview_hit(
-                    *region,
+                    region.clone(),
                     valid && !spotlight,
                     form_page == page_index,
                     cx,
@@ -794,7 +849,7 @@ impl ResumeOne {
                 } else if this.hovered_section.as_ref() == Some(&(hover_id.clone(), region.page)) {
                     this.hovered_section = None;
                 }
-                if *hovering && editable && valid {
+                if *hovering && editable && valid && !region.text {
                     this.schedule_inline(&hover_id, target.index, region.page, window, cx);
                 }
                 cx.notify();
@@ -818,6 +873,39 @@ impl ResumeOne {
                     }
                 }),
             );
+        if valid && editable {
+            for (segment, ink) in region.ink.iter().enumerate() {
+                let hover_id = target.section.to_owned();
+                let selector = format!(
+                    "preview-ink-{}-{:?}-{}-{segment}",
+                    target.section, target.index, region.page
+                );
+                hit = hit.child(
+                    div()
+                        .id(gpui::SharedString::from(selector.clone()))
+                        .debug_selector(move || selector.clone())
+                        .absolute()
+                        .left(px((ink.left - style.page.margins.left * PT_PER_MM)
+                            * px_per_pt
+                            - 3.))
+                        .top(px((ink.top - region.top) * px_per_pt))
+                        .w(px((ink.width * px_per_pt + 6.).max(8.)))
+                        .h(px((ink.height * px_per_pt).max(8.)))
+                        .cursor_text()
+                        .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                            this.inline_ink_hover(
+                                &hover_id,
+                                target.index,
+                                region.page,
+                                segment,
+                                *hovering,
+                                window,
+                                cx,
+                            );
+                        })),
+                );
+            }
+        }
         if valid && hovered {
             let remove_selector =
                 format!("remove-preview-{}-{:?}-{}", id, target.index, region.page);

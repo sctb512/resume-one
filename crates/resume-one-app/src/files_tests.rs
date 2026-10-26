@@ -14,6 +14,177 @@ fn click_center(cx: &mut gpui::VisualTestContext, selector: &'static str) {
 }
 
 #[gpui::test]
+fn cancel_read_keeps_workspace_responsive_and_ignores_stale_completion(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    let root = tempfile::tempdir().unwrap();
+    let first = root.path().join("first.json");
+    let second = root.path().join("second.json");
+    std::fs::write(&first, br#"{"basics":{"name":"First"}}"#).unwrap();
+    std::fs::write(&second, br#"{"basics":{"name":"Second"}}"#).unwrap();
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let output = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| ResumeOne::new(AppModel::load(Some(&first)).unwrap(), cx));
+        *output.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, _| window.refresh());
+    let right = cx.debug_bounds("module-panel").unwrap();
+    let stale = cx.update(|_, cx| view.update(cx, |app, cx| app.begin_read(cx)));
+    assert!(cx.debug_bounds("file-loading-notice").is_some());
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.reduce_motion = true;
+            app.toggle_source(&ToggleSource, window, cx);
+        })
+    });
+    cx.update(|_, cx| assert!(view.read(cx).source_mode));
+    assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+    click_center(cx, "cancel-file-loading");
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert!(!app.files.busy);
+        assert!(!app.files.loading);
+        assert_eq!(app.files.reads_in_flight, 1);
+        assert_eq!(app.model.content.name, "First");
+    });
+    let current = cx.update(|_, cx| view.update(cx, |app, cx| app.begin_read(cx)));
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.finish_read(stale, false, Err("stale failure".into()), window, cx);
+            assert!(app.files.busy && app.files.loading);
+            assert_eq!(app.files.reads_in_flight, 1);
+            assert_eq!(app.model.content.name, "First");
+            app.finish_read(current, false, OpenedPath::read(&second), window, cx);
+            assert!(!app.files.busy && !app.files.loading);
+            assert_eq!(app.files.reads_in_flight, 0);
+            assert_eq!(app.model.content.name, "Second");
+        })
+    });
+    assert!(!cx.has_pending_prompt());
+    assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+    assert_eq!(
+        std::fs::read(first).unwrap(),
+        br#"{"basics":{"name":"First"}}"#
+    );
+}
+
+#[gpui::test]
+fn canceled_system_reads_are_bounded_and_late_success_never_replaces_document(
+    cx: &mut TestAppContext,
+) {
+    cx.update(gpui_component::init);
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("late.json");
+    std::fs::write(&file, br#"{"basics":{"name":"Late"}}"#).unwrap();
+    let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+    let original = cx.update(|_, cx| view.read(cx).model.opened_source.clone());
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            let first = app.begin_read(cx);
+            app.cancel_read(cx);
+            let second = app.begin_read(cx);
+            app.cancel_read(cx);
+            app.load_path(file.clone(), window, cx);
+            assert_eq!(app.files.reads_in_flight, 2);
+            assert!(!app.files.loading && !app.files.busy);
+            app.finish_read(first, false, OpenedPath::read(&file), window, cx);
+            app.finish_read(second, false, OpenedPath::read(&file), window, cx);
+            assert_eq!(app.files.reads_in_flight, 0);
+            assert_eq!(app.model.opened_source, original);
+        })
+    });
+    assert!(cx.has_pending_prompt());
+    cx.simulate_prompt_answer("确定");
+    cx.run_until_parked();
+    cx.update(|window, cx| view.update(cx, |app, cx| app.load_path(file.clone(), window, cx)));
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.model.content.name, "Late");
+        assert!(!app.files.loading && !app.files.busy);
+    });
+}
+
+#[gpui::test]
+fn restoring_folder_scope_never_reads_resume_contents_or_opens_chooser(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    let root = tempfile::tempdir().unwrap();
+    std::fs::write(root.path().join("broken.json"), [0xff, 0xfe]).unwrap();
+    let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+    let original = cx.update(|_, cx| view.read(cx).model.opened_source.clone());
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.restore_folder(root.path().to_path_buf(), window, cx)
+        })
+    });
+    cx.run_until_parked();
+    cx.update(|_, cx| {
+        let app = view.read(cx);
+        assert_eq!(app.model.opened_source, original);
+        assert_eq!(app.model.folder.as_ref().unwrap().files.len(), 1);
+        assert!(!app.files.loading && !app.files.busy && !app.files.open);
+    });
+    assert!(!cx.has_pending_prompt());
+}
+
+#[gpui::test]
+fn pending_read_rejects_save_and_guards_edits_made_before_completion(cx: &mut TestAppContext) {
+    cx.update(gpui_component::init);
+    cx.update(crate::inline_ui::register);
+    let root = tempfile::tempdir().unwrap();
+    let first = root.path().join("first.json");
+    let second = root.path().join("second.json");
+    let original = br#"{"basics":{"name":"Original"}}"#;
+    let edited = r#"{"basics":{"name":"Edited during read"}}"#;
+    std::fs::write(&first, original).unwrap();
+    std::fs::write(&second, br#"{"basics":{"name":"Second"}}"#).unwrap();
+    let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let output = child.clone();
+    let (_, cx) = cx.add_window_view(|window, cx| {
+        let view = cx.new(|cx| ResumeOne::new(AppModel::load(Some(&first)).unwrap(), cx));
+        *output.borrow_mut() = Some(view.clone());
+        gpui_component::Root::new(view, window, cx)
+    });
+    let view = child.borrow_mut().take().unwrap();
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.reduce_motion = true;
+            app.toggle_source(&ToggleSource, window, cx);
+            app.begin_read(cx);
+            app.editor
+                .as_ref()
+                .unwrap()
+                .input
+                .clone()
+                .update(cx, |state, cx| {
+                    state.set_value(edited, window, cx);
+                });
+        })
+    });
+    cx.run_until_parked();
+    cx.update(|window, cx| {
+        view.update(cx, |app, cx| {
+            app.save_json(&Save, window, cx);
+            app.save_json_as(&SaveAs, window, cx);
+            assert!(!app.editor.as_ref().unwrap().saving);
+            app.dismiss_inline(&crate::inline_ui::DismissInline, window, cx);
+            assert!(!app.files.loading && !app.files.busy);
+            let generation = app.begin_read(cx);
+            app.finish_read(generation, false, OpenedPath::read(&second), window, cx);
+            assert_eq!(app.model.document_path, Some(first.canonicalize().unwrap()));
+            assert_eq!(app.editor.as_ref().unwrap().buffer.source(), edited);
+        })
+    });
+    assert!(cx.has_pending_prompt());
+    cx.simulate_prompt_answer("继续编辑");
+    cx.run_until_parked();
+    assert_eq!(std::fs::read(first).unwrap(), original);
+    cx.update(|_, cx| assert_eq!(view.read(cx).model.content.name, "Edited during read"));
+}
+
+#[gpui::test]
 fn recent_file_switcher_reopens_a_file_without_a_folder(cx: &mut TestAppContext) {
     cx.update(gpui_component::init);
     cx.update(register_bindings);

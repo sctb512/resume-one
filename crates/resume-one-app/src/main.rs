@@ -17,7 +17,6 @@ mod theme_online;
 mod workspace;
 mod workspace_ui;
 
-use std::path::Path;
 use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
@@ -1056,6 +1055,9 @@ impl Render for ResumeOne {
                             .h_full()
                             .flex()
                             .flex_col()
+                            .when(self.files.loading, |surface| {
+                                surface.child(self.loading_notice(cx))
+                            })
                             .when(self.recovery_pending, |surface| {
                                 surface.child(self.recovery_notice(cx))
                             })
@@ -1110,7 +1112,9 @@ impl Render for ResumeOne {
 
 fn main() {
     let path = std::env::args_os().nth(1);
-    let mut model = match AppModel::load(path.as_deref().map(Path::new)) {
+    // Build the initial document from embedded data. Selected resume files and
+    // restored browsing scopes may block in the OS and must wait for a window.
+    let mut model = match AppModel::load(None) {
         Ok(model) => model,
         Err(message) => {
             eprintln!("{message}");
@@ -1131,30 +1135,10 @@ fn main() {
             std::process::exit(1);
         }
     }
-    let restored_folder =
-        path.is_none() && model.folder.is_none() && theme_store.last_folder().is_some();
-    if restored_folder
-        && let Some(folder) = theme_store
-            .last_folder()
-            .and_then(|path| workspace::LocalFolder::scan(path).ok())
-    {
-        model.folder = Some(folder);
-    }
-    if let Some(path) = model.document_path.as_ref()
-        && let Err(message) = theme_store.remember_file(path)
-    {
-        theme_store
-            .warnings
-            .push(format!("无法记录最近文件：{message}"));
-    }
-    if path.as_deref().is_some_and(|path| Path::new(path).is_dir())
-        && let Some(folder) = model.folder.as_ref()
-        && let Err(message) = theme_store.remember_folder(&folder.path)
-    {
-        theme_store
-            .warnings
-            .push(format!("无法记录最近目录：{message}"));
-    }
+    let restored_folder = path
+        .is_none()
+        .then(|| theme_store.last_folder().map(std::path::Path::to_path_buf))
+        .flatten();
     Application::new().run(move |cx: &mut App| {
         gpui_component::init(cx);
         files::register(cx);
@@ -1197,13 +1181,9 @@ fn main() {
             },
             move |window, cx| {
                 window.set_window_title("Resume One · 简里");
-                let needs_repair = !model.preview_ready;
                 let view = cx.new(|cx| {
                     let mut app = ResumeOne::new(model, cx);
                     app.theme_store = Some(theme_store);
-                    if restored_folder {
-                        app.files.open = false;
-                    }
                     app
                 });
                 window.focus(&view.read(cx).focus);
@@ -1213,11 +1193,13 @@ fn main() {
                     close_view.update(cx, |app, cx| app.confirm_close(window, cx))
                 });
                 let root = cx.new(|cx| gpui_component::Root::new(view.clone(), window, cx));
-                if needs_repair {
+                if let Some(path) = path.map(std::path::PathBuf::from) {
                     window.defer(cx, move |window, cx| {
-                        view.update(cx, |app, cx| {
-                            app.toggle_source(&editor_ui::ToggleSource, window, cx)
-                        });
+                        view.update(cx, |app, cx| app.load_path(path, window, cx));
+                    });
+                } else if let Some(folder) = restored_folder {
+                    window.defer(cx, move |window, cx| {
+                        view.update(cx, |app, cx| app.restore_folder(folder, window, cx));
                     });
                 }
                 root

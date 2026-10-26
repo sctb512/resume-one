@@ -32,6 +32,9 @@ actions!(
 pub(super) struct FileUi {
     pub open: bool,
     pub busy: bool,
+    pub loading: bool,
+    pub load_generation: u64,
+    pub reads_in_flight: usize,
     pub selected: usize,
     pub scroll: UniformListScrollHandle,
     pub recent_scroll: UniformListScrollHandle,
@@ -278,44 +281,166 @@ impl ResumeOne {
                 Ok(Err(error)) => Err(format!("无法打开选择窗口：{error}")),
                 Err(_) => Err("选择窗口已关闭，请重试。".into()),
             };
-            let result = match choice {
-                Ok(Some(path)) => Some(
-                    cx.background_executor()
-                        .spawn(async move { OpenedPath::read(&path) })
-                        .await,
-                ),
-                Ok(None) => None,
-                Err(error) => Some(Err(error)),
-            };
-            this.update_in(cx, |this, window, cx| this.finish_open(result, window, cx))
-                .ok();
+            this.update_in(cx, |this, window, cx| {
+                this.files.busy = false;
+                match choice {
+                    Ok(Some(path)) => this.load_path(path, window, cx),
+                    Ok(None) => this.finish_open(None, window, cx),
+                    Err(error) => this.finish_open(Some(Err(error)), window, cx),
+                }
+            })
+            .ok();
         })
         .detach();
     }
 
     pub(super) fn load_path(&mut self, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
+        self.read_path(path, false, window, cx);
+    }
+
+    pub(super) fn restore_folder(
+        &mut self,
+        path: PathBuf,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.read_path(path, true, window, cx);
+    }
+
+    fn read_path(
+        &mut self,
+        path: PathBuf,
+        restore_folder: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         if self.files.busy
             || self.export_busy
             || self.editor.as_ref().is_some_and(|editor| editor.saving)
         {
             return;
         }
-        self.files.busy = true;
-        self.files.open = false;
-        self.hovered_theme = None;
-        self.online.cancel_interaction();
-        cx.notify();
-        let task = cx
-            .background_executor()
-            .spawn(async move { OpenedPath::read(&path) });
+        if self.files.reads_in_flight >= 2 {
+            self.editor_warning(
+                "读取尚未结束",
+                "仍有两次系统读取尚未结束，请稍后再试。",
+                window,
+                cx,
+            );
+            return;
+        }
+        let generation = self.begin_read(cx);
+        let task = cx.background_executor().spawn(async move {
+            if restore_folder {
+                crate::workspace::LocalFolder::scan(&path).map(OpenedPath::Folder)
+            } else {
+                OpenedPath::read(&path)
+            }
+        });
         cx.spawn_in(window, async move |this, cx| {
             let result = task.await;
             this.update_in(cx, |this, window, cx| {
-                this.finish_open(Some(result), window, cx)
+                this.finish_read(generation, restore_folder, result, window, cx)
             })
             .ok();
         })
         .detach();
+    }
+
+    fn begin_read(&mut self, cx: &mut Context<Self>) -> u64 {
+        self.files.busy = true;
+        self.files.loading = true;
+        self.files.load_generation = self.files.load_generation.wrapping_add(1);
+        self.files.reads_in_flight += 1;
+        self.files.open = false;
+        self.hovered_theme = None;
+        self.online.cancel_interaction();
+        cx.notify();
+        self.files.load_generation
+    }
+
+    fn finish_read(
+        &mut self,
+        generation: u64,
+        restore_folder: bool,
+        result: Result<OpenedPath, String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.files.reads_in_flight = self.files.reads_in_flight.saturating_sub(1);
+        if !self.files.loading || generation != self.files.load_generation {
+            return;
+        }
+        if restore_folder {
+            self.files.loading = false;
+            self.files.busy = false;
+            // Restoring the browsing scope never opens a chooser or replaces
+            // the current document, including when the directory went away.
+            if let Ok(OpenedPath::Folder(folder)) = result {
+                self.model.folder = Some(folder);
+            }
+            cx.notify();
+        } else {
+            self.finish_open(Some(result), window, cx);
+        }
+    }
+
+    pub(super) fn cancel_read(&mut self, cx: &mut Context<Self>) {
+        if !self.files.loading {
+            return;
+        }
+        self.files.load_generation = self.files.load_generation.wrapping_add(1);
+        self.files.loading = false;
+        self.files.busy = false;
+        cx.notify();
+    }
+
+    pub(super) fn loading_notice(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let palette = crate::chrome::Palette::new(self.shell_style());
+        div()
+            .id("file-loading-notice")
+            .debug_selector(|| "file-loading-notice".into())
+            .flex_none()
+            .flex()
+            .items_center()
+            .justify_between()
+            .gap_3()
+            .px_4()
+            .py_2()
+            .mx_5()
+            .mt_3()
+            .border_1()
+            .border_color(color(palette.line))
+            .rounded_md()
+            .bg(color(palette.panel))
+            .text_size(px(12.))
+            .text_color(color(palette.muted))
+            .child("正在等待读取文件或目录…")
+            .child(
+                div()
+                    .id("cancel-file-loading")
+                    .debug_selector(|| "cancel-file-loading".into())
+                    .tab_index(0)
+                    .focus(|v| v.bg(color(palette.soft)))
+                    .hover(|v| v.bg(color(palette.soft)))
+                    .cursor_pointer()
+                    .px_3()
+                    .py_2()
+                    .rounded_md()
+                    .text_color(color(palette.accent))
+                    .child("取消")
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.cancel_read(cx);
+                        this.focus_current(window, cx);
+                    }))
+                    .on_key_down(cx.listener(|this, event, window, cx| {
+                        if crate::chrome::activation_key(event) {
+                            cx.stop_propagation();
+                            this.cancel_read(cx);
+                            this.focus_current(window, cx);
+                        }
+                    })),
+            )
     }
 
     fn finish_open(
@@ -325,6 +450,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         self.files.busy = false;
+        self.files.loading = false;
         match result {
             Some(Ok(OpenedPath::File(opened))) => {
                 self.offer_opened_file(*opened, window, cx);

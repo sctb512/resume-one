@@ -735,6 +735,11 @@ impl ResumeOne {
             cx.notify();
             return;
         }
+        if self.files.loading {
+            self.cancel_read(cx);
+            self.focus_current(window, cx);
+            return;
+        }
         let insertion = self.cancel_insertion();
         if self.inline.form.take().is_some() || insertion {
             self.clear_inline();

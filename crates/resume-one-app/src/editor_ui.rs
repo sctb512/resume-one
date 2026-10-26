@@ -348,6 +348,7 @@ impl ResumeOne {
 
     pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
         if self.recovery_pending
+            || self.files.busy
             || self.theme_manager_open
             || self.inline_composing(cx)
             || self
@@ -376,7 +377,7 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json_as(&mut self, _: &SaveAs, window: &mut Window, cx: &mut Context<Self>) {
-        if self.theme_manager_open || self.recovery_pending {
+        if self.theme_manager_open || self.recovery_pending || self.files.busy {
             return;
         }
         let Some(editor) = &self.editor else { return };

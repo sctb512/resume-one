@@ -242,6 +242,7 @@ mod tests {
         cx.simulate_keystrokes("escape");
         cx.update(|window, _| window.refresh());
         let add = cx.debug_bounds("add-module-before-work").unwrap();
+        cx.simulate_mouse_move(add.center(), None, gpui::Modifiers::none());
         cx.simulate_click(add.center(), gpui::Modifiers::none());
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| {

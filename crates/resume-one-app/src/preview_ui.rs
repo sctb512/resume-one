@@ -108,6 +108,88 @@ mod tests {
     }
 
     #[gpui::test]
+    fn hover_controls_fade_without_hidden_clicks_or_geometry_changes(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let add = cx.debug_bounds("add-module-before-work").unwrap();
+        cx.simulate_click(add.center(), Modifiers::none());
+        cx.update(|_, cx| {
+            assert!(
+                !view.read(cx).insertion_active(),
+                "a fully hidden control cannot act on a synthetic click without hover"
+            )
+        });
+        cx.simulate_mouse_move(add.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(25));
+        cx.update(|window, _| window.refresh());
+        let alpha = cx.update(|_, cx| view.read(cx).control_alpha("add-module-before-work", cx));
+        assert!(alpha > 0. && alpha < 1.);
+        cx.simulate_mouse_move(point(px(20.), px(100.)), None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                view.read(cx).control_alpha("add-module-before-work", cx),
+                alpha
+            )
+        });
+        executor.advance_clock(std::time::Duration::from_millis(100));
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            assert_eq!(
+                view.read(cx).control_alpha("add-module-before-work", cx),
+                0.
+            )
+        });
+        assert_eq!(paper, cx.debug_bounds("resume-paper").unwrap());
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        cx.simulate_mouse_move(add.center(), None, Modifiers::none());
+        cx.simulate_click(add.center(), Modifiers::none());
+        cx.update(|_, cx| {
+            assert!(
+                view.read(cx).insertion_active(),
+                "a quick intentional click must not wait for the fade"
+            )
+        });
+    }
+
+    #[gpui::test]
+    fn a_small_move_after_scrolling_rearms_the_same_text_without_leaving_it(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("scroll-hover.json");
+        std::fs::write(
+            &path,
+            br#"{"work":[{"name":"A sufficiently wide target"}]}"#,
+        )
+        .unwrap();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
+        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(50));
+        cx.update(|_, cx| view.update(cx, |app, cx| app.preview_scrolled(cx)));
+        executor.advance_clock(std::time::Duration::from_millis(120));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.simulate_mouse_move(
+            ink.center() + point(px(1.), px(0.)),
+            None,
+            Modifiers::none(),
+        );
+        executor.advance_clock(std::time::Duration::from_millis(140));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
+    }
+
+    #[gpui::test]
     fn blank_space_does_not_open_forms_and_leaving_text_cancels_pending_hover(
         cx: &mut TestAppContext,
     ) {
@@ -663,29 +745,7 @@ impl ResumeOne {
                 {
                     continue;
                 }
-                let form_page = self
-                    .inline
-                    .form
-                    .as_ref()
-                    .and_then(|form| form.page)
-                    .filter(|page| {
-                        data.regions.iter().any(|candidate| {
-                            candidate.page == *page && candidate.target == region.target
-                        })
-                    })
-                    .unwrap_or_else(|| {
-                        data.regions
-                            .iter()
-                            .find(|candidate| candidate.target == region.target)
-                            .unwrap()
-                            .page
-                    });
-                page = page.child(self.preview_hit(
-                    region.clone(),
-                    valid && !spotlight,
-                    form_page == page_index,
-                    cx,
-                ));
+                page = page.child(self.preview_hit(region.clone(), valid && !spotlight, cx));
                 if !valid {
                     continue;
                 }
@@ -777,24 +837,53 @@ impl ResumeOne {
                     );
                 }
             }
+            // Stable page-level overlay slots: changing the edited item does
+            // not change the active panel's parent identity or move the paper.
+            for retiring in [true, false] {
+                let Some(form) = self.inline_layer_target(retiring) else {
+                    continue;
+                };
+                let matches_target = |region: &&Region| {
+                    region.target.section == form.section && region.target.index == form.index
+                };
+                let Some(anchor) = data
+                    .regions
+                    .iter()
+                    .filter(matches_target)
+                    .find(|region| form.page.is_none_or(|p| region.page == p))
+                    .or_else(|| data.regions.iter().find(matches_target))
+                else {
+                    continue;
+                };
+                if anchor.page == page_index {
+                    page = page.child(
+                        div()
+                            .id(if retiring {
+                                "inline-overlay-retiring"
+                            } else {
+                                "inline-overlay-active"
+                            })
+                            .absolute()
+                            .left(px(left))
+                            .top(px(anchor.top * px_per_pt))
+                            .w(px(content_width))
+                            .child(self.inline_form(retiring, cx)),
+                    );
+                }
+            }
             pages = pages.child(page);
         }
         pages.into_any_element()
     }
 
-    fn preview_hit(
-        &self,
-        region: Region,
-        valid: bool,
-        show_form: bool,
-        cx: &mut Context<Self>,
-    ) -> impl IntoElement {
+    fn preview_hit(&self, region: Region, valid: bool, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
         let px_per_mm = PX_PER_MM * self.preview_scale;
         let px_per_pt = PX_PER_PT * self.preview_scale;
         let target = region.target;
         let id = target.section.to_owned();
         let hover_id = id.clone();
+        let move_id = id.clone();
         let click_id = id.clone();
         let key_id = id.clone();
         let selector = if target.section == "basics" {
@@ -852,7 +941,31 @@ impl ResumeOne {
                 if *hovering && editable && valid && !region.text {
                     this.schedule_inline(&hover_id, target.index, region.page, window, cx);
                 }
+                if !*hovering {
+                    this.inline_region_left(&hover_id, target.index, region.page);
+                }
+                let remove_key = format!(
+                    "remove-preview-{}-{:?}-{}",
+                    hover_id, target.index, region.page
+                );
+                this.control_hover(&remove_key, *hovering, cx);
                 cx.notify();
+            }))
+            .on_mouse_move(cx.listener(move |this, _: &gpui::MouseMoveEvent, _, cx| {
+                // Scrolling may clear affordances without changing this hit
+                // element's identity. A small move inside it must re-arm them.
+                let key = format!(
+                    "remove-preview-{}-{:?}-{}",
+                    move_id, target.index, region.page
+                );
+                if !this.control_hovered(&key) {
+                    if let Some(index) = target.index {
+                        this.hovered_item = Some((move_id.clone(), index, region.page));
+                    } else {
+                        this.hovered_section = Some((move_id.clone(), region.page));
+                    }
+                    this.control_hover(&key, true, cx);
+                }
             }))
             .on_click(cx.listener(move |this, _, window, cx| {
                 if editable && valid {
@@ -876,6 +989,7 @@ impl ResumeOne {
         if valid && editable {
             for (segment, ink) in region.ink.iter().enumerate() {
                 let hover_id = target.section.to_owned();
+                let move_id = hover_id.clone();
                 let selector = format!(
                     "preview-ink-{}-{:?}-{}-{segment}",
                     target.section, target.index, region.page
@@ -902,13 +1016,27 @@ impl ResumeOne {
                                 window,
                                 cx,
                             );
-                        })),
+                        }))
+                        .on_mouse_move(cx.listener(
+                            move |this, _: &gpui::MouseMoveEvent, window, cx| {
+                                this.inline_ink_hover(
+                                    &move_id,
+                                    target.index,
+                                    region.page,
+                                    segment,
+                                    true,
+                                    window,
+                                    cx,
+                                );
+                            },
+                        )),
                 );
             }
         }
-        if valid && hovered {
-            let remove_selector =
-                format!("remove-preview-{}-{:?}-{}", id, target.index, region.page);
+        let remove_selector = format!("remove-preview-{}-{:?}-{}", id, target.index, region.page);
+        let remove_alpha = self.control_alpha(&remove_selector, cx);
+        if valid && (hovered || remove_alpha > 0.) {
+            let remove_key = remove_selector.clone();
             hit = hit.child(
                 div()
                     .id(gpui::SharedString::from(remove_selector.clone()))
@@ -916,12 +1044,16 @@ impl ResumeOne {
                     .absolute()
                     .right_0()
                     .top_0()
+                    .opacity(remove_alpha)
                     .px_2()
                     .cursor_pointer()
                     .text_color(color(style.colors.seal))
                     .child("−")
                     .on_click(cx.listener(move |this, _, window, cx| {
                         cx.stop_propagation();
+                        if !this.control_hovered(&remove_key) {
+                            return;
+                        }
                         let edit = match target.index {
                             Some(index) => StructureEdit::RemoveItem {
                                 id: id.clone(),
@@ -932,9 +1064,6 @@ impl ResumeOne {
                         this.apply_visual_structure(edit, window, cx);
                     })),
             );
-        }
-        if editable && show_form && self.inline_matches(target.section, target.index) {
-            hit = hit.child(self.inline_form(cx));
         }
         hit
     }

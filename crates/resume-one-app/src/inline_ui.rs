@@ -1,8 +1,11 @@
-use std::time::Duration;
+use std::{
+    collections::HashMap,
+    time::{Duration, Instant},
+};
 
 use gpui::{
-    Animation, AnimationExt, App, Context, Entity, Focusable as _, IntoElement, KeyBinding,
-    ScrollHandle, Subscription, Window, actions, anchored, deferred, div, prelude::*, px,
+    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, ScrollHandle, Subscription,
+    Window, actions, anchored, deferred, div, prelude::*, px,
 };
 use gpui_component::input::{Input, InputEvent, InputState};
 use gpui_component::scroll::{Scrollbar, ScrollbarShow};
@@ -11,6 +14,7 @@ use resume_one_core::content_edit::{
     prepare_profile_edit, prepare_text_edit, text_fields,
 };
 
+use crate::motion::Visibility;
 use crate::{ResumeOne, color, label};
 
 actions!(resume_one, [OpenInline, DismissInline]);
@@ -24,15 +28,45 @@ pub(super) struct InlineUi {
     pub paper_hovered: Option<usize>,
     form_hovered: bool,
     closing: bool,
-    suppress_arrival: bool,
+    visibility: Visibility,
+    retiring: Option<RetiringForm>,
+    candidate: Option<HoverCandidate>,
     ink_hover: Option<(String, Option<usize>, usize, usize)>,
+    scroll_until: Option<Instant>,
+    controls: HashMap<String, ControlVisibility>,
     scroll: ScrollHandle,
 }
 
-const INLINE_HOVER_DELAY: Duration = Duration::from_millis(180);
-const INLINE_SWITCH_DELAY: Duration = Duration::from_millis(110);
-const INLINE_CLOSE_GRACE: Duration = Duration::from_millis(120);
-const INLINE_FADE_OUT: Duration = Duration::from_millis(120);
+const INLINE_HOVER_DELAY: Duration = Duration::from_millis(140);
+const INLINE_SWITCH_DELAY: Duration = Duration::from_millis(85);
+const INLINE_CLOSE_GRACE: Duration = Duration::from_millis(90);
+const INLINE_FADE_IN: Duration = Duration::from_millis(120);
+const INLINE_FADE_OUT: Duration = Duration::from_millis(100);
+const INLINE_INK_GRACE: Duration = Duration::from_millis(55);
+const INLINE_HANDOFF: Duration = Duration::from_millis(90);
+
+struct HoverCandidate {
+    section: String,
+    index: Option<usize>,
+    page: usize,
+    started: Instant,
+    delay: Duration,
+    requires_ink: bool,
+}
+
+struct RetiringForm {
+    form: InlineForm,
+    epoch: u64,
+    scroll: ScrollHandle,
+    visibility: Visibility,
+    offset: f32,
+}
+
+#[derive(Default)]
+struct ControlVisibility {
+    hovered: bool,
+    visibility: Visibility,
+}
 
 pub(super) struct InlineForm {
     pub section: String,
@@ -124,11 +158,48 @@ impl ResumeOne {
         let target = (section.to_owned(), index, page, segment);
         if hovering {
             self.inline.ink_hover = Some(target);
-            self.schedule_inline(section, index, page, window, cx);
+            self.schedule_inline_target(section, index, page, true, window, cx);
         } else if self.inline.ink_hover.as_ref() == Some(&target) {
             self.inline.ink_hover = None;
-            self.inline.generation += 1;
+            // A short gap between two lines of the same item must not restart
+            // the dwell. Never open a form while the pointer is in that gap.
+            let generation = self.inline.generation;
+            let timer = cx.background_executor().timer(INLINE_INK_GRACE);
+            cx.spawn_in(window, async move |this, cx| {
+                timer.await;
+                this.update(cx, |this, _| {
+                    if generation == this.inline.generation && this.inline.ink_hover.is_none() {
+                        this.cancel_inline_candidate();
+                    }
+                })
+                .ok();
+            })
+            .detach();
         }
+    }
+
+    pub(super) fn cancel_inline_candidate(&mut self) {
+        self.inline.candidate = None;
+        self.inline.generation += 1;
+    }
+
+    pub(super) fn inline_region_left(&mut self, section: &str, index: Option<usize>, page: usize) {
+        if self.inline.candidate.as_ref().is_some_and(|candidate| {
+            candidate.section == section && candidate.index == index && candidate.page == page
+        }) {
+            self.cancel_inline_candidate();
+        }
+    }
+
+    pub(super) fn preview_scrolled(&mut self, cx: &mut Context<Self>) {
+        self.cancel_inline_candidate();
+        self.inline.ink_hover = None;
+        self.hovered_item = None;
+        self.hovered_section = None;
+        self.inline.controls.clear();
+        self.inline.scroll_until =
+            Some(cx.background_executor().now() + Duration::from_millis(100));
+        cx.notify();
     }
 
     pub(super) fn inline_matches(&self, section: &str, index: Option<usize>) -> bool {
@@ -173,15 +244,47 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.inline_focused(window, cx) {
+        self.schedule_inline_target(section, index, page, false, window, cx);
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn schedule_inline_target(
+        &mut self,
+        section: &str,
+        index: Option<usize>,
+        page: usize,
+        requires_ink: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let now = cx.background_executor().now();
+        if self.inline_focused(window, cx)
+            || self.inline.form_hovered
+            || self.inline.scroll_until.is_some_and(|until| now < until)
+        {
             return;
         }
         if self.inline_matches(section, index) {
+            self.cancel_inline_candidate();
+            self.resume_inline(cx);
             if let Some(form) = &mut self.inline.form
                 && form.page != Some(page)
             {
                 form.page = Some(page);
                 cx.notify();
+            }
+            return;
+        }
+        if let Some(candidate) = &self.inline.candidate
+            && candidate.section == section
+            && candidate.index == index
+            && candidate.page == page
+        {
+            if now.saturating_duration_since(candidate.started) >= candidate.delay {
+                self.open_inline(section, index, window, cx);
+                if let Some(form) = &mut self.inline.form {
+                    form.page = Some(page);
+                }
             }
             return;
         }
@@ -193,6 +296,14 @@ impl ResumeOne {
         } else {
             INLINE_HOVER_DELAY
         };
+        self.inline.candidate = Some(HoverCandidate {
+            section: section.clone(),
+            index,
+            page,
+            started: now,
+            delay,
+            requires_ink,
+        });
         let timer = cx.background_executor().timer(delay);
         cx.spawn_in(window, async move |this, cx| {
             timer.await;
@@ -203,8 +314,22 @@ impl ResumeOne {
                     }
                     None => this.hovered_section.as_ref() == Some(&(section.clone(), page)),
                 };
+                let over_ink = this
+                    .inline
+                    .ink_hover
+                    .as_ref()
+                    .is_some_and(|ink| ink.0 == section && ink.1 == index && ink.2 == page);
+                // Empty-item placeholders have no ink; their whole hit area
+                // deliberately acts as the trigger.
+                let placeholder = this
+                    .inline
+                    .candidate
+                    .as_ref()
+                    .is_some_and(|candidate| !candidate.requires_ink);
                 if generation == this.inline.generation
                     && still_hovered
+                    && (over_ink || placeholder)
+                    && !this.inline.form_hovered
                     && !this.inline_focused(window, cx)
                 {
                     this.open_inline(&section, index, window, cx);
@@ -229,12 +354,8 @@ impl ResumeOne {
             return;
         }
         if self.inline_matches(section, index) {
-            self.inline.close_generation += 1;
-            if self.inline.closing {
-                self.inline.closing = false;
-                self.inline.suppress_arrival = true;
-                cx.notify();
-            }
+            self.cancel_inline_candidate();
+            self.resume_inline(cx);
             return;
         }
         if !self.ensure_editor(window, cx) || self.recovery_pending {
@@ -249,24 +370,53 @@ impl ResumeOne {
             .issues()
             .first()
             .map(|issue| format!("{} · {}", issue.path, issue.message));
-        let Ok(value) = serde_json::from_str::<serde_json::Value>(editor.buffer.source()) else {
-            return;
-        };
-        let Some(item) = value
-            .get(section)
+        let Some(item) = editor
+            .buffer
+            .last_valid()
+            .and_then(|document| document.value.get(section))
             .and_then(|value| index.map_or(Some(value), |index| value.get(index)))
+            .cloned()
         else {
             return;
         };
         if !item.is_object() {
             return;
         }
-        self.inline.generation += 1;
+        self.cancel_inline_candidate();
+        let now = cx.background_executor().now();
+        let replacing = self.inline.form.is_some();
+        self.inline.retiring =
+            self.inline
+                .form
+                .take()
+                .filter(|_| !self.reduce_motion)
+                .map(|form| {
+                    let mut visibility = self.inline.visibility.clone();
+                    let offset = 2. * (1. - visibility.sample(now).0);
+                    visibility.retarget(0., now, INLINE_HANDOFF, false);
+                    RetiringForm {
+                        form,
+                        epoch: self.inline.form_epoch,
+                        scroll: self.inline.scroll.clone(),
+                        visibility,
+                        offset,
+                    }
+                });
         self.inline.form_epoch += 1;
         self.inline.close_generation += 1;
         self.inline.form_hovered = false;
         self.inline.closing = false;
-        self.inline.suppress_arrival = false;
+        self.inline.visibility.snap(0.);
+        self.inline.visibility.retarget(
+            1.,
+            now,
+            if replacing {
+                INLINE_HANDOFF
+            } else {
+                INLINE_FADE_IN
+            },
+            self.reduce_motion,
+        );
         self.inline.scroll = ScrollHandle::new();
         let mut fields: Vec<_> = text_fields(section)
             .iter()
@@ -346,7 +496,13 @@ impl ResumeOne {
             window,
             move |this, input, event, window, cx| match event {
                 InputEvent::Change => this.inline_field_changed(key, input, window, cx),
-                InputEvent::Blur => this.defer_inline_close(window, cx),
+                InputEvent::Blur
+                    if this.inline.form.as_ref().is_some_and(|form| {
+                        form.fields.iter().any(|field| field.input == *input)
+                    }) =>
+                {
+                    this.defer_inline_close(window, cx)
+                }
                 _ => {}
             },
         );
@@ -558,6 +714,8 @@ impl ResumeOne {
                     }
                     this.clear_inline();
                     this.open_inline(&section, index, window, cx);
+                    // Structural edits rebuild fields but are not a new hover.
+                    this.inline.visibility.snap(1.);
                     if let Some(form) = &mut this.inline.form {
                         form.page = page;
                     }
@@ -606,14 +764,11 @@ impl ResumeOne {
     ) {
         if hovering {
             self.inline.paper_hovered = Some(page);
-            self.inline.close_generation += 1;
-            if self.inline.closing {
-                self.inline.closing = false;
-                self.inline.suppress_arrival = true;
-                cx.notify();
-            }
+            self.resume_inline(cx);
         } else if self.inline.paper_hovered == Some(page) {
             self.inline.paper_hovered = None;
+            self.cancel_inline_candidate();
+            self.inline.ink_hover = None;
             self.defer_inline_close(window, cx);
         }
     }
@@ -630,12 +785,8 @@ impl ResumeOne {
         }
         self.inline.form_hovered = hovering;
         if hovering {
-            self.inline.close_generation += 1;
-            if self.inline.closing {
-                self.inline.closing = false;
-                self.inline.suppress_arrival = true;
-                cx.notify();
-            }
+            self.cancel_inline_candidate();
+            self.resume_inline(cx);
         } else {
             self.defer_inline_close(window, cx);
         }
@@ -652,30 +803,105 @@ impl ResumeOne {
             } else if self.inline.form.is_some() && !self.inline.closing {
                 self.inline.closing = true;
                 self.inline.close_generation += 1;
-                let generation = self.inline.close_generation;
-                let timer = cx.background_executor().timer(INLINE_FADE_OUT);
-                cx.spawn_in(window, async move |this, cx| {
-                    timer.await;
-                    this.update_in(cx, |this, window, cx| {
-                        if generation == this.inline.close_generation {
-                            if this.inline.paper_hovered.is_none()
-                                && !this.inline.form_hovered
-                                && !this.inline_focused(window, cx)
-                            {
-                                this.clear_inline();
-                            } else {
-                                this.inline.closing = false;
-                                this.inline.suppress_arrival = true;
-                            }
-                            cx.notify();
-                        }
-                    })
-                    .ok();
-                })
-                .detach();
+                self.inline.visibility.retarget(
+                    0.,
+                    cx.background_executor().now(),
+                    INLINE_FADE_OUT,
+                    false,
+                );
             }
             cx.notify();
         }
+    }
+
+    fn resume_inline(&mut self, cx: &mut Context<Self>) {
+        self.inline.close_generation += 1;
+        if self.inline.form.is_some() && self.inline.closing {
+            self.inline.closing = false;
+            self.inline.visibility.retarget(
+                1.,
+                cx.background_executor().now(),
+                INLINE_FADE_IN,
+                self.reduce_motion,
+            );
+            cx.notify();
+        }
+    }
+
+    pub(super) fn advance_inline_motion(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let now = cx.background_executor().now();
+        if self.inline.closing && self.inline_focused(window, cx) {
+            self.resume_inline(cx);
+        }
+        if self.reduce_motion {
+            self.inline
+                .visibility
+                .snap(if self.inline.closing { 0. } else { 1. });
+            self.inline.retiring = None;
+            for control in self.inline.controls.values_mut() {
+                control
+                    .visibility
+                    .snap(if control.hovered { 1. } else { 0. });
+            }
+        }
+        let (alpha, done) = self.inline.visibility.sample(now);
+        if self.inline.closing && done && alpha == 0. {
+            if self.inline.paper_hovered.is_none()
+                && !self.inline.form_hovered
+                && !self.inline_focused(window, cx)
+            {
+                self.clear_inline();
+            } else {
+                self.resume_inline(cx);
+            }
+        }
+        if self
+            .inline
+            .retiring
+            .as_ref()
+            .is_some_and(|old| old.visibility.sample(now).1)
+        {
+            self.inline.retiring = None;
+        }
+        self.inline
+            .controls
+            .retain(|_, control| control.hovered || !control.visibility.sample(now).1);
+        let animating = self.inline.form.is_some() && !self.inline.visibility.sample(now).1
+            || self.inline.retiring.is_some()
+            || self
+                .inline
+                .controls
+                .values()
+                .any(|control| !control.visibility.sample(now).1);
+        if animating {
+            cx.on_next_frame(window, |_, _, cx| cx.notify());
+            window.request_animation_frame();
+        }
+    }
+
+    pub(super) fn control_hover(&mut self, key: &str, hovering: bool, cx: &mut Context<Self>) {
+        let control = self.inline.controls.entry(key.into()).or_default();
+        control.hovered = hovering;
+        control.visibility.retarget(
+            if hovering { 1. } else { 0. },
+            cx.background_executor().now(),
+            Duration::from_millis(if hovering { 65 } else { 85 }),
+            self.reduce_motion,
+        );
+        cx.notify();
+    }
+
+    pub(super) fn control_alpha(&self, key: &str, cx: &App) -> f32 {
+        self.inline.controls.get(key).map_or(0., |control| {
+            control.visibility.sample(cx.background_executor().now()).0
+        })
+    }
+
+    pub(super) fn control_hovered(&self, key: &str) -> bool {
+        self.inline
+            .controls
+            .get(key)
+            .is_some_and(|control| control.hovered)
     }
 
     pub(super) fn defer_inline_close(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -699,9 +925,12 @@ impl ResumeOne {
 
     pub(super) fn clear_inline(&mut self) {
         self.inline.form = None;
+        self.inline.retiring = None;
         self.inline.form_hovered = false;
         self.inline.closing = false;
-        self.inline.suppress_arrival = false;
+        self.inline.visibility.snap(0.);
+        self.inline.candidate = None;
+        self.inline.controls.clear();
         self.inline.ink_hover = None;
         self.inline.generation += 1;
         self.inline.form_epoch += 1;
@@ -748,25 +977,69 @@ impl ResumeOne {
         }
     }
 
-    pub(super) fn inline_form(&self, cx: &mut Context<Self>) -> impl IntoElement {
-        let form = self.inline.form.as_ref().expect("active inline form");
+    pub(super) fn inline_layer_target(&self, retiring: bool) -> Option<&InlineForm> {
+        if retiring {
+            self.inline.retiring.as_ref().map(|old| &old.form)
+        } else {
+            self.inline.form.as_ref()
+        }
+    }
+
+    pub(super) fn inline_form(&self, retiring: bool, cx: &mut Context<Self>) -> impl IntoElement {
+        let form = self
+            .inline_layer_target(retiring)
+            .expect("inline layer exists");
         let style = self.active_style();
-        let reduce_motion = self.reduce_motion;
-        let form_epoch = self.inline.form_epoch;
-        let closing = self.inline.closing;
-        let suppress_arrival = self.inline.suppress_arrival;
+        let (form_epoch, scroll, alpha, offset) = if retiring {
+            let old = self.inline.retiring.as_ref().unwrap();
+            (
+                old.epoch,
+                old.scroll.clone(),
+                old.visibility.sample(cx.background_executor().now()).0,
+                old.offset,
+            )
+        } else {
+            let alpha = self
+                .inline
+                .visibility
+                .sample(cx.background_executor().now())
+                .0;
+            (
+                self.inline.form_epoch,
+                self.inline.scroll.clone(),
+                alpha,
+                2. * (1. - alpha),
+            )
+        };
+        let selector_for = |name: String| {
+            if retiring {
+                format!("retiring-{name}")
+            } else {
+                name
+            }
+        };
         let width = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
             * 3.0
             * self.preview_scale;
         let mut fields = div()
-            .id("inline-fields")
-            .debug_selector(|| "inline-fields".into())
+            .id(if retiring {
+                "retiring-inline-fields"
+            } else {
+                "inline-fields"
+            })
+            .debug_selector(move || {
+                if retiring {
+                    "retiring-inline-fields".into()
+                } else {
+                    "inline-fields".into()
+                }
+            })
             .flex()
             .flex_col()
             .gap(px(12.))
             .max_h(px((self.viewport_height - 240.).clamp(120., 360.)))
             .overflow_y_scroll()
-            .track_scroll(&self.inline.scroll)
+            .track_scroll(&scroll)
             .px(px(18.))
             .py(px(16.));
         let mut text_fields = div()
@@ -778,7 +1051,7 @@ impl ResumeOne {
             .iter()
             .filter(|field| field.list_index.is_none())
         {
-            let selector = format!("inline-field-{}", field.key);
+            let selector = selector_for(format!("inline-field-{}", field.key));
             text_fields = text_fields.child(
                 div()
                     .min_w_0()
@@ -799,7 +1072,7 @@ impl ResumeOne {
                             .text_color(color(style.colors.muted))
                             .child(field_label(field.key).to_owned()),
                     )
-                    .child(self.inline_input(field, selector)),
+                    .child(self.inline_input(field, selector, scroll.clone(), retiring)),
             );
         }
         fields = fields.child(text_fields);
@@ -819,22 +1092,22 @@ impl ResumeOne {
                         .text_color(color(style.colors.muted))
                         .child(field_label(key).to_owned()),
                 )
-                .child(self.inline_list_add(key, 0, cx));
+                .child(self.inline_list_add(key, 0, retiring, cx));
             for field in rows {
                 let index = field.list_index.unwrap();
-                let selector = format!("inline-list-input-{key}-{index}");
-                let remove_selector = format!("inline-list-remove-{key}-{index}");
+                let selector = selector_for(format!("inline-list-input-{key}-{index}"));
+                let remove_selector = selector_for(format!("inline-list-remove-{key}-{index}"));
                 list = list.child(
                     div()
                         .flex()
                         .items_start()
                         .gap_2()
-                        .child(
-                            div()
-                                .flex_1()
-                                .min_w_0()
-                                .child(self.inline_input(field, selector)),
-                        )
+                        .child(div().flex_1().min_w_0().child(self.inline_input(
+                            field,
+                            selector,
+                            scroll.clone(),
+                            retiring,
+                        )))
                         .child(
                             div()
                                 .id(gpui::SharedString::from(remove_selector.clone()))
@@ -846,6 +1119,9 @@ impl ResumeOne {
                                 .child("−")
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     cx.stop_propagation();
+                                    if retiring {
+                                        return;
+                                    }
                                     this.inline_list_structure(
                                         key,
                                         StringListChange::Remove { index },
@@ -855,7 +1131,7 @@ impl ResumeOne {
                                 })),
                         ),
                 );
-                list = list.child(self.inline_list_add(key, index + 1, cx));
+                list = list.child(self.inline_list_add(key, index + 1, retiring, cx));
             }
             fields = fields.child(list);
         }
@@ -870,9 +1146,9 @@ impl ResumeOne {
                         .text_color(color(style.colors.muted))
                         .child("社交账号"),
                 )
-                .child(self.inline_profile_add(0, cx));
+                .child(self.inline_profile_add(0, retiring, cx));
             for index in 0..form.profile_count {
-                let selector = format!("inline-profile-remove-{index}");
+                let selector = selector_for(format!("inline-profile-remove-{index}"));
                 let mut profile = div()
                     .flex()
                     .flex_col()
@@ -900,6 +1176,9 @@ impl ResumeOne {
                                     .child("−")
                                     .on_click(cx.listener(move |this, _, window, cx| {
                                         cx.stop_propagation();
+                                        if retiring {
+                                            return;
+                                        }
                                         this.inline_profile_structure(
                                             ProfileChange::Remove { index },
                                             window,
@@ -911,7 +1190,8 @@ impl ResumeOne {
                 for field in form.fields.iter().filter(|field| {
                     field.key.starts_with("profiles.") && field.list_index == Some(index)
                 }) {
-                    let selector = format!("inline-profile-input-{}-{index}", field.key);
+                    let selector =
+                        selector_for(format!("inline-profile-input-{}-{index}", field.key));
                     profile = profile.child(
                         div()
                             .flex()
@@ -923,20 +1203,34 @@ impl ResumeOne {
                                     .text_color(color(style.colors.muted))
                                     .child(field_label(field.key).to_owned()),
                             )
-                            .child(self.inline_input(field, selector)),
+                            .child(self.inline_input(field, selector, scroll.clone(), retiring)),
                     );
                 }
-                profiles = profiles
-                    .child(profile)
-                    .child(self.inline_profile_add(index + 1, cx));
+                profiles =
+                    profiles
+                        .child(profile)
+                        .child(self.inline_profile_add(index + 1, retiring, cx));
             }
             fields = fields.child(profiles);
         }
         deferred(
             anchored().snap_to_window_with_margin(px(64.0)).child(
                 div()
-                    .id("inline-form")
-                    .debug_selector(|| "inline-form".into())
+                    .id(if retiring {
+                        "retiring-inline-form"
+                    } else {
+                        "inline-form"
+                    })
+                    .debug_selector(move || {
+                        if retiring {
+                            "retiring-inline-form".into()
+                        } else {
+                            "inline-form".into()
+                        }
+                    })
+                    .relative()
+                    .top(px(offset))
+                    .opacity(alpha)
                     .occlude()
                     .w(px(width))
                     .flex()
@@ -949,6 +1243,9 @@ impl ResumeOne {
                     .border_color(color(style.colors.accent.mix(style.colors.paper, 0.55)))
                     .bg(color(crate::chrome::Palette::new(style).panel))
                     .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                        if retiring {
+                            return;
+                        }
                         this.form_hover_changed(form_epoch, *hovering, window, cx);
                     }))
                     .on_click(|_, _, cx| cx.stop_propagation())
@@ -971,7 +1268,10 @@ impl ResumeOne {
                                     .cursor_pointer()
                                     .px_2()
                                     .child("×")
-                                    .on_click(cx.listener(|this, _, window, cx| {
+                                    .on_click(cx.listener(move |this, _, window, cx| {
+                                        if retiring {
+                                            return;
+                                        }
                                         this.dismiss_inline(&DismissInline, window, cx)
                                     })),
                             ),
@@ -979,11 +1279,17 @@ impl ResumeOne {
                     .child(
                         div().relative().min_h_0().child(fields).child(
                             div()
-                                .debug_selector(|| "inline-scrollbar-viewport".into())
+                                .debug_selector(move || {
+                                    if retiring {
+                                        "retiring-inline-scrollbar-viewport".into()
+                                    } else {
+                                        "inline-scrollbar-viewport".into()
+                                    }
+                                })
                                 .absolute()
                                 .inset_0()
                                 .child(
-                                    Scrollbar::vertical(&self.inline.scroll)
+                                    Scrollbar::vertical(&scroll)
                                         .scrollbar_show(ScrollbarShow::Always),
                                 ),
                         ),
@@ -998,42 +1304,35 @@ impl ResumeOne {
                                 .child(message),
                         )
                     })
-                    .with_animation(
-                        gpui::SharedString::from(if closing {
-                            format!("inline-departure-{form_epoch}")
-                        } else {
-                            format!("inline-arrival-{form_epoch}")
-                        }),
-                        Animation::new(if closing {
-                            INLINE_FADE_OUT
-                        } else {
-                            Duration::from_millis(160)
-                        }),
-                        move |v, t| {
-                            let t = if reduce_motion || (suppress_arrival && !closing) {
-                                1.
-                            } else {
-                                t * t * (3. - 2. * t)
-                            };
-                            if closing {
-                                v.relative().top(px(2. * t)).opacity(1. - t)
-                            } else {
-                                v.relative().top(px(4. * (1. - t))).opacity(t)
-                            }
-                        },
-                    ),
+                    .when(retiring, |view| {
+                        view.child(
+                            div()
+                                .id("retiring-inline-shield")
+                                .absolute()
+                                .inset_0()
+                                .occlude()
+                                .on_mouse_down(gpui::MouseButton::Left, |_, _, cx| {
+                                    cx.stop_propagation()
+                                })
+                                .on_click(|_, _, cx| cx.stop_propagation()),
+                        )
+                    }),
             ),
         )
-        .priority(1)
+        .priority(if retiring { 1 } else { 2 })
     }
 
     fn inline_list_add(
         &self,
         key: &'static str,
         index: usize,
+        retiring: bool,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        let selector = format!("inline-list-add-{key}-{index}");
+        let selector = format!(
+            "{}inline-list-add-{key}-{index}",
+            if retiring { "retiring-" } else { "" }
+        );
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
@@ -1048,16 +1347,24 @@ impl ResumeOne {
             .child("+")
             .on_click(cx.listener(move |this, _, window, cx| {
                 cx.stop_propagation();
+                if retiring {
+                    return;
+                }
                 this.inline_list_structure(key, StringListChange::Insert { index }, window, cx);
             }))
     }
 
-    fn inline_input(&self, field: &Field, selector: String) -> impl IntoElement {
+    fn inline_input(
+        &self,
+        field: &Field,
+        selector: String,
+        scroll: ScrollHandle,
+        retiring: bool,
+    ) -> impl IntoElement {
         let input = field.input.clone();
-        let scroll = self.inline.scroll.clone();
         div()
             .on_children_prepainted(move |children, window, cx| {
-                if !input.read(cx).focus_handle(cx).is_focused(window) {
+                if retiring || !input.read(cx).focus_handle(cx).is_focused(window) {
                     return;
                 }
                 let Some(bounds) = children.first().cloned() else {
@@ -1080,11 +1387,27 @@ impl ResumeOne {
             .debug_selector(move || selector.clone())
             .w_full()
             .min_w_0()
-            .child(Input::new(&field.input).w_full())
+            .child(
+                Input::new(&field.input)
+                    .w_full()
+                    .disabled(retiring)
+                    .tab_index(if retiring { -1 } else { 0 })
+                    .when(retiring, |input| {
+                        input.bg(color(self.model.selected_style().colors.paper))
+                    }),
+            )
     }
 
-    fn inline_profile_add(&self, index: usize, cx: &mut Context<Self>) -> impl IntoElement {
-        let selector = format!("inline-profile-add-{index}");
+    fn inline_profile_add(
+        &self,
+        index: usize,
+        retiring: bool,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let selector = format!(
+            "{}inline-profile-add-{index}",
+            if retiring { "retiring-" } else { "" }
+        );
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
@@ -1098,6 +1421,9 @@ impl ResumeOne {
             .child("+")
             .on_click(cx.listener(move |this, _, window, cx| {
                 cx.stop_propagation();
+                if retiring {
+                    return;
+                }
                 this.inline_profile_structure(ProfileChange::Insert { index }, window, cx);
             }))
     }
@@ -1109,6 +1435,263 @@ mod tests {
     use crate::{editor_ui, model::AppModel, structure_ui};
     use gpui::{EntityInputHandler as _, Modifiers, TestAppContext, point};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn line_gaps_keep_one_dwell_but_never_open_over_blank_or_after_scrolling(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        let enter = |segment, window: &mut Window, cx: &mut App| {
+            view.update(cx, |app, cx| {
+                app.hovered_item = Some(("work".into(), 0, 0));
+                app.inline_ink_hover("work", Some(0), 0, segment, true, window, cx);
+            });
+        };
+        cx.update(|window, cx| enter(0, window, cx));
+        let generation = cx.update(|_, cx| view.read(cx).inline.generation);
+        executor.advance_clock(Duration::from_millis(100));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.inline_ink_hover("work", Some(0), 0, 0, false, window, cx)
+            })
+        });
+        executor.advance_clock(Duration::from_millis(25));
+        cx.update(|window, cx| enter(1, window, cx));
+        cx.update(|_, cx| assert_eq!(generation, view.read(cx).inline.generation));
+        executor.advance_clock(Duration::from_millis(14));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        executor.advance_clock(Duration::from_millis(1));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            assert!(
+                view.read(cx).inline_matches("work", Some(0)),
+                "crossing lines must not restart the 140ms dwell"
+            )
+        });
+
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.clear_inline();
+                app.hovered_item = Some(("work".into(), 0, 0));
+                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+            })
+        });
+        executor.advance_clock(Duration::from_millis(110));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.inline_ink_hover("work", Some(0), 0, 0, false, window, cx)
+            })
+        });
+        executor.advance_clock(Duration::from_millis(35));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            assert!(
+                view.read(cx).inline.form.is_none(),
+                "dwell may mature in a gap but cannot open there"
+            )
+        });
+        executor.advance_clock(INLINE_INK_GRACE);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.candidate.is_none()));
+
+        cx.update(|window, cx| enter(0, window, cx));
+        executor.advance_clock(Duration::from_millis(50));
+        cx.update(|_, cx| view.update(cx, |app, cx| app.preview_scrolled(cx)));
+        executor.advance_clock(INLINE_HOVER_DELAY);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.update(|window, cx| enter(0, window, cx));
+        executor.advance_clock(INLINE_HOVER_DELAY);
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
+    }
+
+    #[gpui::test]
+    fn interrupted_fade_keeps_progress_and_only_unmounts_after_a_hidden_frame(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.reduce_motion = false;
+                app.open_inline("work", Some(0), window, cx);
+                app.paper_hover_changed(0, true, window, cx);
+            })
+        });
+        executor.advance_clock(Duration::from_millis(30));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                let before = app
+                    .inline
+                    .visibility
+                    .sample(cx.background_executor().now())
+                    .0;
+                assert!(before > 0. && before < 1.);
+                app.inline.paper_hovered = None;
+                app.close_inline_outside(window, cx);
+                assert_eq!(
+                    before,
+                    app.inline
+                        .visibility
+                        .sample(cx.background_executor().now())
+                        .0
+                );
+            })
+        });
+        executor.advance_clock(Duration::from_millis(20));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                let before = app
+                    .inline
+                    .visibility
+                    .sample(cx.background_executor().now())
+                    .0;
+                app.paper_hover_changed(0, true, window, cx);
+                assert_eq!(
+                    before,
+                    app.inline
+                        .visibility
+                        .sample(cx.background_executor().now())
+                        .0
+                );
+                assert_eq!(app.inline.visibility.target(), 1.);
+            })
+        });
+        for _ in 0..10 {
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx))
+            });
+            executor.advance_clock(Duration::from_millis(45));
+            cx.run_until_parked();
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| app.paper_hover_changed(0, true, window, cx))
+            });
+            executor.advance_clock(Duration::from_millis(10));
+            cx.run_until_parked();
+        }
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.inline.form.is_some());
+                assert_eq!(
+                    app.inline.visibility.sample(cx.background_executor().now()),
+                    (1., true)
+                );
+                app.paper_hover_changed(0, false, window, cx);
+            })
+        });
+        executor.advance_clock(INLINE_CLOSE_GRACE);
+        cx.run_until_parked();
+        executor.advance_clock(INLINE_FADE_OUT - Duration::from_millis(1));
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+        executor.advance_clock(Duration::from_millis(1));
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+    }
+
+    #[gpui::test]
+    fn form_handoff_crossfades_without_blank_frame_or_sidebar_reflow(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let source = cx.update(|_, cx| view.read(cx).model.document.source.clone());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.open_inline("work", Some(0), window, cx);
+                app.inline.form.as_mut().unwrap().page = Some(0);
+            })
+        });
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, _| window.refresh());
+        let old_input = cx.update(|_, cx| {
+            view.read(cx).inline.form.as_ref().unwrap().fields[0]
+                .input
+                .clone()
+        });
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.open_inline("education", Some(0), window, cx);
+                app.inline.form.as_mut().unwrap().page = Some(0);
+                assert_eq!(
+                    app.inline
+                        .visibility
+                        .sample(cx.background_executor().now())
+                        .0,
+                    0.
+                );
+                assert_eq!(
+                    app.inline
+                        .retiring
+                        .as_ref()
+                        .unwrap()
+                        .visibility
+                        .sample(cx.background_executor().now())
+                        .0,
+                    1.
+                );
+            })
+        });
+        for millis in [0, 15, 15, 30] {
+            executor.advance_clock(Duration::from_millis(millis));
+            cx.update(|window, _| window.refresh());
+            cx.update(|_, cx| {
+                let app = view.read(cx);
+                let now = cx.background_executor().now();
+                let combined = app.inline.visibility.sample(now).0
+                    + app
+                        .inline
+                        .retiring
+                        .as_ref()
+                        .unwrap()
+                        .visibility
+                        .sample(now)
+                        .0;
+                assert!((combined - 1.).abs() < 0.001);
+            });
+            assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+            assert_eq!(paper, cx.debug_bounds("resume-paper").unwrap());
+        }
+        cx.update(|window, cx| {
+            old_input.update(cx, |input, cx| input.set_value("stale edit", window, cx))
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert_eq!(app.model.document.source, source);
+            assert_eq!(
+                app.editor.as_ref().unwrap().buffer.source().as_bytes(),
+                source
+            );
+        });
+        executor.advance_clock(INLINE_HANDOFF);
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            assert!(view.read(cx).inline.retiring.is_none());
+            assert!(view.read(cx).inline_matches("education", Some(0)));
+        });
+        cx.update(|_, cx| {
+            view.update(cx, |app, cx| {
+                // Reflow may remove the old page. The live form must fall back to
+                // the item's new page instead of vanishing while the user types.
+                app.inline.form.as_mut().unwrap().page = Some(999);
+                cx.notify();
+            })
+        });
+        assert!(cx.debug_bounds("inline-form").is_some());
+    }
 
     #[gpui::test]
     fn hover_handoff_has_grace_and_ignores_stale_page_or_form_events(cx: &mut TestAppContext) {
@@ -1162,7 +1745,7 @@ mod tests {
             view.update(cx, |app, cx| {
                 app.paper_hover_changed(0, true, window, cx);
                 assert!(!app.inline.closing);
-                assert!(app.inline.suppress_arrival);
+                assert_eq!(app.inline.visibility.target(), 1.);
             });
         });
         executor.advance_clock(INLINE_FADE_OUT);
@@ -1179,7 +1762,7 @@ mod tests {
                 assert!(app.inline.closing);
                 app.open_inline("basics", None, window, cx);
                 assert!(!app.inline.closing);
-                assert!(app.inline.suppress_arrival);
+                assert_eq!(app.inline.visibility.target(), 1.);
                 app.paper_hover_changed(0, true, window, cx);
             });
         });
@@ -1199,6 +1782,19 @@ mod tests {
         cx.run_until_parked();
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
+                assert!(
+                    app.inline_matches("basics", None),
+                    "entering the form cancels another item's hover"
+                );
+                let epoch = app.inline.form_epoch;
+                app.form_hover_changed(epoch, false, window, cx);
+                app.schedule_inline("work", Some(0), 0, window, cx);
+            });
+        });
+        executor.advance_clock(INLINE_SWITCH_DELAY);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
                 assert!(app.inline_matches("work", Some(0)));
                 let current_epoch = app.inline.form_epoch;
                 app.form_hover_changed(current_epoch - 1, false, window, cx);
@@ -1212,6 +1808,7 @@ mod tests {
         cx.update(|_, cx| assert!(view.read(cx).inline.closing));
         executor.advance_clock(INLINE_FADE_OUT);
         cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
 
         cx.update(|window, cx| {
@@ -1602,6 +2199,7 @@ mod tests {
         cx.update(|_, cx| assert!(view.read(cx).inline.closing));
         executor.advance_clock(INLINE_FADE_OUT);
         cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
         cx.simulate_keystrokes("tab tab tab tab enter");

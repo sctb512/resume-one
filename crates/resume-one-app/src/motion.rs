@@ -3,6 +3,54 @@ use std::time::{Duration, Instant};
 pub(super) const MODE_DURATION: Duration = Duration::from_millis(360);
 pub(super) const THEME_WIDTH: f32 = crate::chrome::THEME_WIDTH;
 
+/// One timeline for both directions. Retargeting samples the currently visible
+/// value instead of restarting at an endpoint; distance scales the remaining time.
+#[derive(Clone, Debug, Default)]
+pub(super) struct Visibility {
+    from: f32,
+    target: f32,
+    started: Option<Instant>,
+    duration: Duration,
+}
+
+impl Visibility {
+    pub fn snap(&mut self, value: f32) {
+        self.from = value;
+        self.target = value;
+        self.started = None;
+    }
+
+    #[cfg(test)]
+    pub fn target(&self) -> f32 {
+        self.target
+    }
+
+    pub fn sample(&self, now: Instant) -> (f32, bool) {
+        let Some(started) = self.started else {
+            return (self.target, true);
+        };
+        let elapsed = now.saturating_duration_since(started);
+        if self.duration.is_zero() || elapsed >= self.duration {
+            return (self.target, true);
+        }
+        let t = elapsed.as_secs_f32() / self.duration.as_secs_f32();
+        // A quick response followed by a quiet landing; no overshoot.
+        let eased = 1. - (1. - t).powi(3);
+        (self.from + (self.target - self.from) * eased, false)
+    }
+
+    pub fn retarget(&mut self, target: f32, now: Instant, duration: Duration, immediate: bool) {
+        if immediate {
+            self.snap(target);
+        } else if self.target != target {
+            self.from = self.sample(now).0;
+            self.target = target;
+            self.started = Some(now);
+            self.duration = duration.mul_f32((self.target - self.from).abs());
+        }
+    }
+}
+
 /// Read the platform preference, not an app-only approximation. Called on
 /// renders so a preference change also takes effect without restarting.
 pub(super) fn system_reduces_motion() -> bool {
@@ -93,6 +141,49 @@ impl ModeTransition {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn visibility_reverses_continuously_and_finishes_in_remaining_distance() {
+        let now = Instant::now();
+        let duration = Duration::from_millis(120);
+        let mut visibility = Visibility::default();
+        visibility.retarget(1., now, duration, false);
+        let reverse_at = now + Duration::from_millis(30);
+        let before = visibility.sample(reverse_at).0;
+        assert!(before > 0. && before < 1.);
+        visibility.retarget(0., reverse_at, duration, false);
+        assert_eq!(before, visibility.sample(reverse_at).0);
+        let back_at = reverse_at + Duration::from_millis(20);
+        let faded = visibility.sample(back_at).0;
+        assert!(faded < before);
+        visibility.retarget(1., back_at, duration, false);
+        assert_eq!(faded, visibility.sample(back_at).0);
+        assert_eq!(visibility.sample(back_at + duration), (1., true));
+        visibility.retarget(0., back_at + duration, duration, true);
+        assert_eq!(visibility.sample(back_at + duration), (0., true));
+    }
+
+    #[test]
+    fn repeated_visibility_retargets_never_jump_or_overshoot() {
+        let mut now = Instant::now();
+        let mut visibility = Visibility::default();
+        for index in 0..40 {
+            now += Duration::from_millis(11);
+            let before = visibility.sample(now).0;
+            visibility.retarget(
+                if index % 2 == 0 { 1. } else { 0. },
+                now,
+                Duration::from_millis(100),
+                false,
+            );
+            assert_eq!(before, visibility.sample(now).0);
+            assert!((0. ..=1.).contains(&before));
+        }
+        assert_eq!(
+            visibility.sample(now + Duration::from_millis(100)),
+            (0., true)
+        );
+    }
 
     #[test]
     fn reaches_endpoints_and_can_reverse_from_current_progress() {

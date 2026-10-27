@@ -381,6 +381,15 @@ impl ResumeOne {
     ) -> impl IntoElement {
         let id = id.to_owned();
         let selector = format!("add-item-{id}-{index}");
+        let hover_key = selector.clone();
+        let move_key = selector.clone();
+        let click_key = selector.clone();
+        let forced = self.selected_item_module.as_deref() == Some(id.as_str());
+        let alpha = if forced {
+            1.
+        } else {
+            self.control_alpha(&selector, cx)
+        };
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
@@ -392,16 +401,20 @@ impl ResumeOne {
             .cursor_pointer()
             .text_size(px(14.0))
             .text_color(color(style.colors.accent))
-            .opacity(
-                if self.selected_item_module.as_deref() == Some(id.as_str()) {
-                    1.0
-                } else {
-                    0.0
-                },
-            )
-            .hover(|control| control.opacity(1.0))
+            .opacity(alpha)
+            .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                this.control_hover(&hover_key, *hovering, cx);
+            }))
+            .on_mouse_move(cx.listener(move |this, _, _, cx| {
+                if !this.control_hovered(&move_key) {
+                    this.control_hover(&move_key, true, cx);
+                }
+            }))
             .child("+")
             .on_click(cx.listener(move |this, _, window, cx| {
+                if !forced && !this.control_hovered(&click_key) {
+                    return;
+                }
                 this.apply_visual_structure(
                     StructureEdit::InsertItem {
                         id: id.clone(),
@@ -420,6 +433,16 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let selector = format!("add-module-before-{}", before.as_deref().unwrap_or("end"));
+        let hover_key = selector.clone();
+        let move_key = selector.clone();
+        let click_key = selector.clone();
+        let forced =
+            self.selected_module.is_some() || self.insertion_before.as_ref() == Some(&before);
+        let alpha = if forced {
+            1.
+        } else {
+            self.control_alpha(&selector, cx)
+        };
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
@@ -431,17 +454,20 @@ impl ResumeOne {
             .cursor_pointer()
             .text_size(px(17.0))
             .text_color(color(style.colors.accent))
-            .opacity(
-                if self.selected_module.is_some() || self.insertion_before.as_ref() == Some(&before)
-                {
-                    1.0
-                } else {
-                    0.0
-                },
-            )
-            .hover(|control| control.opacity(1.0))
+            .opacity(alpha)
+            .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                this.control_hover(&hover_key, *hovering, cx);
+            }))
+            .on_mouse_move(cx.listener(move |this, _, _, cx| {
+                if !this.control_hovered(&move_key) {
+                    this.control_hover(&move_key, true, cx);
+                }
+            }))
             .child("+")
             .on_click(cx.listener(move |this, _, window, cx| {
+                if !forced && !this.control_hovered(&click_key) {
+                    return;
+                }
                 if let Some(id) = this.selected_module.clone() {
                     this.apply_visual_structure(
                         StructureEdit::InsertSection {
@@ -606,6 +632,7 @@ impl ResumeOne {
             .h_full()
             .overflow_scroll()
             .track_scroll(&self.preview_scroll)
+            .on_scroll_wheel(cx.listener(|this, _, _, cx| this.preview_scrolled(cx)))
             .bg(color(self.shell_style().colors.canvas))
             .when(!self.recovery_pending && !self.structure_enabled() && self.model.preview_ready, |view| {
                 let p = chrome::Palette::new(style);
@@ -918,6 +945,7 @@ impl Render for ResumeOne {
             self.sidebar_progress = if self.source_mode { 1. } else { 0. };
             self.view_blend = self.sidebar_progress;
         }
+        self.advance_inline_motion(window, cx);
         let shell_target = self.active_style().colors;
         if self
             .shell
@@ -1304,6 +1332,7 @@ mod tests {
         let add = cx.debug_bounds("add-module-before-work").unwrap();
         let add_work_item = cx.debug_bounds("add-item-work-0").unwrap();
         let add_education_item = cx.debug_bounds("add-item-education-0").unwrap();
+        cx.simulate_mouse_move(add.center(), None, Modifiers::none());
         cx.simulate_click(add.center(), Modifiers::none());
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| {

@@ -13,6 +13,7 @@ use gpui_component::{
 use resume_one_core::appearance::{Appearance, COLOR_KEYS, FontChoice};
 
 mod palette;
+mod trial;
 
 actions!(resume_one, [ShowAppearance]);
 
@@ -36,6 +37,7 @@ pub(super) struct AppearanceEditor {
     font_highlight: usize,
     font_focus: [gpui::FocusHandle; 2],
     palette: palette::PaletteState,
+    trial: trial::TrialState,
 }
 
 fn color_label(key: &str) -> &'static str {
@@ -96,6 +98,7 @@ impl AppearanceEditor {
         let font_search = cx.new(|cx| InputState::new(window, cx).placeholder("搜索字体名称"));
         subscriptions.push(cx.subscribe(&font_search, |this, _, event, cx| {
             if matches!(event, InputEvent::Change) {
+                this.clear_trial(cx);
                 this.font_highlight = 0;
                 cx.notify();
             }
@@ -136,10 +139,12 @@ impl AppearanceEditor {
             font_highlight: 0,
             font_focus: [cx.focus_handle(), cx.focus_handle()],
             palette: palette::PaletteState::new(cx),
+            trial: trial::TrialState::default(),
         }
     }
 
     fn apply(&mut self, appearance: Appearance, window: &mut Window, cx: &mut Context<Self>) {
+        self.clear_trial(cx);
         let Some(owner) = self.owner.upgrade() else {
             return;
         };
@@ -192,6 +197,7 @@ impl AppearanceEditor {
     }
 
     fn reset_colors(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.clear_trial(cx);
         self.palette.target = None;
         let Some(owner) = self.owner.upgrade() else {
             return;
@@ -225,6 +231,7 @@ impl AppearanceEditor {
         choices
     }
     fn close_font_browser(&mut self, heading: bool, window: &mut Window, cx: &mut Context<Self>) {
+        self.clear_trial(cx);
         self.font_target = None;
         window.focus(&self.font_focus[usize::from(heading)]);
         cx.notify();
@@ -251,6 +258,7 @@ impl AppearanceEditor {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.clear_trial(cx);
         let target = usize::from(heading);
         self.font_generation[target] = self.font_generation[target].wrapping_add(1);
         let generation = self.font_generation[target];
@@ -320,6 +328,7 @@ impl AppearanceEditor {
         if self.font_busy {
             return;
         }
+        self.clear_trial(cx);
         let chooser = cx.prompt_for_paths(PathPromptOptions {
             files: true,
             directories: false,
@@ -419,6 +428,14 @@ impl AppearanceEditor {
             .flex()
             .flex_col()
             .text_color(color(p.ink))
+            .on_hover(cx.listener(|this, hovering: &bool, _, cx| {
+                if !*hovering {
+                    this.leave_font_list(cx);
+                }
+            }))
+            .on_scroll_wheel(cx.listener(|this, _: &gpui::ScrollWheelEvent, _, cx| {
+                this.leave_font_list(cx);
+            }))
             .capture_action(cx.listener(
                 move |this, _: &crate::inline_ui::DismissInline, window, cx| {
                     this.close_font_browser(heading, window, cx);
@@ -560,6 +577,8 @@ impl AppearanceEditor {
                                 choices.get(index).cloned().map(|(name, choice)| {
                                     let selected = choice == current;
                                     let keyboard_choice = choice.clone();
+                                    let hover_choice = choice.clone();
+                                    let move_choice = choice.clone();
                                     div()
                                         .id(("font-choice", index))
                                         .debug_selector(move || {
@@ -581,6 +600,28 @@ impl AppearanceEditor {
                                         .focus(|v| v.bg(color(p.soft)))
                                         .child(div().flex_1().min_w_0().truncate().child(name))
                                         .when(selected, |v| v.child("✓"))
+                                        .on_hover(cx.listener(
+                                            move |this, hovering: &bool, window, cx| {
+                                                this.hover_font(
+                                                    heading,
+                                                    hover_choice.clone(),
+                                                    *hovering,
+                                                    window,
+                                                    cx,
+                                                );
+                                            },
+                                        ))
+                                        .on_mouse_move(cx.listener(
+                                            move |this, _: &gpui::MouseMoveEvent, window, cx| {
+                                                this.hover_font(
+                                                    heading,
+                                                    move_choice.clone(),
+                                                    true,
+                                                    window,
+                                                    cx,
+                                                );
+                                            },
+                                        ))
                                         .on_click(cx.listener(move |this, _, window, cx| {
                                             this.select_font(heading, choice.clone(), window, cx)
                                         }))
@@ -622,18 +663,21 @@ impl AppearanceEditor {
                         .child("正在读取字体…"),
                 )
             })
-            .when_some(self.error.clone(), |v, error| {
-                v.child(
-                    div()
-                        .id("font-browser-error")
-                        .max_h(px(96.))
-                        .overflow_y_scroll()
-                        .px_4()
-                        .py_2()
-                        .text_size(px(12.))
-                        .child(error),
-                )
-            })
+            .when_some(
+                self.error.clone().or(self.trial.error.clone()),
+                |v, error| {
+                    v.child(
+                        div()
+                            .id("font-browser-error")
+                            .max_h(px(96.))
+                            .overflow_y_scroll()
+                            .px_4()
+                            .py_2()
+                            .text_size(px(12.))
+                            .child(error),
+                    )
+                },
+            )
             .when_some(self.font_notice.clone(), |v, notice| {
                 v.child(
                     div()
@@ -675,6 +719,7 @@ impl AppearanceEditor {
 
 impl Render for AppearanceEditor {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.trial_events(window, cx);
         self.palette_events(window, cx);
         let Some(owner) = self.owner.upgrade() else {
             return div().into_any_element();
@@ -949,7 +994,7 @@ impl Render for AppearanceEditor {
                     .py_3()
                     .text_size(px(12.))
                     .text_color(color(p.muted))
-                    .child("即时预览 · 仅保存在本机\n色盘、取色或跟随主题"),
+                    .child("悬停试用 · 点击确认\n字体与配色仅保存在本机"),
             )
             .into_any_element()
     }
@@ -1001,6 +1046,7 @@ impl ResumeOne {
         _: &mut Window,
         cx: &mut Context<Self>,
     ) -> Result<(), String> {
+        self.show_appearance_trial(None, cx);
         if self.model.appearance == appearance
             && self
                 .theme_store
@@ -1041,6 +1087,145 @@ mod tests {
     use gpui::{Modifiers, TestAppContext};
     use gpui_component::WindowExt as _;
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn font_and_color_hover_preview_without_saving_and_click_confirms(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        let themes = root.path().join("themes");
+        let mut store = ThemeStore::new(settings.clone(), themes.clone()).unwrap();
+        store.save_appearance(Appearance::default()).unwrap();
+        let saved = std::fs::read(&settings).unwrap();
+        let theme_bytes = std::fs::read(themes.join("zhibai.theme.json")).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let owner = cx.new(|cx| {
+                let mut app = ResumeOne::new(AppModel::load(None).unwrap(), cx);
+                app.theme_store = Some(store);
+                app
+            });
+            *output.borrow_mut() = Some(owner.clone());
+            gpui_component::Root::new(owner, window, cx)
+        });
+        let owner = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| owner.update(cx, |app, cx| app.show_appearance(window, cx)));
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let panel = cx.debug_bounds("module-panel").unwrap();
+        let source = cx.update(|_, cx| owner.read(cx).model.document.source.clone());
+        let font = cx.debug_bounds("appearance-font-body").unwrap().center();
+        cx.simulate_click(font, Modifiers::none());
+        let serif = cx
+            .debug_bounds("appearance-font-choice-2")
+            .unwrap()
+            .center();
+        cx.simulate_mouse_move(serif, None, Modifiers::none());
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert_eq!(app.active_style().typography.body.family, "cjk-serif");
+            assert_eq!(app.model.appearance, Appearance::default());
+        });
+        assert_eq!(std::fs::read(&settings).unwrap(), saved);
+        cx.simulate_mouse_move(gpui::point(px(500.), px(30.)), None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                owner.read(cx).active_style().typography.body.family,
+                "cjk-sans"
+            )
+        });
+        cx.simulate_click(serif, Modifiers::none());
+        let back = cx.debug_bounds("font-browser-back").unwrap().center();
+        cx.simulate_click(back, Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                owner.read(cx).model.appearance.body_font,
+                Some(FontChoice::Serif)
+            )
+        });
+        let font_saved = std::fs::read(&settings).unwrap();
+        let accent = cx.debug_bounds("appearance-color-accent").unwrap().center();
+        cx.simulate_click(accent, Modifiers::none());
+        let blue = cx
+            .debug_bounds("appearance-color-preset-5")
+            .unwrap()
+            .center();
+        cx.simulate_mouse_move(blue, None, Modifiers::none());
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert_eq!(
+                app.model.display_appearance().color("accent"),
+                Some("#587B9E")
+            );
+            let mut trial = app.model.appearance.clone();
+            trial.set_color("accent", "#587B9E").unwrap();
+            let expected = resume_one_core::theme_style::ThemeStyle::from_manifest(
+                &trial.apply(&app.model.applied_theme().manifest),
+            );
+            assert_eq!(app.active_style().colors.accent, expected.colors.accent);
+            assert!(app.model.appearance.color("accent").is_none());
+            assert_eq!(app.model.appearance.body_font, Some(FontChoice::Serif));
+        });
+        assert_eq!(std::fs::read(&settings).unwrap(), font_saved);
+        cx.update(|window, cx| {
+            owner.update(cx, |app, cx| {
+                app.toggle_source(&crate::editor_ui::ToggleSource, window, cx);
+                let expected: gpui::Hsla = color(app.active_style().colors.accent).into();
+                assert_eq!(gpui_component::Theme::global(cx).colors.accent, expected);
+                assert!(app.appearance_editor.is_some());
+                app.toggle_source(&crate::editor_ui::ToggleSource, window, cx);
+            })
+        });
+        cx.simulate_mouse_move(gpui::point(px(500.), px(30.)), None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert!(
+                owner
+                    .read(cx)
+                    .model
+                    .display_appearance()
+                    .color("accent")
+                    .is_none()
+            )
+        });
+        cx.simulate_click(blue, Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert_eq!(app.model.appearance.color("accent"), Some("#587B9E"));
+            assert_eq!(app.model.document.source, source);
+            assert!(app.visual_undo.is_empty());
+        });
+        let reopened = ThemeStore::new(settings.clone(), themes.clone()).unwrap();
+        assert_eq!(reopened.appearance.body_font, Some(FontChoice::Serif));
+        assert_eq!(reopened.appearance.color("accent"), Some("#587B9E"));
+        assert_eq!(
+            std::fs::read(themes.join("zhibai.theme.json")).unwrap(),
+            theme_bytes
+        );
+        assert_eq!(paper, cx.debug_bounds("resume-paper").unwrap());
+        assert_eq!(panel, cx.debug_bounds("module-panel").unwrap());
+        // Hover must also work when the preference file cannot be saved. A
+        // failed click must restore the confirmed value, never persist a trial.
+        std::fs::write(&settings, b"broken settings").unwrap();
+        let red = cx
+            .debug_bounds("appearance-color-preset-4")
+            .unwrap()
+            .center();
+        cx.simulate_mouse_move(red, None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                owner.read(cx).model.display_appearance().color("accent"),
+                Some("#B84A3C")
+            )
+        });
+        cx.simulate_click(red, Modifiers::none());
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert_eq!(app.model.appearance.color("accent"), Some("#587B9E"));
+            assert_eq!(app.model.display_appearance(), &app.model.appearance);
+        });
+        assert_eq!(std::fs::read(settings).unwrap(), b"broken settings");
+    }
 
     #[gpui::test]
     fn formatting_shortcut_in_font_search_does_not_modify_the_resume(cx: &mut TestAppContext) {

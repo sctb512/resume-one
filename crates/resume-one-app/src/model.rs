@@ -43,6 +43,7 @@ pub struct BuiltinTheme {
 
 pub struct AppModel {
     pub appearance: Appearance,
+    appearance_preview: Option<Appearance>,
     pub document: ResumeDocument,
     pub content: ResumeContent,
     pub opened_source: Vec<u8>,
@@ -102,6 +103,7 @@ impl AppModel {
         let content = project(&document);
         Ok(Self {
             appearance: Appearance::default(),
+            appearance_preview: None,
             document,
             content,
             opened_source,
@@ -118,15 +120,30 @@ impl AppModel {
     }
 
     pub fn selected_style(&self) -> ThemeStyle {
-        self.effective_style(self.applied_theme())
+        self.style_with_appearance(self.applied_theme(), &self.appearance)
     }
 
     pub fn effective_style(&self, theme: &BuiltinTheme) -> ThemeStyle {
-        if self.appearance == Appearance::default() {
+        self.style_with_appearance(theme, self.display_appearance())
+    }
+
+    fn style_with_appearance(&self, theme: &BuiltinTheme, appearance: &Appearance) -> ThemeStyle {
+        if appearance == &Appearance::default() {
             theme.style.clone()
         } else {
-            ThemeStyle::from_manifest(&self.appearance.apply(&theme.manifest))
+            ThemeStyle::from_manifest(&appearance.apply(&theme.manifest))
         }
+    }
+
+    pub fn display_appearance(&self) -> &Appearance {
+        self.appearance_preview.as_ref().unwrap_or(&self.appearance)
+    }
+
+    pub fn preview_appearance(&mut self, appearance: Option<Appearance>) {
+        if self.display_appearance() != appearance.as_ref().unwrap_or(&self.appearance) {
+            self.theme_epoch = self.theme_epoch.wrapping_add(1);
+        }
+        self.appearance_preview = appearance;
     }
 
     pub fn set_appearance(&mut self, appearance: Appearance) {

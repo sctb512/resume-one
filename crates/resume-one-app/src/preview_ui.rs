@@ -113,6 +113,61 @@ mod tests {
     }
 
     #[gpui::test]
+    fn hover_appearance_updates_layout_and_restores_without_affecting_export_preferences(
+        cx: &mut TestAppContext,
+    ) {
+        let model = AppModel::load(None).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|_, cx| {
+            view.update(cx, |app, _| {
+                let before = app
+                    .preview
+                    .resolve(&app.model, app.model.applied_theme())
+                    .unwrap();
+                let committed = app.model.selected_style();
+                let mut trial = app.model.appearance.clone();
+                trial.set_color("paper", "#172426").unwrap();
+                trial.body_font = Some(resume_one_core::appearance::FontChoice::Serif);
+                app.model.preview_appearance(Some(trial));
+                let after = app
+                    .preview
+                    .resolve(&app.model, app.model.applied_theme())
+                    .unwrap();
+                assert_eq!(after.layout.paper.hex(), "#172426");
+                assert_ne!(after.layout, before.layout);
+                assert_eq!(
+                    app.model.selected_style().colors.paper,
+                    committed.colors.paper
+                );
+                assert_eq!(
+                    app.model.selected_style().typography.body.family,
+                    committed.typography.body.family
+                );
+                assert_eq!(app.model.appearance, Default::default());
+                let epoch = app.model.theme_epoch;
+                app.model
+                    .preview_appearance(Some(app.model.display_appearance().clone()));
+                assert_eq!(
+                    app.model.theme_epoch, epoch,
+                    "unchanged hover must retain the cache"
+                );
+                assert!(Arc::ptr_eq(
+                    &after,
+                    &app.preview
+                        .resolve(&app.model, app.model.applied_theme())
+                        .unwrap()
+                ));
+                app.model.preview_appearance(None);
+                let restored = app
+                    .preview
+                    .resolve(&app.model, app.model.applied_theme())
+                    .unwrap();
+                assert_eq!(restored.layout, before.layout);
+            })
+        });
+    }
+
+    #[gpui::test]
     fn independent_appearance_invalidates_preview_and_thumbnail_cache_without_mutating_theme(
         cx: &mut TestAppContext,
     ) {
@@ -783,7 +838,7 @@ impl PreviewState {
         {
             return cache.result.clone();
         }
-        let effective = model.appearance.apply(&theme.manifest);
+        let effective = model.display_appearance().apply(&theme.manifest);
         let result = layout::layout_with_theme(&model.content, Language::Zh, &effective).and_then(
             |layout| {
                 for element in layout.pages.iter().flatten() {

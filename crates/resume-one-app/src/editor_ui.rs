@@ -637,7 +637,7 @@ impl ResumeOne {
         if !self.ensure_editor(window, cx) {
             return;
         }
-        apply_editor_theme(&self.model.selected_style(), cx);
+        apply_editor_theme(&self.active_style(), cx);
         self.source_mode = true;
         self.begin_mode_transition();
         if !self.recovery_pending

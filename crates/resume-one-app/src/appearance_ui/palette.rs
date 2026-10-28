@@ -75,6 +75,9 @@ pub(super) struct PaletteState {
     pub(super) focus: Vec<gpui::FocusHandle>,
 }
 impl PaletteState {
+    pub(super) fn is_dragging(&self) -> bool {
+        self.drag.is_some()
+    }
     pub(super) fn is_sampling(&self) -> bool {
         self.sampling
     }
@@ -133,6 +136,7 @@ impl AppearanceEditor {
         if self.palette.sampling {
             return;
         }
+        self.clear_trial(cx);
         if self.palette.drag.is_some() {
             self.end_color_drag(true, window, cx);
         } else {
@@ -149,6 +153,7 @@ impl AppearanceEditor {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.clear_trial(cx);
         if self.palette.target == Some(index) {
             self.palette.target = None;
         } else {
@@ -188,6 +193,7 @@ impl AppearanceEditor {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.clear_trial(cx);
         let bounds = match kind {
             DragKind::SaturationValue => self.palette.sv.get(),
             DragKind::Hue => self.palette.hue.get(),
@@ -230,6 +236,38 @@ impl AppearanceEditor {
         }
         self.apply_hsv(false, window, cx);
     }
+
+    fn hover_color_at(
+        &mut self,
+        kind: DragKind,
+        position: Point<Pixels>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(index) = self.palette.target else {
+            return;
+        };
+        let (bounds, source) = match kind {
+            DragKind::SaturationValue => {
+                (self.palette.sv.get(), trial::ColorSource::SaturationValue)
+            }
+            DragKind::Hue => (self.palette.hue.get(), trial::ColorSource::Hue),
+        };
+        let Some(bounds) = bounds else { return };
+        let x =
+            (f32::from(position.x - bounds.left()) / f32::from(bounds.size.width)).clamp(0., 1.);
+        let y =
+            (f32::from(position.y - bounds.top()) / f32::from(bounds.size.height)).clamp(0., 1.);
+        let mut hsv = self.palette.hsv;
+        match kind {
+            DragKind::SaturationValue => {
+                hsv.s = x;
+                hsv.v = 1. - y;
+            }
+            DragKind::Hue => hsv.h = x.min(0.999999),
+        }
+        self.hover_color(index, source, hsv.rgb(), window, cx);
+    }
     fn end_color_drag(&mut self, cancel: bool, window: &mut Window, cx: &mut Context<Self>) {
         if self.palette.drag.take().is_none() {
             return;
@@ -251,6 +289,7 @@ impl AppearanceEditor {
         let Some(index) = self.palette.target else {
             return;
         };
+        self.clear_trial(cx);
         self.palette.sampling = true;
         self.error = None;
         cx.notify();
@@ -420,6 +459,7 @@ impl AppearanceEditor {
                 linear_color_stop(color(to), 1.),
             )));
         }
+        let index = self.palette.target.unwrap();
         let mut presets = div().grid().grid_cols(8).gap_1();
         for (i, hex) in [
             "#182322", "#FFFFFF", "#52756B", "#8C5B4C", "#B84A3C", "#587B9E", "#B28A4B", "#756582",
@@ -445,6 +485,16 @@ impl AppearanceEditor {
                     .cursor_pointer()
                     .tab_index(0)
                     .tab_stop(true)
+                    .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                        if *hovering {
+                            this.hover_color(index, trial::ColorSource::Preset(i), rgb, window, cx);
+                        } else {
+                            this.leave_color(index, trial::ColorSource::Preset(i), cx);
+                        }
+                    }))
+                    .on_mouse_move(cx.listener(move |this, _: &MouseMoveEvent, window, cx| {
+                        this.hover_color(index, trial::ColorSource::Preset(i), rgb, window, cx);
+                    }))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         this.palette.hsv = Hsv::from_rgb(rgb);
                         this.apply_hsv(true, window, cx);
@@ -458,7 +508,6 @@ impl AppearanceEditor {
                     })),
             );
         }
-        let index = self.palette.target.unwrap();
         let watched = self.inputs[index].clone();
         let scroll = self.scroll.clone();
         div()
@@ -516,6 +565,14 @@ impl AppearanceEditor {
                             .border_color(gpui::white())
                             .shadow_sm(),
                     )
+                    .on_mouse_move(cx.listener(|this, event: &MouseMoveEvent, window, cx| {
+                        this.hover_color_at(DragKind::SaturationValue, event.position, window, cx);
+                    }))
+                    .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                        if !*hovering {
+                            this.leave_color(index, trial::ColorSource::SaturationValue, cx);
+                        }
+                    }))
                     .on_mouse_down(
                         MouseButton::Left,
                         cx.listener(|this, event: &gpui::MouseDownEvent, window, cx| {
@@ -578,6 +635,14 @@ impl AppearanceEditor {
                             .border_color(gpui::white())
                             .rounded(px(2.)),
                     )
+                    .on_mouse_move(cx.listener(|this, event: &MouseMoveEvent, window, cx| {
+                        this.hover_color_at(DragKind::Hue, event.position, window, cx);
+                    }))
+                    .on_hover(cx.listener(move |this, hovering: &bool, _, cx| {
+                        if !*hovering {
+                            this.leave_color(index, trial::ColorSource::Hue, cx);
+                        }
+                    }))
                     .on_mouse_down(
                         MouseButton::Left,
                         cx.listener(|this, event: &gpui::MouseDownEvent, window, cx| {
@@ -717,6 +782,97 @@ mod tests {
     use crate::{model::AppModel, theme_local::ThemeStore};
     use gpui::{Modifiers, TestAppContext, point};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn palette_pointer_previews_without_drag_and_escape_or_window_exit_restores(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        cx.update(crate::inline_ui::register);
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        let mut store = ThemeStore::new(settings.clone(), root.path().join("themes")).unwrap();
+        store.save_appearance(Appearance::default()).unwrap();
+        let saved = std::fs::read(&settings).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let owner = cx.new(|cx| {
+                let mut app = ResumeOne::new(AppModel::load(None).unwrap(), cx);
+                app.theme_store = Some(store);
+                app
+            });
+            *output.borrow_mut() = Some(owner.clone());
+            gpui_component::Root::new(owner, window, cx)
+        });
+        let owner = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| owner.update(cx, |app, cx| app.show_appearance(window, cx)));
+        let editor = cx.update(|_, cx| owner.read(cx).appearance_editor.as_ref().unwrap().clone());
+        let button = cx.debug_bounds("appearance-color-accent").unwrap().center();
+        cx.simulate_click(button, Modifiers::none());
+        let hsv = cx.update(|_, cx| editor.read(cx).palette.hsv.rgb());
+        let sv = cx.debug_bounds("appearance-color-sv").unwrap();
+        cx.simulate_mouse_move(sv.origin + point(px(5.), px(5.)), None, Modifiers::none());
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert!(app.model.display_appearance().color("accent").is_some());
+            assert!(app.model.appearance.color("accent").is_none());
+            assert_eq!(
+                editor.read(cx).palette.hsv.rgb(),
+                hsv,
+                "hover cannot move the confirmed marker"
+            );
+        });
+        let hue = cx.debug_bounds("appearance-color-hue").unwrap();
+        cx.simulate_mouse_move(hue.center(), None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert!(
+                owner
+                    .read(cx)
+                    .model
+                    .display_appearance()
+                    .color("accent")
+                    .is_some()
+            )
+        });
+        assert_eq!(std::fs::read(&settings).unwrap(), saved);
+        cx.simulate_keystrokes("escape");
+        cx.update(|_, cx| {
+            assert!(
+                owner
+                    .read(cx)
+                    .model
+                    .display_appearance()
+                    .color("accent")
+                    .is_none()
+            );
+            assert!(editor.read(cx).palette.target.is_none());
+        });
+        cx.simulate_click(button, Modifiers::none());
+        let preset = cx
+            .debug_bounds("appearance-color-preset-4")
+            .unwrap()
+            .center();
+        cx.simulate_mouse_move(preset, None, Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                owner.read(cx).model.display_appearance().color("accent"),
+                Some("#B84A3C")
+            )
+        });
+        cx.simulate_event(MouseExitEvent::default());
+        cx.update(|_, cx| {
+            assert!(
+                owner
+                    .read(cx)
+                    .model
+                    .display_appearance()
+                    .color("accent")
+                    .is_none()
+            )
+        });
+        assert_eq!(std::fs::read(settings).unwrap(), saved);
+    }
 
     #[gpui::test]
     fn sampler_result_cancel_and_failure_keep_document_clean_and_restore_focus(

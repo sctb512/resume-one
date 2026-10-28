@@ -290,7 +290,7 @@ mod tests {
     }
 
     #[gpui::test]
-    fn a_small_move_after_scrolling_rearms_the_same_text_without_leaving_it(
+    fn a_small_move_after_scrolling_rearms_the_same_module_blank_without_leaving_it(
         cx: &mut TestAppContext,
     ) {
         cx.update(gpui_component::init);
@@ -306,30 +306,27 @@ mod tests {
             cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
         cx.update(|window, _| window.refresh());
         let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
-        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
+        let row = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        let blank = point(row.right() - px(40.), ink.center().y);
+        assert!(!ink.contains(&blank));
+        cx.simulate_mouse_move(blank, None, Modifiers::none());
         executor.advance_clock(std::time::Duration::from_millis(50));
         cx.update(|_, cx| view.update(cx, |app, cx| app.preview_scrolled(cx)));
         executor.advance_clock(std::time::Duration::from_millis(120));
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
-        cx.simulate_mouse_move(
-            ink.center() + point(px(1.), px(0.)),
-            None,
-            Modifiers::none(),
-        );
+        cx.simulate_mouse_move(blank + point(px(1.), px(0.)), None, Modifiers::none());
         executor.advance_clock(std::time::Duration::from_millis(140));
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
     }
 
     #[gpui::test]
-    fn blank_space_does_not_open_forms_and_leaving_text_cancels_pending_hover(
-        cx: &mut TestAppContext,
-    ) {
+    fn module_blank_space_opens_after_one_dwell_without_modifying_content(cx: &mut TestAppContext) {
         cx.update(gpui_component::init);
         let executor = cx.executor();
         let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("ink-hover.json");
+        let path = root.path().join("module-hover.json");
         let source = br#"{"basics":{"name":"A"},"work":[{"name":"Short"}]}"#;
         std::fs::write(&path, source).unwrap();
         let (view, cx) =
@@ -338,22 +335,197 @@ mod tests {
         let row = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
         let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
         let blank = point(row.right() - px(40.), row.center().y);
+        assert!(!ink.contains(&blank));
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let panel = cx.debug_bounds("module-panel").unwrap();
         cx.simulate_mouse_move(blank, None, Modifiers::none());
-        executor.advance_clock(std::time::Duration::from_millis(220));
+        executor.advance_clock(std::time::Duration::from_millis(139));
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
-        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
-        executor.advance_clock(std::time::Duration::from_millis(90));
-        cx.run_until_parked();
-        cx.simulate_mouse_move(blank, None, Modifiers::none());
-        executor.advance_clock(std::time::Duration::from_millis(200));
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
-        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
-        executor.advance_clock(std::time::Duration::from_millis(200));
+        executor.advance_clock(std::time::Duration::from_millis(1));
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
+        assert_eq!(paper, cx.debug_bounds("resume-paper").unwrap());
+        assert_eq!(panel, cx.debug_bounds("module-panel").unwrap());
+        executor.advance_clock(std::time::Duration::from_millis(160));
+        cx.update(|window, _| window.refresh());
+        let form = cx.debug_bounds("inline-form").unwrap();
+        cx.simulate_mouse_move(form.center(), None, Modifiers::none());
+        let outside = point(paper.left() + px(3.), form.top() + px(20.));
+        assert!(!form.contains(&outside));
+        cx.simulate_mouse_move(outside, None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(60));
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            assert!(
+                view.read(cx).inline.form.is_some(),
+                "the form fades instead of abruptly unmounting"
+            )
+        });
+        executor.advance_clock(std::time::Duration::from_millis(60));
+        cx.update(|window, _| window.refresh());
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.update(|_, cx| assert_eq!(view.read(cx).model.document.source, source));
         assert_eq!(std::fs::read(path).unwrap(), source);
+    }
+
+    #[gpui::test]
+    fn moving_between_module_text_and_blank_keeps_the_original_dwell(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let row = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
+        let blank = point(row.right() - px(40.), ink.center().y);
+        assert!(!ink.contains(&blank));
+        cx.simulate_mouse_move(ink.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(80));
+        cx.simulate_mouse_move(blank, None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(59));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        executor.advance_clock(std::time::Duration::from_millis(1));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));
+    }
+
+    #[gpui::test]
+    fn leaving_module_blank_before_dwell_cancels_and_paper_whitespace_stays_quiet(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let row = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let blank = point(row.right() - px(40.), row.top() + px(4.));
+        cx.simulate_mouse_move(blank, None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(80));
+        cx.simulate_mouse_move(
+            point(paper.left() + px(3.), row.top()),
+            None,
+            Modifiers::none(),
+        );
+        executor.advance_clock(std::time::Duration::from_millis(200));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+    }
+
+    #[gpui::test]
+    fn basic_info_empty_items_and_both_sidebar_lanes_accept_blank_hover(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        for (source, selector, section, index, preset) in [
+            (
+                r#"{"basics":{"name":"Ada"}}"#,
+                "preview-basics",
+                "basics",
+                None,
+                None,
+            ),
+            (r#"{"basics":{}}"#, "preview-basics", "basics", None, None),
+            (
+                r#"{"work":[{}]}"#,
+                "preview-hit-work-Some(0)-0",
+                "work",
+                Some(0),
+                None,
+            ),
+            (
+                r#"{"work":[{"name":"Main"}],"skills":[{"name":"Side"}]}"#,
+                "preview-hit-skills-Some(0)-0",
+                "skills",
+                Some(0),
+                Some("sidebar-left"),
+            ),
+            (
+                r#"{"work":[{"name":"Main"}],"skills":[{"name":"Side"}]}"#,
+                "preview-hit-skills-Some(0)-0",
+                "skills",
+                Some(0),
+                Some("sidebar-right"),
+            ),
+        ] {
+            let mut model = AppModel::load(None).unwrap();
+            model.document = parse_resume(source.as_bytes()).unwrap();
+            model.content = project(&model.document);
+            if let Some(preset) = preset {
+                let mut manifest = resume_one_core::parse_theme(include_bytes!(
+                    "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+                ))
+                .unwrap();
+                manifest.normalized["composition"]["preset"] = serde_json::json!(preset);
+                model.replace_themes(vec![BuiltinTheme {
+                    style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+                    manifest,
+                    path: None,
+                    identity: format!("fixture:{preset}"),
+                }]);
+            }
+            let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+            cx.simulate_resize(gpui::size(px(1440.), px(1000.)));
+            cx.update(|window, _| window.refresh());
+            let block = cx.debug_bounds(selector).unwrap();
+            let panel = cx.debug_bounds("module-panel").unwrap();
+            cx.simulate_mouse_move(
+                point(block.right() - px(40.), block.center().y),
+                None,
+                Modifiers::none(),
+            );
+            executor.advance_clock(std::time::Duration::from_millis(140));
+            cx.run_until_parked();
+            cx.update(|_, cx| {
+                assert!(
+                    view.read(cx).inline_matches(section, index),
+                    "{selector} {preset:?}"
+                );
+                assert_eq!(view.read(cx).model.document.source, source.as_bytes());
+            });
+            assert_eq!(panel, cx.debug_bounds("module-panel").unwrap());
+        }
+    }
+
+    #[gpui::test]
+    fn hovering_remove_control_does_not_open_a_form_or_block_deletion(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let block = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        cx.simulate_mouse_move(
+            point(block.right() - px(40.), block.top() + px(4.)),
+            None,
+            Modifiers::none(),
+        );
+        executor.advance_clock(std::time::Duration::from_millis(65));
+        cx.update(|window, _| window.refresh());
+        let remove = cx.debug_bounds("remove-preview-work-Some(0)-0").unwrap();
+        cx.simulate_mouse_move(remove.center(), None, Modifiers::none());
+        executor.advance_clock(std::time::Duration::from_millis(200));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        let before = cx.update(|_, cx| {
+            view.read(cx).model.document.value["work"]
+                .as_array()
+                .unwrap()
+                .len()
+        });
+        cx.simulate_click(remove.center(), Modifiers::none());
+        cx.update(|_, cx| {
+            assert_eq!(
+                view.read(cx).model.document.value["work"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                before - 1
+            )
+        });
     }
 
     #[test]
@@ -1105,7 +1277,7 @@ impl ResumeOne {
                 } else if this.hovered_section.as_ref() == Some(&(hover_id.clone(), region.page)) {
                     this.hovered_section = None;
                 }
-                if *hovering && editable && valid && !region.text {
+                if *hovering && editable && valid {
                     this.schedule_inline(&hover_id, target.index, region.page, window, cx);
                 }
                 if !*hovering {
@@ -1118,22 +1290,31 @@ impl ResumeOne {
                 this.control_hover(&remove_key, *hovering, cx);
                 cx.notify();
             }))
-            .on_mouse_move(cx.listener(move |this, _: &gpui::MouseMoveEvent, _, cx| {
-                // Scrolling may clear affordances without changing this hit
-                // element's identity. A small move inside it must re-arm them.
-                let key = format!(
-                    "remove-preview-{}-{:?}-{}",
-                    move_id, target.index, region.page
-                );
-                if !this.control_hovered(&key) {
-                    if let Some(index) = target.index {
-                        this.hovered_item = Some((move_id.clone(), index, region.page));
-                    } else {
-                        this.hovered_section = Some((move_id.clone(), region.page));
+            .on_mouse_move(
+                cx.listener(move |this, _: &gpui::MouseMoveEvent, window, cx| {
+                    // Scrolling may clear affordances without changing this hit
+                    // element's identity. A small move inside it must re-arm them.
+                    let key = format!(
+                        "remove-preview-{}-{:?}-{}",
+                        move_id, target.index, region.page
+                    );
+                    if !this.control_hovered(&key) {
+                        if let Some(index) = target.index {
+                            this.hovered_item = Some((move_id.clone(), index, region.page));
+                        } else {
+                            this.hovered_section = Some((move_id.clone(), region.page));
+                        }
+                        this.control_hover(&key, true, cx);
                     }
-                    this.control_hover(&key, true, cx);
-                }
-            }))
+                    if editable && valid {
+                        // The whole block is a trigger, including text-free space
+                        // and line gaps. Re-arm after scrolling even when there is
+                        // no new hover-enter event; same-target movement preserves
+                        // the original dwell rather than starting another timer.
+                        this.schedule_inline(&move_id, target.index, region.page, window, cx);
+                    }
+                }),
+            )
             .on_click(cx.listener(move |this, _, window, cx| {
                 if editable && valid {
                     this.open_inline(&click_id, target.index, window, cx);
@@ -1155,8 +1336,6 @@ impl ResumeOne {
             );
         if valid && editable {
             for (segment, ink) in region.ink.iter().enumerate() {
-                let hover_id = target.section.to_owned();
-                let move_id = hover_id.clone();
                 let selector = format!(
                     "preview-ink-{}-{:?}-{}-{segment}",
                     target.section, target.index, region.page
@@ -1170,31 +1349,7 @@ impl ResumeOne {
                         .top(px((ink.top - region.top) * px_per_pt))
                         .w(px((ink.width * px_per_pt + 6.).max(8.)))
                         .h(px((ink.height * px_per_pt).max(8.)))
-                        .cursor_text()
-                        .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
-                            this.inline_ink_hover(
-                                &hover_id,
-                                target.index,
-                                region.page,
-                                segment,
-                                *hovering,
-                                window,
-                                cx,
-                            );
-                        }))
-                        .on_mouse_move(cx.listener(
-                            move |this, _: &gpui::MouseMoveEvent, window, cx| {
-                                this.inline_ink_hover(
-                                    &move_id,
-                                    target.index,
-                                    region.page,
-                                    segment,
-                                    true,
-                                    window,
-                                    cx,
-                                );
-                            },
-                        )),
+                        .cursor_text(),
                 );
             }
         }
@@ -1214,6 +1369,15 @@ impl ResumeOne {
                     .cursor_pointer()
                     .text_color(color(style.colors.seal))
                     .child("−")
+                    .on_hover(cx.listener(|this, hovering: &bool, _, _| {
+                        if *hovering {
+                            this.cancel_inline_candidate();
+                        }
+                    }))
+                    .on_mouse_move(cx.listener(|this, _: &gpui::MouseMoveEvent, _, cx| {
+                        this.cancel_inline_candidate();
+                        cx.stop_propagation();
+                    }))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         cx.stop_propagation();
                         if !this.control_hovered(&remove_key) {

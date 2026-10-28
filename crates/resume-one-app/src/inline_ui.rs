@@ -36,7 +36,6 @@ pub(super) struct InlineUi {
     visibility: Visibility,
     retiring: Option<RetiringForm>,
     candidate: Option<HoverCandidate>,
-    ink_hover: Option<(String, Option<usize>, usize, usize)>,
     scroll_until: Option<Instant>,
     controls: HashMap<String, ControlVisibility>,
     scroll: ScrollHandle,
@@ -46,7 +45,6 @@ const INLINE_HOVER_DELAY: Duration = Duration::from_millis(140);
 const INLINE_SWITCH_DELAY: Duration = Duration::from_millis(85);
 const INLINE_FADE_IN: Duration = Duration::from_millis(160);
 const INLINE_FADE_OUT: Duration = Duration::from_millis(120);
-const INLINE_INK_GRACE: Duration = Duration::from_millis(55);
 const INLINE_HANDOFF: Duration = Duration::from_millis(90);
 
 struct HoverCandidate {
@@ -55,7 +53,6 @@ struct HoverCandidate {
     page: usize,
     started: Instant,
     delay: Duration,
-    requires_ink: bool,
 }
 
 struct RetiringForm {
@@ -281,40 +278,6 @@ impl ResumeOne {
         (width, inset)
     }
 
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn inline_ink_hover(
-        &mut self,
-        section: &str,
-        index: Option<usize>,
-        page: usize,
-        segment: usize,
-        hovering: bool,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let target = (section.to_owned(), index, page, segment);
-        if hovering {
-            self.inline.ink_hover = Some(target);
-            self.schedule_inline_target(section, index, page, true, window, cx);
-        } else if self.inline.ink_hover.as_ref() == Some(&target) {
-            self.inline.ink_hover = None;
-            // A short gap between two lines of the same item must not restart
-            // the dwell. Never open a form while the pointer is in that gap.
-            let generation = self.inline.generation;
-            let timer = cx.background_executor().timer(INLINE_INK_GRACE);
-            cx.spawn_in(window, async move |this, cx| {
-                timer.await;
-                this.update(cx, |this, _| {
-                    if generation == this.inline.generation && this.inline.ink_hover.is_none() {
-                        this.cancel_inline_candidate();
-                    }
-                })
-                .ok();
-            })
-            .detach();
-        }
-    }
-
     pub(super) fn cancel_inline_candidate(&mut self) {
         self.inline.candidate = None;
         self.inline.generation += 1;
@@ -338,7 +301,6 @@ impl ResumeOne {
 
     pub(super) fn preview_scrolled(&mut self, cx: &mut Context<Self>) {
         self.cancel_inline_candidate();
-        self.inline.ink_hover = None;
         self.hovered_item = None;
         self.hovered_section = None;
         self.inline.controls.clear();
@@ -386,19 +348,6 @@ impl ResumeOne {
         section: &str,
         index: Option<usize>,
         page: usize,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        self.schedule_inline_target(section, index, page, false, window, cx);
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn schedule_inline_target(
-        &mut self,
-        section: &str,
-        index: Option<usize>,
-        page: usize,
-        requires_ink: bool,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
@@ -456,7 +405,6 @@ impl ResumeOne {
             page,
             started: now,
             delay,
-            requires_ink,
         });
         let timer = cx.background_executor().timer(delay);
         cx.spawn_in(window, async move |this, cx| {
@@ -468,21 +416,8 @@ impl ResumeOne {
                     }
                     None => this.hovered_section.as_ref() == Some(&(section.clone(), page)),
                 };
-                let over_ink = this
-                    .inline
-                    .ink_hover
-                    .as_ref()
-                    .is_some_and(|ink| ink.0 == section && ink.1 == index && ink.2 == page);
-                // Empty-item placeholders have no ink; their whole hit area
-                // deliberately acts as the trigger.
-                let placeholder = this
-                    .inline
-                    .candidate
-                    .as_ref()
-                    .is_some_and(|candidate| !candidate.requires_ink);
                 if generation == this.inline.generation
                     && still_hovered
-                    && (over_ink || placeholder)
                     && !this.inline.form_hovered
                     && !this.inline_focused(window, cx)
                 {
@@ -911,7 +846,6 @@ impl ResumeOne {
         } else if self.inline.paper_hovered == Some(page) {
             self.inline.paper_hovered = None;
             self.cancel_inline_candidate();
-            self.inline.ink_hover = None;
             self.inline.suppressed = None;
         }
     }
@@ -959,7 +893,6 @@ impl ResumeOne {
 
     pub(super) fn inline_window_left(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.cancel_inline_candidate();
-        self.inline.ink_hover = None;
         self.inline.form_hovered = false;
         self.close_inline_outside(window, cx);
     }
@@ -1096,7 +1029,6 @@ impl ResumeOne {
         self.inline.visibility.snap(0.);
         self.inline.candidate = None;
         self.inline.controls.clear();
-        self.inline.ink_hover = None;
         self.inline.generation += 1;
         self.inline.form_epoch += 1;
     }
@@ -2083,10 +2015,10 @@ mod tests {
             view.update(cx, |app, cx| {
                 assert!(app.inline.form.is_none());
                 app.hovered_item = Some(("work".into(), 0, 0));
-                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+                app.schedule_inline("work", Some(0), 0, window, cx);
                 assert!(app.inline.candidate.is_none());
                 app.inline_region_left("work", Some(0), 0);
-                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+                app.schedule_inline("work", Some(0), 0, window, cx);
                 assert!(app.inline.candidate.is_some());
             })
         });
@@ -2107,29 +2039,25 @@ mod tests {
     }
 
     #[gpui::test]
-    fn line_gaps_keep_one_dwell_but_never_open_over_blank_or_after_scrolling(
+    fn module_movement_keeps_one_dwell_but_leaving_or_scrolling_cancels_it(
         cx: &mut TestAppContext,
     ) {
         cx.update(gpui_component::init);
         let executor = cx.executor();
         let (view, cx) =
             cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
-        let enter = |segment, window: &mut Window, cx: &mut App| {
+        let enter = |window: &mut Window, cx: &mut App| {
             view.update(cx, |app, cx| {
                 app.hovered_item = Some(("work".into(), 0, 0));
-                app.inline_ink_hover("work", Some(0), 0, segment, true, window, cx);
+                app.schedule_inline("work", Some(0), 0, window, cx);
             });
         };
-        cx.update(|window, cx| enter(0, window, cx));
+        cx.update(enter);
         let generation = cx.update(|_, cx| view.read(cx).inline.generation);
         executor.advance_clock(Duration::from_millis(100));
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                app.inline_ink_hover("work", Some(0), 0, 0, false, window, cx)
-            })
-        });
+        cx.update(enter);
         executor.advance_clock(Duration::from_millis(25));
-        cx.update(|window, cx| enter(1, window, cx));
+        cx.update(enter);
         cx.update(|_, cx| assert_eq!(generation, view.read(cx).inline.generation));
         executor.advance_clock(Duration::from_millis(14));
         cx.run_until_parked();
@@ -2139,7 +2067,7 @@ mod tests {
         cx.update(|_, cx| {
             assert!(
                 view.read(cx).inline_matches("work", Some(0)),
-                "crossing lines must not restart the 140ms dwell"
+                "moving within a module must not restart the 140ms dwell"
             )
         });
 
@@ -2147,13 +2075,14 @@ mod tests {
             view.update(cx, |app, cx| {
                 app.clear_inline();
                 app.hovered_item = Some(("work".into(), 0, 0));
-                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+                app.schedule_inline("work", Some(0), 0, window, cx);
             })
         });
         executor.advance_clock(Duration::from_millis(110));
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                app.inline_ink_hover("work", Some(0), 0, 0, false, window, cx)
+        cx.update(|_, cx| {
+            view.update(cx, |app, _| {
+                app.hovered_item = None;
+                app.inline_region_left("work", Some(0), 0);
             })
         });
         executor.advance_clock(Duration::from_millis(35));
@@ -2161,20 +2090,18 @@ mod tests {
         cx.update(|_, cx| {
             assert!(
                 view.read(cx).inline.form.is_none(),
-                "dwell may mature in a gap but cannot open there"
+                "a cancelled dwell cannot open after leaving the module"
             )
         });
-        executor.advance_clock(INLINE_INK_GRACE);
-        cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.candidate.is_none()));
 
-        cx.update(|window, cx| enter(0, window, cx));
+        cx.update(enter);
         executor.advance_clock(Duration::from_millis(50));
         cx.update(|_, cx| view.update(cx, |app, cx| app.preview_scrolled(cx)));
         executor.advance_clock(INLINE_HOVER_DELAY);
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
-        cx.update(|window, cx| enter(0, window, cx));
+        cx.update(enter);
         executor.advance_clock(INLINE_HOVER_DELAY);
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0))));

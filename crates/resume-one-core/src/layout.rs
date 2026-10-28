@@ -635,6 +635,18 @@ pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
         (family, weight) if family.starts_with("font:") => {
             crate::fonts::resolve(&family[5..], weight).map(FontKind::Local)
         }
+        (family, weight) if family.starts_with("asset:") => {
+            let id = style
+                .asset_font
+                .ok_or_else(|| format!("主题字体资源 {family} 尚未加载"))?;
+            let actual = crate::fonts::get(id).weight;
+            if actual != weight {
+                return Err(format!(
+                    "主题字体 {family} 的实际字重为 {actual}，与声明的 {weight} 不符"
+                ));
+            }
+            Ok(FontKind::Local(id))
+        }
         _ => Err(format!(
             "当前排版引擎暂不支持字体组合 {} / {}；当前支持 cjk-sans 400 和 cjk-serif 600",
             style.family, style.weight
@@ -695,11 +707,14 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     {
         return Err("当前排版引擎暂不支持 decorations 自定义装饰".into());
     }
-    if source["assets"]["fonts"]
-        .as_array()
-        .is_some_and(|value| !value.is_empty())
-    {
-        return Err("当前排版引擎暂不支持主题自带字体 assets.fonts".into());
+    if source["assets"]["fonts"].as_array().is_some_and(|value| {
+        value
+            .iter()
+            .any(|font| !theme.asset_fonts.contains_key(font["id"].as_str().unwrap()))
+    }) {
+        return Err(
+            "主题字体资源尚未验证加载；须从主题目录加载，不能只解析清单后静默替换字体".into(),
+        );
     }
     for text_style in [
         &style.typography.body,

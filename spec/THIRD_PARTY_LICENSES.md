@@ -37,3 +37,7 @@ PDF / DOCX 导出随程序嵌入 [Noto Sans SC Regular](../assets/fonts/NotoSans
 ## Noto Serif SC 字体
 
 PDF / DOCX 导出还嵌入 [Noto Serif SC SemiBold](../assets/fonts/NotoSerifSC-SemiBold.ttf)。字体来自 [Google Fonts 官方仓库](https://github.com/google/fonts/tree/main/ofl/notoserifsc) 的 `NotoSerifSC[wght].ttf`，在 `wght=600` 位置生成静态实例，并更新名称表；没有裁剪字形。字体文件 SHA-256：`e827457c14fb9cd2eaf2101b60393c76b6b074e42986bbe4b65f45557860d17c`。原始字体及派生实例按 SIL Open Font License 1.1 分发；版权声明与完整许可见 [OFL-NotoSerifSC.txt](../assets/fonts/OFL-NotoSerifSC.txt)。字体许可证不适用于用户使用该字体生成的简历文档。
+
+## 字体资源验收夹具
+
+[`theme-font.ttf`](../crates/resume-one-core/tests/fixtures/theme-font.ttf) 是上述 Noto Sans SC Regular 的小型测试子集，包含空格、`AdaZm中简里` 所需字形；字族、全名、唯一标识和 PostScript 名均改为 `Resume One Font Fixture` / `ResumeOneFixture`，不使用保留名称 Source。保留源字体的版权和许可元数据，依同一 [OFL 1.1 全文](../assets/fonts/OFL-NotoSansSC.txt) 分发，仅用于自动化验收，不作为用户默认字体。SHA-256：`0a8f72c42d7bff2bb6d67b78e603d46e2a285de93bbeb164d10fb2299f25945f`。

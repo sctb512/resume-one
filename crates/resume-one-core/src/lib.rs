@@ -2,7 +2,7 @@
 //!
 //! This crate never executes theme files and never reads a resume while parsing a theme.
 
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -54,6 +54,8 @@ pub struct ThemeManifest {
     pub normalized: Value,
     /// A declaration is not legal clearance; publishing still needs human license review.
     pub has_declared_license: bool,
+    /// Verified, process-local font handles; never serialized into theme JSON.
+    pub(crate) asset_fonts: BTreeMap<String, u16>,
 }
 
 fn validator(version: u64) -> &'static Validator {
@@ -145,6 +147,7 @@ pub fn parse_theme(bytes: &[u8]) -> Result<ThemeManifest, Vec<Diagnostic>> {
             .collect(),
         has_declared_license: version == 2 && source["license"] != "NOASSERTION",
         normalized,
+        asset_fonts: BTreeMap::new(),
     })
 }
 
@@ -182,9 +185,10 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
     }
     let bytes = read_limited(&path, MAX_THEME_BYTES)
         .map_err(|error| vec![diagnostic("THEME_IO", "", error.to_string())])?;
-    let theme = parse_theme(&bytes)?;
+    let mut theme = parse_theme(&bytes)?;
     let theme_dir = path.parent().expect("canonical file has parent");
     let mut problems = Vec::new();
+    let mut verified_fonts = Vec::new();
     if let Some(fonts) = theme
         .normalized
         .pointer("/assets/fonts")
@@ -222,6 +226,12 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
                             format!("/assets/fonts/{index}/sha256"),
                             "字体内容与声明的 SHA-256 不一致",
                         ));
+                    } else {
+                        verified_fonts.push((
+                            index,
+                            font["id"].as_str().unwrap().to_owned(),
+                            bytes,
+                        ));
                     }
                 }
                 Err(error) => problems.push(diagnostic(
@@ -230,6 +240,21 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
                     error.to_string(),
                 )),
             }
+        }
+    }
+    if !problems.is_empty() {
+        return Err(problems);
+    }
+    for (index, id, bytes) in verified_fonts {
+        match fonts::register_asset(bytes) {
+            Ok(handle) => {
+                theme.asset_fonts.insert(id, handle);
+            }
+            Err(error) => problems.push(diagnostic(
+                "FONT_INVALID",
+                format!("/assets/fonts/{index}"),
+                error,
+            )),
         }
     }
     if !problems.is_empty() {
@@ -472,8 +497,9 @@ mod tests {
     fn loads_local_theme_and_verifies_font_content() {
         let root = tempfile::tempdir().unwrap();
         fs::create_dir(root.path().join("fonts")).unwrap();
-        fs::write(root.path().join("fonts/body.ttf"), b"test font bytes").unwrap();
-        let hash = format!("{:x}", Sha256::digest(b"test font bytes"));
+        let data = include_bytes!("../tests/fixtures/theme-font.ttf");
+        fs::write(root.path().join("fonts/body.ttf"), data).unwrap();
+        let hash = format!("{:x}", Sha256::digest(data));
         let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
         theme["assets"] = json!({"fonts": [{"id":"body", "path":"fonts/body.ttf", "sha256":hash, "license":"OFL-1.1"}]});
         fs::write(root.path().join("example.theme.json"), theme.to_string()).unwrap();
@@ -484,6 +510,89 @@ mod tests {
                 .unwrap_err()
                 .iter()
                 .any(|issue| issue.code == "FONT_HASH_MISMATCH")
+        );
+        let invalid = b"not a font";
+        fs::write(root.path().join("fonts/body.ttf"), invalid).unwrap();
+        theme["assets"]["fonts"][0]["sha256"] = json!(format!("{:x}", Sha256::digest(invalid)));
+        fs::write(root.path().join("example.theme.json"), theme.to_string()).unwrap();
+        assert!(
+            load_theme(root.path(), Path::new("example.theme.json"))
+                .unwrap_err()
+                .iter()
+                .any(|d| d.code == "FONT_INVALID")
+        );
+    }
+
+    #[test]
+    fn local_theme_fonts_share_real_faces_and_exports_without_rewriting_sources() {
+        use crate::{
+            layout::{FontKind, LayoutElement},
+            render::Language,
+        };
+        let root = tempfile::tempdir().unwrap();
+        fs::create_dir(root.path().join("fonts")).unwrap();
+        let bytes = include_bytes!("../tests/fixtures/theme-font.ttf");
+        fs::write(root.path().join("fonts/fixture.ttf"), bytes).unwrap();
+        let mut source: Value =
+            serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                .unwrap();
+        source["assets"] = json!({"fonts":[{"id":"fixture", "path":"fonts/fixture.ttf", "sha256":format!("{:x}", Sha256::digest(bytes)), "license":"OFL-1.1"}]});
+        for role in ["body", "name", "sectionTitle", "meta"] {
+            source["typography"][role]["family"] = json!("asset:fixture");
+            source["typography"][role]["weight"] = json!(400);
+        }
+        let original = serde_json::to_vec_pretty(&source).unwrap();
+        fs::write(root.path().join("fixture.theme.json"), &original).unwrap();
+        assert!(layout::check_theme(&parse_theme(&original).unwrap()).is_err());
+        let mut loaded = load_theme(root.path(), Path::new("fixture.theme.json")).unwrap();
+        layout::check_theme(&loaded).unwrap();
+        let document = resume::parse_resume(br#"{"basics":{"name":"Ada"}}"#).unwrap();
+        let mut content = semantic::project(&document);
+        content.summary = "Ada 简里 漢".into();
+        let measured = layout::layout_with_theme(&content, Language::Zh, &loaded).unwrap();
+        let local = measured
+            .pages
+            .iter()
+            .flatten()
+            .find_map(|op| {
+                if let LayoutElement::Text(text) = op {
+                    if let FontKind::Local(id) = text.font {
+                        Some(id)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+        assert_eq!(fonts::get(local).family, "Resume One Font Fixture");
+        assert_eq!(&*fonts::get(local).bytes, bytes);
+        assert!(measured.pages.iter().flatten().any(|op| matches!(op, LayoutElement::Text(text) if text.font == FontKind::Sans && text.text.contains('漢'))));
+        let pdf = pdf::render_with_theme(&content, Language::Zh, &loaded).unwrap();
+        assert!(pdf.starts_with(b"%PDF-"));
+        let word = docx::render_with_theme(&content, Language::Zh, &loaded).unwrap();
+        let mut zip = zip::ZipArchive::new(std::io::Cursor::new(word)).unwrap();
+        let mut table = String::new();
+        zip.by_name("word/fontTable.xml")
+            .unwrap()
+            .read_to_string(&mut table)
+            .unwrap();
+        assert!(table.contains("Resume One Font Fixture"));
+        assert!(zip.by_name("word/fonts/local0.odttf").is_ok());
+        assert_eq!(
+            fs::read(root.path().join("fixture.theme.json")).unwrap(),
+            original
+        );
+        assert_eq!(
+            fs::read(root.path().join("fonts/fixture.ttf")).unwrap(),
+            bytes
+        );
+        loaded.normalized["typography"]["body"]["weight"] = json!(700);
+        assert!(
+            layout::check_theme(&loaded)
+                .unwrap_err()
+                .contains("实际字重")
         );
     }
 

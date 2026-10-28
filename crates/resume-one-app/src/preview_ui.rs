@@ -32,6 +32,51 @@ mod tests {
     use resume_one_core::{resume::parse_resume, semantic::project};
 
     #[gpui::test]
+    fn theme_font_asset_is_forwarded_to_preview_without_substitution(cx: &mut TestAppContext) {
+        let root = tempfile::tempdir().unwrap();
+        let data = include_bytes!("../../resume-one-core/tests/fixtures/theme-font.ttf");
+        std::fs::write(root.path().join("fixture.ttf"), data).unwrap();
+        let mut value: serde_json::Value =
+            serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                .unwrap();
+        value["assets"] = serde_json::json!({"fonts":[{"id":"fixture", "path":"fixture.ttf", "sha256":"0a8f72c42d7bff2bb6d67b78e603d46e2a285de93bbeb164d10fb2299f25945f", "license":"OFL-1.1"}]});
+        value["typography"]["body"]["family"] = serde_json::json!("asset:fixture");
+        value["typography"]["body"]["weight"] = serde_json::json!(400);
+        std::fs::write(root.path().join("fixture.theme.json"), value.to_string()).unwrap();
+        let manifest =
+            resume_one_core::load_theme(root.path(), std::path::Path::new("fixture.theme.json"))
+                .unwrap();
+        let mut model = AppModel::load(None).unwrap();
+        model.document = parse_resume(br#"{"basics":{"name":"Ada", "summary":"Ada m"}}"#).unwrap();
+        model.content = project(&model.document);
+        model.replace_themes(vec![BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            path: Some(root.path().join("fixture.theme.json")),
+            identity: "fixture:font-asset".into(),
+        }]);
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            let preview = app
+                .preview
+                .resolve(&app.model, app.model.applied_theme())
+                .unwrap();
+            assert!(preview.layout.pages.iter().flatten().any(
+                |op| matches!(op, LayoutElement::Text(t) if matches!(t.font, FontKind::Local(_)))
+            ));
+            // TestAppContext uses NoopTextSystem: every requested family maps
+            // to the same FontId. Check our hand-off here, not native loading.
+            // examples/native-theme-fonts.rs separately exercises CoreText.
+            let fonts = app.preview.registered_fonts.borrow();
+            assert_eq!(fonts.len(), 1);
+            let font = resume_one_core::fonts::get(*fonts.first().unwrap());
+            assert_eq!(font.family, "Resume One Font Fixture");
+            assert_eq!(&*font.bytes, data);
+        });
+    }
+
+    #[gpui::test]
     fn independent_appearance_invalidates_preview_and_thumbnail_cache_without_mutating_theme(
         cx: &mut TestAppContext,
     ) {

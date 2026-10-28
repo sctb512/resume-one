@@ -22,6 +22,82 @@ fn path(path: &Path) -> &str {
 }
 
 #[test]
+fn local_theme_font_package_exports_real_face_and_hash_failure_preserves_output() {
+    let root = tempfile::tempdir().unwrap();
+    let package = root.path().join("fixture");
+    fs::create_dir(&package).unwrap();
+    let font = include_bytes!("../../resume-one-core/tests/fixtures/theme-font.ttf");
+    let font_file = package.join("fixture.ttf");
+    fs::write(&font_file, font).unwrap();
+    let mut theme: Value =
+        serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+    theme["assets"] = json!({"fonts":[{"id":"fixture", "path":"fixture.ttf", "sha256":"0a8f72c42d7bff2bb6d67b78e603d46e2a285de93bbeb164d10fb2299f25945f", "license":"OFL-1.1"}]});
+    theme["typography"]["body"]["family"] = json!("asset:fixture");
+    theme["typography"]["body"]["weight"] = json!(400);
+    let manifest = serde_json::to_vec_pretty(&theme).unwrap();
+    let theme_file = package.join("theme.json");
+    fs::write(&theme_file, &manifest).unwrap();
+    let file = root.path().join("resume.json");
+    let source = br#"{"basics":{"name":"Ada","summary":"Ada m"}}"#;
+    fs::write(&file, source).unwrap();
+    for format in ["pdf", "docx"] {
+        let out = root.path().join(format!("resume.{format}"));
+        let (output, result) = call(&[
+            "export",
+            "--file",
+            path(&file),
+            "--out",
+            path(&out),
+            "--format",
+            format,
+            "--theme",
+            path(&theme_file),
+            "--json",
+        ]);
+        assert!(output.status.success(), "{result}");
+        let exported = fs::read(&out).unwrap();
+        if format == "pdf" {
+            assert!(exported.starts_with(b"%PDF"));
+        } else {
+            use std::io::Read;
+            let mut archive = zip::ZipArchive::new(std::io::Cursor::new(&exported)).unwrap();
+            let mut xml = String::new();
+            archive
+                .by_name("word/fontTable.xml")
+                .unwrap()
+                .read_to_string(&mut xml)
+                .unwrap();
+            assert!(xml.contains("Resume One Font Fixture"));
+            assert!(archive.by_name("word/fonts/local0.odttf").is_ok());
+        }
+        fs::write(&font_file, b"tampered").unwrap();
+        let (output, result) = call(&[
+            "export",
+            "--file",
+            path(&file),
+            "--out",
+            path(&out),
+            "--format",
+            format,
+            "--theme",
+            path(&theme_file),
+            "--overwrite",
+            "--json",
+        ]);
+        assert!(!output.status.success(), "{result}");
+        assert!(
+            result.to_string().contains("FONT_HASH_MISMATCH"),
+            "{result}"
+        );
+        assert_eq!(fs::read(&out).unwrap(), exported);
+        fs::write(&font_file, font).unwrap();
+    }
+    assert_eq!(fs::read(&file).unwrap(), source);
+    assert_eq!(fs::read(&theme_file).unwrap(), manifest);
+    assert_eq!(fs::read(&font_file).unwrap(), font);
+}
+
+#[test]
 fn font_install_is_explicit_local_and_rejects_invalid_data_without_a_partial_library() {
     let root = tempfile::tempdir().unwrap();
     let dir = root.path().join("font-library");

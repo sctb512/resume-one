@@ -19,3 +19,4 @@ tempfile.workspace = true
 [dev-dependencies]
 tempfile.workspace = true
 docx-rs.workspace = true
+zip.workspace = true

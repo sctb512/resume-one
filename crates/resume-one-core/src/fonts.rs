@@ -279,7 +279,10 @@ pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
                 if let Ok(face) = Face::parse(&bytes, index)
                     && face_family(&face).is_ok_and(|name| name == family)
                 {
-                    let distance = (i32::from(face.weight().to_number()) - i32::from(weight)).abs();
+                    let distance = (
+                        face.is_italic() || face.is_oblique(),
+                        (i32::from(face.weight().to_number()) - i32::from(weight)).abs(),
+                    );
                     if found.as_ref().is_none_or(|(best, _)| distance < *best) {
                         found = Some((distance, extract_face(&bytes, index)?));
                     }
@@ -313,8 +316,32 @@ pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
     };
     register(key, bytes)
 }
+/// Register a verified theme-local static face without adding it to the user's
+/// font library or making an unrelated system family resolve to these bytes.
+pub(crate) fn register_asset(bytes: Vec<u8>) -> Result<u16, String> {
+    if bytes.len() > MAX_FACE
+        || (!bytes.starts_with(b"\x00\x01\x00\x00") && !bytes.starts_with(b"OTTO"))
+    {
+        return Err("主题字体须为独立的静态 TTF/OTF 字面".into());
+    }
+    let face = Face::parse(&bytes, 0).map_err(|_| "主题字体无法解析")?;
+    if face.is_variable() {
+        return Err("主题字体须先转换为指定字重的静态字面，不能静默忽略可变轴".into());
+    }
+    let key = (
+        format!("@theme:{:x}", Sha256::digest(&bytes)),
+        face.weight().to_number(),
+    );
+    register(key, bytes)
+}
+
 fn register(key: (String, u16), bytes: Vec<u8>) -> Result<u16, String> {
     let face = Face::parse(&bytes, 0).map_err(|_| "字体无法解析")?;
+    // GPUI requires this glyph when loading text families. Refuse explicitly
+    // rather than letting the screen silently use an unrelated fallback face.
+    if face.glyph_index('m').is_none() {
+        return Err("该字面缺少文本引擎必需的基本拉丁字形 m，不能用作简历正文字体".into());
+    }
     let permissions = face.permissions();
     let font = LocalFont {
         family: face_family(&face)?,
@@ -338,6 +365,23 @@ fn register(key: (String, u16), bytes: Vec<u8>) -> Result<u16, String> {
     let mut registry = registry().lock().map_err(|_| "字体缓存不可用")?;
     if let Some(id) = registry.keys.get(&key) {
         return Ok(*id);
+    }
+    let builtin = match font.family.as_str() {
+        "Noto Sans SC" => Some(crate::layout::SANS_FONT_BYTES),
+        "Noto Serif SC" => Some(crate::layout::SERIF_FONT_BYTES),
+        _ => None,
+    };
+    if builtin.is_some_and(|data| data != font.bytes.as_slice())
+        || registry.entries.iter().any(|previous| {
+            previous.family == font.family
+                && previous.weight == font.weight
+                && previous.bytes != font.bytes
+        })
+    {
+        return Err(format!(
+            "字体「{}」与已加载的同名字族/字重内容不同，无法保证预览一致；请为迁移字体使用独立字族名称",
+            font.family
+        ));
     }
     if registry.entries.len() >= MAX_CACHED
         || registry.bytes.saturating_add(font.bytes.len()) > MAX_CACHE_BYTES
@@ -540,5 +584,36 @@ mod tests {
                 .glyph_index('简')
                 .is_some()
         );
+    }
+
+    #[test]
+    fn theme_font_fixture_has_native_family_glyphs_and_regular_weight() {
+        let bytes = include_bytes!("../tests/fixtures/theme-font.ttf");
+        let font = font_kit::font::Font::from_bytes(Arc::new(bytes.to_vec()), 0).unwrap();
+        assert_eq!(font.family_name(), "Resume One Font Fixture");
+        assert!(font.glyph_for_char('m').is_some());
+        assert_eq!(font.properties().weight.0, 400.0);
+    }
+
+    #[test]
+    fn asset_identity_is_hash_scoped_and_conflicting_family_bytes_are_rejected() {
+        let bytes = include_bytes!("../tests/fixtures/theme-font.ttf");
+        let id = register_asset(bytes.to_vec()).unwrap();
+        assert_eq!(id, register_asset(bytes.to_vec()).unwrap());
+        let mut changed = bytes.to_vec();
+        let count = u16::from_be_bytes([changed[4], changed[5]]) as usize;
+        let head = (0..count)
+            .find_map(|index| {
+                let at = 12 + index * 16;
+                (&changed[at..at + 4] == b"head").then(|| {
+                    u32::from_be_bytes(changed[at + 8..at + 12].try_into().unwrap()) as usize
+                })
+            })
+            .unwrap();
+        changed[head + 35] ^= 1; // only the last byte of the modification timestamp
+        assert!(Face::parse(&changed, 0).is_ok());
+        assert!(register_asset(changed).unwrap_err().contains("同名字族"));
+        assert_eq!(&*get(id).bytes, bytes);
+        assert!(register_asset(b"wOF2fake".to_vec()).is_err());
     }
 }

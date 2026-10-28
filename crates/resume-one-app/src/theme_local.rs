@@ -504,31 +504,20 @@ impl ThemeStore {
         let mut warnings = Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
         for path in Self::theme_paths(directory)? {
-            match fs::metadata(&path) {
-                Ok(metadata) if metadata.len() > 1024 * 1024 => {
-                    warnings.push(format!("{}：主题文件超过 1 MiB 上限", path.display()));
-                    continue;
-                }
-                Err(error) => {
-                    warnings.push(format!("{}：{error}", path.display()));
-                    continue;
-                }
-                _ => {}
-            }
-            let bytes = match fs::read(&path) {
-                Ok(bytes) => bytes,
-                Err(error) => {
-                    warnings.push(format!("{}：{error}", path.display()));
-                    continue;
-                }
-            };
-            let manifest = match parse_theme(&bytes) {
+            let relative = path
+                .strip_prefix(directory)
+                .expect("scanned inside theme directory");
+            let manifest = match resume_one_core::load_theme(directory, relative) {
                 Ok(manifest) => manifest,
                 Err(issues) => {
                     warnings.push(format!("{}：{issues:?}", path.display()));
                     continue;
                 }
             };
+            if let Err(error) = resume_one_core::layout::check_theme(&manifest) {
+                warnings.push(format!("{}：{error}", path.display()));
+                continue;
+            }
             let style = ThemeStyle::from_manifest(&manifest);
             themes.push(BuiltinTheme {
                 identity: format!(
@@ -952,6 +941,48 @@ mod tests {
         assert_eq!(matches.len(), 2);
         assert_ne!(matches[0].identity, matches[1].identity);
         assert!(store.warnings.is_empty());
+    }
+
+    #[test]
+    fn local_font_packages_are_verified_before_becoming_available() {
+        let root = tempfile::tempdir().unwrap();
+        let mut store = ThemeStore::new(
+            root.path().join("settings.json"),
+            root.path().join("themes"),
+        )
+        .unwrap();
+        let package = store.directory.join("font-fixture");
+        fs::create_dir(&package).unwrap();
+        let bytes = include_bytes!("../../resume-one-core/tests/fixtures/theme-font.ttf");
+        fs::write(package.join("fixture.ttf"), bytes).unwrap();
+        let mut theme: Value = serde_json::from_str(BUILTIN_THEMES[0]).unwrap();
+        theme["id"] = json!("font-fixture");
+        theme["assets"] = json!({"fonts":[{"id":"body", "path":"fixture.ttf", "sha256":sha256(bytes), "license":"OFL-1.1"}]});
+        theme["typography"]["body"]["family"] = json!("asset:body");
+        theme["typography"]["body"]["weight"] = json!(400);
+        let original = theme.to_string();
+        fs::write(package.join("theme.json"), &original).unwrap();
+        let themes = store.load_themes().unwrap();
+        assert_eq!(themes.len(), 21);
+        assert!(store.warnings.is_empty());
+        let font_theme = themes
+            .iter()
+            .find(|theme| theme.manifest.id == "font-fixture")
+            .unwrap();
+        assert_eq!(font_theme.style.typography.body.family, "asset:body");
+        assert!(resume_one_core::layout::check_theme(&font_theme.manifest).is_ok());
+        fs::write(package.join("fixture.ttf"), b"tampered font").unwrap();
+        assert_eq!(store.load_themes().unwrap().len(), 20);
+        assert!(
+            store
+                .warnings
+                .iter()
+                .any(|message| message.contains("FONT_HASH_MISMATCH"))
+        );
+        assert_eq!(
+            fs::read_to_string(package.join("theme.json")).unwrap(),
+            original
+        );
     }
 
     #[test]

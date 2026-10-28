@@ -5398,6 +5398,7 @@ dependencies = [
  "resume-one-themes",
  "serde_json",
  "tempfile",
+ "zip",
 ]
 
 [[package]]

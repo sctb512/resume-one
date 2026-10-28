@@ -115,6 +115,7 @@ pub struct TextStyle {
     pub weight: u16,
     pub line_height: f32,
     pub tracking_em: f32,
+    pub(crate) asset_font: Option<u16>,
 }
 
 #[derive(Debug, Clone)]
@@ -220,6 +221,7 @@ fn text_style(
             .map_or(weight, |value| value as u16),
         line_height: number(value, "lineHeight", line_height),
         tracking_em: number(value, "trackingEm", 0.0),
+        asset_font: None,
     }
 }
 
@@ -266,7 +268,7 @@ impl ThemeStyle {
         let margins = page.get("marginsMm").unwrap_or(&Value::Null);
         let typography = manifest.get("typography").unwrap_or(&Value::Null);
         let size = page.get("size").and_then(Value::as_str).unwrap_or("A4");
-        Self {
+        let mut style = Self {
             id: theme.id.clone(),
             layout: manifest["layout"]
                 .as_str()
@@ -353,7 +355,20 @@ impl ThemeStyle {
                     )
                 })
                 .collect(),
+        };
+        for role in [
+            &mut style.typography.body,
+            &mut style.typography.name,
+            &mut style.typography.section_title,
+            &mut style.typography.meta,
+        ] {
+            role.asset_font = role
+                .family
+                .strip_prefix("asset:")
+                .and_then(|id| theme.asset_fonts.get(id))
+                .copied();
         }
+        style
     }
 
     pub fn built_in_fallback() -> Self {

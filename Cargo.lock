@@ -4347,6 +4347,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d49e936b501e5c5bf01fda3a9452ff86dc3ea98ad5f283e1455153142d97518c"
 dependencies = [
  "bitflags 2.13.2",
+ "block2",
  "objc2",
  "objc2-core-foundation",
  "objc2-foundation",
@@ -5374,7 +5375,9 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 name = "resume-one-app"
 version = "0.1.0"
 dependencies = [
+ "block2",
  "dirs 5.0.1",
+ "futures-channel",
  "gpui",
  "gpui-component",
  "objc2-app-kit",
@@ -5402,6 +5405,7 @@ name = "resume-one-core"
 version = "0.1.0"
 dependencies = [
  "atomic-write-file",
+ "dirs 5.0.1",
  "docx-rs",
  "json-patch",
  "jsonschema",
@@ -5410,6 +5414,7 @@ dependencies = [
  "sha2 0.10.9",
  "tempfile",
  "ttf-parser 0.25.1",
+ "zed-font-kit",
  "zip",
 ]
 

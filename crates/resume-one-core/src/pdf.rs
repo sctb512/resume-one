@@ -48,6 +48,26 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
     });
     let sans_id = document.add_font(&sans);
     let serif_id = document.add_font(&serif);
+    let mut local_ids = std::collections::BTreeMap::new();
+    let mut allow_subset = true;
+    for element in layout.pages.iter().flatten() {
+        if let LayoutElement::Text(text) = element
+            && let FontKind::Local(id) = text.font
+            && !local_ids.contains_key(&id)
+        {
+            let font = crate::fonts::get(id);
+            if !font.pdf_embed {
+                return Err(format!(
+                    "字体「{}」的嵌入标记不允许 PDF 嵌入，请更换字体",
+                    font.family
+                ));
+            }
+            allow_subset &= font.subset_allowed;
+            let parsed = ParsedFont::from_bytes(&font.bytes, 0, &mut font_warnings)
+                .ok_or_else(|| format!("PDF 暂不支持字体「{}」的数据格式", font.family))?;
+            local_ids.insert(id, document.add_font(&parsed));
+        }
+    }
     let width_pt = layout.width_mm * PT_PER_MM;
     let height_pt = layout.height_mm * PT_PER_MM;
     let pages = layout
@@ -102,6 +122,7 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
                             font: PdfFontHandle::External(match text.font {
                                 FontKind::Sans => sans_id.clone(),
                                 FontKind::Serif => serif_id.clone(),
+                                FontKind::Local(id) => local_ids[&id].clone(),
                             }),
                             size: Pt(text.size_pt),
                         },
@@ -171,7 +192,7 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
         })
         .collect();
     let options = PdfSaveOptions {
-        subset_fonts: true,
+        subset_fonts: allow_subset,
         ..Default::default()
     };
     let mut save_warnings = Vec::new();

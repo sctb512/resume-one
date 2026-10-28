@@ -16,3 +16,5 @@ docx-rs.workspace = true
 zip.workspace = true
 printpdf.workspace = true
 ttf-parser.workspace = true
+font-kit = { package = "zed-font-kit", version = "=0.14.1-zed" }
+dirs = "=5.0.1"

@@ -21,6 +21,8 @@ const PX_PER_PT: f32 = PX_PER_MM / PT_PER_MM;
 pub(super) struct PreviewState {
     cache: RefCell<VecDeque<Cache>>,
     font_error: Option<String>,
+    text_system: Arc<gpui::TextSystem>,
+    registered_fonts: RefCell<std::collections::BTreeSet<u16>>,
 }
 
 #[cfg(test)]
@@ -28,6 +30,56 @@ mod tests {
     use super::*;
     use gpui::{Modifiers, TestAppContext, point, px};
     use resume_one_core::{resume::parse_resume, semantic::project};
+
+    #[gpui::test]
+    fn independent_appearance_invalidates_preview_and_thumbnail_cache_without_mutating_theme(
+        cx: &mut TestAppContext,
+    ) {
+        let model = AppModel::load(None).unwrap();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.update(|_, cx| {
+            view.update(cx, |app, cx| {
+                let original = app.model.themes[0].manifest.normalized.clone();
+                let source = app.model.document.source.clone();
+                let before = app
+                    .preview
+                    .resolve(&app.model, &app.model.themes[0])
+                    .unwrap();
+                let cached = app
+                    .preview
+                    .resolve(&app.model, &app.model.themes[0])
+                    .unwrap();
+                assert!(Arc::ptr_eq(&before, &cached));
+                let mut appearance = resume_one_core::appearance::Appearance::default();
+                appearance.set_color("paper", "#172426").unwrap();
+                appearance.body_font = Some(resume_one_core::appearance::FontChoice::Serif);
+                app.model.set_appearance(appearance);
+                let after = app
+                    .preview
+                    .resolve(&app.model, &app.model.themes[0])
+                    .unwrap();
+                assert!(!Arc::ptr_eq(&before, &after));
+                assert_eq!(after.layout.paper.hex(), "#172426");
+                assert_eq!(app.model.themes[0].manifest.normalized, original);
+                assert_eq!(app.model.document.source, source);
+                let effective = app.model.appearance.apply(&app.model.themes[0].manifest);
+                assert_eq!(
+                    after.layout,
+                    layout::layout_with_theme(&app.model.content, Language::Zh, &effective)
+                        .unwrap()
+                );
+                app.model.select_theme(1);
+                assert_eq!(app.active_style().colors.paper.hex(), "#172426");
+                app.model.set_appearance(Default::default());
+                let reset = app
+                    .preview
+                    .resolve(&app.model, &app.model.themes[0])
+                    .unwrap();
+                assert_eq!(reset.layout, before.layout);
+                cx.notify();
+            })
+        });
+    }
 
     #[gpui::test]
     fn screen_fit_preserves_layout_and_hit_coordinates_and_thumbnail_cache(
@@ -457,6 +509,8 @@ impl PreviewState {
         Self {
             cache: RefCell::new(VecDeque::new()),
             font_error,
+            text_system: cx.text_system().clone(),
+            registered_fonts: RefCell::new(Default::default()),
         }
     }
 
@@ -474,10 +528,22 @@ impl PreviewState {
         {
             return cache.result.clone();
         }
-        let result = layout::layout_with_theme(&model.content, Language::Zh, &theme.manifest).map(
+        let effective = model.appearance.apply(&theme.manifest);
+        let result = layout::layout_with_theme(&model.content, Language::Zh, &effective).and_then(
             |layout| {
+                for element in layout.pages.iter().flatten() {
+                    if let LayoutElement::Text(text) = element
+                        && let FontKind::Local(id) = text.font
+                        && !self.registered_fonts.borrow().contains(&id)
+                    {
+                        self.text_system
+                            .add_fonts(vec![resume_one_core::fonts::bytes(id)])
+                            .map_err(|e| format!("无法载入所选字体：{e}"))?;
+                        self.registered_fonts.borrow_mut().insert(id);
+                    }
+                }
                 let regions = regions(&layout);
-                Arc::new(PreviewData { layout, regions })
+                Ok(Arc::new(PreviewData { layout, regions }))
             },
         );
         // Up to 32 online manifests plus the applied/hovered theme must fit
@@ -514,6 +580,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                     let (ascent, descent) = match text.font {
                         FontKind::Sans => sans,
                         FontKind::Serif => serif,
+                        FontKind::Local(_) => text.font.vertical_metrics(),
                     };
                     (
                         target,
@@ -580,6 +647,9 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
                             weight: match text.font {
                                 FontKind::Sans => FontWeight::NORMAL,
                                 FontKind::Serif => FontWeight::SEMIBOLD,
+                                FontKind::Local(id) => {
+                                    FontWeight(resume_one_core::fonts::get(id).weight as f32)
+                                }
                             },
                             ..gpui::font(text.font.family())
                         };
@@ -660,7 +730,7 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
 impl ResumeOne {
     pub(super) fn theme_thumbnail(&self, theme: Option<&BuiltinTheme>) -> gpui::AnyElement {
         let style = theme
-            .map(|t| &t.style)
+            .map(|t| self.model.effective_style(t))
             .unwrap_or_else(|| self.active_style());
         let mut thumb = div()
             .relative()
@@ -762,7 +832,7 @@ impl ResumeOne {
                             .w(px(content_width))
                             .child(self.module_insert_control(
                                 Some(target.section.into()),
-                                style,
+                                &style,
                                 cx,
                             )),
                     );
@@ -788,7 +858,7 @@ impl ResumeOne {
                                 .left(px(left))
                                 .top(px(region.top * px_per_pt - 10.0))
                                 .w(px(content_width))
-                                .child(self.item_insert_control(target.section, 0, style, cx)),
+                                .child(self.item_insert_control(target.section, 0, &style, cx)),
                         );
                     }
                     if last.page == page_index {
@@ -801,7 +871,7 @@ impl ResumeOne {
                                 .child(self.item_insert_control(
                                     target.section,
                                     index + 1,
-                                    style,
+                                    &style,
                                     cx,
                                 )),
                         );
@@ -833,7 +903,7 @@ impl ResumeOne {
                             .left(px(left))
                             .top(px(position))
                             .w(px(content_width))
-                            .child(self.module_insert_control(None, style, cx)),
+                            .child(self.module_insert_control(None, &style, cx)),
                     );
                 }
             }
@@ -856,6 +926,7 @@ impl ResumeOne {
                     continue;
                 };
                 if anchor.page == page_index {
+                    let (form_width, form_left) = self.inline_form_geometry();
                     page = page.child(
                         div()
                             .id(if retiring {
@@ -864,9 +935,9 @@ impl ResumeOne {
                                 "inline-overlay-active"
                             })
                             .absolute()
-                            .left(px(left))
+                            .left(px(form_left))
                             .top(px(anchor.top * px_per_pt))
-                            .w(px(content_width))
+                            .w(px(form_width))
                             .child(self.inline_form(retiring, cx)),
                     );
                 }
@@ -1117,7 +1188,7 @@ impl ResumeOne {
                             - style.page.margins.left
                             - style.page.margins.right)
                             * px_per_mm))
-                        .child(self.item_insert_control(id, 0, style, cx)),
+                        .child(self.item_insert_control(id, 0, &style, cx)),
                 );
             }
         }

@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use resume_one_core::appearance::Appearance;
 use resume_one_core::resume::{ResumeDocument, parse_resume};
 use resume_one_core::semantic::{ResumeContent, project};
 use resume_one_core::theme_style::ThemeStyle;
@@ -41,6 +42,7 @@ pub struct BuiltinTheme {
 }
 
 pub struct AppModel {
+    pub appearance: Appearance,
     pub document: ResumeDocument,
     pub content: ResumeContent,
     pub opened_source: Vec<u8>,
@@ -99,6 +101,7 @@ impl AppModel {
             .collect::<Result<Vec<_>, String>>()?;
         let content = project(&document);
         Ok(Self {
+            appearance: Appearance::default(),
             document,
             content,
             opened_source,
@@ -114,8 +117,23 @@ impl AppModel {
         })
     }
 
-    pub fn selected_style(&self) -> &ThemeStyle {
-        &self.applied_theme().style
+    pub fn selected_style(&self) -> ThemeStyle {
+        self.effective_style(self.applied_theme())
+    }
+
+    pub fn effective_style(&self, theme: &BuiltinTheme) -> ThemeStyle {
+        if self.appearance == Appearance::default() {
+            theme.style.clone()
+        } else {
+            ThemeStyle::from_manifest(&self.appearance.apply(&theme.manifest))
+        }
+    }
+
+    pub fn set_appearance(&mut self, appearance: Appearance) {
+        if self.appearance != appearance {
+            self.appearance = appearance;
+            self.theme_epoch = self.theme_epoch.wrapping_add(1);
+        }
     }
 
     pub fn applied_theme(&self) -> &BuiltinTheme {

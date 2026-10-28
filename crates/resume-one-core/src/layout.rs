@@ -12,25 +12,36 @@ pub const SERIF_FONT_BYTES: &[u8] =
     include_bytes!("../../../assets/fonts/NotoSerifSC-SemiBold.ttf");
 pub const PT_PER_MM: f32 = 72.0 / 25.4;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum FontKind {
     Sans,
     Serif,
+    Local(u16),
 }
 
 impl FontKind {
-    pub fn family(self) -> &'static str {
+    pub fn family(self) -> String {
         match self {
-            Self::Sans => "Noto Sans SC",
-            Self::Serif => "Noto Serif SC",
+            Self::Sans => "Noto Sans SC".into(),
+            Self::Serif => "Noto Serif SC".into(),
+            Self::Local(id) => crate::fonts::get(id).family,
         }
     }
 
     /// Ascender and positive descender in em units for hit-region construction.
     pub fn vertical_metrics(self) -> (f32, f32) {
+        if let Self::Local(id) = self {
+            let font = crate::fonts::get(id);
+            let face = Face::parse(&font.bytes, 0).expect("validated local font");
+            return (
+                face.ascender() as f32 / face.units_per_em() as f32,
+                -(face.descender() as f32) / face.units_per_em() as f32,
+            );
+        }
         let bytes = match self {
             Self::Sans => SANS_FONT_BYTES,
             Self::Serif => SERIF_FONT_BYTES,
+            Self::Local(_) => unreachable!(),
         };
         let face = Face::parse(bytes, 0).expect("validated bundled font");
         (
@@ -41,9 +52,26 @@ impl FontKind {
 
     /// The same bundled-font advances used for print layout, in points.
     pub fn text_width_pt(self, text: &str, size: f32) -> f32 {
+        if let Self::Local(id) = self {
+            let font = crate::fonts::get(id);
+            let face = Face::parse(&font.bytes, 0).expect("validated local font");
+            let fallback = Face::parse(SANS_FONT_BYTES, 0).expect("bundled font");
+            return text
+                .chars()
+                .map(|c| {
+                    let face = if face.glyph_index(c).is_some() {
+                        &face
+                    } else {
+                        &fallback
+                    };
+                    measured_width(face, &c.to_string(), size)
+                })
+                .sum();
+        }
         let bytes = match self {
             Self::Sans => SANS_FONT_BYTES,
             Self::Serif => SERIF_FONT_BYTES,
+            Self::Local(_) => unreachable!(),
         };
         measured_width(
             &Face::parse(bytes, 0).expect("validated bundled font"),
@@ -191,10 +219,11 @@ impl<'a> PageWriter<'a> {
         }));
     }
 
-    fn face(&self, kind: FontKind) -> &Face<'a> {
+    fn face(&self, kind: FontKind) -> Option<&Face<'a>> {
         match kind {
-            FontKind::Sans => &self.sans_face,
-            FontKind::Serif => &self.serif_face,
+            FontKind::Sans => Some(&self.sans_face),
+            FontKind::Serif => Some(&self.serif_face),
+            FontKind::Local(_) => None,
         }
     }
 
@@ -404,7 +433,10 @@ impl<'a> PageWriter<'a> {
     }
 
     fn text_width(&self, text: &str, size: f32, kind: FontKind) -> f32 {
-        measured_width(self.face(kind), text, size)
+        self.face(kind).map_or_else(
+            || kind.text_width_pt(text, size),
+            |face| measured_width(face, text, size),
+        )
     }
 
     fn wrap(&self, input: &str, size: f32, maximum: f32, kind: FontKind) -> Vec<String> {
@@ -593,13 +625,16 @@ impl<'a> PageWriter<'a> {
         self.pages
     }
 }
-fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
+pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
     if style.tracking_em != 0.0 {
         return Err("当前排版引擎暂不支持 typography.trackingEm；请设为 0".into());
     }
     match (style.family.as_str(), style.weight) {
         ("cjk-sans" | "system-sans", 400) => Ok(FontKind::Sans),
         ("cjk-serif" | "system-serif", 600) => Ok(FontKind::Serif),
+        (family, weight) if family.starts_with("font:") => {
+            crate::fonts::resolve(&family[5..], weight).map(FontKind::Local)
+        }
         _ => Err(format!(
             "当前排版引擎暂不支持字体组合 {} / {}；当前支持 cjk-sans 400 和 cjk-serif 600",
             style.family, style.weight
@@ -953,20 +988,6 @@ fn layout_with_style(
 ) -> Result<ResumeLayout, String> {
     let sans_face = Face::parse(SANS_FONT_BYTES, 0).map_err(|error| error.to_string())?;
     let serif_face = Face::parse(SERIF_FONT_BYTES, 0).map_err(|error| error.to_string())?;
-    if let Some(character) =
-        crate::render::plain_text(content, language)
-            .chars()
-            .find(|character| {
-                !character.is_whitespace()
-                    && (sans_face.glyph_index(*character).is_none()
-                        || serif_face.glyph_index(*character).is_none())
-            })
-    {
-        return Err(format!(
-            "内置字体缺少 U+{:04X} 字形，无法保证内容完整",
-            character as u32
-        ));
-    }
     let mut page = PageWriter::new(sans_face, serif_face, style);
     page.mark(LayoutTarget {
         section: "basics",
@@ -1126,8 +1147,74 @@ fn layout_with_style(
         width_mm: style.page.width_mm,
         height_mm: style.page.height_mm,
         paper: style.colors.paper,
-        pages: page.finish(),
+        pages: fallback_runs(page.finish())?,
     })
+}
+
+/// Fallback is explicit in shared layout, so preview and PDF use identical
+/// faces/advances; a Latin-only selected font never drops Chinese glyphs.
+fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement>>, String> {
+    let fallback = Face::parse(SANS_FONT_BYTES, 0).expect("bundled font");
+    pages
+        .into_iter()
+        .map(|elements| {
+            let mut result = Vec::new();
+            for element in elements {
+                let LayoutElement::Text(text) = element else {
+                    result.push(element);
+                    continue;
+                };
+                let local = if let FontKind::Local(id) = text.font {
+                    Some(crate::fonts::get(id))
+                } else {
+                    None
+                };
+                let data = match text.font {
+                    FontKind::Sans => SANS_FONT_BYTES,
+                    FontKind::Serif => SERIF_FONT_BYTES,
+                    FontKind::Local(_) => local.as_ref().unwrap().bytes.as_slice(),
+                };
+                let face = Face::parse(data, 0).map_err(|_| "排版字体无法解析")?;
+                let mut current = text.font;
+                let mut run = String::new();
+                let mut x = text.x_pt;
+                for character in text.text.chars() {
+                    let kind = if character.is_whitespace() || face.glyph_index(character).is_some()
+                    {
+                        text.font
+                    } else if fallback.glyph_index(character).is_some() {
+                        FontKind::Sans
+                    } else {
+                        return Err(format!(
+                            "所选及备用字体缺少 U+{:04X} 字形，无法保证内容完整",
+                            character as u32
+                        ));
+                    };
+                    if kind != current && !run.is_empty() {
+                        let width = current.text_width_pt(&run, text.size_pt);
+                        result.push(LayoutElement::Text(LayoutText {
+                            text: std::mem::take(&mut run),
+                            x_pt: x,
+                            font: current,
+                            ..text.clone()
+                        }));
+                        x += width;
+                    }
+                    current = kind;
+                    run.push(character);
+                }
+                if !run.is_empty() || text.text.is_empty() {
+                    result.push(LayoutElement::Text(LayoutText {
+                        text: run,
+                        x_pt: x,
+                        font: current,
+                        ..text
+                    }));
+                }
+            }
+            Ok(result)
+        })
+        .collect()
 }
 
 #[cfg(test)]

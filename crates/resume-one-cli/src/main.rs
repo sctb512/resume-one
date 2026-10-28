@@ -117,11 +117,19 @@ enum Command {
         /// PDF / DOCX 主题清单的绝对路径（根目录 *.theme.json 或子目录 theme.json）
         #[arg(long)]
         theme: Option<PathBuf>,
+        /// 独立外观设置的绝对路径；只影响本次 PDF / DOCX，不改写主题或简历
+        #[arg(long, requires = "theme")]
+        appearance: Option<PathBuf>,
         #[arg(long)]
         overwrite: bool,
     },
     /// 输出当前内置 Schema 的身份和内容
     Schema,
+    /// 查询可用字体或显式安装到简里的本机字体库；不读取简历
+    Fonts {
+        #[command(subcommand)]
+        operation: FontCommand,
+    },
     /// 离线检查待发布默认主题源的完整性与人工验收声明；不证明人工判断真实有效
     VerifyThemeSource {
         /// 已检出的源仓库根目录，包含 themes/index.json 和 themes/review.json
@@ -155,6 +163,18 @@ enum ThemeCommand {
         id: String,
         #[arg(long)]
         dir: PathBuf,
+    },
+}
+
+#[derive(Subcommand)]
+enum FontCommand {
+    List,
+    Install {
+        #[arg(long)]
+        file: PathBuf,
+        /// 省略时安装到桌面应用默认字体库；显式目录不会自动加入字体搜索路径
+        #[arg(long)]
+        dir: Option<PathBuf>,
     },
 }
 
@@ -347,6 +367,30 @@ fn from_diagnostics(path: &Path, issues: &[Diagnostic]) -> AppError {
 
 fn execute(command: Command) -> Result<Value, AppError> {
     match command {
+        Command::Fonts { operation } => match operation {
+            FontCommand::List => {
+                let families = resume_one_core::fonts::available_families()
+                    .map_err(|e| AppError::new(5, "FONT_LIST", e))?;
+                Ok(
+                    json!({"families":families,"library":resume_one_core::fonts::library_dir().ok()}),
+                )
+            }
+            FontCommand::Install { file, dir } => {
+                absolute(&file)?;
+                let scope = if dir.is_some() {
+                    "local-directory"
+                } else {
+                    "application-local"
+                };
+                let dir = dir
+                    .map_or_else(resume_one_core::fonts::library_dir, Ok)
+                    .map_err(|e| AppError::new(5, "FONT_LIBRARY", e))?;
+                absolute(&dir)?;
+                let families = resume_one_core::fonts::install(&file, &dir)
+                    .map_err(|e| AppError::new(5, "FONT_INSTALL", e).file(&file))?;
+                Ok(json!({"families":families,"directory":dir,"scope":scope}))
+            }
+        },
         Command::VerifyThemeSource { dir } => {
             absolute(&dir)?;
             let audit = audit_release_source(&dir)
@@ -661,6 +705,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
             format,
             lang,
             theme,
+            appearance,
             overwrite,
         } => {
             absolute(&out)?;
@@ -677,26 +722,42 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 ExportLanguage::Zh => Language::Zh,
                 ExportLanguage::En => Language::En,
             };
+            let mut effective_theme = theme.as_deref().map(load_export_theme).transpose()?;
+            if let Some(path) = appearance {
+                absolute(&path)?;
+                let mut bytes = Vec::new();
+                File::open(&path)
+                    .and_then(|file| file.take(65_537).read_to_end(&mut bytes))
+                    .map_err(|error| {
+                        AppError::new(5, "APPEARANCE_IO", error.to_string()).file(&path)
+                    })?;
+                if bytes.len() > 65_536 {
+                    return Err(
+                        AppError::new(3, "APPEARANCE_INVALID", "外观设置超过 64 KiB").file(&path),
+                    );
+                }
+                let value = serde_json::from_slice(&bytes).map_err(|error| {
+                    AppError::new(3, "APPEARANCE_INVALID", error.to_string()).file(&path)
+                })?;
+                let prefs = resume_one_core::appearance::Appearance::from_json(&value)
+                    .map_err(|error| AppError::new(3, "APPEARANCE_INVALID", error).file(&path))?;
+                effective_theme = effective_theme.as_ref().map(|theme| prefs.apply(theme));
+            }
             let (format_name, rendered) = match format {
                 ExportFormat::Txt => ("txt", plain_text(&content, language).into_bytes()),
                 ExportFormat::Md => ("md", markdown(&content, language).into_bytes()),
                 ExportFormat::Docx => (
                     "docx",
-                    match theme.as_deref() {
-                        Some(path) => {
-                            docx::render_with_theme(&content, language, &load_export_theme(path)?)
-                        }
+                    match effective_theme.as_ref() {
+                        Some(theme) => docx::render_with_theme(&content, language, theme),
                         None => docx::render(&content, language),
                     }
                     .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,
                 ),
                 ExportFormat::Pdf => (
                     "pdf",
-                    match theme.as_deref() {
-                        Some(path) => {
-                            let manifest = load_export_theme(path)?;
-                            pdf::render_with_theme(&content, language, &manifest)
-                        }
+                    match effective_theme.as_ref() {
+                        Some(theme) => pdf::render_with_theme(&content, language, theme),
                         None => pdf::render(&content, language),
                     }
                     .map_err(|err| AppError::new(6, "EXPORT_RENDER", err).file(&out))?,

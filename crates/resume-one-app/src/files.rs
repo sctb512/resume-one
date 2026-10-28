@@ -5,6 +5,7 @@ use gpui::{
     ScrollStrategy, UniformListScrollHandle, Window, actions, div, prelude::*, px, uniform_list,
 };
 
+use crate::appearance_ui::ShowAppearance;
 use crate::editor_ui::{Save, SaveAs, ToggleSource};
 use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
 use crate::theme_manager::ManageThemes;
@@ -97,7 +98,11 @@ pub(super) fn register(cx: &mut App) {
         },
         Menu {
             name: "主题".into(),
-            items: vec![MenuItem::action("管理主题…", ManageThemes)],
+            items: vec![
+                MenuItem::action("外观设置…", ShowAppearance),
+                MenuItem::separator(),
+                MenuItem::action("管理主题…", ManageThemes),
+            ],
         },
     ]);
 }

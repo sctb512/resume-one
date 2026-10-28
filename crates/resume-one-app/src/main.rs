@@ -1,6 +1,8 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
+mod appearance_ui;
 mod chrome;
+mod color_sampler;
 mod editor_ui;
 mod export_ui;
 mod files;
@@ -55,6 +57,7 @@ fn label(id: &str) -> &str {
 }
 
 struct ResumeOne {
+    appearance_editor: Option<gpui::Entity<appearance_ui::AppearanceEditor>>,
     model: AppModel,
     shell: chrome::Shell,
     window_drag_pending: bool,
@@ -106,7 +109,8 @@ impl ResumeOne {
             ..Default::default()
         };
         Self {
-            shell: chrome::Shell::new(model.selected_style()),
+            appearance_editor: None,
+            shell: chrome::Shell::new(&model.selected_style()),
             window_drag_pending: false,
             model,
             hovered_theme: None,
@@ -150,8 +154,8 @@ impl ResumeOne {
             preview: preview_ui::PreviewState::new(cx),
         }
     }
-    fn active_style(&self) -> &ThemeStyle {
-        &self.display_theme().style
+    fn active_style(&self) -> ThemeStyle {
+        self.model.effective_style(self.display_theme())
     }
 
     fn shell_style(&self) -> &ThemeStyle {
@@ -607,7 +611,7 @@ impl ResumeOne {
             .flex()
             .justify_between()
             .text_size(px(12.0))
-            .text_color(color(chrome::Palette::new(self.active_style()).muted))
+            .text_color(color(chrome::Palette::new(&self.active_style()).muted))
             .child(div().min_w_0().truncate().child(title))
             .child("−")
             .cursor_pointer()
@@ -635,7 +639,7 @@ impl ResumeOne {
             .on_scroll_wheel(cx.listener(|this, _, _, cx| this.preview_scrolled(cx)))
             .bg(color(self.shell_style().colors.canvas))
             .when(!self.recovery_pending && !self.structure_enabled() && self.model.preview_ready, |view| {
-                let p = chrome::Palette::new(style);
+        let p = chrome::Palette::new(&style);
                 view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
                     .mx_4().mt_3().px_4().py_2().rounded_md()
                     .bg(color(p.panel)).text_size(px(12.)).text_color(color(p.ink))
@@ -670,8 +674,23 @@ impl ResumeOne {
             )
     }
 
-    fn module_sidebar(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn module_sidebar(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
         let palette = chrome::Palette::new(self.shell_style());
+        if let Some(editor) = &self.appearance_editor {
+            return div()
+                .id("module-panel")
+                .debug_selector(|| "module-panel".into())
+                .w(px(chrome::MODULE_WIDTH))
+                .h_full()
+                .flex_none()
+                .flex()
+                .flex_col()
+                .border_l_1()
+                .border_color(color(palette.line))
+                .bg(color(palette.panel))
+                .child(editor.clone())
+                .into_any_element();
+        }
         let accent = color(palette.accent);
         let enabled = self.structure_enabled();
         let mut list = div()
@@ -893,7 +912,29 @@ impl ResumeOne {
                             .truncate()
                             .text_size(px(12.))
                             .text_color(color(palette.muted))
-                            .child(self.model.applied_theme().manifest.name.clone()),
+                            .id("show-appearance")
+                            .debug_selector(|| "show-appearance".into())
+                            .tab_index(0)
+                            .tab_stop(true)
+                            .cursor_pointer()
+                            .min_w(px(40.))
+                            .h(px(30.))
+                            .flex()
+                            .items_center()
+                            .justify_center()
+                            .rounded(px(5.))
+                            .hover(|view| view.bg(color(palette.soft)))
+                            .focus(|view| view.bg(color(palette.soft)))
+                            .child("外观")
+                            .on_click(
+                                cx.listener(|this, _, window, cx| this.show_appearance(window, cx)),
+                            )
+                            .on_key_down(cx.listener(|this, event, window, cx| {
+                                if chrome::activation_key(event) {
+                                    cx.stop_propagation();
+                                    this.show_appearance(window, cx);
+                                }
+                            })),
                     ),
             )
             .child(list)
@@ -921,6 +962,7 @@ impl ResumeOne {
                         "点击文档中的＋，或先选模块"
                     }),
             )
+            .into_any_element()
     }
 }
 
@@ -946,6 +988,27 @@ impl Render for ResumeOne {
             self.view_blend = self.sidebar_progress;
         }
         self.advance_inline_motion(window, cx);
+        if self.inline.form.is_some() {
+            let view = cx.entity().downgrade();
+            let exit_view = view.clone();
+            window.on_mouse_event(move |event: &gpui::MouseMoveEvent, phase, window, cx| {
+                if phase == gpui::DispatchPhase::Capture {
+                    view.update(cx, |app, cx| {
+                        app.inline_pointer_moved(event.position, window, cx)
+                    })
+                    .ok();
+                }
+            });
+            window.on_mouse_event(move |_: &gpui::MouseExitEvent, phase, window, cx| {
+                if phase == gpui::DispatchPhase::Capture {
+                    exit_view
+                        .update(cx, |app, cx| {
+                            app.inline_window_left(window, cx);
+                        })
+                        .ok();
+                }
+            });
+        }
         let shell_target = self.active_style().colors;
         if self
             .shell
@@ -959,10 +1022,16 @@ impl Render for ResumeOne {
         }
         // A screen transform only: PDF geometry and line breaks stay unchanged.
         // Use the preview rails' resting widths, so mode animation never resizes glyphs.
-        self.preview_scale =
-            ((f32::from(window.viewport_size().width) - self.layout.reserved_width() - 44.)
-                / (self.active_style().page.width_mm * 3.))
-                .clamp(0.4, 1.2);
+        self.preview_scale = ((f32::from(window.viewport_size().width)
+            - self.layout.reserved_width()
+            - if self.appearance_editor.is_some() && !self.layout.modules_docked() {
+                chrome::MODULE_WIDTH
+            } else {
+                0.
+            }
+            - 44.)
+            / (self.active_style().page.width_mm * 3.))
+            .clamp(0.4, 1.2);
         let spotlight_target = if self.insertion_active() { 1.0 } else { 0.0 };
         if self.reduce_motion {
             self.spotlight_progress = spotlight_target;
@@ -1060,6 +1129,7 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::choose_theme_directory))
             .on_action(cx.listener(Self::reset_theme_directory))
             .on_action(cx.listener(Self::manage_themes))
+            .on_action(cx.listener(Self::open_appearance))
             .on_action(cx.listener(Self::quit))
             .bg(color(style.colors.canvas))
             .child(self.toolbar(cx))
@@ -1123,9 +1193,10 @@ impl Render for ResumeOne {
                                     }),
                             ),
                     )
-                    .when(self.layout.modules_docked(), |view| {
-                        view.child(self.module_sidebar(cx))
-                    }),
+                    .when(
+                        self.layout.modules_docked() || self.appearance_editor.is_some(),
+                        |view| view.child(self.module_sidebar(cx)),
+                    ),
             )
             .when(self.drawer.is_some(), |view| {
                 view.child(self.drawer_overlay(cx))
@@ -1163,6 +1234,7 @@ fn main() {
             std::process::exit(1);
         }
     }
+    model.set_appearance(theme_store.appearance.clone());
     let restored_folder = path
         .is_none()
         .then(|| theme_store.last_folder().map(std::path::Path::to_path_buf))

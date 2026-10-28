@@ -4,6 +4,8 @@
 
 ## 1. 为什么要自定规范
 
+主题文件的 `typography` 与 `colors` 是主题默认值，不是用户个人偏好的存储位置。软件提供独立的本机字体/颜色覆盖，在内存快照中应用于预览与导出，不改写主题文件或简历；数据格式、优先级、独立重置与验收约束见[独立外观设置 v1](./spec/appearance-settings.md)。
+
 [JSON Resume 官方 Schema](https://github.com/jsonresume/jsonresume.org/tree/master/packages/schema)规范的是**简历内容**。其[主题开发说明](https://www.jsonresume.org/theme-development)和[当前主题脚手架](https://github.com/jsonresume/jsonresume.org/blob/master/docs/CREATING_A_THEME.md)定义的是 npm 包、`render(resume)` 与 HTML/React 渲染约定，并没有要求社区发布统一的、可安全解释的声明式布局 JSON。旧[官方样板主题](https://github.com/jsonresume/jsonresume-theme-boilerplate)使用 JS、Handlebars 和 CSS，也说明现有主题形态并不统一。[Reactive Resume](https://github.com/reactive-resume/reactive-resume)有自己的模板和样式规则，但它属于另一应用的数据与渲染模型，不能直接视为 JSON Resume 主题通用规范。
 
 因此本规范**不是 JSON Resume 官方标准**，也不声称兼容现有 npm 主题包的执行接口。它只规定 Resume One 可以安全加载的主题文件。`jsonresume.org/themes` 仅供独立迁移工具发现原主题；主应用的在线列表只接受迁移完成、通过校验的声明式文件，未迁移项目不出现，不能把包名或截图伪装成可应用主题。

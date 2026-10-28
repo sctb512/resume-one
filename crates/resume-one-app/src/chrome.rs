@@ -88,6 +88,7 @@ pub(super) fn activation_key(event: &gpui::KeyDownEvent) -> bool {
         && !event.keystroke.modifiers.modified()
 }
 
+#[derive(Clone, Copy)]
 pub struct Palette {
     pub panel: Rgb,
     pub line: Rgb,

@@ -3,6 +3,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use gpui::{Context, PathPromptOptions, Window, actions};
+use resume_one_core::appearance::Appearance;
 use resume_one_core::export::write_export_unnamed;
 use resume_one_core::parse_theme;
 use resume_one_core::theme_style::ThemeStyle;
@@ -20,6 +21,7 @@ pub(super) struct ThemeStore {
     pub directory: PathBuf,
     pub warnings: Vec<String>,
     pub sources: Vec<GithubSource>,
+    pub appearance: Appearance,
     recent_files: Vec<PathBuf>,
     last_folder: Option<PathBuf>,
 }
@@ -279,6 +281,17 @@ impl ThemeStore {
             }
         };
         let recent_files = recent_files_from(&settings);
+        let appearance = match settings
+            .get("appearance")
+            .map(Appearance::from_json)
+            .transpose()
+        {
+            Ok(value) => value.unwrap_or_default(),
+            Err(message) => {
+                warnings.push(message);
+                Appearance::default()
+            }
+        };
         let last_folder = settings
             .get("lastOpenedDirectory")
             .and_then(Value::as_str)
@@ -299,6 +312,7 @@ impl ThemeStore {
             directory,
             warnings,
             sources,
+            appearance,
             recent_files,
             last_folder,
         };
@@ -351,6 +365,16 @@ impl ThemeStore {
         settings["onlineThemeSources"] = value;
         self.write_settings(&settings)?;
         self.sources = sources;
+        Ok(())
+    }
+
+    pub fn save_appearance(&mut self, appearance: Appearance) -> Result<(), String> {
+        let value = appearance.as_json();
+        Appearance::from_json(&value)?;
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        settings["appearance"] = value;
+        self.write_settings(&settings)?;
+        self.appearance = appearance;
         Ok(())
     }
 
@@ -833,6 +857,36 @@ mod tests {
                 .is_symlink()
         );
         assert_eq!(fs::read(&external).unwrap(), legacy);
+    }
+
+    #[test]
+    fn appearance_settings_persist_independently_and_never_replace_damaged_settings() {
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        fs::write(&settings, br#"{"future":{"preserve":true}}"#).unwrap();
+        let defaults = root.path().join("themes");
+        let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        let theme = defaults.join("zhibai.theme.json");
+        let original = fs::read(&theme).unwrap();
+        let mut appearance = Appearance::default();
+        appearance.body_font = Some(resume_one_core::appearance::FontChoice::Serif);
+        appearance.set_color("accent", "#315A71").unwrap();
+        store.save_appearance(appearance.clone()).unwrap();
+        store
+            .save_sources(vec![
+                GithubSource::new("Example/Themes", "main", "themes/index.json").unwrap(),
+            ])
+            .unwrap();
+        let reopened = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        assert_eq!(reopened.appearance, appearance);
+        assert_eq!(reopened.sources.len(), 1);
+        assert_eq!(fs::read(&theme).unwrap(), original);
+        let json: Value = serde_json::from_slice(&fs::read(&settings).unwrap()).unwrap();
+        assert_eq!(json["future"]["preserve"], true);
+        fs::write(&settings, b"damaged settings").unwrap();
+        assert!(store.save_appearance(Appearance::default()).is_err());
+        assert_eq!(store.appearance, appearance);
+        assert_eq!(fs::read(&settings).unwrap(), b"damaged settings");
     }
 
     #[test]

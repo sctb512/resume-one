@@ -67,6 +67,9 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if drawer == Drawer::Modules {
+            self.finish_appearance(window, cx);
+        }
         self.drawer = if self.drawer == Some(drawer) {
             None
         } else {
@@ -132,11 +135,13 @@ impl ResumeOne {
             .bottom_0()
             .left_0()
             // The medium layout's right rail is never masked or moved.
-            .right(px(if self.layout.modules_docked() {
-                chrome::MODULE_WIDTH
-            } else {
-                0.
-            }))
+            .right(px(
+                if self.layout.modules_docked() || self.appearance_editor.is_some() {
+                    chrome::MODULE_WIDTH
+                } else {
+                    0.
+                },
+            ))
             .occlude()
             .child(
                 div()

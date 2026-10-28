@@ -214,13 +214,13 @@ impl ResumeOne {
             );
         }
         let mut nav = div().flex_none().flex().flex_col().gap_2().child(tabs);
-        if self.online.online {
+        if self.online.online && !self.online.sources.is_empty() {
             let title = self
                 .online
                 .sources
                 .get(self.online.source_index)
                 .map(|source| source.repository().to_owned())
-                .unwrap_or_else(|| "管理来源".into());
+                .unwrap_or_else(|| "选择来源".into());
             nav = nav.child(
                 div()
                     .id("theme-source-picker")
@@ -236,13 +236,9 @@ impl ResumeOne {
                     .gap_1()
                     .child(div().flex_1().min_w_0().truncate().child(title))
                     .child("▾")
-                    .on_click(cx.listener(|this, _, window, cx| {
-                        if this.online.sources.is_empty() {
-                            this.manage_themes(&crate::theme_manager::ManageThemes, window, cx);
-                        } else {
-                            this.online.sources_open = !this.online.sources_open;
-                            cx.notify();
-                        }
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.online.sources_open = !this.online.sources_open;
+                        cx.notify();
                     })),
             );
             if self.online.sources_open {
@@ -477,6 +473,30 @@ mod tests {
     };
     use gpui::{Modifiers, TestAppContext};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn empty_online_list_has_no_duplicate_management_entry(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|_, cx| {
+            view.update(cx, |app, cx| {
+                app.online.set_online(true);
+                cx.notify();
+            })
+        });
+        assert!(cx.debug_bounds("manage-themes").is_some());
+        assert!(cx.debug_bounds("theme-source-picker").is_none());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        cx.update(|_, cx| {
+            view.update(cx, |app, cx| {
+                app.online.sync_sources(&[source("a")]);
+                cx.notify();
+            })
+        });
+        assert!(cx.debug_bounds("theme-source-picker").is_some());
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+    }
 
     #[gpui::test]
     fn online_browsing_uses_current_resume_keeps_right_panel_fixed_and_sources_independent(

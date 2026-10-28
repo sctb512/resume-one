@@ -12,11 +12,13 @@ use jsonschema::Validator;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 
+pub mod appearance;
 pub mod content_edit;
 pub mod docx;
 pub mod draft;
 pub mod editor;
 pub mod export;
+pub mod fonts;
 pub mod layout;
 pub mod pdf;
 pub mod render;

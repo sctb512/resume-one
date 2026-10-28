@@ -45,6 +45,22 @@ Agent 修改文件的流程为：先用 `inspect --file ... --json` 获取 revis
 
 ## 在线主题命令
 
+### 独立外观文件
+
+PDF/DOCX 导出可额外指定 `--appearance /absolute/appearance.json`，须与 `--theme` 一起使用。它只覆盖本次渲染，不改写简历、主题或桌面设置，也不隐式读取本机 GUI 偏好：
+
+```sh
+resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/themes/chosen.theme.json --appearance /absolute/appearance.json --json
+```
+
+外观文件直接包含 `{"formatVersion":1,"bodyFont":"font:Arial","headingFont":null,"colors":{"accent":"#52756B"}}`，不含应用设置的外层 `appearance` 键。字体支持 `cjk-sans` / `cjk-serif` 或 `font:<原生字族名称>`，null 或省略表示跟随主题；颜色允许 `accent/paper/canvas/ink/muted/border/seal` 的 `#RRGGBB`。文件上限 64 KiB；格式、版本、字体名称格式或颜色无效返回 `APPEARANCE_INVALID`（退出码 3），读取错误为 `APPEARANCE_IO`（5），不创建或替换输出。字体未安装、字形缺失、数据格式或嵌入标记不满足导出要求时明确报告渲染错误，不静默替代字族。TXT/Markdown 不支持主题外观参数。完整契约见[独立外观设置 v1](../spec/appearance-settings.md)。
+
+### 本机字体
+
+`resume-one fonts list --json` 列出原生系统字族及简里字体库字族，不读取简历。`resume-one fonts install --file /absolute/new-font.ttf --json` 显式安装到简里本机库，不修改系统字体目录或注册表；支持 TTF / OTF / TTC / OTC，先校验、后原子创建，重复内容不再复制。可加 `--dir /absolute/font-library` 指定纯文件安装目录；该目录不会自动加入桌面或导出搜索路径。所有路径须为绝对路径；错误返回 `FONT_LIST`、`FONT_LIBRARY` 或 `FONT_INSTALL`（退出码 5）。
+
+### 来源与下载
+
 `themes` 只接受公开 GitHub 来源，不接受网站 URL、令牌或私有仓库。显式参数为 `--repository owner/repository`、`--ref`（默认 `main`）、`--index`（默认 `themes/index.json`）、绝对路径 `--cache`；它不会读取或更改 GUI 的目录设置。这里的 `owner/repository` 是参数占位符，不是软件默认源。
 
 ```sh

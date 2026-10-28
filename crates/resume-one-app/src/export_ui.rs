@@ -320,7 +320,10 @@ impl ResumeOne {
             kind,
             language: self.export_language,
             content: self.model.content.clone(),
-            theme: self.model.applied_theme().manifest.clone(),
+            theme: self
+                .model
+                .appearance
+                .apply(&self.model.applied_theme().manifest),
             source_path: self.model.document_path.clone(),
         };
         let directory = self

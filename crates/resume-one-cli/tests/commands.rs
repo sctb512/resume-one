@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 use std::process::{Command, Output, Stdio};
 
+use docx_rs::BuildXML as _;
 use serde_json::{Value, json};
 
 fn call(args: &[&str]) -> (Output, Value) {
@@ -18,6 +19,116 @@ fn call(args: &[&str]) -> (Output, Value) {
 
 fn path(path: &Path) -> &str {
     path.to_str().unwrap()
+}
+
+#[test]
+fn font_install_is_explicit_local_and_rejects_invalid_data_without_a_partial_library() {
+    let root = tempfile::tempdir().unwrap();
+    let dir = root.path().join("font-library");
+    let font = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../assets/fonts/NotoSansSC-Regular.ttf")
+        .canonicalize()
+        .unwrap();
+    let (output, result) = call(&[
+        "fonts",
+        "install",
+        "--file",
+        path(&font),
+        "--dir",
+        path(&dir),
+        "--json",
+    ]);
+    assert!(output.status.success(), "{result}");
+    assert_eq!(result["result"]["scope"], "local-directory");
+    assert_eq!(fs::read_dir(&dir).unwrap().count(), 1);
+    let (output, _) = call(&[
+        "fonts",
+        "install",
+        "--file",
+        path(&font),
+        "--dir",
+        path(&dir),
+        "--json",
+    ]);
+    assert!(output.status.success());
+    assert_eq!(fs::read_dir(&dir).unwrap().count(), 1);
+    let invalid = root.path().join("bad.ttf");
+    fs::write(&invalid, b"not a font").unwrap();
+    let rejected = root.path().join("rejected");
+    let (output, result) = call(&[
+        "fonts",
+        "install",
+        "--file",
+        path(&invalid),
+        "--dir",
+        path(&rejected),
+        "--json",
+    ]);
+    assert_eq!(output.status.code(), Some(5));
+    assert_eq!(result["error"]["code"], "FONT_INSTALL");
+    assert!(!rejected.exists());
+}
+
+#[test]
+fn export_appearance_is_explicit_reproducible_and_never_rewrites_inputs() {
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("resume.json");
+    let theme = root.path().join("zhibai.theme.json");
+    let appearance = root.path().join("appearance.json");
+    let out = root.path().join("resume.docx");
+    let bytes =
+        br#"{"basics":{"name":"Independent"},"work":[{"name":"Example","summary":"Body text"}]}"#;
+    let theme_bytes = include_bytes!("../../../assets/themes/zhibai.theme.json");
+    fs::write(&file, bytes).unwrap();
+    fs::write(&theme, theme_bytes).unwrap();
+    fs::write(&appearance, br##"{"formatVersion":1,"bodyFont":"cjk-serif","headingFont":"cjk-sans","colors":{"accent":"#315A71","paper":"#FAF8F2"}}"##).unwrap();
+    let prefs = fs::read(&appearance).unwrap();
+    let (output, result) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--out",
+        path(&out),
+        "--format",
+        "docx",
+        "--theme",
+        path(&theme),
+        "--appearance",
+        path(&appearance),
+        "--json",
+    ]);
+    assert!(output.status.success(), "{result}");
+    assert_eq!(result["result"]["format"], "docx");
+    let rendered = docx_rs::read_docx(&fs::read(&out).unwrap()).unwrap();
+    let xml = String::from_utf8(rendered.document.build()).unwrap();
+    assert!(xml.contains("Noto Serif SC"));
+    assert!(xml.contains("315A71"));
+    assert_eq!(fs::read(&file).unwrap(), bytes);
+    assert_eq!(fs::read(&theme).unwrap(), theme_bytes);
+    assert_eq!(fs::read(&appearance).unwrap(), prefs);
+    fs::write(
+        &appearance,
+        br##"{"formatVersion":1,"colors":{"accent":"unfinished"}}"##,
+    )
+    .unwrap();
+    let invalid_out = root.path().join("invalid.pdf");
+    let (output, result) = call(&[
+        "export",
+        "--file",
+        path(&file),
+        "--out",
+        path(&invalid_out),
+        "--format",
+        "pdf",
+        "--theme",
+        path(&theme),
+        "--appearance",
+        path(&appearance),
+        "--json",
+    ]);
+    assert_eq!(output.status.code(), Some(3));
+    assert_eq!(result["error"]["code"], "APPEARANCE_INVALID");
+    assert!(!invalid_out.exists());
 }
 
 #[test]

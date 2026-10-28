@@ -2,8 +2,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use gpui::{
-    App, Context, Entity, IntoElement, KeyBinding, PromptLevel, Subscription, Window, actions, div,
-    prelude::*, px,
+    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, PromptLevel, Subscription,
+    Window, actions, div, prelude::*, px,
 };
 use gpui_component::{
     Theme,
@@ -93,6 +93,10 @@ pub(super) fn apply_editor_theme(style: &ThemeStyle, cx: &mut App) {
     theme.colors.input = color(style.colors.border).into();
     theme.colors.caret = color(style.colors.accent).into();
     theme.colors.muted = color(style.colors.paper.mix(style.colors.ink, 0.03)).into();
+    theme.colors.scrollbar_thumb = color(style.colors.paper.mix(style.colors.ink, 0.22)).into();
+    theme.colors.scrollbar_thumb_hover =
+        color(style.colors.paper.mix(style.colors.ink, 0.38)).into();
+    theme.colors.scrollbar = gpui::transparent_black();
     let selection = style.colors.paper.mix(style.colors.accent, 0.12);
     theme.colors.selection = color(if style.colors.ink.contrast(selection) >= 4.5 {
         selection
@@ -245,6 +249,10 @@ impl ResumeOne {
     }
 
     pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        if let Err(error) = self.change_appearance(self.model.appearance.clone(), window, cx) {
+            self.editor_warning("外观设置未保存", &error, window, cx);
+            return false;
+        }
         if self.export_busy {
             self.editor_warning("导出中", "请等待导出完成再关闭窗口", window, cx);
             return false;
@@ -320,7 +328,9 @@ impl ResumeOne {
         let Some(editor) = &mut self.editor else {
             return;
         };
-        if editor.input.read(cx).is_composing() {
+        if editor.input.read(cx).is_composing()
+            || !editor.input.read(cx).focus_handle(cx).is_focused(window)
+        {
             return;
         }
         let formatted = match editor.buffer.formatted() {
@@ -627,7 +637,7 @@ impl ResumeOne {
         if !self.ensure_editor(window, cx) {
             return;
         }
-        apply_editor_theme(self.model.selected_style(), cx);
+        apply_editor_theme(&self.model.selected_style(), cx);
         self.source_mode = true;
         self.begin_mode_transition();
         if !self.recovery_pending
@@ -965,7 +975,7 @@ impl ResumeOne {
                     .min_h_0()
                     .rounded(px(8.))
                     .border_1()
-                    .border_color(color(crate::chrome::Palette::new(style).line))
+                    .border_color(color(crate::chrome::Palette::new(&style).line))
                     .bg(color(style.colors.paper))
                     .child(
                         Input::new(&editor.input)

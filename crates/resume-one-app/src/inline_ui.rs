@@ -1,11 +1,14 @@
 use std::{
+    cell::Cell,
     collections::HashMap,
+    rc::Rc,
     time::{Duration, Instant},
 };
 
 use gpui::{
-    App, Context, Entity, Focusable as _, IntoElement, KeyBinding, ScrollHandle, Subscription,
-    Window, actions, anchored, deferred, div, prelude::*, px,
+    App, Bounds, Context, Entity, EntityInputHandler as _, Focusable as _, IntoElement, KeyBinding,
+    Pixels, Point, ScrollHandle, Subscription, Window, actions, anchored, deferred, div,
+    prelude::*, px,
 };
 use gpui_component::input::{Input, InputEvent, InputState};
 use gpui_component::scroll::{Scrollbar, ScrollbarShow};
@@ -15,7 +18,7 @@ use resume_one_core::content_edit::{
 };
 
 use crate::motion::Visibility;
-use crate::{ResumeOne, color, label};
+use crate::{ResumeOne, SECTION_LABELS, color, label};
 
 actions!(resume_one, [OpenInline, DismissInline]);
 
@@ -24,10 +27,12 @@ pub(super) struct InlineUi {
     pub form: Option<InlineForm>,
     generation: u64,
     form_epoch: u64,
-    close_generation: u64,
     pub paper_hovered: Option<usize>,
     form_hovered: bool,
     closing: bool,
+    closing_explicit: bool,
+    suppressed: Option<(String, Option<usize>)>,
+    bounds: Rc<Cell<Option<Bounds<Pixels>>>>,
     visibility: Visibility,
     retiring: Option<RetiringForm>,
     candidate: Option<HoverCandidate>,
@@ -39,9 +44,8 @@ pub(super) struct InlineUi {
 
 const INLINE_HOVER_DELAY: Duration = Duration::from_millis(140);
 const INLINE_SWITCH_DELAY: Duration = Duration::from_millis(85);
-const INLINE_CLOSE_GRACE: Duration = Duration::from_millis(90);
-const INLINE_FADE_IN: Duration = Duration::from_millis(120);
-const INLINE_FADE_OUT: Duration = Duration::from_millis(100);
+const INLINE_FADE_IN: Duration = Duration::from_millis(160);
+const INLINE_FADE_OUT: Duration = Duration::from_millis(120);
 const INLINE_INK_GRACE: Duration = Duration::from_millis(55);
 const INLINE_HANDOFF: Duration = Duration::from_millis(90);
 
@@ -56,10 +60,8 @@ struct HoverCandidate {
 
 struct RetiringForm {
     form: InlineForm,
-    epoch: u64,
     scroll: ScrollHandle,
     visibility: Visibility,
-    offset: f32,
 }
 
 #[derive(Default)]
@@ -87,6 +89,129 @@ struct Field {
     _subscription: Subscription,
 }
 
+#[derive(Clone, Copy)]
+struct FormPalette {
+    surface: resume_one_core::theme_style::Rgb,
+    field: resume_one_core::theme_style::Rgb,
+    focus: resume_one_core::theme_style::Rgb,
+    line: resume_one_core::theme_style::Rgb,
+    ink: resume_one_core::theme_style::Rgb,
+    title: resume_one_core::theme_style::Rgb,
+    muted: resume_one_core::theme_style::Rgb,
+    accent: resume_one_core::theme_style::Rgb,
+}
+
+impl FormPalette {
+    fn new(style: &resume_one_core::theme_style::ThemeStyle) -> Self {
+        let c = style.colors;
+        let surface = c.paper.mix(c.canvas, 0.08);
+        let field = surface.mix(c.ink, 0.025);
+        let focus = surface.mix(c.accent, 0.035);
+        let ink = crate::chrome::readable_on(c.ink, field);
+        Self {
+            surface,
+            field,
+            focus,
+            line: surface.mix(c.ink, 0.13),
+            ink,
+            title: crate::chrome::readable_on(c.ink, surface),
+            muted: crate::chrome::readable_on(c.muted, surface),
+            accent: crate::chrome::readable_on(c.accent, focus),
+        }
+    }
+}
+
+fn field_order(section: &str, key: &str) -> usize {
+    let order: &[&str] = match section {
+        "basics" => &[
+            "name",
+            "label",
+            "email",
+            "phone",
+            "url",
+            "summary",
+            "location.address",
+            "location.city",
+            "location.region",
+            "location.postalCode",
+            "location.countryCode",
+            "image",
+        ],
+        "work" => &[
+            "name",
+            "position",
+            "startDate",
+            "endDate",
+            "location",
+            "url",
+            "summary",
+            "description",
+        ],
+        "education" => &[
+            "institution",
+            "area",
+            "studyType",
+            "startDate",
+            "endDate",
+            "score",
+            "url",
+        ],
+        "volunteer" => &[
+            "organization",
+            "position",
+            "startDate",
+            "endDate",
+            "url",
+            "summary",
+        ],
+        "projects" => &[
+            "name",
+            "entity",
+            "type",
+            "startDate",
+            "endDate",
+            "url",
+            "description",
+        ],
+        "certificates" => &["name", "issuer", "date", "url"],
+        "awards" => &["title", "awarder", "date", "summary"],
+        _ => text_fields(section),
+    };
+    order
+        .iter()
+        .position(|field| *field == key)
+        .unwrap_or(usize::MAX)
+}
+
+fn full_width_field(section: &str, key: &str) -> bool {
+    matches!(
+        key,
+        "summary"
+            | "description"
+            | "reference"
+            | "image"
+            | "url"
+            | "location"
+            | "location.address"
+            | "score"
+            | "institution"
+            | "title"
+    ) || key == "name"
+        && matches!(
+            section,
+            "projects" | "certificates" | "publications" | "references" | "interests"
+        )
+}
+
+fn form_field_label(section: &str, key: &str) -> &'static str {
+    match (section, key) {
+        ("basics", "name") => "姓名",
+        ("work", "name") => "公司 / 团队",
+        ("education", "institution") => "学校",
+        _ => field_label(key),
+    }
+}
+
 const PROFILE_FORM_FIELDS: &[&str] = &["profiles.network", "profiles.username", "profiles.url"];
 
 pub(super) fn register(cx: &mut App) {
@@ -96,7 +221,7 @@ pub(super) fn register(cx: &mut App) {
     ]);
 }
 
-fn field_label(key: &str) -> &str {
+fn field_label(key: &str) -> &'static str {
     match key {
         "name" => "名称",
         "label" => "职业标题",
@@ -139,11 +264,23 @@ fn field_label(key: &str) -> &str {
         "profiles.network" => "平台",
         "profiles.username" => "账号",
         "profiles.url" => "链接",
-        _ => key,
+        _ => "内容",
     }
 }
 
 impl ResumeOne {
+    pub(super) fn inline_form_geometry(&self) -> (f32, f32) {
+        let style = self.active_style();
+        let paper = style.page.width_mm * 3. * self.preview_scale;
+        let left = style.page.margins.left * 3. * self.preview_scale;
+        let content = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
+            * 3.
+            * self.preview_scale;
+        let width = (content + 64.).min(paper - 28.);
+        let inset = (left - (width - content) / 2.).clamp(14., (paper - width - 14.).max(14.));
+        (width, inset)
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub(super) fn inline_ink_hover(
         &mut self,
@@ -184,6 +321,14 @@ impl ResumeOne {
     }
 
     pub(super) fn inline_region_left(&mut self, section: &str, index: Option<usize>, page: usize) {
+        if self
+            .inline
+            .suppressed
+            .as_ref()
+            .is_some_and(|target| target.0 == section && target.1 == index)
+        {
+            self.inline.suppressed = None;
+        }
         if self.inline.candidate.as_ref().is_some_and(|candidate| {
             candidate.section == section && candidate.index == index && candidate.page == page
         }) {
@@ -258,6 +403,15 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         let now = cx.background_executor().now();
+        if self
+            .inline
+            .suppressed
+            .as_ref()
+            .is_some_and(|target| target.0 == section && target.1 == index)
+        {
+            return;
+        }
+        self.inline.suppressed = None;
         if self.inline_focused(window, cx)
             || self.inline.form_hovered
             || self.inline.scroll_until.is_some_and(|until| now < until)
@@ -353,6 +507,8 @@ impl ResumeOne {
         if self.source_mode || !self.structure_enabled() || self.recovery_pending {
             return;
         }
+        self.inline.suppressed = None;
+        self.inline.closing_explicit = false;
         if self.inline_matches(section, index) {
             self.cancel_inline_candidate();
             self.resume_inline(cx);
@@ -363,7 +519,7 @@ impl ResumeOne {
         }
         // Preview-first users may never have toggled the JSON editor, where
         // the component palette used to be installed as an accidental side effect.
-        crate::editor_ui::apply_editor_theme(self.model.selected_style(), cx);
+        crate::editor_ui::apply_editor_theme(&self.model.selected_style(), cx);
         let editor = self.editor.as_ref().unwrap();
         let initial_error = editor
             .buffer
@@ -392,20 +548,17 @@ impl ResumeOne {
                 .filter(|_| !self.reduce_motion)
                 .map(|form| {
                     let mut visibility = self.inline.visibility.clone();
-                    let offset = 2. * (1. - visibility.sample(now).0);
                     visibility.retarget(0., now, INLINE_HANDOFF, false);
                     RetiringForm {
                         form,
-                        epoch: self.inline.form_epoch,
                         scroll: self.inline.scroll.clone(),
                         visibility,
-                        offset,
                     }
                 });
         self.inline.form_epoch += 1;
-        self.inline.close_generation += 1;
         self.inline.form_hovered = false;
         self.inline.closing = false;
+        self.inline.bounds.set(None);
         self.inline.visibility.snap(0.);
         self.inline.visibility.retarget(
             1.,
@@ -491,21 +644,12 @@ impl ResumeOne {
                 state
             }
         });
-        let subscription = cx.subscribe_in(
-            &input,
-            window,
-            move |this, input, event, window, cx| match event {
-                InputEvent::Change => this.inline_field_changed(key, input, window, cx),
-                InputEvent::Blur
-                    if this.inline.form.as_ref().is_some_and(|form| {
-                        form.fields.iter().any(|field| field.input == *input)
-                    }) =>
-                {
-                    this.defer_inline_close(window, cx)
+        let subscription =
+            cx.subscribe_in(&input, window, move |this, input, event, window, cx| {
+                if let InputEvent::Change = event {
+                    this.inline_field_changed(key, input, window, cx);
                 }
-                _ => {}
-            },
-        );
+            });
         Field {
             key,
             list_index,
@@ -759,17 +903,16 @@ impl ResumeOne {
         &mut self,
         page: usize,
         hovering: bool,
-        window: &mut Window,
-        cx: &mut Context<Self>,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
     ) {
         if hovering {
             self.inline.paper_hovered = Some(page);
-            self.resume_inline(cx);
         } else if self.inline.paper_hovered == Some(page) {
             self.inline.paper_hovered = None;
             self.cancel_inline_candidate();
             self.inline.ink_hover = None;
-            self.defer_inline_close(window, cx);
+            self.inline.suppressed = None;
         }
     }
 
@@ -786,23 +929,70 @@ impl ResumeOne {
         self.inline.form_hovered = hovering;
         if hovering {
             self.cancel_inline_candidate();
+            self.inline.suppressed = None;
             self.resume_inline(cx);
         } else {
-            self.defer_inline_close(window, cx);
+            self.close_inline_outside(window, cx);
         }
     }
 
+    pub(super) fn inline_pointer_moved(
+        &mut self,
+        position: Point<Pixels>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(bounds) = self.inline.bounds.get() else {
+            return;
+        };
+        if self.inline.form.is_none() {
+            return;
+        }
+        let inside = bounds.contains(&position);
+        if inside && self.inline.closing_explicit {
+            return;
+        }
+        if self.inline.form_hovered != inside || (!inside && !self.inline.closing) {
+            self.form_hover_changed(self.inline.form_epoch, inside, window, cx);
+        }
+    }
+
+    pub(super) fn inline_window_left(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.cancel_inline_candidate();
+        self.inline.ink_hover = None;
+        self.inline.form_hovered = false;
+        self.close_inline_outside(window, cx);
+    }
+
     pub(super) fn close_inline_outside(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.inline.form.is_some()
-            && self.inline.paper_hovered.is_none()
-            && !self.inline.form_hovered
-            && !self.inline_focused(window, cx)
-        {
+        if self.inline.form.is_some() && !self.inline.form_hovered && !self.inline.closing {
+            self.cancel_inline_candidate();
+            let form = self.inline.form.as_ref().unwrap();
+            self.inline.suppressed = Some((form.section.clone(), form.index));
+            // Preserve the visible text before dropping focus, including an IME
+            // commit that has not yet reached the normal Change subscription.
+            let pending: Vec<_> = form
+                .fields
+                .iter()
+                .filter(|field| {
+                    field.input.read(cx).is_composing()
+                        || field.input.read(cx).focus_handle(cx).is_focused(window)
+                })
+                .map(|field| (field.key, field.input.clone()))
+                .collect();
+            for (key, input) in pending {
+                input.update(cx, |state, cx| state.unmark_text(window, cx));
+                self.inline_field_changed(key, &input, window, cx);
+            }
+            if self.inline_focused(window, cx) {
+                window.focus(&self.focus);
+            }
             if self.reduce_motion {
+                let suppressed = self.inline.suppressed.clone();
                 self.clear_inline();
-            } else if self.inline.form.is_some() && !self.inline.closing {
+                self.inline.suppressed = suppressed;
+            } else {
                 self.inline.closing = true;
-                self.inline.close_generation += 1;
                 self.inline.visibility.retarget(
                     0.,
                     cx.background_executor().now(),
@@ -815,8 +1005,7 @@ impl ResumeOne {
     }
 
     fn resume_inline(&mut self, cx: &mut Context<Self>) {
-        self.inline.close_generation += 1;
-        if self.inline.form.is_some() && self.inline.closing {
+        if self.inline.form.is_some() && self.inline.closing && !self.inline.closing_explicit {
             self.inline.closing = false;
             self.inline.visibility.retarget(
                 1.,
@@ -830,9 +1019,6 @@ impl ResumeOne {
 
     pub(super) fn advance_inline_motion(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let now = cx.background_executor().now();
-        if self.inline.closing && self.inline_focused(window, cx) {
-            self.resume_inline(cx);
-        }
         if self.reduce_motion {
             self.inline
                 .visibility
@@ -846,14 +1032,9 @@ impl ResumeOne {
         }
         let (alpha, done) = self.inline.visibility.sample(now);
         if self.inline.closing && done && alpha == 0. {
-            if self.inline.paper_hovered.is_none()
-                && !self.inline.form_hovered
-                && !self.inline_focused(window, cx)
-            {
-                self.clear_inline();
-            } else {
-                self.resume_inline(cx);
-            }
+            let suppressed = self.inline.suppressed.clone();
+            self.clear_inline();
+            self.inline.suppressed = suppressed;
         }
         if self
             .inline
@@ -904,37 +1085,20 @@ impl ResumeOne {
             .is_some_and(|control| control.hovered)
     }
 
-    pub(super) fn defer_inline_close(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.inline.form.is_none() {
-            return;
-        }
-        self.inline.close_generation += 1;
-        let generation = self.inline.close_generation;
-        let timer = cx.background_executor().timer(INLINE_CLOSE_GRACE);
-        cx.spawn_in(window, async move |this, cx| {
-            timer.await;
-            this.update_in(cx, |this, window, cx| {
-                if generation == this.inline.close_generation {
-                    this.close_inline_outside(window, cx);
-                }
-            })
-            .ok();
-        })
-        .detach();
-    }
-
     pub(super) fn clear_inline(&mut self) {
         self.inline.form = None;
         self.inline.retiring = None;
         self.inline.form_hovered = false;
         self.inline.closing = false;
+        self.inline.closing_explicit = false;
+        self.inline.suppressed = None;
+        self.inline.bounds.set(None);
         self.inline.visibility.snap(0.);
         self.inline.candidate = None;
         self.inline.controls.clear();
         self.inline.ink_hover = None;
         self.inline.generation += 1;
         self.inline.form_epoch += 1;
-        self.inline.close_generation += 1;
     }
 
     pub(super) fn dismiss_inline(
@@ -970,10 +1134,19 @@ impl ResumeOne {
             return;
         }
         let insertion = self.cancel_insertion();
-        if self.inline.form.take().is_some() || insertion {
-            self.clear_inline();
+        if self.inline.form.is_some() {
+            self.inline.form_hovered = false;
+            self.inline.closing_explicit = true;
+            self.close_inline_outside(window, cx);
             self.focus_current(window, cx);
             cx.notify();
+        } else if insertion {
+            cx.notify();
+        } else if let Some(editor) = self.appearance_editor.clone() {
+            if editor.update(cx, |editor, cx| editor.dismiss_transient(window, cx)) {
+                return;
+            }
+            self.finish_appearance(window, cx);
         }
     }
 
@@ -990,13 +1163,37 @@ impl ResumeOne {
             .inline_layer_target(retiring)
             .expect("inline layer exists");
         let style = self.active_style();
-        let (form_epoch, scroll, alpha, offset) = if retiring {
+        let palette = FormPalette::new(&style);
+        let bounds_slot = self.inline.bounds.clone();
+        let subtitle = form
+            .fields
+            .iter()
+            .find(|field| {
+                matches!(
+                    field.key,
+                    "name" | "institution" | "organization" | "title" | "language"
+                )
+            })
+            .map(|field| {
+                field
+                    .input
+                    .read(cx)
+                    .value()
+                    .chars()
+                    .take(42)
+                    .collect::<String>()
+            })
+            .filter(|text| !text.trim().is_empty())
+            .unwrap_or_else(|| {
+                form.index
+                    .map(|index| format!("第 {} 项", index + 1))
+                    .unwrap_or_default()
+            });
+        let (scroll, alpha) = if retiring {
             let old = self.inline.retiring.as_ref().unwrap();
             (
-                old.epoch,
                 old.scroll.clone(),
                 old.visibility.sample(cx.background_executor().now()).0,
-                old.offset,
             )
         } else {
             let alpha = self
@@ -1004,12 +1201,7 @@ impl ResumeOne {
                 .visibility
                 .sample(cx.background_executor().now())
                 .0;
-            (
-                self.inline.form_epoch,
-                self.inline.scroll.clone(),
-                alpha,
-                2. * (1. - alpha),
-            )
+            (self.inline.scroll.clone(), alpha)
         };
         let selector_for = |name: String| {
             if retiring {
@@ -1018,9 +1210,7 @@ impl ResumeOne {
                 name
             }
         };
-        let width = (style.page.width_mm - style.page.margins.left - style.page.margins.right)
-            * 3.0
-            * self.preview_scale;
+        let (width, _) = self.inline_form_geometry();
         let mut fields = div()
             .id(if retiring {
                 "retiring-inline-fields"
@@ -1036,43 +1226,42 @@ impl ResumeOne {
             })
             .flex()
             .flex_col()
-            .gap(px(12.))
+            .gap(px(18.))
             .max_h(px((self.viewport_height - 240.).clamp(120., 360.)))
             .overflow_y_scroll()
             .track_scroll(&scroll)
-            .px(px(18.))
-            .py(px(16.));
+            .px(px(20.))
+            .py(px(18.));
         let mut text_fields = div()
             .grid()
             .grid_cols(if width >= 440. { 2 } else { 1 })
-            .gap(px(16.));
-        for field in form
+            .gap_x(px(18.))
+            .gap_y(px(14.));
+        let mut ordered: Vec<_> = form
             .fields
             .iter()
             .filter(|field| field.list_index.is_none())
-        {
+            .collect();
+        ordered.sort_by_key(|field| field_order(&form.section, field.key));
+        for field in ordered {
             let selector = selector_for(format!("inline-field-{}", field.key));
             text_fields = text_fields.child(
                 div()
                     .min_w_0()
                     .when(
-                        width >= 440.
-                            && matches!(
-                                field.key,
-                                "summary" | "description" | "reference" | "image" | "url"
-                            ),
+                        width >= 440. && full_width_field(&form.section, field.key),
                         |v| v.col_span(2),
                     )
                     .flex()
                     .flex_col()
-                    .gap_1()
+                    .gap(px(6.))
                     .child(
                         div()
                             .text_size(px(12.0))
-                            .text_color(color(style.colors.muted))
-                            .child(field_label(field.key).to_owned()),
+                            .text_color(color(palette.muted))
+                            .child(form_field_label(&form.section, field.key).to_owned()),
                     )
-                    .child(self.inline_input(field, selector, scroll.clone(), retiring)),
+                    .child(self.inline_input(field, selector, scroll.clone(), retiring, cx)),
             );
         }
         fields = fields.child(text_fields);
@@ -1085,11 +1274,14 @@ impl ResumeOne {
             let mut list = div()
                 .flex()
                 .flex_col()
-                .gap_1()
+                .gap(px(6.))
+                .border_t_1()
+                .border_color(color(palette.line))
+                .pt_4()
                 .child(
                     div()
                         .text_size(px(12.0))
-                        .text_color(color(style.colors.muted))
+                        .text_color(color(palette.muted))
                         .child(field_label(key).to_owned()),
                 )
                 .child(self.inline_list_add(key, 0, retiring, cx));
@@ -1107,15 +1299,20 @@ impl ResumeOne {
                             selector,
                             scroll.clone(),
                             retiring,
+                            cx,
                         )))
                         .child(
                             div()
                                 .id(gpui::SharedString::from(remove_selector.clone()))
                                 .debug_selector(move || remove_selector.clone())
                                 .cursor_pointer()
-                                .px_2()
-                                .py_1()
-                                .text_color(color(style.colors.seal))
+                                .size(px(28.))
+                                .flex()
+                                .items_center()
+                                .justify_center()
+                                .rounded(px(6.))
+                                .hover(|v| v.bg(color(palette.focus)))
+                                .text_color(color(palette.muted))
                                 .child("−")
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     cx.stop_propagation();
@@ -1143,7 +1340,7 @@ impl ResumeOne {
                 .child(
                     div()
                         .text_size(px(12.0))
-                        .text_color(color(style.colors.muted))
+                        .text_color(color(palette.muted))
                         .child("社交账号"),
                 )
                 .child(self.inline_profile_add(0, retiring, cx));
@@ -1153,9 +1350,9 @@ impl ResumeOne {
                     .flex()
                     .flex_col()
                     .gap_2()
-                    .rounded_md()
+                    .rounded(px(6.))
                     .border_1()
-                    .border_color(color(style.colors.border))
+                    .border_color(color(palette.line))
                     .p_3()
                     .child(
                         div()
@@ -1163,16 +1360,20 @@ impl ResumeOne {
                             .justify_between()
                             .items_center()
                             .text_size(px(12.0))
-                            .text_color(color(style.colors.muted))
+                            .text_color(color(palette.muted))
                             .child(format!("账号 {}", index + 1))
                             .child(
                                 div()
                                     .id(gpui::SharedString::from(selector.clone()))
                                     .debug_selector(move || selector.clone())
                                     .cursor_pointer()
-                                    .px_2()
-                                    .py_1()
-                                    .text_color(color(style.colors.seal))
+                                    .size(px(28.))
+                                    .flex()
+                                    .items_center()
+                                    .justify_center()
+                                    .rounded(px(6.))
+                                    .hover(|v| v.bg(color(palette.focus)))
+                                    .text_color(color(palette.muted))
                                     .child("−")
                                     .on_click(cx.listener(move |this, _, window, cx| {
                                         cx.stop_propagation();
@@ -1200,10 +1401,16 @@ impl ResumeOne {
                             .child(
                                 div()
                                     .text_size(px(12.0))
-                                    .text_color(color(style.colors.muted))
+                                    .text_color(color(palette.muted))
                                     .child(field_label(field.key).to_owned()),
                             )
-                            .child(self.inline_input(field, selector, scroll.clone(), retiring)),
+                            .child(self.inline_input(
+                                field,
+                                selector,
+                                scroll.clone(),
+                                retiring,
+                                cx,
+                            )),
                     );
                 }
                 profiles =
@@ -1216,107 +1423,191 @@ impl ResumeOne {
         deferred(
             anchored().snap_to_window_with_margin(px(64.0)).child(
                 div()
+                    .on_children_prepainted(move |children, _, _| {
+                        if !retiring {
+                            bounds_slot.set(children.first().copied());
+                        }
+                    })
                     .id(if retiring {
-                        "retiring-inline-form"
+                        "retiring-inline-boundary"
                     } else {
-                        "inline-form"
+                        "inline-boundary"
                     })
-                    .debug_selector(move || {
-                        if retiring {
-                            "retiring-inline-form".into()
-                        } else {
-                            "inline-form".into()
-                        }
-                    })
-                    .relative()
-                    .top(px(offset))
-                    .opacity(alpha)
-                    .occlude()
                     .w(px(width))
-                    .flex()
-                    .flex_col()
-                    .rounded_md()
-                    .shadow_md()
-                    .border_1()
-                    .border_color(color(crate::chrome::Palette::new(style).line))
-                    .border_l(px(3.))
-                    .border_color(color(style.colors.accent.mix(style.colors.paper, 0.55)))
-                    .bg(color(crate::chrome::Palette::new(style).panel))
-                    .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
-                        if retiring {
-                            return;
-                        }
-                        this.form_hover_changed(form_epoch, *hovering, window, cx);
-                    }))
-                    .on_click(|_, _, cx| cx.stop_propagation())
                     .child(
                         div()
+                            .id(if retiring {
+                                "retiring-inline-form"
+                            } else {
+                                "inline-form"
+                            })
+                            .debug_selector(move || {
+                                if retiring {
+                                    "retiring-inline-form".into()
+                                } else {
+                                    "inline-form".into()
+                                }
+                            })
+                            .relative()
+                            .opacity(alpha)
+                            .occlude()
+                            .w(px(width))
                             .flex()
-                            .justify_between()
-                            .items_center()
-                            .px_4()
-                            .py_3()
-                            .border_b_1()
-                            .border_color(color(style.colors.border))
-                            .font_family(crate::chrome::SERIF)
-                            .text_size(px(17.0))
-                            .text_color(color(style.colors.accent))
-                            .child(label(&form.section).to_owned())
+                            .flex_col()
+                            .rounded(px(10.))
+                            .shadow(vec![gpui::BoxShadow {
+                                color: gpui::hsla(0., 0., 0., 0.12),
+                                offset: gpui::point(px(0.), px(4.)),
+                                blur_radius: px(18.),
+                                spread_radius: px(-3.),
+                            }])
+                            .border_1()
+                            .border_color(color(palette.line))
+                            .bg(color(palette.surface))
+                            .on_click(|_, _, cx| cx.stop_propagation())
                             .child(
                                 div()
-                                    .id("close-inline")
-                                    .cursor_pointer()
-                                    .px_2()
-                                    .child("×")
-                                    .on_click(cx.listener(move |this, _, window, cx| {
-                                        if retiring {
-                                            return;
-                                        }
-                                        this.dismiss_inline(&DismissInline, window, cx)
-                                    })),
-                            ),
-                    )
-                    .child(
-                        div().relative().min_h_0().child(fields).child(
-                            div()
-                                .debug_selector(move || {
-                                    if retiring {
-                                        "retiring-inline-scrollbar-viewport".into()
-                                    } else {
-                                        "inline-scrollbar-viewport".into()
-                                    }
-                                })
-                                .absolute()
-                                .inset_0()
-                                .child(
-                                    Scrollbar::vertical(&scroll)
-                                        .scrollbar_show(ScrollbarShow::Always),
+                                    .flex()
+                                    .justify_between()
+                                    .items_center()
+                                    .px(px(20.))
+                                    .py(px(14.))
+                                    .border_b_1()
+                                    .border_color(color(palette.line))
+                                    .child(
+                                        div()
+                                            .flex()
+                                            .items_center()
+                                            .gap_3()
+                                            .min_w_0()
+                                            .child(
+                                                div()
+                                                    .size(px(30.))
+                                                    .flex_none()
+                                                    .flex()
+                                                    .items_center()
+                                                    .justify_center()
+                                                    .rounded(px(7.))
+                                                    .bg(color(palette.focus))
+                                                    .child(crate::chrome::icon(
+                                                        SECTION_LABELS
+                                                            .iter()
+                                                            .find(|(id, _)| *id == form.section)
+                                                            .map_or("basics", |(id, _)| *id),
+                                                        palette.accent,
+                                                    )),
+                                            )
+                                            .child(
+                                                div()
+                                                    .flex()
+                                                    .flex_col()
+                                                    .min_w_0()
+                                                    .gap(px(3.))
+                                                    .child(
+                                                        div()
+                                                            .font_family(crate::chrome::SERIF)
+                                                            .text_size(px(16.))
+                                                            .text_color(color(palette.title))
+                                                            .child(label(&form.section).to_owned()),
+                                                    )
+                                                    .when(!subtitle.is_empty(), |v| {
+                                                        v.child(
+                                                            div()
+                                                                .text_size(px(12.))
+                                                                .text_color(color(palette.muted))
+                                                                .truncate()
+                                                                .child(subtitle),
+                                                        )
+                                                    }),
+                                            ),
+                                    )
+                                    .child(
+                                        div()
+                                            .id("close-inline")
+                                            .tab_index(0)
+                                            .tab_stop(!retiring)
+                                            .cursor_pointer()
+                                            .size(px(28.))
+                                            .flex_none()
+                                            .flex()
+                                            .items_center()
+                                            .justify_center()
+                                            .rounded(px(6.))
+                                            .text_size(px(17.))
+                                            .text_color(color(palette.muted))
+                                            .hover(|v| {
+                                                v.bg(color(palette.focus))
+                                                    .text_color(color(palette.accent))
+                                            })
+                                            .focus(|v| v.bg(color(palette.focus)))
+                                            .child("×")
+                                            .on_key_down(cx.listener(
+                                                move |this, event, window, cx| {
+                                                    if !retiring
+                                                        && crate::chrome::activation_key(event)
+                                                    {
+                                                        cx.stop_propagation();
+                                                        this.dismiss_inline(
+                                                            &DismissInline,
+                                                            window,
+                                                            cx,
+                                                        );
+                                                    }
+                                                },
+                                            ))
+                                            .on_click(cx.listener(move |this, _, window, cx| {
+                                                if retiring {
+                                                    return;
+                                                }
+                                                this.dismiss_inline(&DismissInline, window, cx)
+                                            })),
+                                    ),
+                            )
+                            .child(
+                                div().relative().min_h_0().child(fields).child(
+                                    div()
+                                        .debug_selector(move || {
+                                            if retiring {
+                                                "retiring-inline-scrollbar-viewport".into()
+                                            } else {
+                                                "inline-scrollbar-viewport".into()
+                                            }
+                                        })
+                                        .absolute()
+                                        .inset_0()
+                                        .child(
+                                            Scrollbar::vertical(&scroll)
+                                                .scrollbar_show(ScrollbarShow::Always),
+                                        ),
                                 ),
-                        ),
-                    )
-                    .when_some(form.error.clone(), |view, message| {
-                        view.child(
-                            div()
-                                .px_4()
-                                .pb_3()
-                                .text_size(px(12.0))
-                                .text_color(color(style.colors.seal))
-                                .child(message),
-                        )
-                    })
-                    .when(retiring, |view| {
-                        view.child(
-                            div()
-                                .id("retiring-inline-shield")
-                                .absolute()
-                                .inset_0()
-                                .occlude()
-                                .on_mouse_down(gpui::MouseButton::Left, |_, _, cx| {
-                                    cx.stop_propagation()
-                                })
-                                .on_click(|_, _, cx| cx.stop_propagation()),
-                        )
-                    }),
+                            )
+                            .when_some(form.error.clone(), |view, message| {
+                                view.child(
+                                    div()
+                                        .px(px(20.))
+                                        .pb_3()
+                                        .text_size(px(12.0))
+                                        .text_color(color(crate::chrome::readable_on(
+                                            style.colors.seal,
+                                            palette.surface,
+                                        )))
+                                        .child(message),
+                                )
+                            })
+                            .when(retiring, |view| {
+                                view.child(
+                                    div()
+                                        .id("retiring-inline-shield")
+                                        .absolute()
+                                        .inset_0()
+                                        .occlude()
+                                        .on_mouse_down(gpui::MouseButton::Left, |_, _, cx| {
+                                            cx.stop_propagation()
+                                        })
+                                        .on_click(|_, _, cx| cx.stop_propagation()),
+                                )
+                            }),
+                    ),
             ),
         )
         .priority(if retiring { 1 } else { 2 })
@@ -1336,7 +1627,9 @@ impl ResumeOne {
         div()
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
-            .h(px(32.0))
+            .h(px(24.0))
+            .rounded(px(6.))
+            .hover(|v| v.bg(color(FormPalette::new(&self.active_style()).focus)))
             .w_full()
             .flex()
             .justify_center()
@@ -1360,8 +1653,11 @@ impl ResumeOne {
         selector: String,
         scroll: ScrollHandle,
         retiring: bool,
+        cx: &App,
     ) -> impl IntoElement {
         let input = field.input.clone();
+        let palette = FormPalette::new(&self.active_style());
+        let focus = input.read(cx).focus_handle(cx);
         div()
             .on_children_prepainted(move |children, window, cx| {
                 if retiring || !input.read(cx).focus_handle(cx).is_focused(window) {
@@ -1387,14 +1683,27 @@ impl ResumeOne {
             .debug_selector(move || selector.clone())
             .w_full()
             .min_w_0()
+            .rounded(px(6.))
+            .border_1()
+            .border_color(color(palette.line))
+            .bg(color(palette.field))
+            .text_color(color(palette.ink))
+            .track_focus(&focus)
+            .tab_stop(false)
+            .focus(|v| {
+                v.border_color(color(palette.accent))
+                    .bg(color(palette.field))
+            })
             .child(
                 Input::new(&field.input)
                     .w_full()
+                    .appearance(false)
+                    .focus_bordered(false)
+                    .text_size(px(13.))
+                    .px(px(10.))
+                    .py(px(6.))
                     .disabled(retiring)
-                    .tab_index(if retiring { -1 } else { 0 })
-                    .when(retiring, |input| {
-                        input.bg(color(self.model.selected_style().colors.paper))
-                    }),
+                    .tab_index(if retiring { -1 } else { 0 }),
             )
     }
 
@@ -1433,8 +1742,369 @@ impl ResumeOne {
 mod tests {
     use super::*;
     use crate::{editor_ui, model::AppModel, structure_ui};
-    use gpui::{EntityInputHandler as _, Modifiers, TestAppContext, point};
+    use gpui::{Modifiers, TestAppContext, point};
     use std::{cell::RefCell, rc::Rc};
+
+    #[gpui::test]
+    fn opening_appearance_from_a_composing_form_preserves_visible_text(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("resume.json");
+        let original = br#"{"basics":{"name":"Original"}}"#;
+        std::fs::write(&path, original).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let owner = cx.new(|cx| ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx));
+            *output.borrow_mut() = Some(owner.clone());
+            gpui_component::Root::new(owner, window, cx)
+        });
+        let owner = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            owner.update(cx, |app, cx| app.open_inline("basics", None, window, cx))
+        });
+        let input = cx.update(|_, cx| {
+            owner
+                .read(cx)
+                .inline
+                .form
+                .as_ref()
+                .unwrap()
+                .fields
+                .iter()
+                .find(|field| field.key == "name")
+                .unwrap()
+                .input
+                .clone()
+        });
+        cx.update(|window, cx| {
+            input.update(cx, |input, cx| {
+                input.focus(window, cx);
+                input.replace_and_mark_text_in_range(Some(0..8), "简里", None, window, cx);
+            })
+        });
+        cx.update(|window, cx| owner.update(cx, |app, cx| app.show_appearance(window, cx)));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = owner.read(cx);
+            assert!(app.inline.form.is_none());
+            assert!(app.appearance_editor.is_some());
+            assert!(
+                app.editor
+                    .as_ref()
+                    .unwrap()
+                    .buffer
+                    .source()
+                    .contains("简里")
+            );
+        });
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+    }
+
+    #[test]
+    fn form_palette_keeps_all_builtin_and_custom_surfaces_readable() {
+        let model = AppModel::load(None).unwrap();
+        let mut styles: Vec<_> = model
+            .themes
+            .iter()
+            .map(|theme| theme.style.clone())
+            .collect();
+        for paper in ["#172426", "#808080", "#FDF9F0"] {
+            let mut manifest = model.themes[0].manifest.clone();
+            manifest.normalized["colors"] = serde_json::json!({
+                "paper": paper, "canvas": paper, "ink": "#888888",
+                "muted": "#999999", "accent": "#B29566", "seal": "#A14F40"
+            });
+            styles.push(resume_one_core::theme_style::ThemeStyle::from_manifest(
+                &manifest,
+            ));
+        }
+        for style in styles {
+            let p = FormPalette::new(&style);
+            assert!(p.title.contrast(p.surface) >= 4.5);
+            assert!(p.muted.contrast(p.surface) >= 4.5);
+            assert!(p.ink.contrast(p.field) >= 4.5);
+            assert!(p.accent.contrast(p.focus) >= 4.5);
+        }
+        assert!(field_order("work", "name") < field_order("work", "position"));
+        assert!(field_order("work", "startDate") < field_order("work", "endDate"));
+        assert!(full_width_field("work", "summary"));
+        assert!(!full_width_field("work", "position"));
+    }
+
+    #[gpui::test]
+    fn semantic_field_grid_and_dragging_keep_form_and_rails_stable(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, _| window.refresh());
+        let right = cx.debug_bounds("module-panel").unwrap();
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.open_inline("work", Some(0), window, cx));
+        });
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, _| window.refresh());
+        let form = cx.debug_bounds("inline-form").unwrap();
+        let company = cx.debug_bounds("inline-field-name").unwrap();
+        let content_width = cx.update(|_, cx| {
+            let app = view.read(cx);
+            let style = app.active_style();
+            (style.page.width_mm - style.page.margins.left - style.page.margins.right)
+                * 3.
+                * app.preview_scale
+        });
+        assert!(f32::from(form.size.width) > content_width + 60.);
+        assert!(form.left() >= paper.left() + px(13.));
+        assert!(form.right() <= paper.right() - px(13.));
+        let position = cx.debug_bounds("inline-field-position").unwrap();
+        let start = cx.debug_bounds("inline-field-startDate").unwrap();
+        let end = cx.debug_bounds("inline-field-endDate").unwrap();
+        let summary = cx.debug_bounds("inline-field-summary").unwrap();
+        assert_eq!(company.top(), position.top());
+        assert_eq!(start.top(), end.top());
+        assert!(start.top() > company.top());
+        assert!(summary.size.width > company.size.width * 1.9);
+        assert!(company.left() - form.left() >= px(20.));
+        assert!(form.right() - position.right() >= px(20.));
+        cx.update(|_, cx| assert_eq!(view.read(cx).inline.bounds.get(), Some(form)));
+        // Long fields can continue below the clipped scroll viewport. Only
+        // visible fields are valid pointer targets until the user scrolls.
+        for bounds in [company, position, start, end] {
+            assert!(form.contains(&bounds.center()));
+            cx.simulate_mouse_move(
+                bounds.center(),
+                Some(gpui::MouseButton::Left),
+                Modifiers::none(),
+            );
+            cx.update(|_, cx| assert!(!view.read(cx).inline.closing));
+        }
+        let outside = point(paper.left() + px(3.), form.top() + px(20.));
+        cx.simulate_mouse_move(outside, Some(gpui::MouseButton::Left), Modifiers::none());
+        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+        assert_eq!(right, cx.debug_bounds("module-panel").unwrap());
+        assert_eq!(paper, cx.debug_bounds("resume-paper").unwrap());
+    }
+
+    #[gpui::test]
+    fn wider_form_keeps_paper_insets_and_adapts_its_grid_across_all_themes(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        let mut saw_single_column = false;
+        let mut saw_two_columns = false;
+        for (width, height, inspector_open) in [
+            (1440., 900., false),
+            (1280., 820., false),
+            (1024., 640., false),
+            (720., 480., false),
+            (720., 480., true),
+        ] {
+            cx.simulate_resize(gpui::size(px(width), px(height)));
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| {
+                    if inspector_open {
+                        app.show_appearance(window, cx);
+                    } else {
+                        app.finish_appearance(window, cx);
+                    }
+                })
+            });
+            for index in 0..crate::model::BUILTIN_THEMES.len() {
+                cx.update(|window, cx| {
+                    view.update(cx, |app, cx| {
+                        app.clear_inline();
+                        app.model.select_theme(index);
+                        cx.notify();
+                    });
+                    window.refresh();
+                });
+                cx.update(|window, cx| {
+                    view.update(cx, |app, cx| app.open_inline("work", Some(0), window, cx))
+                });
+                cx.executor().advance_clock(INLINE_FADE_IN);
+                cx.update(|window, _| window.refresh());
+                let paper = cx.debug_bounds("resume-paper").unwrap();
+                let form = cx.debug_bounds("inline-form").unwrap();
+                let company = cx.debug_bounds("inline-field-name").unwrap();
+                let position = cx.debug_bounds("inline-field-position").unwrap();
+                assert!(
+                    form.left() >= paper.left() + px(13.),
+                    "{width}, theme {index}"
+                );
+                assert!(
+                    form.right() <= paper.right() - px(13.),
+                    "{width}, theme {index}"
+                );
+                assert!(company.left() >= form.left() + px(20.));
+                assert!(position.right() <= form.right() - px(20.));
+                if form.size.width >= px(440.) {
+                    saw_two_columns = true;
+                    assert_eq!(company.top(), position.top());
+                    assert!(company.right() < position.left());
+                } else {
+                    saw_single_column = true;
+                    assert!(position.top() > company.bottom());
+                    assert_eq!(company.left(), position.left());
+                }
+            }
+        }
+        assert!(saw_single_column && saw_two_columns);
+    }
+
+    #[gpui::test]
+    fn leaving_a_focused_form_commits_visible_ime_text_without_saving(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("ime.json");
+        let disk = br#"{"basics":{"name":"Original"}}"#;
+        std::fs::write(&path, disk).unwrap();
+        let model = AppModel::load(Some(&path)).unwrap();
+        let child = Rc::new(RefCell::new(None));
+        let child_for_window = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(model, cx));
+            *child_for_window.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        for immediate in [false, true] {
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| app.open_inline("basics", None, window, cx));
+            });
+            executor.advance_clock(INLINE_FADE_IN);
+            cx.update(|window, _| window.refresh());
+            let form = cx.debug_bounds("inline-form").unwrap();
+            let paper = cx.debug_bounds("resume-paper").unwrap();
+            cx.simulate_mouse_move(form.center(), None, Modifiers::none());
+            let input = cx.update(|_, cx| {
+                view.read(cx)
+                    .inline
+                    .form
+                    .as_ref()
+                    .unwrap()
+                    .fields
+                    .iter()
+                    .find(|field| field.key == "name")
+                    .unwrap()
+                    .input
+                    .clone()
+            });
+            cx.update(|window, cx| {
+                input.update(cx, |state, cx| {
+                    state.focus(window, cx);
+                    let length = state.value().chars().map(char::len_utf16).sum();
+                    state.replace_and_mark_text_in_range(Some(0..length), "简里", None, window, cx);
+                    assert!(state.is_composing());
+                });
+            });
+            let outside = point(paper.left() + px(3.), form.top() + px(20.));
+            assert!(!form.contains(&outside) && paper.contains(&outside));
+            if immediate {
+                // A render re-reads the real system preference. Exercise this
+                // branch directly without changing the host's preference.
+                cx.update(|window, cx| {
+                    view.update(cx, |app, cx| {
+                        app.reduce_motion = true;
+                        app.inline_pointer_moved(outside, window, cx);
+                    });
+                });
+            } else {
+                cx.simulate_mouse_move(outside, None, Modifiers::none());
+            }
+            cx.update(|window, cx| {
+                let app = view.read(cx);
+                assert!(!input.read(cx).is_composing());
+                assert!(!input.read(cx).focus_handle(cx).is_focused(window));
+                assert_eq!(app.model.document.value["basics"]["name"], "简里");
+                assert!(
+                    app.editor
+                        .as_ref()
+                        .unwrap()
+                        .buffer
+                        .source()
+                        .contains("简里")
+                );
+                assert!(app.editor.as_ref().unwrap().buffer.is_dirty());
+                if immediate {
+                    assert!(app.inline.form.is_none());
+                } else {
+                    assert!(app.inline.closing);
+                    assert_eq!(app.inline.visibility.target(), 0.);
+                }
+            });
+            executor.advance_clock(INLINE_FADE_OUT);
+            cx.update(|window, _| window.refresh());
+            cx.run_until_parked();
+            cx.update(|window, cx| {
+                view.update(cx, |app, cx| {
+                    assert!(app.inline.form.is_none());
+                    app.undo_visual_edit(&structure_ui::UndoVisualEdit, window, cx);
+                });
+            });
+            cx.run_until_parked();
+            cx.update(|_, cx| {
+                assert_eq!(
+                    view.read(cx).model.document.value["basics"]["name"],
+                    "Original"
+                );
+            });
+            assert_eq!(std::fs::read(&path).unwrap(), disk);
+        }
+    }
+
+    #[gpui::test]
+    fn exit_does_not_reopen_the_same_target_or_reverse_an_explicit_dismissal(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.open_inline("work", Some(0), window, cx);
+                app.paper_hover_changed(0, true, window, cx);
+            })
+        });
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.form_hover_changed(app.inline.form_epoch, false, window, cx);
+            })
+        });
+        executor.advance_clock(INLINE_FADE_OUT);
+        cx.update(|window, _| window.refresh());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.inline.form.is_none());
+                app.hovered_item = Some(("work".into(), 0, 0));
+                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+                assert!(app.inline.candidate.is_none());
+                app.inline_region_left("work", Some(0), 0);
+                app.inline_ink_hover("work", Some(0), 0, 0, true, window, cx);
+                assert!(app.inline.candidate.is_some());
+            })
+        });
+        executor.advance_clock(INLINE_HOVER_DELAY);
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                assert!(app.inline_matches("work", Some(0)));
+                app.dismiss_inline(&DismissInline, window, cx);
+                let inside = app.inline.bounds.get().unwrap().center();
+                app.inline_pointer_moved(inside, window, cx);
+                assert!(app.inline.closing && app.inline.closing_explicit);
+                // Explicit click/keyboard activation still opens the same target.
+                app.open_inline("work", Some(0), window, cx);
+                assert!(!app.inline.closing && !app.inline.closing_explicit);
+            })
+        });
+    }
 
     #[gpui::test]
     fn line_gaps_keep_one_dwell_but_never_open_over_blank_or_after_scrolling(
@@ -1520,82 +2190,60 @@ mod tests {
             cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                app.reduce_motion = false;
                 app.open_inline("work", Some(0), window, cx);
-                app.paper_hover_changed(0, true, window, cx);
             })
         });
-        executor.advance_clock(Duration::from_millis(30));
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                let before = app
-                    .inline
-                    .visibility
-                    .sample(cx.background_executor().now())
-                    .0;
-                assert!(before > 0. && before < 1.);
-                app.inline.paper_hovered = None;
-                app.close_inline_outside(window, cx);
-                assert_eq!(
-                    before,
-                    app.inline
-                        .visibility
-                        .sample(cx.background_executor().now())
-                        .0
-                );
-            })
-        });
-        executor.advance_clock(Duration::from_millis(20));
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                let before = app
-                    .inline
-                    .visibility
-                    .sample(cx.background_executor().now())
-                    .0;
-                app.paper_hover_changed(0, true, window, cx);
-                assert_eq!(
-                    before,
-                    app.inline
-                        .visibility
-                        .sample(cx.background_executor().now())
-                        .0
-                );
-                assert_eq!(app.inline.visibility.target(), 1.);
-            })
-        });
+        cx.update(|window, _| window.refresh());
+        let form = cx.debug_bounds("inline-form").unwrap();
+        let paper = cx.debug_bounds("resume-paper").unwrap();
+        let outside = point(paper.left() + px(5.), form.top() + px(20.));
+        assert!(paper.contains(&outside));
+        assert!(!form.contains(&outside));
         for _ in 0..10 {
-            cx.update(|window, cx| {
-                view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx))
+            cx.simulate_mouse_move(form.center(), None, Modifiers::none());
+            executor.advance_clock(INLINE_FADE_IN);
+            cx.update(|window, _| window.refresh());
+            cx.simulate_mouse_move(outside, None, Modifiers::none());
+            cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+            executor.advance_clock(Duration::from_millis(30));
+            cx.update(|window, _| window.refresh());
+            let before = cx.update(|_, cx| {
+                view.read(cx)
+                    .inline
+                    .visibility
+                    .sample(cx.background_executor().now())
+                    .0
             });
-            executor.advance_clock(Duration::from_millis(45));
-            cx.run_until_parked();
-            cx.update(|window, cx| {
-                view.update(cx, |app, cx| app.paper_hover_changed(0, true, window, cx))
+            assert!(before > 0. && before < 1.);
+            cx.simulate_mouse_move(form.center(), None, Modifiers::none());
+            cx.update(|_, cx| {
+                let app = view.read(cx);
+                assert_eq!(
+                    before,
+                    app.inline
+                        .visibility
+                        .sample(cx.background_executor().now())
+                        .0
+                );
+                assert!(!app.inline.closing);
             });
-            executor.advance_clock(Duration::from_millis(10));
-            cx.run_until_parked();
         }
         executor.advance_clock(INLINE_FADE_IN);
-        cx.run_until_parked();
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                assert!(app.inline.form.is_some());
-                assert_eq!(
-                    app.inline.visibility.sample(cx.background_executor().now()),
-                    (1., true)
-                );
-                app.paper_hover_changed(0, false, window, cx);
-            })
-        });
-        executor.advance_clock(INLINE_CLOSE_GRACE);
-        cx.run_until_parked();
+        cx.update(|window, _| window.refresh());
+        cx.simulate_mouse_move(outside, None, Modifiers::none());
         executor.advance_clock(INLINE_FADE_OUT - Duration::from_millis(1));
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
         executor.advance_clock(Duration::from_millis(1));
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.open_inline("work", Some(0), window, cx));
+        });
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, _| window.refresh());
+        cx.simulate_event(gpui::MouseExitEvent::default());
+        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
     }
 
     #[gpui::test]
@@ -1694,133 +2342,71 @@ mod tests {
     }
 
     #[gpui::test]
-    fn hover_handoff_has_grace_and_ignores_stale_page_or_form_events(cx: &mut TestAppContext) {
+    fn hover_exit_uses_the_form_not_the_paper_and_ignores_stale_events(cx: &mut TestAppContext) {
         cx.update(gpui_component::init);
         let executor = cx.executor();
-        let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("hover.json");
-        std::fs::write(&path, br#"{"basics":{"name":"A"},"work":[{"name":"B"}]}"#).unwrap();
-        let model = AppModel::load(Some(&path)).unwrap();
-        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        let (view, cx) =
+            cx.add_window_view(|_, cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                app.reduce_motion = false;
-                app.open_inline("basics", None, window, cx);
+                app.open_inline("work", Some(0), window, cx);
+                let epoch = app.inline.form_epoch;
+                app.form_hover_changed(epoch, true, window, cx);
                 app.paper_hover_changed(0, true, window, cx);
                 app.paper_hover_changed(1, true, window, cx);
                 app.paper_hover_changed(0, false, window, cx);
                 assert_eq!(app.inline.paper_hovered, Some(1));
-                assert!(app.inline.form.is_some());
-            });
-        });
-        executor.advance_clock(INLINE_CLOSE_GRACE);
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
-
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                app.paper_hover_changed(1, false, window, cx);
-            });
-        });
-        executor.advance_clock(Duration::from_millis(90));
-        cx.run_until_parked();
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                app.paper_hover_changed(0, true, window, cx);
-            });
-        });
-        executor.advance_clock(Duration::from_millis(90));
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
-
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx));
-        });
-        executor.advance_clock(INLINE_CLOSE_GRACE);
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
-        executor.advance_clock(INLINE_FADE_OUT / 2);
-        cx.run_until_parked();
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                app.paper_hover_changed(0, true, window, cx);
                 assert!(!app.inline.closing);
-                assert_eq!(app.inline.visibility.target(), 1.);
-            });
+            })
         });
-        executor.advance_clock(INLINE_FADE_OUT);
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
-
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| app.paper_hover_changed(0, false, window, cx));
-        });
-        executor.advance_clock(INLINE_CLOSE_GRACE);
-        cx.run_until_parked();
+        executor.advance_clock(INLINE_FADE_IN);
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                assert!(app.inline.closing);
-                app.open_inline("basics", None, window, cx);
-                assert!(!app.inline.closing);
-                assert_eq!(app.inline.visibility.target(), 1.);
-                app.paper_hover_changed(0, true, window, cx);
-            });
-        });
-        executor.advance_clock(INLINE_FADE_OUT);
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline_matches("basics", None)));
-
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                let old_epoch = app.inline.form_epoch;
-                app.hovered_item = Some(("work".into(), 0, 0));
-                app.schedule_inline("work", Some(0), 0, window, cx);
-                app.form_hover_changed(old_epoch, true, window, cx);
-            });
-        });
-        executor.advance_clock(INLINE_SWITCH_DELAY);
-        cx.run_until_parked();
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
-                assert!(
-                    app.inline_matches("basics", None),
-                    "entering the form cancels another item's hover"
-                );
                 let epoch = app.inline.form_epoch;
                 app.form_hover_changed(epoch, false, window, cx);
-                app.schedule_inline("work", Some(0), 0, window, cx);
-            });
+                assert!(
+                    app.inline.closing,
+                    "leaving the editor must start fading immediately, even on the paper"
+                );
+                app.paper_hover_changed(0, true, window, cx);
+                assert!(
+                    app.inline.closing,
+                    "paper re-entry must not keep an editor alive"
+                );
+                app.form_hover_changed(epoch - 1, true, window, cx);
+                assert!(
+                    app.inline.closing,
+                    "an old form cannot reverse the current fade"
+                );
+            })
         });
-        executor.advance_clock(INLINE_SWITCH_DELAY);
-        cx.run_until_parked();
+        executor.advance_clock(INLINE_FADE_OUT / 2);
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
-                assert!(app.inline_matches("work", Some(0)));
-                let current_epoch = app.inline.form_epoch;
-                app.form_hover_changed(current_epoch - 1, false, window, cx);
-                assert_eq!(app.inline.form_epoch, current_epoch);
-                assert!(!app.inline.form_hovered);
-                app.paper_hover_changed(0, false, window, cx);
-            });
+                let now = cx.background_executor().now();
+                let before = app.inline.visibility.sample(now).0;
+                app.form_hover_changed(app.inline.form_epoch, true, window, cx);
+                assert_eq!(app.inline.visibility.sample(now).0, before);
+                assert!(!app.inline.closing);
+            })
         });
-        executor.advance_clock(INLINE_CLOSE_GRACE);
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.closing));
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| {
+                app.form_hover_changed(app.inline.form_epoch, false, window, cx);
+            })
+        });
         executor.advance_clock(INLINE_FADE_OUT);
-        cx.run_until_parked();
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
-
         cx.update(|window, cx| {
             view.update(cx, |app, cx| {
+                app.open_inline("work", Some(0), window, cx);
                 app.reduce_motion = true;
-                app.open_inline("basics", None, window, cx);
-                assert!(app.inline.form.is_some());
-                app.inline.paper_hovered = None;
-                app.inline.form_hovered = false;
-                app.close_inline_outside(window, cx);
+                app.form_hover_changed(app.inline.form_epoch, true, window, cx);
+                app.form_hover_changed(app.inline.form_epoch, false, window, cx);
                 assert!(app.inline.form.is_none());
-            });
+            })
         });
     }
 
@@ -2188,14 +2774,11 @@ mod tests {
         );
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
+        executor.advance_clock(INLINE_FADE_IN);
+        cx.update(|window, _| window.refresh());
         cx.simulate_mouse_move(point(px(20.0), px(100.0)), None, Modifiers::none());
         cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
-        executor.advance_clock(INLINE_CLOSE_GRACE - Duration::from_millis(1));
-        cx.run_until_parked();
-        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_some()));
-        executor.advance_clock(Duration::from_millis(1));
-        cx.run_until_parked();
         cx.update(|_, cx| assert!(view.read(cx).inline.closing));
         executor.advance_clock(INLINE_FADE_OUT);
         cx.run_until_parked();
@@ -2205,6 +2788,8 @@ mod tests {
         cx.simulate_keystrokes("tab tab tab tab enter");
         cx.update(|window, cx| assert!(view.read(cx).inline_focused(window, cx)));
         cx.simulate_keystrokes("escape");
+        executor.advance_clock(INLINE_FADE_OUT);
+        cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.simulate_click(
             point(header.left() + px(10.0), header.top() + px(10.0)),
@@ -2235,8 +2820,8 @@ mod tests {
             })
         });
         cx.run_until_parked();
-        cx.update(|window, cx| {
-            view.update(cx, |app, cx| {
+        cx.update(|_, cx| {
+            view.update(cx, |app, _| {
                 assert!(
                     app.editor
                         .as_ref()
@@ -2248,8 +2833,6 @@ mod tests {
                 assert!(!app.editor.as_ref().unwrap().buffer.issues().is_empty());
                 assert!(app.inline.form.as_ref().unwrap().error.is_some());
                 assert_eq!(app.model.document.value["basics"]["email"], "a@example.com");
-                app.inline.paper_hovered = None;
-                app.close_inline_outside(window, cx);
                 assert!(app.inline.form.is_some());
             });
         });

@@ -501,11 +501,11 @@ impl ResumeOne {
         self.cancel_insertion();
         self.hovered_theme = None;
         self.online.cancel_interaction();
-        crate::editor_ui::apply_editor_theme(self.model.selected_style(), cx);
+        crate::editor_ui::apply_editor_theme(&self.model.selected_style(), cx);
         let owner = cx.entity();
         let manager = cx.new(|cx| ThemeManager::new(owner.clone(), window, cx));
         let close_owner = owner.downgrade();
-        let quiet = quiet_button(self.model.selected_style(), cx);
+        let quiet = quiet_button(&self.model.selected_style(), cx);
         let border = color(self.model.selected_style().colors.border);
         window.open_dialog(cx, move |dialog, _, _| {
             dialog

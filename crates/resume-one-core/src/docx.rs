@@ -23,16 +23,33 @@ fn twips(pt: f32) -> u32 {
 }
 
 fn font(style: &TextStyle) -> RunFonts {
-    let family = if style.family.ends_with("serif") {
-        "Noto Serif SC"
+    let kind = crate::layout::font_kind(style).expect("validated document font");
+    let family = kind.family();
+    let east_asia = if let crate::layout::FontKind::Local(id) = kind {
+        let data = crate::fonts::get(id);
+        if ttf_parser::Face::parse(&data.bytes, 0)
+            .ok()
+            .is_some_and(|face| face.glyph_index('中').is_some())
+        {
+            family.clone()
+        } else {
+            "Noto Sans SC".into()
+        }
     } else {
-        "Noto Sans SC"
+        family.clone()
     };
     RunFonts::new()
-        .ascii(family)
-        .hi_ansi(family)
-        .east_asia(family)
+        .ascii(&family)
+        .hi_ansi(&family)
+        .east_asia(east_asia)
         .cs(family)
+}
+
+fn effective_bold(style: &TextStyle) -> bool {
+    match crate::layout::font_kind(style).expect("validated document font") {
+        crate::layout::FontKind::Local(id) => crate::fonts::get(id).weight >= 600,
+        _ => style.weight >= 600,
+    }
 }
 
 fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: f32) -> Paragraph {
@@ -40,7 +57,7 @@ fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: 
         .size((style.size_pt * 2.0).round() as usize)
         .color(color(ink))
         .fonts(font(style));
-    if style.weight >= 600 {
+    if effective_bold(style) {
         run = run.bold();
     }
     // Keep explicit newlines, but let Word wrap instead of hard-breaking at PDF wraps.
@@ -133,11 +150,8 @@ fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragrap
 }
 
 pub fn render(content: &ResumeContent, language: Language) -> Result<Vec<u8>, String> {
-    pack(build_document(
-        content,
-        language,
-        &ThemeStyle::built_in_fallback(),
-    )?)
+    let style = ThemeStyle::built_in_fallback();
+    pack(build_document(content, language, &style)?, &style)
 }
 
 pub fn render_with_theme(
@@ -147,11 +161,8 @@ pub fn render_with_theme(
 ) -> Result<Vec<u8>, String> {
     // Never silently flatten unsupported composition, decorations, assets or typography.
     check_theme(theme)?;
-    pack(build_document(
-        content,
-        language,
-        &ThemeStyle::from_manifest(theme),
-    )?)
+    let style = ThemeStyle::from_manifest(theme);
+    pack(build_document(content, language, &style)?, &style)
 }
 
 fn build_document(
@@ -352,7 +363,7 @@ fn build_document(
                         .size((heading.size_pt * 2.0).round() as usize)
                         .color(color(ink))
                         .fonts(font(&heading));
-                    if heading.weight >= 600 {
+                    if effective_bold(&heading) {
                         heading_run = heading_run.bold();
                     }
                     paragraphs.push(
@@ -476,10 +487,60 @@ fn build_document(
     Ok(package)
 }
 
-fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
+fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
     // The bundled OFL fonts permit embedding. Full faces preserve editability
     // for newly typed text; never subset against only the current resume.
     document.font_table = br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:fonts xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:font w:name="Noto Sans SC"><w:family w:val="swiss"/><w:embedRegular r:id="rIdSans" w:fontKey="{00000000-0000-0000-0000-000000000001}" w:subsetted="false"/></w:font><w:font w:name="Noto Serif SC"><w:family w:val="roman"/><w:embedBold r:id="rIdSerif" w:fontKey="{00000000-0000-0000-0000-000000000002}" w:subsetted="false"/></w:font></w:fonts>"#.to_vec();
+    let mut local_ids = std::collections::BTreeSet::new();
+    for role in [
+        &style.typography.body,
+        &style.typography.name,
+        &style.typography.section_title,
+        &style.typography.meta,
+    ] {
+        if let crate::layout::FontKind::Local(id) = crate::layout::font_kind(role)? {
+            local_ids.insert(id);
+        }
+    }
+    let mut local_fonts = Vec::new();
+    let mut font_entries = String::new();
+    let mut family_entries = std::collections::BTreeMap::<String, String>::new();
+    let mut relationships = String::new();
+    for (index, id) in local_ids.into_iter().enumerate() {
+        let font = crate::fonts::get(id);
+        if !font.editable_embed {
+            return Err(format!(
+                "字体「{}」的嵌入标记不允许嵌入可编辑 DOCX，请更换字体",
+                font.family
+            ));
+        }
+        let key = (index + 3) as u8;
+        let name = xml_escape(&font.family);
+        let face_tag = if font.weight >= 600 {
+            "embedBold"
+        } else {
+            "embedRegular"
+        };
+        let entries = family_entries.entry(name).or_default();
+        // Word only has regular/bold slots. A family without a bold face can
+        // resolve two requested weights to the same regular face; never emit
+        // duplicate slots or ask Word to synthesize a weight absent in preview.
+        if entries.contains(&format!("<w:{face_tag} ")) {
+            continue;
+        }
+        entries.push_str(&format!(r#"<w:{face_tag} r:id="rIdLocal{index}" w:fontKey="{{00000000-0000-0000-0000-0000000000{key:02X}}}" w:subsetted="false"/>"#));
+        relationships.push_str(&format!(r#"<Relationship Id="rIdLocal{index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/local{index}.odttf"/>"#));
+        local_fonts.push((format!("local{index}"), font.bytes, key));
+    }
+    for (name, faces) in family_entries {
+        font_entries.push_str(&format!(
+            r#"<w:font w:name="{name}"><w:family w:val="auto"/>{faces}</w:font>"#
+        ));
+    }
+    document.font_table = String::from_utf8(document.font_table)
+        .map_err(|e| e.to_string())?
+        .replace("</w:fonts>", &format!("{font_entries}</w:fonts>"))
+        .into_bytes();
     let content_types = String::from_utf8(document.content_type).map_err(|e| e.to_string())?;
     document.content_type = content_types.replace("</Types>", r#"<Default Extension="odttf" ContentType="application/vnd.openxmlformats-officedocument.obfuscatedFont"/></Types>"#).into_bytes();
     let settings = String::from_utf8(document.settings).map_err(|e| e.to_string())?;
@@ -508,7 +569,12 @@ fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
     archive
         .start_file("word/_rels/fontTable.xml.rels", options)
         .map_err(|e| e.to_string())?;
-    archive.write_all(br#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdSans" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/sans.odttf"/><Relationship Id="rIdSerif" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/serif.odttf"/></Relationships>"#).map_err(|e| e.to_string())?;
+    let rels = format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdSans" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/sans.odttf"/><Relationship Id="rIdSerif" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/serif.odttf"/>{relationships}</Relationships>"#
+    );
+    archive
+        .write_all(rels.as_bytes())
+        .map_err(|e| e.to_string())?;
     for (name, data, key) in [
         ("sans", crate::layout::SANS_FONT_BYTES, 1u8),
         ("serif", crate::layout::SERIF_FONT_BYTES, 2u8),
@@ -523,7 +589,25 @@ fn pack(mut document: XMLDocx) -> Result<Vec<u8>, String> {
         obfuscated[16] ^= key;
         archive.write_all(&obfuscated).map_err(|e| e.to_string())?;
     }
+    for (name, data, key) in local_fonts {
+        archive
+            .start_file(format!("word/fonts/{name}.odttf"), options)
+            .map_err(|e| e.to_string())?;
+        let mut bytes = data.as_ref().clone();
+        bytes[0] ^= key;
+        bytes[16] ^= key;
+        archive.write_all(&bytes).map_err(|e| e.to_string())?;
+    }
     Ok(archive.finish().map_err(|e| e.to_string())?.into_inner())
+}
+
+fn xml_escape(value: &str) -> String {
+    value
+        .replace('&', "&amp;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&apos;")
 }
 
 #[cfg(test)]

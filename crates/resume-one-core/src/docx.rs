@@ -149,6 +149,50 @@ fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragrap
     p
 }
 
+/// A keepNext paragraph inside a page-spanning outer row can cause readers to
+/// push the entire two-column table off the first page. Use small nested rows
+/// for semantic keep groups instead; the outer lane row remains splittable.
+fn lane_table(paragraphs: Vec<Paragraph>, width: usize) -> Table {
+    let mut rows = Vec::new();
+    let mut group = Vec::new();
+    for mut paragraph in paragraphs {
+        let keep = paragraph.property.keep_next.take().unwrap_or(false);
+        group.push(paragraph);
+        if !keep {
+            let together = group.len() > 1;
+            let mut cell = TableCell::new().width(width, WidthType::Dxa);
+            for p in std::mem::take(&mut group) {
+                cell = cell.add_paragraph(p);
+            }
+            let row = TableRow::new(vec![cell]);
+            rows.push(if together { row.cant_split() } else { row });
+        }
+    }
+    if !group.is_empty() {
+        let mut cell = TableCell::new().width(width, WidthType::Dxa);
+        for p in group {
+            cell = cell.add_paragraph(p);
+        }
+        rows.push(TableRow::new(vec![cell]));
+    }
+    Table::without_borders(rows)
+        .set_grid(vec![width])
+        .layout(TableLayoutType::Fixed)
+        .width(width, WidthType::Dxa)
+        .margins(TableCellMargins::new().margin(0, 0, 0, 0))
+}
+
+fn lane_end() -> Paragraph {
+    // OOXML requires a paragraph after a nested table. Keep it unobtrusive.
+    Paragraph::new().add_run(Run::new().size(2)).line_spacing(
+        LineSpacing::new()
+            .before(0)
+            .after(0)
+            .line_rule(LineSpacingType::AtLeast)
+            .line(20),
+    )
+}
+
 pub fn render(content: &ResumeContent, language: Language) -> Result<Vec<u8>, String> {
     let style = ThemeStyle::built_in_fallback();
     pack(build_document(content, language, &style)?, &style)
@@ -325,11 +369,20 @@ fn build_document(
     if !content.summary.is_empty() {
         document = document.add_paragraph(paragraph(&content.summary, body, ink, 0.0, gap / 2.0));
     }
-    let mut heading = body.clone();
-    heading.size_pt *= 1.06;
+    let mut columns: [Vec<Paragraph>; 2] = Default::default();
     for section in &content.sections {
+        let sidebar = style.in_sidebar(section.id);
+        let local = style.column_style(sidebar);
+        let style = &local;
+        let page = &style.page;
+        let body = &style.typography.body;
+        let meta = &style.typography.meta;
+        let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
+        let mut heading = body.clone();
+        heading.size_pt *= 1.06;
+        let column = &mut columns[usize::from(sidebar)];
         let section_style = style.section(section.id);
-        document = document.add_paragraph(
+        column.push(
             section_heading(section.id, language, style)
                 .keep_next(page.keep_heading_with_first_item && !section.items.is_empty())
                 .keep_lines(true),
@@ -457,9 +510,70 @@ fn build_document(
                 }
                 // Link only this item, never a complete section or neighbouring items.
                 // Oversized paragraphs stay splittable by Word to avoid overflow.
-                document = document
-                    .add_paragraph(p.keep_next(page.avoid_split_items && index + 1 < count));
+                column.push(p.keep_next(page.avoid_split_items && index + 1 < count));
             }
+        }
+    }
+    if style.has_sidebar() {
+        let main_style = style.column_style(false);
+        let side_style = style.column_style(true);
+        let main_width = twips(
+            (page.width_mm - main_style.page.margins.left - main_style.page.margins.right)
+                * PT_PER_MM,
+        ) as usize;
+        let side_width = twips(
+            (page.width_mm - side_style.page.margins.left - side_style.page.margins.right)
+                * PT_PER_MM
+                + 12.0,
+        ) as usize;
+        let total =
+            twips((page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM) as usize;
+        let gap_width = total.saturating_sub(main_width + side_width);
+        let mut main = TableCell::new().width(main_width, WidthType::Dxa);
+        let mut side = TableCell::new()
+            .width(side_width, WidthType::Dxa)
+            .shading(docx_rs::Shading::new().fill(color(style.colors.sidebar)));
+        side.property = side
+            .property
+            .margin_left(twips(6.0) as usize, WidthType::Dxa)
+            .margin_right(twips(6.0) as usize, WidthType::Dxa);
+        if !columns[0].is_empty() {
+            main = main.add_table(lane_table(std::mem::take(&mut columns[0]), main_width));
+        }
+        main = main.add_paragraph(lane_end());
+        if !columns[1].is_empty() {
+            side = side.add_table(lane_table(
+                std::mem::take(&mut columns[1]),
+                side_width.saturating_sub(twips(12.0) as usize),
+            ));
+        }
+        side = side.add_paragraph(lane_end());
+        let gap = TableCell::new()
+            .width(gap_width, WidthType::Dxa)
+            .add_paragraph(Paragraph::new().line_spacing(LineSpacing::new().line(20)));
+        let (cells, grid) = if style.composition_preset == "sidebar-left" {
+            (
+                vec![side, gap, main],
+                vec![side_width, gap_width, main_width],
+            )
+        } else {
+            (
+                vec![main, gap, side],
+                vec![main_width, gap_width, side_width],
+            )
+        };
+        // No cantSplit and no fixed height: both cells remain editable and
+        // flow over as many pages as their content requires.
+        document = document.add_table(
+            Table::without_borders(vec![TableRow::new(cells)])
+                .set_grid(grid)
+                .layout(TableLayoutType::Fixed)
+                .width(total, WidthType::Dxa)
+                .margins(TableCellMargins::new().margin(0, 0, 0, 0)),
+        );
+    } else {
+        for p in std::mem::take(&mut columns[0]) {
+            document = document.add_paragraph(p);
         }
     }
     // A repeating, behind-text page-sized vector shape prints consistently in
@@ -973,6 +1087,55 @@ mod tests {
     }
 
     #[test]
+    fn lane_keep_groups_use_small_rows_not_outer_row_paragraph_keep_next() {
+        use docx_rs::{BuildXML, TableChild};
+        let table = lane_table(
+            vec![
+                Paragraph::new().keep_next(true),
+                Paragraph::new().keep_next(false),
+                Paragraph::new().keep_next(true),
+                Paragraph::new().keep_next(false),
+            ],
+            2400,
+        );
+        assert_eq!(table.rows.len(), 2);
+        for TableChild::TableRow(row) in &table.rows {
+            assert!(row.property.cant_split.is_some());
+        }
+        let xml = String::from_utf8(table.build()).unwrap();
+        assert!(!xml.contains("<w:keepNext"));
+        assert!(!xml.contains("<w:trHeight"));
+        assert_eq!(xml.matches("<w:cantSplit").count(), 2);
+    }
+
+    #[test]
+    fn sidebar_uses_editable_splittable_cells_with_explicit_lane_widths_and_tint() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+        ))
+        .unwrap();
+        let content = project(&parse_resume(br#"{"basics":{"name":"Name"},"work":[{"name":"MainCompany","summary":"MainBody"}],"skills":[{"name":"SideSkill","keywords":["Rust"]}],"languages":[{"language":"SideLanguage"}]}"#).unwrap());
+        for direction in ["sidebar-left", "sidebar-right"] {
+            theme.normalized["composition"]["preset"] = serde_json::json!(direction);
+            let style = ThemeStyle::from_manifest(&theme);
+            let package = build_document(&content, Language::En, &style).unwrap();
+            let xml = String::from_utf8(package.document).unwrap();
+            assert!(xml.contains("<w:tbl>"));
+            assert!(xml.contains("w:fill=\"DFE8E3\""));
+            assert!(xml.contains("<w:cantSplit")); // small semantic keep groups only
+            assert!(!xml.contains("<w:trHeight"));
+            assert!(
+                xml.contains("MainBody") && xml.contains("Rust") && xml.contains("SideLanguage")
+            );
+            assert_eq!(
+                xml.find("SideSkill").unwrap() < xml.find("MainCompany").unwrap(),
+                direction == "sidebar-left"
+            );
+            assert!(!xml.contains("<w:drawing>"));
+        }
+    }
+
+    #[test]
     fn rejects_unsupported_theme_instead_of_flattening() {
         let mut theme =
             crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
@@ -980,7 +1143,8 @@ mod tests {
         let content = project(&parse_resume(b"{}").unwrap());
         assert!(
             render_with_theme(&content, Language::Zh, &theme)
-                .unwrap_err()
+                .err()
+                .unwrap()
                 .contains("composition")
         );
     }

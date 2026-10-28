@@ -871,8 +871,7 @@ fn exports_themed_docx_and_preserves_existing_output_on_failure() {
     assert_eq!(response["error"]["code"], "FILE_EXISTS");
     assert_eq!(fs::read(&out).unwrap(), old);
     let mut value: Value = serde_json::from_slice(&fs::read(&theme).unwrap()).unwrap();
-    value["composition"] =
-        serde_json::json!({"preset":"sidebar-left","placements":{"work":"sidebar"}});
+    value["composition"] = serde_json::json!({"preset":"single-column","contact":"icons"});
     fs::write(&theme, serde_json::to_vec(&value).unwrap()).unwrap();
     let mut overwrite = args.to_vec();
     overwrite.push("--overwrite");
@@ -1049,7 +1048,7 @@ fn exports_pdf_with_validated_theme_and_rejects_unsupported_layout() {
     assert_eq!(fs::read_to_string(&resume).unwrap(), untouched);
 
     let unsupported = root.path().join("sidebar.theme.json");
-    fs::write(&unsupported, r##"{"formatVersion":2,"id":"sidebar","name":"Side","version":"1.0.0","license":"MIT","layout":"classic","colors":{"accent":"#345678","seal":"#AA5544","paper":"#FFFFFF","canvas":"#F7F7F7"},"modules":["basics","work"],"composition":{"preset":"sidebar-left","placements":{"work":"sidebar"}}}"##).unwrap();
+    fs::write(&unsupported, r##"{"formatVersion":2,"id":"sidebar","name":"Side","version":"1.0.0","license":"MIT","layout":"classic","colors":{"accent":"#345678","seal":"#AA5544","paper":"#FFFFFF","canvas":"#F7F7F7"},"modules":["basics","work"],"composition":{"preset":"single-column","contact":"icons"}}"##).unwrap();
     let old_pdf = fs::read(&pdf).unwrap();
     let (status, response) = call(&[
         "export",

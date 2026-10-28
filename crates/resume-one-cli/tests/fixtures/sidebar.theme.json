@@ -1,0 +1,35 @@
+{
+  "formatVersion": 2,
+  "id": "sidebar-acceptance",
+  "name": "侧栏验收",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "layout": "minimal",
+  "colors": {
+    "accent": "#315E63",
+    "seal": "#A14F40",
+    "paper": "#FFFEFA",
+    "canvas": "#F3F1EB",
+    "sidebar": "#DFE8E3"
+  },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "composition": {
+    "preset": "sidebar-left",
+    "sidebarWidthPct": 30,
+    "gapMm": 7,
+    "header": "split",
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    }
+  },
+  "sections": {
+    "work": { "heading": "line", "date": "right" },
+    "education": { "heading": "line", "date": "right" },
+    "skills": { "heading": "plain", "items": "compact" },
+    "languages": { "heading": "plain", "items": "compact" },
+    "certificates": { "heading": "filled", "items": "compact" }
+  }
+}

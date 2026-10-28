@@ -186,6 +186,9 @@ pub struct ThemeStyle {
     pub centered_header: bool,
     pub split_header: bool,
     pub stacked_contacts: bool,
+    pub sidebar_width_pct: f32,
+    pub column_gap_mm: f32,
+    pub sidebar_modules: Vec<String>,
     pub sections: BTreeMap<String, SectionStyle>,
 }
 
@@ -226,6 +229,63 @@ fn text_style(
 }
 
 impl ThemeStyle {
+    pub fn has_sidebar(&self) -> bool {
+        matches!(
+            self.composition_preset.as_str(),
+            "sidebar-left" | "sidebar-right"
+        )
+    }
+
+    pub fn in_sidebar(&self, id: &str) -> bool {
+        self.has_sidebar() && self.sidebar_modules.iter().any(|module| module == id)
+    }
+
+    /// Content lanes include a 6 pt inset on each side of the tinted lane.
+    /// Header and summary remain full width; region-local styles never affect
+    /// the application chrome or the source manifest.
+    pub fn column_style(&self, sidebar: bool) -> Self {
+        let mut style = self.clone();
+        if !self.has_sidebar() {
+            return style;
+        }
+        let content_mm = self.page.width_mm - self.page.margins.left - self.page.margins.right;
+        let sidebar_mm = (content_mm - self.column_gap_mm) * self.sidebar_width_pct / 100.0;
+        let main_mm = content_mm - self.column_gap_mm - sidebar_mm;
+        let sidebar_left = self.composition_preset == "sidebar-left";
+        let (offset, width) = match (sidebar, sidebar_left) {
+            (true, true) => (0.0, sidebar_mm),
+            (true, false) => (main_mm + self.column_gap_mm, sidebar_mm),
+            (false, true) => (sidebar_mm + self.column_gap_mm, main_mm),
+            (false, false) => (0.0, main_mm),
+        };
+        let inset = if sidebar {
+            6.0 / crate::layout::PT_PER_MM
+        } else {
+            0.0
+        };
+        style.page.margins.left = self.page.margins.left + offset + inset;
+        style.page.margins.right =
+            self.page.width_mm - self.page.margins.left - offset - width + inset;
+        if sidebar {
+            style.colors.paper = self.colors.sidebar;
+            style.colors.ink = style
+                .colors
+                .ink
+                .readable(style.colors.paper, style.colors.ink, 4.5);
+            style.colors.muted =
+                style
+                    .colors
+                    .muted
+                    .readable(style.colors.paper, style.colors.ink, 4.5);
+            style.colors.accent =
+                style
+                    .colors
+                    .accent
+                    .readable(style.colors.paper, style.colors.ink, 4.5);
+        }
+        style
+    }
+
     pub fn section(&self, id: &str) -> SectionStyle {
         self.sections.get(id).copied().unwrap_or_default()
     }
@@ -326,6 +386,15 @@ impl ThemeStyle {
             split_header: manifest["composition"]["header"] == "split"
                 || manifest["composition"]["preset"] == "split-header",
             stacked_contacts: manifest["composition"]["contact"] == "stacked",
+            sidebar_width_pct: number(&manifest["composition"], "sidebarWidthPct", 30.0),
+            column_gap_mm: number(&manifest["composition"], "gapMm", 6.0),
+            sidebar_modules: manifest["composition"]["placements"]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .filter(|(_, region)| region.as_str() == Some("sidebar"))
+                .map(|(id, _)| id.clone())
+                .collect(),
             sections: manifest
                 .get("sections")
                 .and_then(Value::as_object)

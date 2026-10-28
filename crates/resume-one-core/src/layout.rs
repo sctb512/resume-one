@@ -116,6 +116,8 @@ pub struct LayoutTarget {
 pub struct LayoutAnchor {
     pub target: LayoutTarget,
     pub y_pt: f32,
+    pub left_pt: f32,
+    pub right_pt: f32,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -216,6 +218,8 @@ impl<'a> PageWriter<'a> {
         self.ops.push(LayoutElement::Anchor(LayoutAnchor {
             target,
             y_pt: self.y,
+            left_pt: self.left,
+            right_pt: self.width - self.right,
         }));
     }
 
@@ -607,22 +611,38 @@ impl<'a> PageWriter<'a> {
         }
     }
 
-    fn finish(mut self) -> Vec<Vec<LayoutElement>> {
+    fn finish_raw(mut self) -> Vec<Vec<LayoutElement>> {
         self.pages.push(self.ops);
-        let count = self.pages.len();
-        for (index, ops) in self.pages.iter_mut().enumerate() {
-            ops.push(LayoutElement::Text(LayoutText {
-                text: format!("{} / {}", index + 1, count),
-                x_pt: self.width - self.right - 28.0,
-                baseline_y_pt: (self.bottom / 2.0).max(5.0),
-                size_pt: 8.0,
-                leading_pt: 8.0,
-                color: self.muted,
-                font: FontKind::Sans,
-                target: None,
-            }));
-        }
         self.pages
+    }
+
+    fn finish(self) -> Vec<Vec<LayoutElement>> {
+        let (width, right, bottom, muted) = (self.width, self.right, self.bottom, self.muted);
+        let mut pages = self.finish_raw();
+        append_footers(&mut pages, width, right, bottom, muted);
+        pages
+    }
+}
+
+fn append_footers(
+    pages: &mut [Vec<LayoutElement>],
+    width: f32,
+    right: f32,
+    bottom: f32,
+    muted: Rgb,
+) {
+    let count = pages.len();
+    for (index, ops) in pages.iter_mut().enumerate() {
+        ops.push(LayoutElement::Text(LayoutText {
+            text: format!("{} / {}", index + 1, count),
+            x_pt: width - right - 28.0,
+            baseline_y_pt: (bottom / 2.0).max(5.0),
+            size_pt: 8.0,
+            leading_pt: 8.0,
+            color: muted,
+            font: FontKind::Sans,
+            target: None,
+        }));
     }
 }
 pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
@@ -659,10 +679,11 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     let composition = &source["composition"];
     if !matches!(
         style.composition_preset.as_str(),
-        "single-column" | "split-header"
-    ) || composition["header"]
-        .as_str()
-        .is_some_and(|value| !matches!(value, "stacked" | "centered" | "split"))
+        "single-column" | "split-header" | "sidebar-left" | "sidebar-right"
+    ) || (style.has_sidebar() && style.sidebar_modules.is_empty())
+        || composition["header"]
+            .as_str()
+            .is_some_and(|value| !matches!(value, "stacked" | "centered" | "split"))
         || (style.composition_preset == "split-header"
             && composition["header"]
                 .as_str()
@@ -670,16 +691,14 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
         || composition["contact"]
             .as_str()
             .is_some_and(|value| !matches!(value, "inline" | "stacked"))
-        || composition["sidebarWidthPct"].is_number()
-        || composition["gapMm"].is_number()
-        || composition["placements"]
-            .as_object()
-            .is_some_and(|value| !value.is_empty())
+        || (!style.has_sidebar()
+            && (composition["sidebarWidthPct"].is_number()
+                || composition["gapMm"].is_number()
+                || composition["placements"]
+                    .as_object()
+                    .is_some_and(|value| !value.is_empty())))
     {
-        return Err(
-            "当前排版引擎暂不支持该 composition 布局；仅支持单栏、堆叠/居中/分栏页眉与行内/逐行联系方式"
-                .into(),
-        );
+        return Err("当前排版引擎暂不支持该 composition 布局或非侧栏布局中的栏位参数".into());
     }
     if let Some(sections) = source["sections"].as_object() {
         for (id, value) in sections {
@@ -737,10 +756,37 @@ fn add_rule(page: &mut PageWriter<'_>, color: Rgb, thickness: f32) {
     }));
 }
 
-fn heading_height(style: &ThemeStyle, id: &str) -> f32 {
+fn heading_lines(
+    page: &PageWriter<'_>,
+    style: &ThemeStyle,
+    id: &str,
+    language: Language,
+) -> Vec<String> {
     let text = &style.typography.section_title;
-    let leading = text.size_pt * text.line_height;
+    let padding = if style.section(id).heading == SectionHeading::Filled {
+        12.0
+    } else {
+        0.0
+    };
+    page.wrap(
+        title(id, language),
+        text.size_pt,
+        (page.content_width() - padding).max(1.0),
+        font_kind(text).expect("theme checked"),
+    )
+}
+
+fn heading_height(page: &PageWriter<'_>, style: &ThemeStyle, id: &str, language: Language) -> f32 {
+    let text = &style.typography.section_title;
     let (ascent, descent) = font_kind(text).expect("theme checked").vertical_metrics();
+    let leading = if style.has_sidebar() {
+        (text.size_pt * text.line_height).max((ascent + descent) * text.size_pt)
+    } else {
+        text.size_pt * text.line_height
+    };
+    let extra_lines = heading_lines(page, style, id, language)
+        .len()
+        .saturating_sub(1) as f32;
     // The next item is baseline-positioned by the legacy stack renderer. Its
     // ascender must also be reserved below a filled box or underline.
     let following_ascent = (font_kind(&style.typography.body)
@@ -757,9 +803,13 @@ fn heading_height(style: &ThemeStyle, id: &str) -> f32 {
                 * style.typography.meta.size_pt,
         );
     if style.section(id).heading == SectionHeading::Plain {
-        return (leading + 4.0).max(descent * text.size_pt + following_ascent + 4.0);
+        if style.has_sidebar() {
+            return (extra_lines + 1.0) * leading + following_ascent + 6.0;
+        }
+        return extra_lines * leading
+            + (leading + 4.0).max(descent * text.size_pt + following_ascent + 4.0);
     }
-    leading.max((ascent + descent) * text.size_pt)
+    (extra_lines + 1.0) * leading.max((ascent + descent) * text.size_pt)
         + following_ascent
         + if style.section(id).heading == SectionHeading::Filled {
             12.0
@@ -777,21 +827,30 @@ fn section_heading(
     let text = &style.typography.section_title;
     let kind = font_kind(text).expect("theme checked");
     let heading = style.section(id).heading;
-    let height = heading_height(style, id);
+    let height = heading_height(page, style, id, language);
+    let lines = heading_lines(page, style, id, language);
     page.ensure(height);
     page.mark(LayoutTarget {
         section: id,
         index: None,
     });
     if heading == SectionHeading::Plain {
-        page.line(
-            title(id, language),
-            text.size_pt,
-            style.colors.accent,
-            kind,
-            0.0,
-            height,
-        );
+        let start = page.y;
+        let (ascent, descent) = kind.vertical_metrics();
+        let leading = if style.has_sidebar() {
+            (text.size_pt * text.line_height).max((ascent + descent) * text.size_pt)
+        } else {
+            text.size_pt * text.line_height
+        };
+        if style.has_sidebar() {
+            // Align visible heading tops across the two lanes even when one
+            // lane uses an underline and the other uses a plain heading.
+            page.y -= (leading - (ascent + descent) * text.size_pt) / 2.0 + ascent * text.size_pt;
+        }
+        for line in &lines {
+            page.line(line, text.size_pt, style.colors.accent, kind, 0.0, leading);
+        }
+        page.y = start - height;
         return;
     }
     let (ascent, descent) = kind.vertical_metrics();
@@ -805,39 +864,42 @@ fn section_heading(
     if heading == SectionHeading::Filled {
         page.ops.push(LayoutElement::Fill(LayoutFill {
             left_pt: page.left,
-            bottom_pt: top - leading - 2.0 * padding,
+            bottom_pt: top - leading * lines.len() as f32 - 2.0 * padding,
             width_pt: page.content_width(),
-            height_pt: leading + 2.0 * padding,
+            height_pt: leading * lines.len() as f32 + 2.0 * padding,
             color: style.colors.accent,
         }));
     }
-    page.ops.push(LayoutElement::Text(LayoutText {
-        text: title(id, language).into(),
-        x_pt: page.left
-            + if heading == SectionHeading::Filled {
-                6.0
+    for (line_index, line) in lines.iter().enumerate() {
+        page.ops.push(LayoutElement::Text(LayoutText {
+            text: line.clone(),
+            x_pt: page.left
+                + if heading == SectionHeading::Filled {
+                    6.0
+                } else {
+                    0.0
+                },
+            baseline_y_pt: top
+                - line_index as f32 * leading
+                - padding
+                - (leading - (ascent + descent) * text.size_pt) / 2.0
+                - ascent * text.size_pt,
+            size_pt: text.size_pt,
+            leading_pt: leading,
+            color: if heading == SectionHeading::Filled {
+                style.colors.paper
             } else {
-                0.0
+                style.colors.accent
             },
-        baseline_y_pt: top
-            - padding
-            - (leading - (ascent + descent) * text.size_pt) / 2.0
-            - ascent * text.size_pt,
-        size_pt: text.size_pt,
-        leading_pt: leading,
-        color: if heading == SectionHeading::Filled {
-            style.colors.paper
-        } else {
-            style.colors.accent
-        },
-        font: kind,
-        target: page.target,
-    }));
+            font: kind,
+            target: page.target,
+        }));
+    }
     if matches!(heading, SectionHeading::Line | SectionHeading::AccentLine) {
         page.ops.push(LayoutElement::Rule(LayoutRule {
             left_pt: page.left,
             right_pt: page.width - page.right,
-            y_pt: top - leading - 4.0,
+            y_pt: top - leading * lines.len() as f32 - 4.0,
             thickness_pt: if heading == SectionHeading::Line {
                 0.6
             } else {
@@ -1061,21 +1123,43 @@ fn layout_with_style(
         );
         page.gap(section_gap / 2.0);
     }
-    for section_content in &content.sections {
+    if style.has_sidebar() {
+        return sidebar_layout(page, content, language, style);
+    }
+    layout_sections(&mut page, content.sections.iter(), language, style)?;
+    Ok(ResumeLayout {
+        width_mm: style.page.width_mm,
+        height_mm: style.page.height_mm,
+        paper: style.colors.paper,
+        pages: fallback_runs(page.finish())?,
+    })
+}
+
+fn layout_sections<'a>(
+    page: &mut PageWriter<'_>,
+    sections: impl Iterator<Item = &'a crate::semantic::Section>,
+    language: Language,
+    style: &ThemeStyle,
+) -> Result<(), String> {
+    let body = &style.typography.body;
+    let meta = &style.typography.meta;
+    let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
+    let section_gap = style.page.section_gap_mm * PT_PER_MM;
+    for section_content in sections {
         let section = style.section(section_content.id);
-        let heading_height = heading_height(style, section_content.id);
+        let heading_height = heading_height(page, style, section_content.id, language);
         if style.page.keep_heading_with_first_item {
             let first_item_height = section_content.items.first().map_or(0.0, |item| {
-                item_height(&page, item, section_content.id, style)
+                item_height(page, item, section_content.id, style)
             });
             page.ensure(section_gap + heading_height + first_item_height);
         }
         page.ensure(section_gap + heading_height);
         page.gap(section_gap);
-        section_heading(&mut page, section_content.id, language, style);
+        section_heading(page, section_content.id, language, style);
         for (index, item) in section_content.items.iter().enumerate() {
             if style.page.avoid_split_items {
-                let height = item_height(&page, item, section_content.id, style);
+                let height = item_height(page, item, section_content.id, style);
                 page.ensure(height);
             }
             page.mark(LayoutTarget {
@@ -1158,11 +1242,102 @@ fn layout_with_style(
             }
         }
     }
+    Ok(())
+}
+
+fn sidebar_layout(
+    mut main: PageWriter<'_>,
+    content: &ResumeContent,
+    language: Language,
+    style: &ThemeStyle,
+) -> Result<ResumeLayout, String> {
+    let main_style = style.column_style(false);
+    let side_style = style.column_style(true);
+    let start_page = main.pages.len();
+    let first_top = main.y;
+    main.left = main_style.page.margins.left * PT_PER_MM;
+    main.right = main_style.page.margins.right * PT_PER_MM;
+    let mut side = PageWriter::new(
+        Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+        Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+        &side_style,
+    );
+    // Side content starts below the complete full-width header/summary even
+    // if that header already spans pages. Later pages use normal top margins.
+    side.y = first_top;
+    // Legacy flow positions text by baseline. Reserve real ascenders on
+    // continuation pages so light glyphs cannot escape a dark lane's tint.
+    let continuation_inset = [
+        &style.typography.body,
+        &style.typography.meta,
+        &style.typography.section_title,
+    ]
+    .into_iter()
+    .map(|role| {
+        font_kind(role)
+            .expect("theme checked")
+            .vertical_metrics()
+            .0
+            .max(FontKind::Sans.vertical_metrics().0)
+            * role.size_pt
+            * 1.06
+    })
+    .fold(0.0, f32::max);
+    main.top += continuation_inset;
+    side.top += continuation_inset;
+    layout_sections(
+        &mut main,
+        content.sections.iter().filter(|s| !style.in_sidebar(s.id)),
+        language,
+        &main_style,
+    )?;
+    layout_sections(
+        &mut side,
+        content.sections.iter().filter(|s| style.in_sidebar(s.id)),
+        language,
+        &side_style,
+    )?;
+    let mut pages = main.finish_raw();
+    let side_pages = side.finish_raw();
+    pages.resize_with(pages.len().max(start_page + side_pages.len()), Vec::new);
+    let inset = 6.0;
+    for (index, elements) in pages.iter_mut().enumerate().skip(start_page) {
+        let top = if index == start_page {
+            first_top
+        } else {
+            style.page.height_mm * PT_PER_MM - style.page.margins.top * PT_PER_MM
+        };
+        let bottom = style.page.margins.bottom * PT_PER_MM;
+        elements.insert(
+            0,
+            LayoutElement::Fill(LayoutFill {
+                left_pt: side_style.page.margins.left * PT_PER_MM - inset,
+                bottom_pt: bottom,
+                width_pt: (style.page.width_mm
+                    - side_style.page.margins.left
+                    - side_style.page.margins.right)
+                    * PT_PER_MM
+                    + inset * 2.0,
+                height_pt: (top - bottom).max(0.0),
+                color: style.colors.sidebar,
+            }),
+        );
+    }
+    for (index, side_ops) in side_pages.into_iter().enumerate() {
+        pages[start_page + index].extend(side_ops);
+    }
+    append_footers(
+        &mut pages,
+        style.page.width_mm * PT_PER_MM,
+        style.page.margins.right * PT_PER_MM,
+        style.page.margins.bottom * PT_PER_MM,
+        style.colors.muted,
+    );
     Ok(ResumeLayout {
         width_mm: style.page.width_mm,
         height_mm: style.page.height_mm,
         paper: style.colors.paper,
-        pages: fallback_runs(page.finish())?,
+        pages: fallback_runs(pages)?,
     })
 }
 
@@ -1236,6 +1411,90 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn sidebar_lanes_wrap_titles_preserve_all_items_and_paginate_independently() {
+        let original = include_bytes!("../../resume-one-cli/tests/fixtures/sidebar.theme.json");
+        let mut theme = crate::parse_theme(original).unwrap();
+        let source = include_bytes!("../../../assets/example.resume.json");
+        let mut content = project(&parse_resume(source).unwrap());
+        // Force the narrow lane to continue beyond the main lane.
+        let skills = content
+            .sections
+            .iter_mut()
+            .find(|s| s.id == "skills")
+            .unwrap();
+        let mut item = skills.items[0].clone();
+        item.heading = "SideTail".into();
+        item.paragraphs = vec!["中英混排 reliable layout ".repeat(120)];
+        skills.items.push(item);
+        for side in ["sidebar-left", "sidebar-right"] {
+            for paper in ["A4", "Letter"] {
+                for width in [20, 30, 40] {
+                    theme.normalized["composition"]["preset"] = serde_json::json!(side);
+                    theme.normalized["composition"]["sidebarWidthPct"] = serde_json::json!(width);
+                    theme.normalized["page"]["size"] = serde_json::json!(paper);
+                    let style = ThemeStyle::from_manifest(&theme);
+                    let before = theme.normalized.clone();
+                    let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                    assert!(result.pages.len() > 1);
+                    let mut indices = std::collections::BTreeSet::new();
+                    let mut footers = 0;
+                    for op in result.pages.iter().flatten() {
+                        if let LayoutElement::Anchor(a) = op
+                            && let Some(index) = a.target.index
+                        {
+                            indices.insert((a.target.section, index));
+                        }
+                        let LayoutElement::Text(text) = op else {
+                            continue;
+                        };
+                        let Some(target) = text.target else {
+                            footers += 1;
+                            continue;
+                        };
+                        let lane = if target.section == "basics" {
+                            style.clone()
+                        } else {
+                            style.column_style(style.in_sidebar(target.section))
+                        };
+                        let right = (lane.page.width_mm - lane.page.margins.right) * PT_PER_MM;
+                        assert!(
+                            text.x_pt >= lane.page.margins.left * PT_PER_MM - 0.01,
+                            "{side} {:?}",
+                            text.text
+                        );
+                        assert!(
+                            text.x_pt + text.font.text_width_pt(&text.text, text.size_pt)
+                                <= right + 0.02,
+                            "{side} {} {:?}",
+                            width,
+                            text.text
+                        );
+                        assert!(text.baseline_y_pt >= style.page.margins.bottom * PT_PER_MM - 0.01);
+                        assert!(
+                            text.baseline_y_pt + text.font.vertical_metrics().0 * text.size_pt
+                                <= style.page.height_mm * PT_PER_MM
+                                    - style.page.margins.top * PT_PER_MM
+                                    + 0.02,
+                            "ascender escapes the lane at {:?}",
+                            text.text
+                        );
+                    }
+                    for section in &content.sections {
+                        for index in 0..section.items.len() {
+                            assert!(indices.contains(&(section.id, index)));
+                        }
+                    }
+                    assert_eq!(footers, result.pages.len());
+                    assert!(result.pages.iter().flatten().any(
+                        |op| matches!(op, LayoutElement::Text(t) if t.text.contains("SideTail"))
+                    ));
+                    assert_eq!(theme.normalized, before);
+                }
+            }
+        }
+    }
 
     #[test]
     fn centered_header_centers_each_wrapped_line_only_and_preserves_contact_order() {

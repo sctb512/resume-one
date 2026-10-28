@@ -29,7 +29,7 @@
 
 `set-field` 仅允许 JSON Resume 标准模块中的普通字符串字段（如 `basics.name`、`work.position`、`education.institution`）；地址可用 `--section basics --field location.city` 等点分字段，不会自动注入富文本或样式。列表模块必须指定从 0 开始的 `--index`，`basics` 必须省略。`--value ''` 会删除该字段；内容相同则保留原始文件字节和 revision，不执行写入。邮箱、URL、日期等仍按内置 Schema 校验，不合规则返回错误并保留原文件。数组字段（如 `highlights`、`keywords`）与自定义扩展字段请使用 `patch`，并对目标先做 `test`。
 
-导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF / DOCX 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；目前支持单栏正文、分栏页眉、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高，以及内置无衬线 400 与衬线 600。正文侧栏/分栏、图标联系方式、特殊模块/装饰及字距会报错，失败时不替换已有输出。
+导出使用同一标准模块语义提取层：姓名、联系方式、概述、工作、志愿、教育、奖项、证书、出版物、技能、语言、兴趣、推荐人及项目；模块顺序按原 JSON 顶层顺序。自定义扩展字段保留在原 JSON 中，但不会未经模板定义就输出。Markdown 中的用户文本会转义；仅 HTTP(S) URL 生成可点击链接。PDF / DOCX 默认 A4、使用内置简里配色；也可用 `--theme` 指定本地声明式 v1/v2 主题文件，支持根目录 `*.theme.json` 或一级子目录 `theme.json`。主题会先按 Schema 和安全规则验证；目前支持单栏或左右侧栏正文、分栏页眉、四种基础 `layout`、A4/Letter、边距、模块间距、颜色、基础字号和行高，以及内置无衬线 400 与衬线 600。任意等宽分栏、图标联系方式、特殊模块/装饰及字距会报错，失败时不替换已有输出。
 
 本地主题的 `assets.fonts` 可提供最多四个静态 TTF/OTF（每文件不超过 8 MiB），用 `asset:<id>` 指定给正文/姓名/模块标题/辅助文字；文件相对主题所在目录，路径、原字节 SHA-256、字体格式及实际字重须通过验证。渲染使用真实字面并检查嵌入权限，不安装到系统或简里字体库，不修改主题/简历。缺少资源、可变字体、WOFF/WOFF2、集合或字重不符明确失败，不静默改成内置字体。同名字族/字重但内容不同的字面不能在同一进程混用；具体约束见[主题规范](../resume-one-theme-spec-v2.md#3-字段语义)。在线来源仍不下载字体资源，不能用在线单文件下载代替完整主题包。
 
@@ -37,7 +37,7 @@ PDF 嵌入完整 Noto 字形，使用共享测量布局，文件可能达到约 
 
 PDF / DOCX 同时支持主题内 `sections.<标准模块>.heading` 的 `plain/line/accent-line/filled`，`items` 的 `stack/compact`，以及 `date: inline/left/right`；配置只作用于对应模块。左侧日期占标题左侧，标题续行与首行对齐；右侧日期在标题首行右侧。两者都给日期和标题留至少 12 pt 间隙，过长日期独立成行，其他辅助信息留在下方。DOCX 使用可编辑的左/右制表位与段落，长标题按共享字形测量拆行。紧凑模式仅减少条目与描述段落的间距，不改变文字、字号、字段顺序或模块数量。时间线、卡片、标签仍返回 `EXPORT_RENDER`，不覆盖已有输出。本地主题和 `themes download` 的能力检查一致。
 
-`composition.header` 支持 `stacked`（默认左对齐）、`centered`（按内容区逐行居中）和 `split`（身份在左、联系方式在右）；`preset: split-header` 也可启用分栏页眉，但不能同时声明不一致的 `header`。`composition.contact` 支持 `inline`（默认行内连接）和 `stacked`（每项独立起行）。长姓名、职业和联系方式自然换行，不截断；分栏页眉在缺少一侧内容或单页无法容纳时，PDF/预览退回全宽流式页眉。摘要与正文保持左对齐。DOCX 分栏页眉使用无边框双单元格表格，文字仍可编辑，由阅读器重排；不支持的图标联系方式返回 `EXPORT_RENDER`，不会覆盖已有输出或修改源 JSON。
+`composition.header` 支持 `stacked`（默认左对齐）、`centered`（按内容区逐行居中）和 `split`（身份在左、联系方式在右）；`preset: split-header` 也可启用分栏页眉，但不能同时声明不一致的 `header`。`composition.contact` 支持 `inline`（默认行内连接）和 `stacked`（每项独立起行）。长姓名、职业和联系方式自然换行，不截断；分栏页眉在缺少一侧内容或单页无法容纳时，PDF/预览退回全宽流式页眉。摘要保持全宽左对齐，正文可按侧栏规则分区。DOCX 分栏页眉使用无边框双单元格表格，文字仍可编辑，由阅读器重排；不支持的图标联系方式返回 `EXPORT_RENDER`，不会覆盖已有输出或修改源 JSON。
 
 ```sh
 resume-one export --file /absolute/resume.json --format docx --out /absolute/resume.docx --theme /absolute/themes/chosen.theme.json --lang zh --json

@@ -32,6 +32,42 @@ mod tests {
     use resume_one_core::{resume::parse_resume, semantic::project};
 
     #[gpui::test]
+    fn sidebar_hits_and_insert_controls_are_lane_local_while_inspector_stays_fixed(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let mut model = AppModel::load(None).unwrap();
+        let manifest = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+        ))
+        .unwrap();
+        model.document = parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"MainCompany"}],"skills":[{"name":"SideSkill"}]}"#).unwrap();
+        model.content = project(&model.document);
+        model.replace_themes(vec![BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            path: None,
+            identity: "fixture:sidebar".into(),
+        }]);
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.simulate_resize(gpui::size(px(1440.0), px(1000.0)));
+        cx.update(|window, _| window.refresh());
+        let panel = cx.debug_bounds("module-panel").unwrap();
+        let side = cx.debug_bounds("preview-hit-skills-Some(0)-0").unwrap();
+        let main = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        assert!(side.right() < main.left());
+        assert!(side.size.width < main.size.width);
+        let add_side = cx.debug_bounds("add-module-before-skills").unwrap();
+        assert_eq!(add_side.left(), side.left());
+        assert_eq!(add_side.size.width, side.size.width);
+        cx.simulate_mouse_move(side.center(), None, Modifiers::none());
+        cx.update(|_, cx| assert_eq!(view.read(cx).hovered_item, Some(("skills".into(), 0, 0))));
+        cx.simulate_mouse_move(main.center(), None, Modifiers::none());
+        cx.update(|_, cx| assert_eq!(view.read(cx).hovered_item, Some(("work".into(), 0, 0))));
+        assert_eq!(cx.debug_bounds("module-panel").unwrap(), panel);
+    }
+
+    #[gpui::test]
     fn theme_font_asset_is_forwarded_to_preview_without_substitution(cx: &mut TestAppContext) {
         let root = tempfile::tempdir().unwrap();
         let data = include_bytes!("../../resume-one-core/tests/fixtures/theme-font.ttf");
@@ -527,6 +563,8 @@ struct PreviewData {
 struct Region {
     page: usize,
     target: LayoutTarget,
+    left: f32,
+    right: f32,
     top: f32,
     bottom: f32,
     text: bool,
@@ -610,6 +648,18 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
     let height = layout.height_mm * PT_PER_MM;
     let sans = FontKind::Sans.vertical_metrics();
     let serif = FontKind::Serif.vertical_metrics();
+    let lanes: std::collections::BTreeMap<_, _> = layout
+        .pages
+        .iter()
+        .flatten()
+        .filter_map(|op| {
+            if let LayoutElement::Anchor(a) = op {
+                Some(((a.target.section, a.target.index), (a.left_pt, a.right_pt)))
+            } else {
+                None
+            }
+        })
+        .collect();
     let mut regions: Vec<Region> = Vec::new();
     for (page, elements) in layout.pages.iter().enumerate() {
         for element in elements {
@@ -663,6 +713,8 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                 regions.push(Region {
                     page,
                     target,
+                    left: lanes[&(target.section, target.index)].0,
+                    right: lanes[&(target.section, target.index)].1,
                     top,
                     bottom,
                     text,
@@ -865,6 +917,8 @@ impl ResumeOne {
                     continue;
                 }
                 let target = region.target;
+                let region_left = region.left * px_per_pt;
+                let region_width = (region.right - region.left) * px_per_pt;
                 if target.index.is_none() && target.section != "basics" {
                     if spotlight && self.selected_item_module.is_some() {
                         continue;
@@ -872,9 +926,9 @@ impl ResumeOne {
                     page = page.child(
                         div()
                             .absolute()
-                            .left(px(left))
+                            .left(px(region_left))
                             .top(px(region.top * px_per_pt - 14.0))
-                            .w(px(content_width))
+                            .w(px(region_width))
                             .child(self.module_insert_control(
                                 Some(target.section.into()),
                                 &style,
@@ -900,9 +954,9 @@ impl ResumeOne {
                         page = page.child(
                             div()
                                 .absolute()
-                                .left(px(left))
+                                .left(px(region_left))
                                 .top(px(region.top * px_per_pt - 10.0))
-                                .w(px(content_width))
+                                .w(px(region_width))
                                 .child(self.item_insert_control(target.section, 0, &style, cx)),
                         );
                     }
@@ -910,9 +964,9 @@ impl ResumeOne {
                         page = page.child(
                             div()
                                 .absolute()
-                                .left(px(left))
+                                .left(px(region_left))
                                 .top(px(region.bottom * px_per_pt + 1.0))
-                                .w(px(content_width))
+                                .w(px(region_width))
                                 .child(self.item_insert_control(
                                     target.section,
                                     index + 1,
@@ -993,10 +1047,10 @@ impl ResumeOne {
     }
 
     fn preview_hit(&self, region: Region, valid: bool, cx: &mut Context<Self>) -> impl IntoElement {
-        let style = self.active_style();
-        let px_per_mm = PX_PER_MM * self.preview_scale;
-        let px_per_pt = PX_PER_PT * self.preview_scale;
         let target = region.target;
+        let original = self.active_style();
+        let style = original.column_style(original.in_sidebar(target.section));
+        let px_per_pt = PX_PER_PT * self.preview_scale;
         let id = target.section.to_owned();
         let hover_id = id.clone();
         let move_id = id.clone();
@@ -1022,12 +1076,9 @@ impl ResumeOne {
             )))
             .debug_selector(move || selector.clone())
             .absolute()
-            .left(px(style.page.margins.left * px_per_mm))
+            .left(px(region.left * px_per_pt))
             .top(px(region.top * px_per_pt))
-            .w(px((style.page.width_mm
-                - style.page.margins.left
-                - style.page.margins.right)
-                * px_per_mm))
+            .w(px((region.right - region.left) * px_per_pt))
             .h(px(((region.bottom - region.top) * px_per_pt).max(4.0)))
             .when(!region.text && target.section == "basics" && valid, |hit| {
                 hit.min_h(px(32.)).child(
@@ -1115,9 +1166,7 @@ impl ResumeOne {
                         .id(gpui::SharedString::from(selector.clone()))
                         .debug_selector(move || selector.clone())
                         .absolute()
-                        .left(px((ink.left - style.page.margins.left * PT_PER_MM)
-                            * px_per_pt
-                            - 3.))
+                        .left(px((ink.left - region.left) * px_per_pt - 3.))
                         .top(px((ink.top - region.top) * px_per_pt))
                         .w(px((ink.width * px_per_pt + 6.).max(8.)))
                         .h(px((ink.height * px_per_pt).max(8.)))
@@ -1202,21 +1251,33 @@ impl ResumeOne {
             {
                 continue;
             }
+            let sidebar = style.in_sidebar(&summary.id);
+            let column = style.column_style(sidebar);
             let next = summaries.iter().skip(index + 1).find_map(|summary| {
+                if style.in_sidebar(&summary.id) != sidebar {
+                    return None;
+                }
                 data.regions.iter().find(|region| {
                     region.target.section == summary.id && region.target.index.is_none()
                 })
             });
             let (target_page, y) = next.map_or_else(
                 || {
-                    let last_page = data.layout.pages.len() - 1;
-                    let bottom = data
+                    let last = data
                         .regions
                         .iter()
-                        .filter(|region| region.page == last_page)
-                        .map(|region| region.bottom)
-                        .fold(0.0, f32::max);
-                    (last_page, bottom * px_per_pt + 16.0)
+                        .filter(|region| {
+                            region.target.section == "basics"
+                                || style.in_sidebar(region.target.section) == sidebar
+                        })
+                        .max_by(|a, b| {
+                            a.page
+                                .cmp(&b.page)
+                                .then_with(|| a.bottom.total_cmp(&b.bottom))
+                        });
+                    last.map_or((0, 16.0), |region| {
+                        (region.page, region.bottom * px_per_pt + 16.0)
+                    })
                 },
                 |region| (region.page, region.top * px_per_pt - 14.0),
             );
@@ -1227,11 +1288,11 @@ impl ResumeOne {
                 page = page.child(
                     div()
                         .absolute()
-                        .left(px(style.page.margins.left * px_per_mm))
+                        .left(px(column.page.margins.left * px_per_mm))
                         .top(px(y))
-                        .w(px((style.page.width_mm
-                            - style.page.margins.left
-                            - style.page.margins.right)
+                        .w(px((column.page.width_mm
+                            - column.page.margins.left
+                            - column.page.margins.right)
                             * px_per_mm))
                         .child(self.item_insert_control(id, 0, &style, cx)),
                 );

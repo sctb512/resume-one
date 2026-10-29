@@ -988,27 +988,6 @@ impl Render for ResumeOne {
             self.view_blend = self.sidebar_progress;
         }
         self.advance_inline_motion(window, cx);
-        if self.inline.form.is_some() {
-            let view = cx.entity().downgrade();
-            let exit_view = view.clone();
-            window.on_mouse_event(move |event: &gpui::MouseMoveEvent, phase, window, cx| {
-                if phase == gpui::DispatchPhase::Capture {
-                    view.update(cx, |app, cx| {
-                        app.inline_pointer_moved(event.position, window, cx)
-                    })
-                    .ok();
-                }
-            });
-            window.on_mouse_event(move |_: &gpui::MouseExitEvent, phase, window, cx| {
-                if phase == gpui::DispatchPhase::Capture {
-                    exit_view
-                        .update(cx, |app, cx| {
-                            app.inline_window_left(window, cx);
-                        })
-                        .ok();
-                }
-            });
-        }
         let shell_target = self.active_style().colors;
         if self
             .shell
@@ -1132,6 +1111,9 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::open_appearance))
             .on_action(cx.listener(Self::quit))
             .bg(color(style.colors.canvas))
+            .when(self.inline.form.is_some(), |view| {
+                view.child(self.inline_pointer_events(cx))
+            })
             .child(self.toolbar(cx))
             .child(
                 div()

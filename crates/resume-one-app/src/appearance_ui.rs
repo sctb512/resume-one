@@ -423,6 +423,7 @@ impl AppearanceEditor {
         });
         div()
             .id("appearance-font-browser")
+            .child(self.pointer_events(cx))
             .debug_selector(|| "appearance-font-browser".into())
             .size_full()
             .flex()
@@ -719,8 +720,6 @@ impl AppearanceEditor {
 
 impl Render for AppearanceEditor {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        self.trial_events(window, cx);
-        self.palette_events(window, cx);
         let Some(owner) = self.owner.upgrade() else {
             return div().into_any_element();
         };
@@ -888,6 +887,7 @@ impl Render for AppearanceEditor {
         }
         div()
             .id("appearance-panel")
+            .child(self.pointer_events(cx))
             .debug_selector(|| "appearance-panel".into())
             .size_full()
             .flex()

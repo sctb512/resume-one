@@ -218,7 +218,24 @@ impl AppearanceEditor {
         cx.notify();
     }
 
-    pub(super) fn trial_events(&self, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn pointer_events(&self, cx: &Context<Self>) -> impl gpui::IntoElement {
+        use gpui::Styled as _;
+        let view = cx.entity().downgrade();
+        gpui::canvas(
+            |_, _, _| (),
+            move |_, (), window, cx| {
+                view.update(cx, |this, cx| {
+                    this.trial_events(window, cx);
+                    this.palette_events(window, cx);
+                })
+                .ok();
+            },
+        )
+        .absolute()
+        .size_full()
+    }
+
+    fn trial_events(&self, window: &mut Window, cx: &mut Context<Self>) {
         let view = cx.entity().downgrade();
         window.on_mouse_event(move |_: &gpui::MouseExitEvent, phase, _, cx| {
             if phase == gpui::DispatchPhase::Capture {

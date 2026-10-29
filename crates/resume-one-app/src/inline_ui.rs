@@ -870,6 +870,35 @@ impl ResumeOne {
         }
     }
 
+    pub(super) fn inline_pointer_events(&self, cx: &Context<Self>) -> impl IntoElement {
+        let view = cx.entity().downgrade();
+        // Global pointer listeners belong to paint, not Render/request_layout.
+        // This transparent canvas inserts no hitbox and consumes no layout space.
+        gpui::canvas(
+            |_, _, _| (),
+            move |_, (), window, _| {
+                let exit_view = view.clone();
+                window.on_mouse_event(move |event: &gpui::MouseMoveEvent, phase, window, cx| {
+                    if phase == gpui::DispatchPhase::Capture {
+                        view.update(cx, |app, cx| {
+                            app.inline_pointer_moved(event.position, window, cx)
+                        })
+                        .ok();
+                    }
+                });
+                window.on_mouse_event(move |_: &gpui::MouseExitEvent, phase, window, cx| {
+                    if phase == gpui::DispatchPhase::Capture {
+                        exit_view
+                            .update(cx, |app, cx| app.inline_window_left(window, cx))
+                            .ok();
+                    }
+                });
+            },
+        )
+        .absolute()
+        .size_full()
+    }
+
     pub(super) fn inline_pointer_moved(
         &mut self,
         position: Point<Pixels>,

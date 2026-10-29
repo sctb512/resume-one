@@ -1051,6 +1051,60 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     height
 }
 
+/// Height through the first visible line, not the whole potentially multi-page
+/// item. Blank anchors do not count as text for keep-with-heading decisions.
+fn item_start_height(
+    page: &PageWriter<'_>,
+    item: &Item,
+    id: &str,
+    style: &ThemeStyle,
+) -> Option<f32> {
+    let section = style.section(id);
+    let body = &style.typography.body;
+    let heading = &style.typography.item_title;
+    let meta = &style.typography.meta;
+    let leading = |s: &TextStyle| s.size_pt * s.line_height;
+    let visible = |s: &str| !s.trim().is_empty();
+    let first = if section.date != DatePlacement::Inline
+        && let Some(date) = item.date()
+    {
+        let lines = page.side_date_lines(&item.heading, date, heading, meta);
+        if lines.same_line && !lines.heading.is_empty() {
+            leading(heading).max(leading(meta))
+        } else if !lines.heading.is_empty() && section.date == DatePlacement::Right {
+            leading(heading)
+        } else {
+            leading(meta)
+        }
+    } else if visible(&item.heading) {
+        if section.items == crate::theme_style::ItemLayout::Chips && id == "languages" {
+            leading(meta) + 10.0
+        } else {
+            leading(heading)
+        }
+    } else if item.details.iter().any(|s| visible(s)) {
+        leading(meta)
+    } else if item.paragraphs.iter().any(|s| visible(s)) {
+        section.paragraph_gap_pt() + leading(body)
+    } else if item.bullets.iter().any(|s| visible(s)) {
+        if matches!(id, "skills" | "interests") {
+            leading(meta)
+                + if section.items == crate::theme_style::ItemLayout::Chips {
+                    10.0
+                } else {
+                    0.0
+                }
+        } else {
+            leading(body)
+        }
+    } else if item.url.as_deref().is_some_and(visible) {
+        leading(meta)
+    } else {
+        return None;
+    };
+    Some(section.item_gap_pt() + first)
+}
+
 pub fn layout(content: &ResumeContent, language: Language) -> Result<ResumeLayout, String> {
     layout_with_style(content, language, &ThemeStyle::built_in_fallback())
 }
@@ -1216,17 +1270,45 @@ fn layout_sections<'a>(
     for section_content in sections {
         let section = style.section(section_content.id);
         let heading_height = heading_height(page, style, section_content.id, language);
+        let mut first_visible = None;
         if style.page.keep_heading_with_first_item {
-            let first_item_height = section_content.items.first().map_or(0.0, |item| {
-                item_height(page, item, section_content.id, style)
-            });
-            page.ensure(section_gap + heading_height + first_item_height);
+            let mut prefix_height = 0.0;
+            for (index, item) in section_content.items.iter().enumerate() {
+                let measured = sections::measure(page, item, section_content.id, style);
+                if measured.start.is_some() {
+                    first_visible = Some(index);
+                    page.ensure(sections::heading_reservation(
+                        section_gap + heading_height + prefix_height,
+                        &measured,
+                        page.height - page.top - page.bottom,
+                        style.page.avoid_split_items,
+                    ));
+                    break;
+                }
+                prefix_height += measured.full
+                    + if matches!(
+                        section.items,
+                        crate::theme_style::ItemLayout::Cards
+                            | crate::theme_style::ItemLayout::Timeline
+                    ) {
+                        7.0
+                    } else {
+                        0.0
+                    };
+            }
         }
         page.ensure(section_gap + heading_height);
         page.gap(section_gap);
         section_heading(page, section_content.id, language, style);
         for (index, item) in section_content.items.iter().enumerate() {
-            let frame = sections::ItemFrame::begin(page, item, section_content.id, index, style);
+            let frame = sections::ItemFrame::begin(
+                page,
+                item,
+                section_content.id,
+                index,
+                style,
+                first_visible.is_some_and(|first| index <= first),
+            );
             if section.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
@@ -1478,6 +1560,132 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn heading_keep_budget_only_reserves_a_whole_item_when_the_group_can_fit() {
+        for (remaining, full, avoid, wanted) in [
+            (180.0, 100.0, true, 200.0),
+            (180.0, 100.0, false, 120.0),
+            (180.0, 700.0, true, 120.0),
+            (110.0, 700.0, true, 120.0),
+            (600.0, 550.0, true, 120.0),
+            (600.0, 500.0, true, 600.0),
+            (600.0, 500.25, true, 120.0),
+            (120.0, 700.0, true, 120.0),
+            (119.75, 700.0, true, 120.0),
+        ] {
+            let item = sections::ItemMeasure {
+                full,
+                start: Some(20.0),
+            };
+            let reserved = sections::heading_reservation(100.0, &item, 600.0, avoid);
+            assert_eq!(reserved, wanted);
+            let style = ThemeStyle::built_in_fallback();
+            let mut page = PageWriter::new(
+                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                &style,
+            );
+            page.height = 600.0;
+            page.top = 0.0;
+            page.bottom = 0.0;
+            page.y = remaining;
+            page.ensure(reserved);
+            assert_eq!(page.pages.len(), usize::from(remaining < reserved));
+        }
+    }
+
+    #[test]
+    fn oversized_frames_keep_section_with_real_text_and_preserve_all_rows_once() {
+        for paper in ["A4", "Letter"] {
+            for kind in ["cards", "timeline"] {
+                for keep in [false, true] {
+                    for avoid in [false, true] {
+                        for header in ["title", "date-only", "body-only", "empty-prefix"] {
+                            let rows: Vec<_> = (0..100).map(|n| format!("ROW_{n:03}")).collect();
+                            let mut item = serde_json::json!({"summary":rows.join("\n"),"highlights":["ITEM_END"]});
+                            if matches!(header, "title" | "empty-prefix") {
+                                item["name"] = serde_json::json!("ITEM_START");
+                            }
+                            if header == "date-only" {
+                                item["startDate"] = serde_json::json!("2020-01");
+                            }
+                            let items = if header == "empty-prefix" {
+                                serde_json::json!([{}, item])
+                            } else {
+                                serde_json::json!([item])
+                            };
+                            let content = project(&parse_resume(&serde_json::to_vec(&serde_json::json!({"basics":{"name":"Identity"},"work":items})).unwrap()).unwrap());
+                            let mut theme = sections_theme();
+                            theme.normalized["page"] = serde_json::json!({"size":paper,"keepHeadingWithFirstItem":keep,"avoidSplitItems":avoid,"sectionGapMm":10});
+                            theme.normalized["sections"]["work"] =
+                                serde_json::json!({"heading":"line","items":kind,"date":"right"});
+                            let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                            assert!(result.pages.len() > 1);
+                            let first_index = usize::from(header == "empty-prefix");
+                            let mut output = Vec::new();
+                            for elements in &result.pages {
+                                let texts: Vec<_> = elements
+                                    .iter()
+                                    .filter_map(|op| {
+                                        if let LayoutElement::Text(t) = op {
+                                            Some(t)
+                                        } else {
+                                            None
+                                        }
+                                    })
+                                    .collect();
+                                if keep
+                                    && texts.iter().any(|t| {
+                                        t.target
+                                            == Some(LayoutTarget {
+                                                section: "work",
+                                                index: None,
+                                            })
+                                    })
+                                {
+                                    assert!(
+                                        texts.iter().any(|t| t.target
+                                            == Some(LayoutTarget {
+                                                section: "work",
+                                                index: Some(first_index)
+                                            })),
+                                        "orphan: {paper}/{kind}/{header}/{avoid}"
+                                    );
+                                }
+                                for text in texts {
+                                    if text.text.starts_with("ROW_")
+                                        || text.text.contains("ITEM_END")
+                                    {
+                                        output.push(text.text.clone());
+                                    }
+                                    assert!(
+                                        text.x_pt + text.width_pt()
+                                            <= result.width_mm * PT_PER_MM + 0.05
+                                    );
+                                    assert!(text.baseline_y_pt >= 0.0);
+                                }
+                            }
+                            for row in rows {
+                                assert_eq!(
+                                    output.iter().filter(|text| *text == &row).count(),
+                                    1,
+                                    "missing or repeated {row}"
+                                );
+                            }
+                            assert_eq!(
+                                output
+                                    .iter()
+                                    .filter(|text| text.contains("ITEM_END"))
+                                    .count(),
+                                1
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     #[test]
     fn tracking_and_case_transform_measure_before_wrapping_without_changing_content() {

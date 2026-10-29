@@ -2,6 +2,49 @@
 use super::*;
 use crate::theme_style::ItemLayout;
 
+pub(super) struct ItemMeasure {
+    pub full: f32,
+    pub start: Option<f32>,
+}
+
+/// Measure using exactly the same inner lane as the real frame. Section-level
+/// keep decisions must not measure a wider, unframed title.
+pub(super) fn measure(
+    page: &mut PageWriter<'_>,
+    item: &Item,
+    id: &str,
+    style: &ThemeStyle,
+) -> ItemMeasure {
+    let (left, right) = (page.left, page.right);
+    match style.section(id).items {
+        ItemLayout::Cards => {
+            page.left += 8.0;
+            page.right += 8.0;
+        }
+        ItemLayout::Timeline => page.left += 16.0,
+        _ => {}
+    }
+    let measured = ItemMeasure {
+        full: item_height(page, item, id, style),
+        start: item_start_height(page, item, id, style),
+    };
+    (page.left, page.right) = (left, right);
+    measured
+}
+
+pub(super) fn heading_reservation(
+    header: f32,
+    item: &ItemMeasure,
+    capacity: f32,
+    avoid_split: bool,
+) -> f32 {
+    if avoid_split && header + item.full <= capacity {
+        header + item.full
+    } else {
+        header + item.start.unwrap_or(0.0)
+    }
+}
+
 pub(super) struct ItemFrame {
     kind: ItemLayout,
     left: f32,
@@ -18,7 +61,9 @@ impl ItemFrame {
         id: &'static str,
         index: usize,
         style: &ThemeStyle,
+        reserved_by_heading: bool,
     ) -> Self {
+        let measured = measure(page, item, id, style);
         let kind = style.section(id).items;
         let (left, right) = (page.left, page.right);
         match kind {
@@ -29,8 +74,17 @@ impl ItemFrame {
             ItemLayout::Timeline => page.left += 16.0,
             _ => {}
         }
-        if style.page.avoid_split_items {
-            page.ensure(item_height(page, item, id, style));
+        if !reserved_by_heading {
+            let capacity = page.height - page.top - page.bottom;
+            // An oversized item cannot be kept whole. Reserving a full page
+            // here after painting its section heading creates an orphan page.
+            page.ensure(
+                if style.page.avoid_split_items && measured.full <= capacity {
+                    measured.full
+                } else {
+                    measured.start.unwrap_or(style.section(id).item_gap_pt())
+                },
+            );
         }
         let first_op = page.ops.len();
         let first_page = page.pages.len();

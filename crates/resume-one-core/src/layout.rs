@@ -354,7 +354,7 @@ impl<'a> PageWriter<'a> {
         let mut left_lines = Vec::new();
         for (value, text_style, color) in [
             (&content.name, &style.typography.name, style.colors.ink),
-            (&content.label, &style.typography.body, style.colors.accent),
+            (&content.label, &style.typography.label, style.colors.accent),
         ] {
             let font = font_kind(text_style).expect("theme checked");
             for input in value.lines() {
@@ -446,7 +446,7 @@ impl<'a> PageWriter<'a> {
             );
             self.header_text(
                 &content.label,
-                &style.typography.body,
+                &style.typography.label,
                 style.colors.accent,
                 false,
             );
@@ -603,7 +603,7 @@ impl<'a> PageWriter<'a> {
         style: &ThemeStyle,
     ) {
         let body = &style.typography.item_title;
-        let meta = &style.typography.meta;
+        let meta = &style.typography.side_date;
         let ink = style.colors.ink;
         let muted = style.colors.muted;
         let lines = self.side_date_lines(heading, date, body, meta);
@@ -818,6 +818,9 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
         &style.typography.name,
         &style.typography.section_title,
         &style.typography.meta,
+        &style.typography.label,
+        &style.typography.summary,
+        &style.typography.side_date,
     ] {
         font_kind(text_style)?;
     }
@@ -877,7 +880,16 @@ fn heading_height(page: &PageWriter<'_>, style: &ThemeStyle, id: &str, language:
                 .vertical_metrics()
                 .0
                 * style.typography.meta.size_pt,
-        );
+        )
+        .max(if style.section(id).date != DatePlacement::Inline {
+            font_kind(&style.typography.side_date)
+                .expect("theme checked")
+                .vertical_metrics()
+                .0
+                * style.typography.side_date.size_pt
+        } else {
+            0.0
+        });
     if style.section(id).heading == SectionHeading::Plain {
         if style.has_sidebar() {
             return (extra_lines + 1.0) * leading + following_ascent + 6.0;
@@ -1012,9 +1024,10 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     if section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
-        let lines = page.side_date_lines(&item.heading, date, heading, meta);
+        let date_style = &style.typography.side_date;
+        let lines = page.side_date_lines(&item.heading, date, heading, date_style);
         let heading_leading = heading.size_pt * heading.line_height;
-        let date_leading = meta.size_pt * meta.line_height;
+        let date_leading = date_style.size_pt * date_style.line_height;
         height += if lines.same_line {
             (if lines.heading.is_empty() {
                 date_leading
@@ -1068,13 +1081,14 @@ fn item_start_height(
     let first = if section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
-        let lines = page.side_date_lines(&item.heading, date, heading, meta);
+        let date_style = &style.typography.side_date;
+        let lines = page.side_date_lines(&item.heading, date, heading, date_style);
         if lines.same_line && !lines.heading.is_empty() {
-            leading(heading).max(leading(meta))
+            leading(heading).max(leading(date_style))
         } else if !lines.heading.is_empty() && section.date == DatePlacement::Right {
             leading(heading)
         } else {
-            leading(meta)
+            leading(date_style)
         }
     } else if visible(&item.heading) {
         if section.items == crate::theme_style::ItemLayout::Chips && id == "languages" {
@@ -1136,7 +1150,7 @@ pub(crate) fn side_date_lines_for_style(
         heading,
         date,
         &style.typography.item_title,
-        &style.typography.meta,
+        &style.typography.side_date,
     )
 }
 
@@ -1196,7 +1210,12 @@ fn layout_basics(
                 page.header_text(&content.name, name, ink, style.centered_header);
             }
             if !content.label.is_empty() {
-                page.header_text(&content.label, body, accent, style.centered_header);
+                page.header_text(
+                    &content.label,
+                    &style.typography.label,
+                    accent,
+                    style.centered_header,
+                );
             }
             if style.contact_region == "header" && !content.contacts.is_empty() {
                 page.header_text(
@@ -1250,8 +1269,12 @@ fn layout_summary(
     content: &ResumeContent,
     style: &ThemeStyle,
 ) -> Result<(), String> {
-    let body = &style.typography.body;
-    page.wrapped(&content.summary, body, style.colors.ink, 0.0);
+    page.wrapped(
+        &content.summary,
+        &style.typography.summary,
+        style.colors.ink,
+        0.0,
+    );
     page.gap(style.page.section_gap_mm * PT_PER_MM / 2.0);
     Ok(())
 }
@@ -1382,6 +1405,9 @@ fn sidebar_layout(
         &style.typography.item_title,
         &style.typography.meta,
         &style.typography.section_title,
+        &style.typography.label,
+        &style.typography.summary,
+        &style.typography.side_date,
     ]
     .into_iter()
     .map(|role| {
@@ -1404,10 +1430,10 @@ fn sidebar_layout(
     ] {
         let first_role = if style.header_region == region && !content.name.is_empty() {
             Some(&local.typography.name)
-        } else if style.header_region == region && !content.label.is_empty()
-            || style.summary_region == region && !content.summary.is_empty()
-        {
-            Some(&local.typography.body)
+        } else if style.header_region == region && !content.label.is_empty() {
+            Some(&local.typography.label)
+        } else if style.summary_region == region && !content.summary.is_empty() {
+            Some(&local.typography.summary)
         } else if style.contact_region == region && !content.contacts.is_empty() {
             Some(&local.typography.meta)
         } else {
@@ -1560,6 +1586,67 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn independent_basics_and_side_date_roles_keep_defaults_and_work_in_all_regions() {
+        let document=parse_resume(br#"{"basics":{"name":"Ada","label":"ROLE_LABEL","summary":"ROLE_SUMMARY","email":"contact@example.com"},"work":[{"name":"ROLE_ITEM","location":"ROLE_DETAIL","startDate":"2020-01","summary":"ROLE_BODY"}],"skills":[{"name":"ROLE_SKILL"}]}"#).unwrap();
+        let content = project(&document);
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let before = layout_with_theme(&content, Language::En, &theme).unwrap();
+        for role in ["label", "summary", "sideDate"] {
+            theme.normalized["typography"][role] = serde_json::json!({});
+        }
+        assert_eq!(
+            layout_with_theme(&content, Language::En, &theme).unwrap(),
+            before
+        );
+        theme.normalized["typography"]["body"] = serde_json::json!({"sizePt":9});
+        theme.normalized["typography"]["meta"] = serde_json::json!({"sizePt":8});
+        theme.normalized["typography"]["label"] = serde_json::json!({"sizePt":14,"family":"cjk-serif","weight":600,"textTransform":"lowercase"});
+        theme.normalized["typography"]["summary"] =
+            serde_json::json!({"sizePt":12,"lineHeight":1.8});
+        theme.normalized["typography"]["sideDate"] =
+            serde_json::json!({"sizePt":11,"family":"cjk-serif","weight":600,"trackingEm":0.02});
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            theme.normalized["composition"] = if preset.starts_with("sidebar") {
+                serde_json::json!({"preset":preset,"headerRegion":"main","summaryRegion":"main","contactRegion":"sidebar","placements":{"skills":"sidebar"}})
+            } else {
+                serde_json::json!({"preset":preset})
+            };
+            let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+            let texts: Vec<_> = result
+                .pages
+                .iter()
+                .flatten()
+                .filter_map(|op| {
+                    if let LayoutElement::Text(t) = op {
+                        Some(t)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            for (value, size, font) in [
+                ("role_label", 14., FontKind::Serif),
+                ("ROLE_SUMMARY", 12., FontKind::Sans),
+                ("2020-01", 11., FontKind::Serif),
+                ("ROLE_BODY", 9., FontKind::Sans),
+                ("ROLE_DETAIL", 8., FontKind::Sans),
+            ] {
+                let text = texts.iter().find(|t| t.text == value).unwrap();
+                assert_eq!(text.size_pt, size, "{preset}/{value}");
+                assert_eq!(text.font, font, "{preset}/{value}");
+                assert!(text.x_pt + text.width_pt() <= result.width_mm * PT_PER_MM + 0.02);
+            }
+        }
+        assert_eq!(document.value["basics"]["label"], "ROLE_LABEL");
+    }
 
     #[test]
     fn heading_keep_budget_only_reserves_a_whole_item_when_the_group_can_fit() {

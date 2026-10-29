@@ -293,7 +293,8 @@ impl BasicsBlock {
 
 fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> Vec<BasicsBlock> {
     let page = &style.page;
-    let body = &style.typography.body;
+    let label = &style.typography.label;
+    let summary = &style.typography.summary;
     let meta = &style.typography.meta;
     let ink = style.colors.ink;
     let muted = style.colors.muted;
@@ -321,7 +322,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
                 ));
             }
             if !content.label.is_empty() {
-                left = left.add_paragraph(paragraph(&content.label, body, accent, 0.0, 0.0));
+                left = left.add_paragraph(paragraph(&content.label, label, accent, 0.0, 0.0));
             }
             let mut right = TableCell::new()
                 .width(right_width, WidthType::Dxa)
@@ -352,7 +353,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
             if style.summary_region == "header" && !content.summary.is_empty() {
                 blocks.push(BasicsBlock::paragraph(paragraph(
                     &content.summary,
-                    body,
+                    summary,
                     ink,
                     gap / 2.0,
                     0.0,
@@ -394,7 +395,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
                 ));
             }
             if !content.label.is_empty() {
-                header.push(paragraph(&content.label, body, accent, 0.0, 0.0));
+                header.push(paragraph(&content.label, label, accent, 0.0, 0.0));
             }
             if style.contact_region == "header" && !content.contacts.is_empty() {
                 header.push(paragraph(
@@ -416,7 +417,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
                     .collect();
             }
             if style.summary_region == "header" && !content.summary.is_empty() {
-                header.push(paragraph(&content.summary, body, ink, gap / 2.0, 0.0));
+                header.push(paragraph(&content.summary, summary, ink, gap / 2.0, 0.0));
             }
             // A real paragraph border, not an image/table: reflows with the editable header.
             if let Some(last) = header.last_mut() {
@@ -462,7 +463,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
     if style.summary_region == region && !content.summary.is_empty() {
         blocks.push(BasicsBlock::paragraph(paragraph(
             &content.summary,
-            body,
+            summary,
             ink,
             0.0,
             gap / 2.0,
@@ -515,6 +516,7 @@ fn build_document(
         let page = &style.page;
         let body = &style.typography.body;
         let meta = &style.typography.meta;
+        let date_style = &style.typography.side_date;
         let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
         let heading = style.typography.item_title.clone();
         let column = &mut columns[usize::from(sidebar)];
@@ -531,13 +533,13 @@ fn build_document(
             {
                 let lines = side_date_lines_for_style(style, &item.heading, date);
                 if lines.heading.is_empty() {
-                    let mut date_paragraph = paragraph(date, meta, muted, 0.0, 0.0);
+                    let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
                     if section_style.date == DatePlacement::Right {
                         date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
                     }
                     paragraphs.push(date_paragraph);
                 } else if !lines.same_line {
-                    let mut date_paragraph = paragraph(date, meta, muted, 0.0, 0.0);
+                    let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
                     if section_style.date == DatePlacement::Right {
                         date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
                         paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
@@ -558,7 +560,7 @@ fn build_document(
                         heading_run = heading_run.bold();
                     }
                     paragraphs.push(
-                        paragraph(date, meta, muted, 0.0, 0.0)
+                        paragraph(date, date_style, muted, 0.0, 0.0)
                             .add_tab(
                                 docx_rs::Tab::new()
                                     .val(docx_rs::TabValueType::Left)
@@ -575,13 +577,16 @@ fn build_document(
                         ));
                     }
                 } else {
-                    let date_run = Run::new()
+                    let mut date_run = Run::new()
                         .add_tab()
-                        .add_text(meta.display_text(date).as_ref())
-                        .size((meta.size_pt * 2.0).round() as usize)
+                        .add_text(date_style.display_text(date).as_ref())
+                        .size((date_style.size_pt * 2.0).round() as usize)
                         .color(color(muted))
-                        .character_spacing((meta.tracking_pt() * 20.0).round() as i32)
-                        .fonts(font(meta));
+                        .character_spacing((date_style.tracking_pt() * 20.0).round() as i32)
+                        .fonts(font(date_style));
+                    if effective_bold(date_style) {
+                        date_run = date_run.bold();
+                    }
                     let content_width =
                         (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
                     paragraphs.push(
@@ -778,6 +783,9 @@ fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
         &style.typography.name,
         &style.typography.section_title,
         &style.typography.meta,
+        &style.typography.label,
+        &style.typography.summary,
+        &style.typography.side_date,
     ] {
         if let crate::layout::FontKind::Local(id) = crate::layout::font_kind(role)? {
             local_ids.insert(id);
@@ -896,6 +904,38 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn independent_label_summary_and_side_date_are_editable_styled_runs() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["typography"]["label"] = serde_json::json!({"sizePt":14,"family":"cjk-serif","weight":600,"textTransform":"lowercase"});
+        theme.normalized["typography"]["summary"] =
+            serde_json::json!({"sizePt":12,"lineHeight":1.8});
+        theme.normalized["typography"]["sideDate"] =
+            serde_json::json!({"sizePt":11,"family":"cjk-serif","weight":600,"trackingEm":0.02});
+        let content=project(&parse_resume(br#"{"basics":{"name":"Ada","label":"ROLE_LABEL","summary":"ROLE_SUMMARY"},"work":[{"name":"Role","startDate":"2020-01"}]}"#).unwrap());
+        let xml = String::from_utf8(
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme))
+                .unwrap()
+                .document,
+        )
+        .unwrap();
+        for (text, size) in [("role_label", 28), ("ROLE_SUMMARY", 24), ("2020-01", 22)] {
+            let at = xml.find(text).unwrap();
+            let start = xml[..at].rfind("<w:r>").unwrap();
+            let end = at + xml[at..].find("</w:r>").unwrap();
+            let run = &xml[start..end];
+            assert!(run.contains(&format!("w:sz w:val=\"{size}\"")), "{text}");
+            if text != "ROLE_SUMMARY" {
+                assert!(
+                    run.contains("Noto Serif SC") && run.contains("<w:b />"),
+                    "{text}"
+                );
+            }
+        }
+        assert!(!xml.contains("<w:drawing>"));
+    }
 
     #[test]
     fn tracks_and_transforms_editable_text_in_paragraphs_date_tabs_and_chips() {

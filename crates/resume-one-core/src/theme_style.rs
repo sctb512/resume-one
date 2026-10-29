@@ -149,6 +149,9 @@ pub struct Typography {
     pub name: TextStyle,
     pub section_title: TextStyle,
     pub meta: TextStyle,
+    pub label: TextStyle,
+    pub summary: TextStyle,
+    pub side_date: TextStyle,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -265,6 +268,24 @@ fn text_style(
     }
 }
 
+fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
+    let Some(value) = value else {
+        return base.clone();
+    };
+    let mut role = text_style(
+        Some(value),
+        &base.family,
+        base.size_pt,
+        base.weight,
+        base.line_height,
+    );
+    role.tracking_em = number(value, "trackingEm", base.tracking_em);
+    if value.get("textTransform").is_none() {
+        role.text_transform = base.text_transform;
+    }
+    role
+}
+
 impl ThemeStyle {
     pub fn card_paper(&self) -> Rgb {
         let tinted = self.colors.paper.mix(self.colors.accent, 0.035);
@@ -320,6 +341,9 @@ impl ThemeStyle {
                 &mut style.typography.name,
                 &mut style.typography.section_title,
                 &mut style.typography.meta,
+                &mut style.typography.label,
+                &mut style.typography.summary,
+                &mut style.typography.side_date,
             ] {
                 role.size_pt = (role.size_pt * self.sidebar_typography_scale).max(7.0);
             }
@@ -384,6 +408,10 @@ impl ThemeStyle {
         let margins = page.get("marginsMm").unwrap_or(&Value::Null);
         let typography = manifest.get("typography").unwrap_or(&Value::Null);
         let body = text_style(typography.get("body"), "cjk-sans", 10.0, 400, 1.4);
+        let meta = text_style(typography.get("meta"), "cjk-sans", 8.5, 400, 1.3);
+        let label = inherited_text_style(typography.get("label"), &body);
+        let summary = inherited_text_style(typography.get("summary"), &body);
+        let side_date = inherited_text_style(typography.get("sideDate"), &meta);
         // Absent itemTitle preserves the legacy body-derived geometry exactly.
         let item_title = text_style(
             typography.get("itemTitle"),
@@ -440,7 +468,10 @@ impl ThemeStyle {
                     600,
                     1.3,
                 ),
-                meta: text_style(typography.get("meta"), "cjk-sans", 8.5, 400, 1.3),
+                meta,
+                label,
+                summary,
+                side_date,
             },
             composition_preset: manifest
                 .get("composition")
@@ -516,6 +547,9 @@ impl ThemeStyle {
             &mut style.typography.name,
             &mut style.typography.section_title,
             &mut style.typography.meta,
+            &mut style.typography.label,
+            &mut style.typography.summary,
+            &mut style.typography.side_date,
         ] {
             role.asset_font = role
                 .family
@@ -536,6 +570,44 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn dependent_roles_inherit_all_base_properties_and_override_independently() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["typography"]["body"]["trackingEm"] = serde_json::json!(0.03);
+        theme.normalized["typography"]["body"]["textTransform"] = serde_json::json!("uppercase");
+        let inherited = ThemeStyle::from_manifest(&theme);
+        for role in [&inherited.typography.label, &inherited.typography.summary] {
+            assert_eq!(role.size_pt, inherited.typography.body.size_pt);
+            assert_eq!(role.family, inherited.typography.body.family);
+            assert_eq!(role.tracking_em, 0.03);
+            assert_eq!(role.text_transform, TextTransform::Uppercase);
+        }
+        assert_eq!(
+            inherited.typography.side_date.size_pt,
+            inherited.typography.meta.size_pt
+        );
+        theme.normalized["typography"]["label"] =
+            serde_json::json!({"sizePt":14,"textTransform":"lowercase"});
+        theme.normalized["typography"]["summary"] = serde_json::json!({"lineHeight":1.8});
+        theme.normalized["typography"]["sideDate"] =
+            serde_json::json!({"family":"cjk-serif","weight":600,"sizePt":11});
+        let explicit = ThemeStyle::from_manifest(&theme);
+        assert_eq!(explicit.typography.label.size_pt, 14.0);
+        assert_eq!(explicit.typography.label.tracking_em, 0.03);
+        assert_eq!(
+            explicit.typography.label.text_transform,
+            TextTransform::Lowercase
+        );
+        assert_eq!(explicit.typography.summary.line_height, 1.8);
+        assert_eq!(
+            explicit.typography.body.line_height,
+            inherited.typography.body.line_height
+        );
+        assert_eq!(explicit.typography.side_date.weight, 600);
+        assert_eq!(explicit.typography.meta.weight, 400);
+    }
 
     #[test]
     fn header_and_contact_defaults_are_independent_partial_overrides() {

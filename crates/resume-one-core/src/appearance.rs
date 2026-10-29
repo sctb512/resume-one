@@ -150,21 +150,24 @@ impl Appearance {
                 };
                 effective.normalized["typography"][role]["weight"] = json!(weight);
             }
-            // An explicit entry-title role follows body-font overrides; if it
-            // is absent, leave it absent so its geometry still inherits body.
-            if roles.contains(&"body")
-                && effective.normalized["typography"]["itemTitle"].is_object()
-            {
-                let weight = effective.normalized["typography"]["itemTitle"]["weight"]
-                    .as_u64()
-                    .unwrap_or(400) as u16;
-                effective.normalized["typography"]["itemTitle"]["family"] = json!(font.family());
-                effective.normalized["typography"]["itemTitle"]["weight"] =
-                    json!(if matches!(font, FontChoice::Font(_)) {
-                        weight
-                    } else {
-                        font.weight()
-                    });
+            // Explicit dependent roles follow body-font overrides. Keep absent
+            // roles absent so they still inherit the effective body/meta style.
+            if roles.contains(&"body") {
+                for role in ["itemTitle", "label", "summary", "sideDate"] {
+                    if !effective.normalized["typography"][role].is_object() {
+                        continue;
+                    }
+                    let weight = effective.normalized["typography"][role]["weight"]
+                        .as_u64()
+                        .unwrap_or(400) as u16;
+                    effective.normalized["typography"][role]["family"] = json!(font.family());
+                    effective.normalized["typography"][role]["weight"] =
+                        json!(if matches!(font, FontChoice::Font(_)) {
+                            weight
+                        } else {
+                            font.weight()
+                        });
+                }
             }
         }
         effective
@@ -251,6 +254,38 @@ mod tests {
             json!({"formatVersion": 1, "colors": []}),
         ] {
             assert!(Appearance::from_json(&value).is_err());
+        }
+    }
+    #[test]
+    fn body_font_override_keeps_explicit_dependent_role_geometry_and_missing_roles_inherited() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        for role in ["label", "summary", "sideDate"] {
+            theme.normalized["typography"][role] = json!({"family":"cjk-serif","weight":600,"sizePt":12,"trackingEm":0.1,"textTransform":"uppercase"});
+        }
+        let source = theme.normalized.clone();
+        let appearance =
+            Appearance::from_json(&json!({"formatVersion":1,"bodyFont":"cjk-sans"})).unwrap();
+        let effective = appearance.apply(&theme);
+        for role in ["label", "summary", "sideDate"] {
+            assert_eq!(
+                effective.normalized["typography"][role]["family"],
+                "cjk-sans"
+            );
+            assert_eq!(effective.normalized["typography"][role]["weight"], 400);
+            assert_eq!(effective.normalized["typography"][role]["sizePt"], 12);
+            assert_eq!(effective.normalized["typography"][role]["trackingEm"], 0.1);
+            assert_eq!(
+                effective.normalized["typography"][role]["textTransform"],
+                "uppercase"
+            );
+        }
+        assert_eq!(theme.normalized, source);
+        let empty =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let inherited = appearance.apply(&empty);
+        for role in ["label", "summary", "sideDate"] {
+            assert!(inherited.normalized["typography"][role].is_null());
         }
     }
 }

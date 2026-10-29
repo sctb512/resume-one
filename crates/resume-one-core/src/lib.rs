@@ -58,6 +58,14 @@ pub struct ThemeManifest {
     pub(crate) asset_fonts: BTreeMap<String, u16>,
 }
 
+impl ThemeManifest {
+    /// All validated faces, including roles absent from the current resume.
+    /// Native engines may cache a family's available weights at first use.
+    pub fn font_asset_ids(&self) -> impl Iterator<Item = u16> + '_ {
+        self.asset_fonts.values().copied()
+    }
+}
+
 fn validator(version: u64) -> &'static Validator {
     match version {
         1 => V1_VALIDATOR.get_or_init(|| {
@@ -508,6 +516,28 @@ mod tests {
         ] {
             let mut invalid = theme.clone();
             invalid["composition"][key] = value;
+            assert!(parse_theme(invalid.to_string().as_bytes()).is_err());
+        }
+    }
+
+    #[test]
+    fn validates_tracking_bounds_and_declarative_case_transform() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        for tracking in [-0.05, 0.0, 0.25, 0.5] {
+            theme["typography"]["sectionTitle"]["trackingEm"] = json!(tracking);
+            for transform in ["none", "uppercase", "lowercase"] {
+                theme["typography"]["sectionTitle"]["textTransform"] = json!(transform);
+                assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+            }
+        }
+        for (key, value) in [
+            ("trackingEm", json!(-0.051)),
+            ("trackingEm", json!(0.501)),
+            ("textTransform", json!("capitalize")),
+            ("textTransform", json!("${resume.name}")),
+        ] {
+            let mut invalid = theme.clone();
+            invalid["typography"]["sectionTitle"][key] = value;
             assert!(parse_theme(invalid.to_string().as_bytes()).is_err());
         }
     }

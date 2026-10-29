@@ -130,7 +130,7 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
                             col: pdf_color(text.color),
                         },
                         Op::ShowText {
-                            items: vec![TextItem::Text(text.text.clone())],
+                            items: pdf_text_items(text),
                         },
                         Op::EndTextSection,
                     ]),
@@ -205,10 +205,55 @@ fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, Str
     Ok(bytes)
 }
 
+fn pdf_text_items(text: &layout::LayoutText) -> Vec<TextItem> {
+    let mut items = Vec::new();
+    for (index, (cluster, _)) in text.paint_runs().into_iter().enumerate() {
+        if index > 0 {
+            // PDF TJ offsets use thousandths of the current font size and the
+            // opposite sign. A gap is never inserted inside a grapheme cluster.
+            items.push(TextItem::Offset(-text.tracking_pt * 1000.0 / text.size_pt));
+        }
+        items.push(TextItem::Text(cluster.into()));
+    }
+    items
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn tracked_pdf_items_separate_graphemes_not_combining_marks() {
+        let text = layout::LayoutText {
+            text: "A\u{301}B".into(),
+            x_pt: 0.0,
+            baseline_y_pt: 0.0,
+            size_pt: 10.0,
+            leading_pt: 14.0,
+            tracking_pt: 1.5,
+            color: Rgb { r: 0, g: 0, b: 0 },
+            font: FontKind::Sans,
+            target: None,
+            target_lane: None,
+        };
+        assert_eq!(
+            pdf_text_items(&text),
+            vec![
+                TextItem::Text("A\u{301}".into()),
+                TextItem::Offset(-150.0),
+                TextItem::Text("B".into())
+            ]
+        );
+        let normal = layout::LayoutText {
+            tracking_pt: 0.0,
+            ..text
+        };
+        assert_eq!(
+            pdf_text_items(&normal),
+            vec![TextItem::Text("A\u{301}B".into())]
+        );
+    }
     #[test]
     fn generates_pdf_with_embedded_cjk_font_and_pages() {
         let source = br#"{"basics":{"name":"\u674e\u660e","summary":"\u4e2d\u6587\u7b80\u5386"},"work":[{"position":"Engineer","name":"Example","highlights":["Completed the project"]}]}"#;

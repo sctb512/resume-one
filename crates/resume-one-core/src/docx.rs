@@ -60,8 +60,11 @@ fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: 
     if effective_bold(style) {
         run = run.bold();
     }
+    if style.tracking_em != 0.0 {
+        run = run.character_spacing((style.tracking_pt() * 20.0).round() as i32);
+    }
     // Keep explicit newlines, but let Word wrap instead of hard-breaking at PDF wraps.
-    for (index, line) in text.split('\n').enumerate() {
+    for (index, line) in style.display_text(text).split('\n').enumerate() {
         if index > 0 {
             run = run.add_break(docx_rs::BreakType::TextWrapping);
         }
@@ -166,8 +169,9 @@ fn keyword_chips(labels: &[String], style: &ThemeStyle) -> Paragraph {
                     .fonts(font(meta))
                     .size((meta.size_pt * 2.0).round() as usize)
                     .color(color(ink))
+                    .character_spacing((meta.tracking_pt() * 20.0).round() as i32)
                     .shading(docx_rs::Shading::new().fill(color(background)))
-                    .add_text(format!(" {label} ")),
+                    .add_text(format!(" {} ", meta.display_text(label))),
             )
             .add_run(Run::new().add_text("  "));
     }
@@ -548,6 +552,7 @@ fn build_document(
                         .add_text(&lines.heading[0])
                         .size((heading.size_pt * 2.0).round() as usize)
                         .color(color(ink))
+                        .character_spacing((heading.tracking_pt() * 20.0).round() as i32)
                         .fonts(font(&heading));
                     if effective_bold(&heading) {
                         heading_run = heading_run.bold();
@@ -572,9 +577,10 @@ fn build_document(
                 } else {
                     let date_run = Run::new()
                         .add_tab()
-                        .add_text(date)
+                        .add_text(meta.display_text(date).as_ref())
                         .size((meta.size_pt * 2.0).round() as usize)
                         .color(color(muted))
+                        .character_spacing((meta.tracking_pt() * 20.0).round() as i32)
                         .fonts(font(meta));
                     let content_width =
                         (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
@@ -890,6 +896,40 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn tracks_and_transforms_editable_text_in_paragraphs_date_tabs_and_chips() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        for role in ["name", "sectionTitle", "meta"] {
+            theme.normalized["typography"][role]["trackingEm"] = serde_json::json!(0.1);
+            theme.normalized["typography"][role]["textTransform"] = serde_json::json!("uppercase");
+        }
+        theme.normalized["typography"]["itemTitle"] = serde_json::json!({"family":"cjk-sans","sizePt":10,"weight":400,"trackingEm":-0.02,"textTransform":"lowercase"});
+        theme.normalized["sections"] =
+            serde_json::json!({"work":{"date":"right"},"skills":{"items":"chips"}});
+        let document = parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"MixedCase","position":"Lead","startDate":"2020-01"}],"skills":[{"name":"Tools","keywords":["Rust"]}]}"#).unwrap();
+        let content = project(&document);
+        let xml = String::from_utf8(
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme))
+                .unwrap()
+                .document,
+        )
+        .unwrap();
+        for expected in [
+            "ADA",
+            "WORK",
+            "RUST",
+            "lead",
+            "mixedcase",
+            "<w:spacing w:val=\"62\"",
+            "<w:spacing w:val=\"-4\"",
+        ] {
+            assert!(xml.contains(expected), "missing {expected}");
+        }
+        assert!(!xml.contains("<w:drawing>"));
+        assert_eq!(document.value["basics"]["name"], "Ada");
+    }
 
     #[test]
     fn split_header_is_an_editable_borderless_two_cell_table() {

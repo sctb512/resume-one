@@ -83,7 +83,7 @@ mod tests {
             resume_one_core::load_theme(root.path(), std::path::Path::new("fixture.theme.json"))
                 .unwrap();
         let mut model = AppModel::load(None).unwrap();
-        model.document = parse_resume(br#"{"basics":{"name":"Ada", "summary":"Ada m"}}"#).unwrap();
+        model.document = parse_resume(br#"{"basics":{"name":"Ada"}}"#).unwrap();
         model.content = project(&model.document);
         model.replace_themes(vec![BuiltinTheme {
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
@@ -98,7 +98,9 @@ mod tests {
                 .preview
                 .resolve(&app.model, app.model.applied_theme())
                 .unwrap();
-            assert!(preview.layout.pages.iter().flatten().any(
+            // Body has not appeared yet: preload the declared asset before
+            // native family selection, not only the current layout's faces.
+            assert!(!preview.layout.pages.iter().flatten().any(
                 |op| matches!(op, LayoutElement::Text(t) if matches!(t.font, FontKind::Local(_)))
             ));
             // TestAppContext uses NoopTextSystem: every requested family maps
@@ -109,6 +111,17 @@ mod tests {
             let font = resume_one_core::fonts::get(*fonts.first().unwrap());
             assert_eq!(font.family, "Resume One Font Fixture");
             assert_eq!(&*font.bytes, data);
+        });
+        cx.update(|_, cx| {
+            view.update(cx, |app, _| {
+                app.model.document = parse_resume(br#"{"basics":{"name":"Ada", "summary":"Ada m"}}"#).unwrap();
+                app.model.content = project(&app.model.document);
+                let preview = app.preview.resolve(&app.model, app.model.applied_theme()).unwrap();
+                assert!(preview.layout.pages.iter().flatten().any(
+                    |op| matches!(op, LayoutElement::Text(t) if matches!(t.font, FontKind::Local(_)))
+                ));
+                assert_eq!(app.preview.registered_fonts.borrow().len(),1);
+            });
         });
     }
 
@@ -704,10 +717,7 @@ mod tests {
                     })
                     .unwrap();
                 assert!(text.x_pt >= hit.left - 0.1);
-                assert!(
-                    text.x_pt + text.font.text_width_pt(&text.text, text.size_pt)
-                        <= hit.right + 0.1
-                );
+                assert!(text.x_pt + text.width_pt() <= hit.right + 0.1);
             }
         }
     }
@@ -940,16 +950,27 @@ impl PreviewState {
         let effective = model.display_appearance().apply(&theme.manifest);
         let result = layout::layout_with_theme(&model.content, Language::Zh, &effective).and_then(
             |layout| {
+                let mut pending: std::collections::BTreeSet<_> =
+                    effective.font_asset_ids().collect();
                 for element in layout.pages.iter().flatten() {
                     if let LayoutElement::Text(text) = element
                         && let FontKind::Local(id) = text.font
-                        && !self.registered_fonts.borrow().contains(&id)
                     {
-                        self.text_system
-                            .add_fonts(vec![resume_one_core::fonts::bytes(id)])
-                            .map_err(|e| format!("无法载入所选字体：{e}"))?;
-                        self.registered_fonts.borrow_mut().insert(id);
+                        pending.insert(id);
                     }
+                }
+                pending.retain(|id| !self.registered_fonts.borrow().contains(id));
+                if !pending.is_empty() {
+                    self.text_system
+                        .add_fonts(
+                            pending
+                                .iter()
+                                .copied()
+                                .map(resume_one_core::fonts::bytes)
+                                .collect(),
+                        )
+                        .map_err(|e| format!("无法载入所选字体：{e}"))?;
+                    self.registered_fonts.borrow_mut().extend(pending);
                 }
                 let regions = regions(&layout);
                 Ok(Arc::new(PreviewData { layout, regions }))
@@ -1007,7 +1028,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                 Some(Ink {
                     left: line.x_pt,
                     top,
-                    width: line.font.text_width_pt(&line.text, line.size_pt),
+                    width: line.width_pt(),
                     height: bottom - top,
                 })
             } else {
@@ -1046,7 +1067,7 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
 }
 
 enum Painted {
-    Text(Box<ShapedLine>, Point<Pixels>, Pixels),
+    Text(Vec<(ShapedLine, Point<Pixels>, Pixels)>),
     Rule(Bounds<Pixels>, Rgba),
 }
 
@@ -1069,31 +1090,37 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
                             },
                             ..gpui::font(text.font.family())
                         };
-                        let run = TextRun {
-                            len: text.text.len(),
-                            font,
-                            color: color(text.color).into(),
-                            background_color: None,
-                            underline: None,
-                            strikethrough: None,
-                        };
-                        let line = window.text_system().shape_line(
-                            text.text.clone().into(),
-                            px(text.size_pt * px_per_pt),
-                            &[run],
-                            None,
-                        );
-                        let leading =
-                            px(text.leading_pt * px_per_pt).max(line.ascent + line.descent);
-                        let baseline = (leading - line.ascent - line.descent) / 2.0 + line.ascent;
                         Some(Painted::Text(
-                            Box::new(line),
-                            bounds.origin
-                                + point(
-                                    px(text.x_pt * px_per_pt),
-                                    px((height - text.baseline_y_pt) * px_per_pt) - baseline,
-                                ),
-                            leading,
+                            text.paint_runs()
+                                .into_iter()
+                                .map(|(value, offset)| {
+                                    let run = TextRun {
+                                        len: value.len(),
+                                        font: font.clone(),
+                                        color: color(text.color).into(),
+                                        background_color: None,
+                                        underline: None,
+                                        strikethrough: None,
+                                    };
+                                    let line = window.text_system().shape_line(
+                                        value.to_owned().into(),
+                                        px(text.size_pt * px_per_pt),
+                                        &[run],
+                                        None,
+                                    );
+                                    let leading = px(text.leading_pt * px_per_pt)
+                                        .max(line.ascent + line.descent);
+                                    let baseline =
+                                        (leading - line.ascent - line.descent) / 2.0 + line.ascent;
+                                    let origin = bounds.origin
+                                        + point(
+                                            px((text.x_pt + offset) * px_per_pt),
+                                            px((height - text.baseline_y_pt) * px_per_pt)
+                                                - baseline,
+                                        );
+                                    (line, origin, leading)
+                                })
+                                .collect(),
                         ))
                     }
                     LayoutElement::Rule(rule) => Some(Painted::Rule(
@@ -1131,8 +1158,10 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
         |_, elements, window, cx| {
             for element in elements {
                 match element {
-                    Painted::Text(line, origin, leading) => {
-                        let _ = line.paint(origin, leading, window, cx);
+                    Painted::Text(runs) => {
+                        for (line, origin, leading) in runs {
+                            let _ = line.paint(origin, leading, window, cx);
+                        }
                     }
                     Painted::Rule(bounds, color) => window.paint_quad(fill(bounds, color)),
                 }

@@ -132,13 +132,8 @@ pub(super) fn chips(page: &mut PageWriter<'_>, labels: &[String], style: &ThemeS
     page.gap(4.0);
     page.ensure(height);
     for label in labels {
-        for line in page.wrap(
-            label,
-            meta.size_pt,
-            (page.content_width() - 10.0).max(1.0),
-            font,
-        ) {
-            let width = (font.text_width_pt(&line, meta.size_pt) + 10.0).min(page.content_width());
+        for line in page.wrap_style(label, meta, (page.content_width() - 10.0).max(1.0)) {
+            let width = (page.styled_width(&line, meta) + 10.0).min(page.content_width());
             if x > 0.0 && x + width > page.content_width() {
                 page.y -= height + 3.0;
                 page.ensure(height);
@@ -157,6 +152,7 @@ pub(super) fn chips(page: &mut PageWriter<'_>, labels: &[String], style: &ThemeS
                 baseline_y_pt: page.y + 2.0,
                 size_pt: meta.size_pt,
                 leading_pt: height,
+                tracking_pt: meta.tracking_pt(),
                 color: ink,
                 font,
                 target: page.target,

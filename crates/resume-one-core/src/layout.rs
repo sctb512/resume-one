@@ -6,6 +6,7 @@ use crate::render::{Language, title};
 use crate::semantic::{Item, ResumeContent};
 use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
 use ttf_parser::Face;
+use unicode_segmentation::UnicodeSegmentation;
 mod sections;
 
 pub const SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
@@ -58,14 +59,17 @@ impl FontKind {
             let face = Face::parse(&font.bytes, 0).expect("validated local font");
             let fallback = Face::parse(SANS_FONT_BYTES, 0).expect("bundled font");
             return text
-                .chars()
-                .map(|c| {
-                    let face = if face.glyph_index(c).is_some() {
+                .graphemes(true)
+                .map(|cluster| {
+                    let face = if cluster
+                        .chars()
+                        .all(|c| c.is_whitespace() || face.glyph_index(c).is_some())
+                    {
                         &face
                     } else {
                         &fallback
                     };
-                    measured_width(face, &c.to_string(), size)
+                    measured_width(face, cluster, size)
                 })
                 .sum();
         }
@@ -102,12 +106,49 @@ pub struct LayoutText {
     pub baseline_y_pt: f32,
     pub size_pt: f32,
     pub leading_pt: f32,
+    /// Extra advance between extended grapheme clusters, not after the last.
+    pub tracking_pt: f32,
     pub color: Rgb,
     pub font: FontKind,
     pub target: Option<LayoutTarget>,
     /// Outer interaction lane captured at mark time (before card/rail insets).
     /// Travels with continuation text; never inferred from glyph positions.
     pub target_lane: Option<(f32, f32)>,
+}
+
+impl LayoutText {
+    pub fn width_pt(&self) -> f32 {
+        tracked_width(self.font, &self.text, self.size_pt, self.tracking_pt)
+    }
+
+    /// Shared print/preview cluster offsets. Zero tracking retains the complete
+    /// shaped line; combining marks never gain an internal tracking gap.
+    pub fn paint_runs(&self) -> Vec<(&str, f32)> {
+        if self.tracking_pt == 0.0 {
+            return vec![(&self.text, 0.0)];
+        }
+        let mut x = 0.0;
+        self.text
+            .graphemes(true)
+            .map(|cluster| {
+                let at = x;
+                x += self.font.text_width_pt(cluster, self.size_pt) + self.tracking_pt;
+                (cluster, at)
+            })
+            .collect()
+    }
+}
+
+fn tracked_width(font: FontKind, text: &str, size: f32, tracking: f32) -> f32 {
+    font.text_width_pt(text, size) + tracking_extra(text, tracking)
+}
+
+fn tracking_extra(text: &str, tracking: f32) -> f32 {
+    if tracking == 0.0 {
+        0.0
+    } else {
+        text.graphemes(true).count().saturating_sub(1) as f32 * tracking
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -186,6 +227,7 @@ struct HeaderLine {
     text: String,
     size: f32,
     leading: f32,
+    tracking: f32,
     color: Rgb,
     font: FontKind,
 }
@@ -254,60 +296,48 @@ impl<'a> PageWriter<'a> {
         self.y -= height;
     }
 
-    fn line(
-        &mut self,
-        text: &str,
-        size: f32,
-        color: Rgb,
-        kind: FontKind,
-        indent: f32,
-        leading: f32,
-    ) {
+    fn line(&mut self, text: &str, style: &TextStyle, color: Rgb, indent: f32, leading: f32) {
         self.ensure(leading);
         self.ops.push(LayoutElement::Text(LayoutText {
-            text: text.into(),
+            text: style.display_text(text).into_owned(),
             x_pt: self.left + indent,
             baseline_y_pt: self.y,
-            size_pt: size,
+            size_pt: style.size_pt,
             leading_pt: leading,
+            tracking_pt: style.tracking_pt(),
             color,
-            font: kind,
+            font: font_kind(style).expect("theme checked"),
             target: self.target,
             target_lane: self.target_lane,
         }));
         self.y -= leading;
     }
-    fn wrapped(
-        &mut self,
-        text: &str,
-        size: f32,
-        color: Rgb,
-        kind: FontKind,
-        indent: f32,
-        leading: f32,
-    ) {
+    fn wrapped(&mut self, text: &str, style: &TextStyle, color: Rgb, indent: f32) {
         for input_line in text.lines() {
-            for line in self.wrap(input_line, size, self.content_width() - indent, kind) {
-                self.line(&line, size, color, kind, indent, leading);
+            for line in self.wrap_style(input_line, style, self.content_width() - indent) {
+                self.line(
+                    &line,
+                    style,
+                    color,
+                    indent,
+                    style.size_pt * style.line_height,
+                );
             }
         }
     }
 
     fn header_text(&mut self, text: &str, style: &TextStyle, color: Rgb, centered: bool) {
-        let kind = font_kind(style).expect("theme checked");
         for input_line in text.lines() {
-            for line in self.wrap(input_line, style.size_pt, self.content_width(), kind) {
+            for line in self.wrap_style(input_line, style, self.content_width()) {
                 let indent = if centered {
-                    ((self.content_width() - self.text_width(&line, style.size_pt, kind)) / 2.0)
-                        .max(0.0)
+                    ((self.content_width() - self.styled_width(&line, style)) / 2.0).max(0.0)
                 } else {
                     0.0
                 };
                 self.line(
                     &line,
-                    style.size_pt,
+                    style,
                     color,
-                    kind,
                     indent,
                     style.size_pt * style.line_height,
                 );
@@ -328,11 +358,12 @@ impl<'a> PageWriter<'a> {
         ] {
             let font = font_kind(text_style).expect("theme checked");
             for input in value.lines() {
-                for text in self.wrap(input, text_style.size_pt, split, font) {
+                for text in self.wrap_style(input, text_style, split) {
                     left_lines.push(HeaderLine {
                         text,
                         size: text_style.size_pt,
                         leading: text_style.size_pt * text_style.line_height,
+                        tracking: text_style.tracking_pt(),
                         color,
                         font,
                     });
@@ -350,7 +381,7 @@ impl<'a> PageWriter<'a> {
         if style.stacked_contacts {
             for contact in &content.contacts {
                 for input in contact.lines() {
-                    contact_lines.extend(self.wrap(input, meta.size_pt, right_width, font));
+                    contact_lines.extend(self.wrap_style(input, meta, right_width));
                 }
             }
         } else {
@@ -366,14 +397,14 @@ impl<'a> PageWriter<'a> {
                     } else {
                         format!("{current}   ·   {input}")
                     };
-                    if self.text_width(&candidate, meta.size_pt, font) <= right_width {
-                        current = candidate;
+                    if self.styled_width(&candidate, meta) <= right_width {
+                        current = meta.display_text(&candidate).into_owned();
                         continue;
                     }
                     if !current.is_empty() {
                         contact_lines.push(std::mem::take(&mut current));
                     }
-                    let wrapped = self.wrap(input, meta.size_pt, right_width, font);
+                    let wrapped = self.wrap_style(input, meta, right_width);
                     if wrapped.len() == 1 {
                         current = wrapped.into_iter().next().unwrap();
                     } else {
@@ -391,6 +422,7 @@ impl<'a> PageWriter<'a> {
                 text,
                 size: meta.size_pt,
                 leading: meta.size_pt * meta.line_height,
+                tracking: meta.tracking_pt(),
                 color: style.colors.muted,
                 font,
             })
@@ -426,7 +458,7 @@ impl<'a> PageWriter<'a> {
         for (lines, right_aligned) in [(&left_lines, false), (&right_lines, true)] {
             let mut baseline = visible_top - first_ascent(lines);
             for line in lines {
-                let width = self.text_width(&line.text, line.size, line.font);
+                let width = tracked_width(line.font, &line.text, line.size, line.tracking);
                 self.ops.push(LayoutElement::Text(LayoutText {
                     text: line.text.clone(),
                     x_pt: if right_aligned {
@@ -437,6 +469,7 @@ impl<'a> PageWriter<'a> {
                     baseline_y_pt: baseline,
                     size_pt: line.size,
                     leading_pt: line.leading,
+                    tracking_pt: line.tracking,
                     color: line.color,
                     font: line.font,
                     target: self.target,
@@ -455,31 +488,65 @@ impl<'a> PageWriter<'a> {
         )
     }
 
+    fn styled_width(&self, text: &str, style: &TextStyle) -> f32 {
+        let display = style.display_text(text);
+        tracked_width(
+            font_kind(style).expect("theme checked"),
+            &display,
+            style.size_pt,
+            style.tracking_pt(),
+        )
+    }
+
+    fn wrap_style(&self, input: &str, style: &TextStyle, maximum: f32) -> Vec<String> {
+        self.wrap_tracked(
+            &style.display_text(input),
+            style.size_pt,
+            maximum,
+            font_kind(style).expect("theme checked"),
+            style.tracking_pt(),
+        )
+    }
+
+    #[cfg(test)]
     fn wrap(&self, input: &str, size: f32, maximum: f32, kind: FontKind) -> Vec<String> {
+        self.wrap_tracked(input, size, maximum, kind, 0.0)
+    }
+
+    fn wrap_tracked(
+        &self,
+        input: &str,
+        size: f32,
+        maximum: f32,
+        kind: FontKind,
+        tracking: f32,
+    ) -> Vec<String> {
         let input = input.trim();
         if input.is_empty() {
             return Vec::new();
         }
         let mut lines = Vec::new();
         let mut current = String::new();
-        for character in input.chars() {
-            current.push(character);
-            if self.text_width(&current, size, kind) <= maximum {
-                continue;
-            }
-            current.pop();
-            if current.is_empty() {
-                current.push(character);
-                continue;
-            }
-            if "，。、；：！？）》」』".contains(character)
-                && current.chars().count() > 1
-                && let Some(previous) = current.pop()
+        for cluster in input.graphemes(true) {
+            current.push_str(cluster);
+            if self.text_width(&current, size, kind) + tracking_extra(&current, tracking) <= maximum
             {
+                continue;
+            }
+            current.truncate(current.len() - cluster.len());
+            if current.is_empty() {
+                current.push_str(cluster);
+                continue;
+            }
+            if "，。、；：！？）》」』".contains(cluster)
+                && current.graphemes(true).count() > 1
+                && let Some(previous) = current.graphemes(true).next_back().map(str::to_owned)
+            {
+                current.truncate(current.len() - previous.len());
                 lines.push(current.trim_end().to_owned());
                 current.clear();
-                current.push(previous);
-                current.push(character);
+                current.push_str(&previous);
+                current.push_str(cluster);
                 continue;
             }
             // Prefer a recent word boundary for Latin text; CJK falls back to a character break.
@@ -490,13 +557,13 @@ impl<'a> PageWriter<'a> {
                 let head = current[..boundary].trim_end().to_owned();
                 lines.push(head);
                 current = tail;
-                current.push(character);
+                current.push_str(cluster);
                 continue;
             }
             lines.push(current.trim_end().to_owned());
             current.clear();
-            if !character.is_whitespace() {
-                current.push(character);
+            if !cluster.chars().all(char::is_whitespace) {
+                current.push_str(cluster);
             }
         }
         if !current.trim().is_empty() {
@@ -513,9 +580,7 @@ impl<'a> PageWriter<'a> {
         meta: &TextStyle,
     ) -> SideDateLines {
         let heading_size = heading_style.size_pt;
-        let body_font = font_kind(heading_style).expect("theme checked");
-        let meta_font = font_kind(meta).expect("theme checked");
-        let date_width = self.text_width(date, meta.size_pt, meta_font);
+        let date_width = self.styled_width(date, meta);
         let same_line = date_width <= self.content_width() * 0.42;
         let heading_width = if same_line {
             (self.content_width() - date_width - 12.0).max(heading_size)
@@ -523,8 +588,8 @@ impl<'a> PageWriter<'a> {
             self.content_width()
         };
         SideDateLines {
-            heading: self.wrap(heading, heading_size, heading_width, body_font),
-            date: self.wrap(date, meta.size_pt, self.content_width(), meta_font),
+            heading: self.wrap_style(heading, heading_style, heading_width),
+            date: self.wrap_style(date, meta, self.content_width()),
             same_line,
             date_width_pt: date_width,
         }
@@ -542,6 +607,7 @@ impl<'a> PageWriter<'a> {
         let ink = style.colors.ink;
         let muted = style.colors.muted;
         let lines = self.side_date_lines(heading, date, body, meta);
+        let date = meta.display_text(date);
         let heading_size = body.size_pt;
         let heading_leading = body.size_pt * body.line_height;
         let date_leading = meta.size_pt * meta.line_height;
@@ -559,13 +625,14 @@ impl<'a> PageWriter<'a> {
                     text: first.clone(),
                     x_pt: self.left
                         + if placement == DatePlacement::Left {
-                            self.text_width(date, meta.size_pt, meta_font) + 12.0
+                            lines.date_width_pt + 12.0
                         } else {
                             0.0
                         },
                     baseline_y_pt: self.y,
                     size_pt: heading_size,
                     leading_pt: first_height,
+                    tracking_pt: body.tracking_pt(),
                     color: ink,
                     font: body_font,
                     target: self.target,
@@ -573,15 +640,16 @@ impl<'a> PageWriter<'a> {
                 }));
             }
             self.ops.push(LayoutElement::Text(LayoutText {
-                text: date.into(),
+                text: date.to_string(),
                 x_pt: if placement == DatePlacement::Left {
                     self.left
                 } else {
-                    self.width - self.right - self.text_width(date, meta.size_pt, meta_font)
+                    self.width - self.right - lines.date_width_pt
                 },
                 baseline_y_pt: self.y,
                 size_pt: meta.size_pt,
                 leading_pt: first_height,
+                tracking_pt: meta.tracking_pt(),
                 color: muted,
                 font: meta_font,
                 target: self.target,
@@ -589,37 +657,28 @@ impl<'a> PageWriter<'a> {
             }));
             self.y -= first_height;
             let continuation_indent = if placement == DatePlacement::Left {
-                self.text_width(date, meta.size_pt, meta_font) + 12.0
+                lines.date_width_pt + 12.0
             } else {
                 0.0
             };
             for line in lines.heading.iter().skip(1) {
-                self.line(
-                    line,
-                    heading_size,
-                    ink,
-                    body_font,
-                    continuation_indent,
-                    heading_leading,
-                );
+                self.line(line, body, ink, continuation_indent, heading_leading);
             }
         } else {
             if placement == DatePlacement::Left {
                 for line in &lines.date {
-                    self.line(line, meta.size_pt, muted, meta_font, 0.0, date_leading);
+                    self.line(line, meta, muted, 0.0, date_leading);
                 }
                 for line in &lines.heading {
-                    self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+                    self.line(line, body, ink, 0.0, heading_leading);
                 }
             } else {
                 for line in &lines.heading {
-                    self.line(line, heading_size, ink, body_font, 0.0, heading_leading);
+                    self.line(line, body, ink, 0.0, heading_leading);
                 }
                 for line in &lines.date {
-                    let indent = (self.content_width()
-                        - self.text_width(line, meta.size_pt, meta_font))
-                    .max(0.0);
-                    self.line(line, meta.size_pt, muted, meta_font, indent, date_leading);
+                    let indent = (self.content_width() - self.styled_width(line, meta)).max(0.0);
+                    self.line(line, meta, muted, indent, date_leading);
                 }
             }
         }
@@ -653,6 +712,7 @@ fn append_footers(
             baseline_y_pt: (bottom / 2.0).max(5.0),
             size_pt: 8.0,
             leading_pt: 8.0,
+            tracking_pt: 0.0,
             color: muted,
             font: FontKind::Sans,
             target: None,
@@ -661,9 +721,6 @@ fn append_footers(
     }
 }
 pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
-    if style.tracking_em != 0.0 {
-        return Err("当前排版引擎暂不支持 typography.trackingEm；请设为 0".into());
-    }
     match (style.family.as_str(), style.weight) {
         ("cjk-sans" | "system-sans", 400) => Ok(FontKind::Sans),
         ("cjk-serif" | "system-serif", 600) => Ok(FontKind::Serif),
@@ -789,11 +846,10 @@ fn heading_lines(
     } else {
         0.0
     };
-    page.wrap(
+    page.wrap_style(
         title(id, language),
-        text.size_pt,
+        text,
         (page.content_width() - padding).max(1.0),
-        font_kind(text).expect("theme checked"),
     )
 }
 
@@ -868,7 +924,7 @@ fn section_heading(
             page.y -= (leading - (ascent + descent) * text.size_pt) / 2.0 + ascent * text.size_pt;
         }
         for line in &lines {
-            page.line(line, text.size_pt, style.colors.accent, kind, 0.0, leading);
+            page.line(line, text, style.colors.accent, 0.0, leading);
         }
         page.y = start - height;
         return;
@@ -906,6 +962,7 @@ fn section_heading(
                 - ascent * text.size_pt,
             size_pt: text.size_pt,
             leading_pt: leading,
+            tracking_pt: text.tracking_pt(),
             color: if heading == SectionHeading::Filled {
                 style.colors.paper
             } else {
@@ -935,19 +992,13 @@ fn section_heading(
     }
     page.y = top - height;
 }
-fn wrapped_height(
-    page: &PageWriter<'_>,
-    text: &str,
-    size: f32,
-    font: FontKind,
-    indent: f32,
-    leading: f32,
-) -> f32 {
+fn wrapped_height(page: &PageWriter<'_>, text: &str, style: &TextStyle, indent: f32) -> f32 {
     text.lines()
         .map(|line| {
-            page.wrap(line, size, page.content_width() - indent, font)
+            page.wrap_style(line, style, page.content_width() - indent)
                 .len() as f32
-                * leading
+                * style.size_pt
+                * style.line_height
         })
         .sum()
 }
@@ -956,8 +1007,6 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let body = &style.typography.body;
     let heading = &style.typography.item_title;
     let meta = &style.typography.meta;
-    let body_font = font_kind(body).expect("theme checked");
-    let meta_font = font_kind(meta).expect("theme checked");
     let section = style.section(section_id);
     let mut height = section.item_gap_pt();
     if section.date != DatePlacement::Inline
@@ -976,14 +1025,7 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
             lines.heading.len() as f32 * heading_leading + lines.date.len() as f32 * date_leading
         };
     } else if !item.heading.is_empty() {
-        height += wrapped_height(
-            page,
-            &item.heading,
-            heading.size_pt,
-            font_kind(heading).expect("theme checked"),
-            0.0,
-            heading.size_pt * heading.line_height,
-        );
+        height += wrapped_height(page, &item.heading, heading, 0.0);
     }
     let details = if section.date != DatePlacement::Inline && item.date().is_some() {
         item.other_details().join("   ·   ")
@@ -991,56 +1033,20 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
         item.details.join("   ·   ")
     };
     if !details.is_empty() {
-        height += wrapped_height(
-            page,
-            &details,
-            meta.size_pt,
-            meta_font,
-            0.0,
-            meta.size_pt * meta.line_height,
-        );
+        height += wrapped_height(page, &details, meta, 0.0);
     }
     for paragraph in &item.paragraphs {
-        height += section.paragraph_gap_pt()
-            + wrapped_height(
-                page,
-                paragraph,
-                body.size_pt,
-                body_font,
-                0.0,
-                body.size_pt * body.line_height,
-            );
+        height += section.paragraph_gap_pt() + wrapped_height(page, paragraph, body, 0.0);
     }
     if (section_id == "skills" || section_id == "interests") && !item.bullets.is_empty() {
-        height += wrapped_height(
-            page,
-            &item.bullets.join("   ·   "),
-            meta.size_pt,
-            meta_font,
-            0.0,
-            meta.size_pt * meta.line_height,
-        );
+        height += wrapped_height(page, &item.bullets.join("   ·   "), meta, 0.0);
     } else {
         for bullet in &item.bullets {
-            height += wrapped_height(
-                page,
-                &format!("•  {bullet}"),
-                body.size_pt,
-                body_font,
-                11.0,
-                body.size_pt * body.line_height,
-            );
+            height += wrapped_height(page, &format!("•  {bullet}"), body, 11.0);
         }
     }
     if let Some(url) = &item.url {
-        height += wrapped_height(
-            page,
-            url,
-            meta.size_pt,
-            meta_font,
-            0.0,
-            meta.size_pt * meta.line_height,
-        );
+        height += wrapped_height(page, url, meta, 0.0);
     }
     height
 }
@@ -1191,14 +1197,7 @@ fn layout_summary(
     style: &ThemeStyle,
 ) -> Result<(), String> {
     let body = &style.typography.body;
-    page.wrapped(
-        &content.summary,
-        body.size_pt,
-        style.colors.ink,
-        font_kind(body)?,
-        0.0,
-        body.size_pt * body.line_height,
-    );
+    page.wrapped(&content.summary, body, style.colors.ink, 0.0);
     page.gap(style.page.section_gap_mm * PT_PER_MM / 2.0);
     Ok(())
 }
@@ -1238,14 +1237,7 @@ fn layout_sections<'a>(
             {
                 sections::chips(page, std::slice::from_ref(&item.heading), style);
             } else if !item.heading.is_empty() {
-                page.wrapped(
-                    &item.heading,
-                    item_title.size_pt,
-                    ink,
-                    font_kind(item_title)?,
-                    0.0,
-                    item_title.size_pt * item_title.line_height,
-                );
+                page.wrapped(&item.heading, item_title, ink, 0.0);
             }
             let details = if section.date != DatePlacement::Inline && item.date().is_some() {
                 item.other_details().join("   ·   ")
@@ -1253,25 +1245,11 @@ fn layout_sections<'a>(
                 item.details.join("   ·   ")
             };
             if !details.is_empty() {
-                page.wrapped(
-                    &details,
-                    meta.size_pt,
-                    muted,
-                    font_kind(meta)?,
-                    0.0,
-                    meta.size_pt * meta.line_height,
-                );
+                page.wrapped(&details, meta, muted, 0.0);
             }
             for paragraph in &item.paragraphs {
                 page.gap(section.paragraph_gap_pt());
-                page.wrapped(
-                    paragraph,
-                    body.size_pt,
-                    ink,
-                    font_kind(body)?,
-                    0.0,
-                    body.size_pt * body.line_height,
-                );
+                page.wrapped(paragraph, body, ink, 0.0);
             }
             if (section_content.id == "skills" || section_content.id == "interests")
                 && !item.bullets.is_empty()
@@ -1279,36 +1257,15 @@ fn layout_sections<'a>(
                 if section.items == crate::theme_style::ItemLayout::Chips {
                     sections::chips(page, &item.bullets, style);
                 } else {
-                    page.wrapped(
-                        &item.bullets.join("   ·   "),
-                        meta.size_pt,
-                        muted,
-                        font_kind(meta)?,
-                        0.0,
-                        meta.size_pt * meta.line_height,
-                    );
+                    page.wrapped(&item.bullets.join("   ·   "), meta, muted, 0.0);
                 }
             } else {
                 for bullet in &item.bullets {
-                    page.wrapped(
-                        &format!("•  {bullet}"),
-                        body.size_pt,
-                        ink,
-                        font_kind(body)?,
-                        11.0,
-                        body.size_pt * body.line_height,
-                    );
+                    page.wrapped(&format!("•  {bullet}"), body, ink, 11.0);
                 }
             }
             if let Some(url) = &item.url {
-                page.wrapped(
-                    url,
-                    meta.size_pt,
-                    accent,
-                    font_kind(meta)?,
-                    0.0,
-                    meta.size_pt * meta.line_height,
-                );
+                page.wrapped(url, meta, accent, 0.0);
             }
             frame.finish(page, style);
         }
@@ -1469,20 +1426,29 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
                 let mut current = text.font;
                 let mut run = String::new();
                 let mut x = text.x_pt;
-                for character in text.text.chars() {
-                    let kind = if character.is_whitespace() || face.glyph_index(character).is_some()
-                    {
+                for cluster in text.text.graphemes(true) {
+                    let covered = |face: &Face<'_>| {
+                        cluster
+                            .chars()
+                            .all(|c| c.is_whitespace() || face.glyph_index(c).is_some())
+                    };
+                    let kind = if covered(&face) {
                         text.font
-                    } else if fallback.glyph_index(character).is_some() {
+                    } else if covered(&fallback) {
                         FontKind::Sans
                     } else {
+                        let character = cluster
+                            .chars()
+                            .find(|&c| !c.is_whitespace() && fallback.glyph_index(c).is_none())
+                            .unwrap_or_else(|| cluster.chars().next().unwrap());
                         return Err(format!(
                             "所选及备用字体缺少 U+{:04X} 字形，无法保证内容完整",
                             character as u32
                         ));
                     };
                     if kind != current && !run.is_empty() {
-                        let width = current.text_width_pt(&run, text.size_pt);
+                        let width = tracked_width(current, &run, text.size_pt, text.tracking_pt)
+                            + text.tracking_pt;
                         result.push(LayoutElement::Text(LayoutText {
                             text: std::mem::take(&mut run),
                             x_pt: x,
@@ -1492,7 +1458,7 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
                         x += width;
                     }
                     current = kind;
-                    run.push(character);
+                    run.push_str(cluster);
                 }
                 if !run.is_empty() || text.text.is_empty() {
                     result.push(LayoutElement::Text(LayoutText {
@@ -1512,6 +1478,98 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn tracking_and_case_transform_measure_before_wrapping_without_changing_content() {
+        let source = br#"{"basics":{"name":"Ada Lovelace","label":"Engineer","email":"ada@example.com"},"work":[{"name":"MixedCase","position":"Principal","startDate":"2020-01"}],"skills":[{"name":"Design","keywords":["Alpha","Beta"]}]}"#;
+        let document = parse_resume(source).unwrap();
+        let content = project(&document);
+        let mut raw: serde_json::Value =
+            serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                .unwrap();
+        raw["typography"]["name"]["trackingEm"] = serde_json::json!(0.25);
+        raw["typography"]["name"]["textTransform"] = serde_json::json!("uppercase");
+        raw["typography"]["sectionTitle"]["trackingEm"] = serde_json::json!(0.25);
+        raw["typography"]["sectionTitle"]["textTransform"] = serde_json::json!("uppercase");
+        raw["typography"]["itemTitle"] = serde_json::json!({"family":"cjk-sans","sizePt":10,"weight":400,"trackingEm":0.1,"textTransform":"lowercase"});
+        raw["typography"]["meta"]["trackingEm"] = serde_json::json!(-0.02);
+        raw["sections"] = serde_json::json!({"work":{"date":"right"},"skills":{"items":"chips"}});
+        raw["composition"] = serde_json::json!({"preset":"single-column","header":"centered"});
+        let theme = crate::parse_theme(&serde_json::to_vec(&raw).unwrap()).unwrap();
+        let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
+        let texts: Vec<_> = layout
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|op| {
+                if let LayoutElement::Text(t) = op {
+                    Some(t)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let name = texts.iter().find(|t| t.text == "ADA LOVELACE").unwrap();
+        let style = ThemeStyle::from_manifest(&theme);
+        assert!((name.tracking_pt - style.typography.name.size_pt * 0.25).abs() < 0.001);
+        assert!(
+            (name.x_pt + name.width_pt() / 2.0 - layout.width_mm * PT_PER_MM / 2.0).abs() < 0.01
+        );
+        assert!(texts.iter().any(|t| t.text == "WORK"));
+        assert!(texts.iter().any(|t| t.text.contains("mixedcase")));
+        for text in texts {
+            assert!(
+                text.x_pt + text.width_pt()
+                    <= layout.width_mm * PT_PER_MM - style.page.margins.right * PT_PER_MM + 0.05
+            );
+            let runs = text.paint_runs();
+            if let Some((last, x)) = runs.last() {
+                assert!(
+                    (x + text.font.text_width_pt(last, text.size_pt) - text.width_pt()).abs()
+                        < 0.01
+                );
+            }
+        }
+        assert_eq!(document.value["basics"]["name"], "Ada Lovelace");
+        assert_eq!(content.name, "Ada Lovelace");
+    }
+
+    #[test]
+    fn tracked_wrap_keeps_combining_clusters_and_zero_tracking_keeps_legacy_layout() {
+        let style = ThemeStyle::built_in_fallback();
+        let writer = PageWriter::new(
+            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
+            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            &style,
+        );
+        let mut role = style.typography.body.clone();
+        role.tracking_em = 0.5;
+        let source = "A\u{301}B\u{301}C\u{301}D\u{301}";
+        let lines = writer.wrap_style(source, &role, 24.0);
+        assert!(lines.len() > 1);
+        assert_eq!(lines.concat(), source);
+        assert!(
+            lines.iter().all(
+                |line| !line.starts_with('\u{301}') && writer.styled_width(line, &role) <= 24.0
+            )
+        );
+        role.text_transform = crate::theme_style::TextTransform::Uppercase;
+        assert_eq!(writer.wrap_style("Straße", &role, 500.0), vec!["STRASSE"]);
+        let content = project(
+            &parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"Company"}]}"#).unwrap(),
+        );
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let original = layout_with_theme(&content, Language::En, &theme).unwrap();
+        for name in ["body", "name", "sectionTitle", "meta"] {
+            theme.normalized["typography"][name]["trackingEm"] = serde_json::json!(0);
+            theme.normalized["typography"][name]["textTransform"] = serde_json::json!("none");
+        }
+        assert_eq!(
+            layout_with_theme(&content, Language::En, &theme).unwrap(),
+            original
+        );
+    }
 
     #[test]
     fn header_summary_stays_left_aligned_and_precedes_the_masthead_rule() {

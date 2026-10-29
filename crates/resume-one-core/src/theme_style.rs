@@ -115,7 +115,31 @@ pub struct TextStyle {
     pub weight: u16,
     pub line_height: f32,
     pub tracking_em: f32,
+    pub text_transform: TextTransform,
     pub(crate) asset_font: Option<u16>,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum TextTransform {
+    #[default]
+    None,
+    Uppercase,
+    Lowercase,
+}
+
+impl TextStyle {
+    /// Presentation only. Never changes the resume or its semantic projection.
+    pub fn display_text<'a>(&self, text: &'a str) -> std::borrow::Cow<'a, str> {
+        match self.text_transform {
+            TextTransform::None => std::borrow::Cow::Borrowed(text),
+            TextTransform::Uppercase => std::borrow::Cow::Owned(text.to_uppercase()),
+            TextTransform::Lowercase => std::borrow::Cow::Owned(text.to_lowercase()),
+        }
+    }
+
+    pub fn tracking_pt(&self) -> f32 {
+        self.tracking_em * self.size_pt
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -232,6 +256,11 @@ fn text_style(
             .map_or(weight, |value| value as u16),
         line_height: number(value, "lineHeight", line_height),
         tracking_em: number(value, "trackingEm", 0.0),
+        text_transform: match value["textTransform"].as_str() {
+            Some("uppercase") => TextTransform::Uppercase,
+            Some("lowercase") => TextTransform::Lowercase,
+            _ => TextTransform::None,
+        },
         asset_font: None,
     }
 }

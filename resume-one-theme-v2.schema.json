@@ -175,7 +175,8 @@
         "sizePt": { "type": "number", "minimum": 7, "maximum": 42 },
         "weight": { "enum": [100, 200, 300, 400, 500, 600, 700, 800, 900] },
         "lineHeight": { "type": "number", "minimum": 1, "maximum": 2 },
-        "trackingEm": { "type": "number", "minimum": -0.05, "maximum": 0.2 }
+        "trackingEm": { "type": "number", "minimum": -0.05, "maximum": 0.5 },
+        "textTransform": { "enum": ["none", "uppercase", "lowercase"] }
       }
     },
     "sectionStyle": {

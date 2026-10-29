@@ -160,6 +160,7 @@ pub(super) fn chips(page: &mut PageWriter<'_>, labels: &[String], style: &ThemeS
                 color: ink,
                 font,
                 target: page.target,
+                target_lane: page.target_lane,
             }));
             x += width + 4.0;
         }

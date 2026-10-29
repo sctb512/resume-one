@@ -190,6 +190,10 @@ pub struct ThemeStyle {
     pub centered_header: bool,
     pub split_header: bool,
     pub stacked_contacts: bool,
+    pub header_region: String,
+    pub summary_region: String,
+    pub contact_region: String,
+    pub sidebar_typography_scale: f32,
     pub sidebar_width_pct: f32,
     pub column_gap_mm: f32,
     pub sidebar_modules: Vec<String>,
@@ -256,8 +260,7 @@ impl ThemeStyle {
     }
 
     /// Content lanes include a 6 pt inset on each side of the tinted lane.
-    /// Header and summary remain full width; region-local styles never affect
-    /// the application chrome or the source manifest.
+    /// Region-local styles never affect application chrome or source data.
     pub fn column_style(&self, sidebar: bool) -> Self {
         let mut style = self.clone();
         if !self.has_sidebar() {
@@ -282,6 +285,15 @@ impl ThemeStyle {
         style.page.margins.right =
             self.page.width_mm - self.page.margins.left - offset - width + inset;
         if sidebar {
+            for role in [
+                &mut style.typography.body,
+                &mut style.typography.item_title,
+                &mut style.typography.name,
+                &mut style.typography.section_title,
+                &mut style.typography.meta,
+            ] {
+                role.size_pt = (role.size_pt * self.sidebar_typography_scale).max(7.0);
+            }
             style.colors.paper = self.colors.sidebar;
             style.colors.ink = style
                 .colors
@@ -411,6 +423,23 @@ impl ThemeStyle {
             split_header: manifest["composition"]["header"] == "split"
                 || manifest["composition"]["preset"] == "split-header",
             stacked_contacts: manifest["composition"]["contact"] == "stacked",
+            header_region: manifest["composition"]["headerRegion"]
+                .as_str()
+                .unwrap_or("page")
+                .to_owned(),
+            summary_region: manifest["composition"]["summaryRegion"]
+                .as_str()
+                .unwrap_or("page")
+                .to_owned(),
+            contact_region: manifest["composition"]["contactRegion"]
+                .as_str()
+                .unwrap_or("header")
+                .to_owned(),
+            sidebar_typography_scale: number(
+                &manifest["composition"],
+                "sidebarTypographyScale",
+                1.0,
+            ),
             sidebar_width_pct: number(&manifest["composition"], "sidebarWidthPct", 30.0),
             column_gap_mm: number(&manifest["composition"], "gapMm", 6.0),
             sidebar_modules: manifest["composition"]["placements"]

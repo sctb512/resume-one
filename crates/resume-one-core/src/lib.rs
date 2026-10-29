@@ -301,11 +301,14 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
         .map(|(module, _)| module.as_str())
         .collect();
     let has_sidebar = matches!(preset, "sidebar-left" | "sidebar-right");
-    if has_sidebar && sidebar_modules.is_empty() {
+    let sidebar_basics = ["headerRegion", "summaryRegion", "contactRegion"]
+        .iter()
+        .any(|key| composition[*key] == "sidebar");
+    if has_sidebar && sidebar_modules.is_empty() && !sidebar_basics {
         issues.push(diagnostic(
             "SIDEBAR_EMPTY",
             "/composition/placements",
-            "侧栏布局至少需要一个侧栏模块",
+            "侧栏布局至少需要一个侧栏模块或基础信息区域",
         ));
     }
     if !has_sidebar && !sidebar_modules.is_empty() {
@@ -314,6 +317,33 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
             "/composition/placements",
             "当前布局不支持侧栏模块",
         ));
+    }
+    if !has_sidebar {
+        for (key, default) in [
+            ("headerRegion", "page"),
+            ("summaryRegion", "page"),
+            ("contactRegion", "header"),
+        ] {
+            if composition[key].as_str().is_some_and(|region| {
+                region != default && !(key == "summaryRegion" && region == "header")
+            }) {
+                issues.push(diagnostic(
+                    "REGION_NOT_AVAILABLE",
+                    format!("/composition/{key}"),
+                    "独立主栏与侧栏区域仅适用于侧栏布局",
+                ));
+            }
+        }
+        if composition["sidebarTypographyScale"]
+            .as_f64()
+            .is_some_and(|scale| scale != 1.0)
+        {
+            issues.push(diagnostic(
+                "REGION_NOT_AVAILABLE",
+                "/composition/sidebarTypographyScale",
+                "侧栏字号比例仅适用于侧栏布局",
+            ));
+        }
     }
 
     let mut font_ids = HashSet::new();
@@ -452,6 +482,34 @@ mod tests {
                 .iter()
                 .any(|issue| issue.code == "SIDEBAR_NOT_AVAILABLE")
         );
+    }
+
+    #[test]
+    fn validates_region_placement_and_all_static_weight_classes() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        theme["composition"] = json!({"preset":"sidebar-right", "headerRegion":"main", "summaryRegion":"main", "contactRegion":"sidebar", "sidebarTypographyScale":0.9});
+        for weight in [100, 200, 300, 400, 500, 600, 700, 800, 900] {
+            theme["typography"]["body"]["weight"] = json!(weight);
+            assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+        }
+        theme["composition"]["preset"] = json!("single-column");
+        assert!(
+            parse_theme(theme.to_string().as_bytes())
+                .unwrap_err()
+                .iter()
+                .any(|issue| issue.code == "REGION_NOT_AVAILABLE")
+        );
+        theme["composition"]["preset"] = json!("sidebar-right");
+        for (key, value) in [
+            ("headerRegion", json!("floating")),
+            ("summaryRegion", json!("floating")),
+            ("contactRegion", json!("page")),
+            ("sidebarTypographyScale", json!(0.5)),
+        ] {
+            let mut invalid = theme.clone();
+            invalid["composition"][key] = value;
+            assert!(parse_theme(invalid.to_string().as_bytes()).is_err());
+        }
     }
 
     #[test]

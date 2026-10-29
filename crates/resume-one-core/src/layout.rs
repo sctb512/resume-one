@@ -105,6 +105,9 @@ pub struct LayoutText {
     pub color: Rgb,
     pub font: FontKind,
     pub target: Option<LayoutTarget>,
+    /// Outer interaction lane captured at mark time (before card/rail insets).
+    /// Travels with continuation text; never inferred from glyph positions.
+    pub target_lane: Option<(f32, f32)>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -169,6 +172,7 @@ struct PageWriter<'a> {
     bottom: f32,
     muted: Rgb,
     target: Option<LayoutTarget>,
+    target_lane: Option<(f32, f32)>,
 }
 
 pub(crate) struct SideDateLines {
@@ -208,6 +212,10 @@ impl<'a> PageWriter<'a> {
                 section: "basics",
                 index: None,
             }),
+            target_lane: Some((
+                style.page.margins.left * PT_PER_MM,
+                width - style.page.margins.right * PT_PER_MM,
+            )),
         }
     }
     fn content_width(&self) -> f32 {
@@ -216,6 +224,7 @@ impl<'a> PageWriter<'a> {
 
     fn mark(&mut self, target: LayoutTarget) {
         self.target = Some(target);
+        self.target_lane = Some((self.left, self.width - self.right));
         self.ops.push(LayoutElement::Anchor(LayoutAnchor {
             target,
             y_pt: self.y,
@@ -264,6 +273,7 @@ impl<'a> PageWriter<'a> {
             color,
             font: kind,
             target: self.target,
+            target_lane: self.target_lane,
         }));
         self.y -= leading;
     }
@@ -430,6 +440,7 @@ impl<'a> PageWriter<'a> {
                     color: line.color,
                     font: line.font,
                     target: self.target,
+                    target_lane: self.target_lane,
                 }));
                 baseline -= line.leading;
             }
@@ -558,6 +569,7 @@ impl<'a> PageWriter<'a> {
                     color: ink,
                     font: body_font,
                     target: self.target,
+                    target_lane: self.target_lane,
                 }));
             }
             self.ops.push(LayoutElement::Text(LayoutText {
@@ -573,6 +585,7 @@ impl<'a> PageWriter<'a> {
                 color: muted,
                 font: meta_font,
                 target: self.target,
+                target_lane: self.target_lane,
             }));
             self.y -= first_height;
             let continuation_indent = if placement == DatePlacement::Left {
@@ -643,6 +656,7 @@ fn append_footers(
             color: muted,
             font: FontKind::Sans,
             target: None,
+            target_lane: None,
         }));
     }
 }
@@ -681,7 +695,15 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     if !matches!(
         style.composition_preset.as_str(),
         "single-column" | "split-header" | "sidebar-left" | "sidebar-right"
-    ) || (style.has_sidebar() && style.sidebar_modules.is_empty())
+    ) || (style.has_sidebar()
+        && style.sidebar_modules.is_empty()
+        && ![
+            &style.header_region,
+            &style.summary_region,
+            &style.contact_region,
+        ]
+        .into_iter()
+        .any(|region| region == "sidebar"))
         || composition["header"]
             .as_str()
             .is_some_and(|value| !matches!(value, "stacked" | "centered" | "split"))
@@ -891,6 +913,7 @@ fn section_heading(
             },
             font: kind,
             target: page.target,
+            target_lane: page.target_lane,
         }));
     }
     if matches!(heading, SectionHeading::Line | SectionHeading::AccentLine) {
@@ -1065,6 +1088,31 @@ fn layout_with_style(
     let sans_face = Face::parse(SANS_FONT_BYTES, 0).map_err(|error| error.to_string())?;
     let serif_face = Face::parse(SERIF_FONT_BYTES, 0).map_err(|error| error.to_string())?;
     let mut page = PageWriter::new(sans_face, serif_face, style);
+    layout_basics(&mut page, content, style, "page")?;
+    if style.has_sidebar() {
+        return sidebar_layout(page, content, language, style);
+    }
+    layout_sections(&mut page, content.sections.iter(), language, style)?;
+    Ok(ResumeLayout {
+        width_mm: style.page.width_mm,
+        height_mm: style.page.height_mm,
+        paper: style.colors.paper,
+        pages: fallback_runs(page.finish())?,
+    })
+}
+
+fn layout_basics(
+    page: &mut PageWriter<'_>,
+    content: &ResumeContent,
+    style: &ThemeStyle,
+    region: &str,
+) -> Result<(), String> {
+    if style.header_region != region
+        && (style.summary_region != region || content.summary.is_empty())
+        && (style.contact_region != region || content.contacts.is_empty())
+    {
+        return Ok(());
+    }
     page.mark(LayoutTarget {
         section: "basics",
         index: None,
@@ -1076,62 +1124,83 @@ fn layout_with_style(
     let accent = style.colors.accent;
     let muted = style.colors.muted;
     let section_gap = style.page.section_gap_mm * PT_PER_MM;
-    if style.split_header
-        && (!content.name.is_empty() || !content.label.is_empty())
-        && !content.contacts.is_empty()
-    {
-        page.split_header(content, style);
-    } else {
-        if !content.name.is_empty() {
-            page.header_text(&content.name, name, ink, style.centered_header);
+    if style.header_region == region {
+        if style.split_header
+            && style.contact_region == "header"
+            && (!content.name.is_empty() || !content.label.is_empty())
+            && !content.contacts.is_empty()
+        {
+            page.split_header(content, style);
+        } else {
+            if !content.name.is_empty() {
+                page.header_text(&content.name, name, ink, style.centered_header);
+            }
+            if !content.label.is_empty() {
+                page.header_text(&content.label, body, accent, style.centered_header);
+            }
+            if style.contact_region == "header" && !content.contacts.is_empty() {
+                page.header_text(
+                    &content.contacts.join(if style.stacked_contacts {
+                        "\n"
+                    } else {
+                        "   ·   "
+                    }),
+                    meta,
+                    muted,
+                    style.centered_header,
+                );
+            }
         }
-        if !content.label.is_empty() {
-            page.header_text(&content.label, body, accent, style.centered_header);
+        if style.summary_region == "header" && !content.summary.is_empty() {
+            page.gap(section_gap / 2.0);
+            layout_summary(page, content, style)?;
         }
-        if !content.contacts.is_empty() {
-            page.header_text(
-                &content.contacts.join(if style.stacked_contacts {
-                    "\n"
-                } else {
-                    "   ·   "
-                }),
-                meta,
-                muted,
-                style.centered_header,
-            );
+        page.gap(section_gap.max(4.0));
+        if style.layout != "minimal" {
+            let (rule_color, thickness) = match style.layout.as_str() {
+                "rules" => (accent, 1.3),
+                "modern" => (accent, 2.0),
+                _ => (style.colors.border, 0.7),
+            };
+            add_rule(page, rule_color, thickness);
+            page.gap(body.size_pt * 1.2 + 4.0);
         }
     }
-    page.gap(section_gap.max(4.0));
-    if style.layout != "minimal" {
-        let (rule_color, thickness) = match style.layout.as_str() {
-            "rules" => (accent, 1.3),
-            "modern" => (accent, 2.0),
-            _ => (style.colors.border, 0.7),
-        };
-        add_rule(&mut page, rule_color, thickness);
-        page.gap(body.size_pt * 1.2 + 4.0);
-    }
-    if !content.summary.is_empty() {
-        page.wrapped(
-            &content.summary,
-            body.size_pt,
-            ink,
-            font_kind(body)?,
-            0.0,
-            body.size_pt * body.line_height,
+    if style.contact_region == region && !content.contacts.is_empty() {
+        page.header_text(
+            &content.contacts.join(if style.stacked_contacts {
+                "\n"
+            } else {
+                "   ·   "
+            }),
+            meta,
+            muted,
+            false,
         );
         page.gap(section_gap / 2.0);
     }
-    if style.has_sidebar() {
-        return sidebar_layout(page, content, language, style);
+    if style.summary_region == region && !content.summary.is_empty() {
+        layout_summary(page, content, style)?;
     }
-    layout_sections(&mut page, content.sections.iter(), language, style)?;
-    Ok(ResumeLayout {
-        width_mm: style.page.width_mm,
-        height_mm: style.page.height_mm,
-        paper: style.colors.paper,
-        pages: fallback_runs(page.finish())?,
-    })
+    Ok(())
+}
+
+fn layout_summary(
+    page: &mut PageWriter<'_>,
+    content: &ResumeContent,
+    style: &ThemeStyle,
+) -> Result<(), String> {
+    let body = &style.typography.body;
+    page.wrapped(
+        &content.summary,
+        body.size_pt,
+        style.colors.ink,
+        font_kind(body)?,
+        0.0,
+        body.size_pt * body.line_height,
+    );
+    page.gap(style.page.section_gap_mm * PT_PER_MM / 2.0);
+    Ok(())
 }
 
 fn layout_sections<'a>(
@@ -1288,6 +1357,35 @@ fn sidebar_layout(
     .fold(0.0, f32::max);
     main.top += continuation_inset;
     side.top += continuation_inset;
+    // Lane-local identity/contact starts below its real ascender, inside the
+    // lane background. Legacy full-page headers retain their exact geometry.
+    for (writer, local, region) in [
+        (&mut main, &main_style, "main"),
+        (&mut side, &side_style, "sidebar"),
+    ] {
+        let first_role = if style.header_region == region && !content.name.is_empty() {
+            Some(&local.typography.name)
+        } else if style.header_region == region && !content.label.is_empty()
+            || style.summary_region == region && !content.summary.is_empty()
+        {
+            Some(&local.typography.body)
+        } else if style.contact_region == region && !content.contacts.is_empty() {
+            Some(&local.typography.meta)
+        } else {
+            None
+        };
+        if let Some(role) = first_role {
+            writer.gap(
+                font_kind(role)?
+                    .vertical_metrics()
+                    .0
+                    .max(FontKind::Sans.vertical_metrics().0)
+                    * role.size_pt
+                    * 1.06,
+            );
+        }
+        layout_basics(writer, content, local, region)?;
+    }
     layout_sections(
         &mut main,
         content.sections.iter().filter(|s| !style.in_sidebar(s.id)),
@@ -1414,6 +1512,158 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn header_summary_stays_left_aligned_and_precedes_the_masthead_rule() {
+        let content = project(&parse_resume(br#"{"basics":{"name":"Identity","summary":"Summary body","email":"contact@example.com"},"work":[{"name":"Company"}]}"#).unwrap());
+        for header in ["stacked", "centered", "split"] {
+            let mut source: serde_json::Value =
+                serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                    .unwrap();
+            source["composition"] = serde_json::json!({"preset":"single-column", "header":header, "summaryRegion":"header"});
+            source["layout"] = serde_json::json!("classic");
+            let theme = crate::parse_theme(&serde_json::to_vec(&source).unwrap()).unwrap();
+            let style = ThemeStyle::from_manifest(&theme);
+            let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+            let summary = result.pages[0]
+                .iter()
+                .position(|op| matches!(op, LayoutElement::Text(t) if t.text == "Summary body"))
+                .unwrap();
+            let rule = result.pages[0]
+                .iter()
+                .position(|op| matches!(op, LayoutElement::Rule(_)))
+                .unwrap();
+            assert!(summary < rule);
+            let LayoutElement::Text(text) = &result.pages[0][summary] else {
+                unreachable!()
+            };
+            assert_eq!(text.x_pt, style.page.margins.left * PT_PER_MM);
+            assert_eq!(
+                result
+                    .pages
+                    .iter()
+                    .flatten()
+                    .filter(|op| matches!(op, LayoutElement::Text(t) if t.text == "Summary body"))
+                    .count(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn region_local_basics_preserve_content_and_stay_inside_both_lanes() {
+        let content = project(&parse_resume(br#"{"basics":{"name":"Identity","label":"Designer","summary":"Summary","email":"contact@example.com"},"work":[{"name":"MainCompany"}],"skills":[{"name":"SideSkill"}]}"#).unwrap());
+        for direction in ["sidebar-left", "sidebar-right"] {
+            for (identity, summary, contacts) in [
+                ("main", "main", "sidebar"),
+                ("sidebar", "main", "header"),
+                ("page", "sidebar", "main"),
+            ] {
+                let mut source: serde_json::Value = serde_json::from_slice(include_bytes!(
+                    "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+                ))
+                .unwrap();
+                source["composition"]["preset"] = serde_json::json!(direction);
+                source["composition"]["header"] = serde_json::json!("stacked");
+                source["composition"]["headerRegion"] = serde_json::json!(identity);
+                source["composition"]["summaryRegion"] = serde_json::json!(summary);
+                source["composition"]["contactRegion"] = serde_json::json!(contacts);
+                source["composition"]["sidebarTypographyScale"] = serde_json::json!(0.9);
+                let theme = crate::parse_theme(&serde_json::to_vec(&source).unwrap()).unwrap();
+                let style = ThemeStyle::from_manifest(&theme);
+                let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                let texts: Vec<_> = result
+                    .pages
+                    .iter()
+                    .flatten()
+                    .filter_map(|op| {
+                        if let LayoutElement::Text(t) = op {
+                            Some(t)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                for (value, region) in [
+                    ("Identity", identity),
+                    ("Summary", summary),
+                    (
+                        "contact@example.com",
+                        if contacts == "header" {
+                            identity
+                        } else {
+                            contacts
+                        },
+                    ),
+                ] {
+                    let matches: Vec<_> = texts.iter().filter(|t| t.text == value).collect();
+                    assert_eq!(matches.len(), 1, "{direction} {identity} {value}");
+                    let text = matches[0];
+                    let lane = if region == "page" {
+                        style.clone()
+                    } else {
+                        style.column_style(region == "sidebar")
+                    };
+                    assert!(text.x_pt >= lane.page.margins.left * PT_PER_MM - 0.02);
+                    assert!(
+                        text.x_pt + text.font.text_width_pt(&text.text, text.size_pt)
+                            <= (lane.page.width_mm - lane.page.margins.right) * PT_PER_MM + 0.02
+                    );
+                    if region != "page" {
+                        assert!(
+                            text.baseline_y_pt + text.font.vertical_metrics().0 * text.size_pt
+                                <= style.page.height_mm * PT_PER_MM
+                                    - style.page.margins.top * PT_PER_MM
+                                    + 0.02
+                        );
+                    }
+                }
+                assert_eq!(theme.normalized, source);
+            }
+        }
+    }
+
+    #[test]
+    fn region_local_long_contacts_and_summary_continue_without_loss() {
+        let mut content = project(&parse_resume(br#"{"basics":{"name":"Identity"},"work":[{"name":"MainTail"}],"skills":[{"name":"SideTail"}]}"#).unwrap());
+        content.contacts = (0..160).map(|i| format!("Contact-{i:03}")).collect();
+        content.summary = "Long summary with 中文 content ".repeat(200);
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["composition"]["headerRegion"] = serde_json::json!("main");
+        theme.normalized["composition"]["summaryRegion"] = serde_json::json!("main");
+        theme.normalized["composition"]["contactRegion"] = serde_json::json!("sidebar");
+        theme.normalized["composition"]["contact"] = serde_json::json!("stacked");
+        let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+        assert!(result.pages.len() > 2);
+        let all = result
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|op| {
+                if let LayoutElement::Text(t) = op {
+                    Some(t.text.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        for tail in ["Contact-159", "MainTail", "SideTail"] {
+            assert!(all.contains(tail));
+        }
+        assert_eq!(
+            result
+                .pages
+                .iter()
+                .flatten()
+                .filter(|op| matches!(op, LayoutElement::Text(t) if t.target.is_none()))
+                .count(),
+            result.pages.len()
+        );
+    }
 
     #[test]
     fn sidebar_lanes_wrap_titles_preserve_all_items_and_paginate_independently() {

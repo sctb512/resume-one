@@ -645,6 +645,73 @@ mod tests {
         ));
     }
 
+    #[test]
+    fn basics_hit_regions_do_not_merge_identity_and_contacts_across_lanes() {
+        let document = parse_resume(br#"{"basics":{"name":"Identity","summary":"Summary","email":"contact@example.com"},"work":[{"name":"MainCompany"}],"skills":[{"name":"SideSkill"}]}"#).unwrap();
+        let mut theme = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+        ))
+        .unwrap();
+        for direction in ["sidebar-left", "sidebar-right"] {
+            theme.normalized["composition"]["preset"] = serde_json::json!(direction);
+            theme.normalized["composition"]["headerRegion"] = serde_json::json!("main");
+            theme.normalized["composition"]["summaryRegion"] = serde_json::json!("main");
+            theme.normalized["composition"]["contactRegion"] = serde_json::json!("sidebar");
+            let result =
+                layout::layout_with_theme(&project(&document), Language::En, &theme).unwrap();
+            let regions = regions(&result);
+            let basics: Vec<_> = regions
+                .iter()
+                .filter(|r| r.page == 0 && r.target.section == "basics")
+                .collect();
+            assert_eq!(basics.len(), 2);
+            assert!(basics[0].right < basics[1].left || basics[1].right < basics[0].left);
+            for region in basics {
+                assert!(region.text);
+                assert!(region.ink.iter().all(|ink| ink.left >= region.left - 0.1
+                    && ink.left + ink.width <= region.right + 0.1));
+            }
+        }
+    }
+
+    #[test]
+    fn continuing_full_width_basics_do_not_inherit_a_narrow_contact_lane() {
+        let document = parse_resume(br#"{"basics":{"name":"Identity","email":"contact@example.com"},"skills":[{"name":"Skill"}]}"#).unwrap();
+        let mut content = project(&document);
+        content.name = "Long multilingual identity 中文姓名 ".repeat(150);
+        let mut theme = resume_one_core::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/sidebar.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["composition"]["header"] = serde_json::json!("stacked");
+        theme.normalized["composition"]["contactRegion"] = serde_json::json!("main");
+        let result = layout::layout_with_theme(&content, Language::En, &theme).unwrap();
+        assert!(result.pages.len() > 1);
+        let hits = regions(&result);
+        for (page, elements) in result.pages.iter().enumerate() {
+            for text in elements.iter().filter_map(|element| match element {
+                LayoutElement::Text(t) if t.target.is_some() => Some(t),
+                _ => None,
+            }) {
+                let lane = text.target_lane.unwrap();
+                let hit = hits
+                    .iter()
+                    .find(|region| {
+                        region.page == page
+                            && Some(region.target) == text.target
+                            && region.left == lane.0
+                            && region.right == lane.1
+                    })
+                    .unwrap();
+                assert!(text.x_pt >= hit.left - 0.1);
+                assert!(
+                    text.x_pt + text.font.text_width_pt(&text.text, text.size_pt)
+                        <= hit.right + 0.1
+                );
+            }
+        }
+    }
+
     #[gpui::test]
     fn centered_header_keeps_basics_editable_and_uses_shared_layout(cx: &mut TestAppContext) {
         let mut model = AppModel::load(None).unwrap();
@@ -907,27 +974,16 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
     let height = layout.height_mm * PT_PER_MM;
     let sans = FontKind::Sans.vertical_metrics();
     let serif = FontKind::Serif.vertical_metrics();
-    let lanes: std::collections::BTreeMap<_, _> = layout
-        .pages
-        .iter()
-        .flatten()
-        .filter_map(|op| {
-            if let LayoutElement::Anchor(a) = op {
-                Some(((a.target.section, a.target.index), (a.left_pt, a.right_pt)))
-            } else {
-                None
-            }
-        })
-        .collect();
     let mut regions: Vec<Region> = Vec::new();
     for (page, elements) in layout.pages.iter().enumerate() {
         for element in elements {
-            let (target, top, bottom, text) = match element {
+            let (target, top, bottom, text, lane) = match element {
                 LayoutElement::Anchor(anchor) => (
                     anchor.target,
                     height - anchor.y_pt,
                     height - anchor.y_pt + 4.0,
                     false,
+                    (anchor.left_pt, anchor.right_pt),
                 ),
                 LayoutElement::Text(text) => {
                     let Some(target) = text.target else { continue };
@@ -941,6 +997,8 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                         height - text.baseline_y_pt - ascent * text.size_pt,
                         height - text.baseline_y_pt + descent * text.size_pt,
                         true,
+                        text.target_lane
+                            .expect("targeted layout text has an outer interaction lane"),
                     )
                 }
                 LayoutElement::Rule(_) | LayoutElement::Fill(_) => continue,
@@ -955,10 +1013,12 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
             } else {
                 None
             };
-            if let Some(region) = regions
-                .iter_mut()
-                .find(|region| region.page == page && region.target == target)
-            {
+            if let Some(region) = regions.iter_mut().find(|region| {
+                region.page == page
+                    && region.target == target
+                    && region.left == lane.0
+                    && region.right == lane.1
+            }) {
                 if text && !region.text {
                     region.top = top;
                     region.bottom = bottom;
@@ -972,8 +1032,8 @@ fn regions(layout: &ResumeLayout) -> Vec<Region> {
                 regions.push(Region {
                     page,
                     target,
-                    left: lanes[&(target.section, target.index)].0,
-                    right: lanes[&(target.section, target.index)].1,
+                    left: lane.0,
+                    right: lane.1,
                     top,
                     bottom,
                     text,

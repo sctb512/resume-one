@@ -62,6 +62,7 @@
         "body": { "$ref": "#/definitions/textStyle" },
         "name": { "$ref": "#/definitions/textStyle" },
         "sectionTitle": { "$ref": "#/definitions/textStyle" },
+        "itemTitle": { "$ref": "#/definitions/textStyle" },
         "meta": { "$ref": "#/definitions/textStyle" }
       }
     },

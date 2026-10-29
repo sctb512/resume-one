@@ -63,12 +63,11 @@ impl ItemFrame {
         if !matches!(self.kind, ItemLayout::Cards | ItemLayout::Timeline) {
             return;
         }
-        let ascent = font_kind(&style.typography.body)
+        let ascent = font_kind(&style.typography.item_title)
             .expect("checked font")
             .vertical_metrics()
             .0
-            * style.typography.body.size_pt
-            * 1.06;
+            * style.typography.item_title.size_pt;
         let last = page.pages.len();
         for index in self.first_page..=last {
             let top = if index == self.first_page {

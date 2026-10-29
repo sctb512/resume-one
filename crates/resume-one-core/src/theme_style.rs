@@ -121,6 +121,7 @@ pub struct TextStyle {
 #[derive(Debug, Clone)]
 pub struct Typography {
     pub body: TextStyle,
+    pub item_title: TextStyle,
     pub name: TextStyle,
     pub section_title: TextStyle,
     pub meta: TextStyle,
@@ -341,6 +342,15 @@ impl ThemeStyle {
         let page = manifest.get("page").unwrap_or(&Value::Null);
         let margins = page.get("marginsMm").unwrap_or(&Value::Null);
         let typography = manifest.get("typography").unwrap_or(&Value::Null);
+        let body = text_style(typography.get("body"), "cjk-sans", 10.0, 400, 1.4);
+        // Absent itemTitle preserves the legacy body-derived geometry exactly.
+        let item_title = text_style(
+            typography.get("itemTitle"),
+            &body.family,
+            body.size_pt * 1.06,
+            body.weight,
+            body.line_height,
+        );
         let size = page.get("size").and_then(Value::as_str).unwrap_or("A4");
         let mut style = Self {
             id: theme.id.clone(),
@@ -379,7 +389,8 @@ impl ThemeStyle {
                     .unwrap_or(true),
             },
             typography: Typography {
-                body: text_style(typography.get("body"), "cjk-sans", 10.0, 400, 1.4),
+                body,
+                item_title,
                 name: text_style(typography.get("name"), "cjk-serif", 26.0, 600, 1.2),
                 section_title: text_style(
                     typography.get("sectionTitle"),
@@ -443,6 +454,7 @@ impl ThemeStyle {
         };
         for role in [
             &mut style.typography.body,
+            &mut style.typography.item_title,
             &mut style.typography.name,
             &mut style.typography.section_title,
             &mut style.typography.meta,
@@ -564,6 +576,32 @@ mod tests {
         assert_eq!(style.page.margins.left, 15.0);
         assert_eq!(style.typography.body.size_pt, 11.0);
         assert_eq!(style.typography.body.line_height, 1.5);
+    }
+
+    #[test]
+    fn item_title_inherits_body_unless_explicitly_overridden() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let inherited = ThemeStyle::from_manifest(&theme);
+        assert_eq!(
+            inherited.typography.item_title.family,
+            inherited.typography.body.family
+        );
+        assert_eq!(
+            inherited.typography.item_title.size_pt,
+            inherited.typography.body.size_pt * 1.06
+        );
+        theme.normalized["typography"]["itemTitle"] =
+            serde_json::json!({"family":"cjk-serif","sizePt":12,"weight":600,"lineHeight":1.25});
+        let explicit = ThemeStyle::from_manifest(&theme);
+        assert_eq!(explicit.typography.item_title.family, "cjk-serif");
+        assert_eq!(explicit.typography.item_title.size_pt, 12.0);
+        assert_eq!(explicit.typography.item_title.weight, 600);
+        assert_eq!(
+            explicit.typography.body.size_pt,
+            inherited.typography.body.size_pt
+        );
+        crate::layout::check_theme(&theme).unwrap();
     }
 
     #[test]

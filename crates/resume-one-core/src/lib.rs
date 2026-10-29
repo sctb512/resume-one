@@ -350,7 +350,7 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
             }
         }
     }
-    for kind in ["body", "name", "sectionTitle", "meta"] {
+    for kind in ["body", "name", "sectionTitle", "itemTitle", "meta"] {
         let pointer = format!("/typography/{kind}/family");
         if let Some(id) = theme
             .pointer(&pointer)
@@ -537,7 +537,7 @@ mod tests {
             serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
                 .unwrap();
         source["assets"] = json!({"fonts":[{"id":"fixture", "path":"fonts/fixture.ttf", "sha256":format!("{:x}", Sha256::digest(bytes)), "license":"OFL-1.1"}]});
-        for role in ["body", "name", "sectionTitle", "meta"] {
+        for role in ["body", "name", "sectionTitle", "itemTitle", "meta"] {
             source["typography"][role]["family"] = json!("asset:fixture");
             source["typography"][role]["weight"] = json!(400);
         }

@@ -150,6 +150,22 @@ impl Appearance {
                 };
                 effective.normalized["typography"][role]["weight"] = json!(weight);
             }
+            // An explicit entry-title role follows body-font overrides; if it
+            // is absent, leave it absent so its geometry still inherits body.
+            if roles.contains(&"body")
+                && effective.normalized["typography"]["itemTitle"].is_object()
+            {
+                let weight = effective.normalized["typography"]["itemTitle"]["weight"]
+                    .as_u64()
+                    .unwrap_or(400) as u16;
+                effective.normalized["typography"]["itemTitle"]["family"] = json!(font.family());
+                effective.normalized["typography"]["itemTitle"]["weight"] =
+                    json!(if matches!(font, FontChoice::Font(_)) {
+                        weight
+                    } else {
+                        font.weight()
+                    });
+            }
         }
         effective
     }
@@ -158,6 +174,27 @@ impl Appearance {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn body_override_updates_explicit_item_title_without_persisting_it() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["typography"]["itemTitle"] =
+            json!({"family":"cjk-serif","weight":600,"sizePt":13});
+        let before = theme.normalized.clone();
+        let prefs = Appearance {
+            body_font: Some(FontChoice::Sans),
+            ..Default::default()
+        };
+        let updated = prefs.apply(&theme);
+        assert_eq!(
+            updated.normalized["typography"]["itemTitle"]["family"],
+            "cjk-sans"
+        );
+        assert_eq!(updated.normalized["typography"]["itemTitle"]["sizePt"], 13);
+        crate::layout::check_theme(&updated).unwrap();
+        assert_eq!(theme.normalized, before);
+    }
     use crate::{layout, parse_theme, resume::parse_resume, semantic::project};
 
     #[test]

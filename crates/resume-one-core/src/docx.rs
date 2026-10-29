@@ -449,8 +449,7 @@ fn build_document(
         let body = &style.typography.body;
         let meta = &style.typography.meta;
         let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
-        let mut heading = body.clone();
-        heading.size_pt *= 1.06;
+        let heading = style.typography.item_title.clone();
         let column = &mut columns[usize::from(sidebar)];
         let section_style = style.section(section.id);
         column.push(
@@ -694,6 +693,7 @@ fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
     let mut local_ids = std::collections::BTreeSet::new();
     for role in [
         &style.typography.body,
+        &style.typography.item_title,
         &style.typography.name,
         &style.typography.section_title,
         &style.typography.meta,

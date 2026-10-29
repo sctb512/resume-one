@@ -44,7 +44,7 @@
 | `colors` | 文档视觉色 | 原有 `accent/seal/paper/canvas` 必需；可加 `ink/muted/border/sidebar`；应用外壳颜色由渲染器从这些 token 派生，主题不可直接改工具栏几何 |
 | `modules` | 右侧可新增模块 | 只允许 JSON Resume 的 12 个标准模块；不改变内容 Schema；已有但主题未列出的数据仍须保留并用保底排版显示 |
 | `page` | 纸张及分页约束 | A4/Letter、毫米边距、模块间距、防拆条目和标题跟随首项；同一语义布局供预览与 PDF 使用 |
-| `typography` | 正文、姓名、模块标题、辅助文字 | 受限字体族、磅值、行高、字重、字距；无 CSS 字符串；CJK 与拉丁字体有明确回退 |
+| `typography` | 正文、姓名、模块标题、条目标题、辅助文字 | 受限字体族、磅值、行高、字重、字距；无 CSS 字符串；CJK 与拉丁字体有明确回退 |
 | `composition` | 纸张区域与页眉 | 单栏、左右侧栏或分割页眉四种预设；侧栏宽度和间距受限；`placements` 只把标准模块放到主栏/侧栏，同一区域内保留 Resume JSON 的模块顺序 |
 | `sections` | 各模块的外观 | 标题、列表/时间线/卡片/标签及日期位置由有限枚举选择；空模块默认不渲染；字段意义和文字由应用统一解释 |
 | `decorations` | 有界装饰 | 印章、细线、色带和有限圆角；不能内嵌 HTML/SVG/CSS 或任意绘图命令 |
@@ -71,6 +71,10 @@
 `layout` 始终必填，供 v1 兼容排版回退；显式 `composition` 优先于它。显式字段只覆盖对应默认值，不影响未提及字段。预览、PDF 和 DOCX 使用同一规范化后的主题语义；DOCX 的分页仍允许与 PDF 不同。
 
 `provenance` 只做元数据，不在主题列表弹出提示：`native` 表示为本规范原创，`adapted` 表示按已注明来源改编，`inspired` 表示仅借鉴视觉方向。迁移版应写 `upstreamUrl/upstreamRevision/upstreamAuthor/upstreamLicense/migratedBy` 中可证实的信息；是否通过验收记录在迁移工具的发布报告中，不用 `fidelity` 冒充审核状态。
+
+### 条目标题字体
+
+`typography.itemTitle` 单独控制工作职位、教育条目、项目名等条目标题，字段与其他文字角色相同。省略时完整继承 body 的字族、字重和行高，仅字号为 body 的 1.06 倍，以保持旧主题的既有几何。显式声明时，未填写的字段仍继承上述值。模块标题继续使用 sectionTitle，正文继续使用 body，日期继续使用 meta；条目标题的测量、侧置日期留白、分页、预览、PDF 与可编辑 DOCX 均使用此角色。本机正文字体覆盖同时作用于显式 itemTitle，重置后恢复主题默认，不修改主题文件或 resume.json。
 
 ### 当前支持的模块外观
 

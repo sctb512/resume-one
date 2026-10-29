@@ -498,11 +498,11 @@ impl<'a> PageWriter<'a> {
         &self,
         heading: &str,
         date: &str,
-        body: &TextStyle,
+        heading_style: &TextStyle,
         meta: &TextStyle,
     ) -> SideDateLines {
-        let heading_size = body.size_pt * 1.06;
-        let body_font = font_kind(body).expect("theme checked");
+        let heading_size = heading_style.size_pt;
+        let body_font = font_kind(heading_style).expect("theme checked");
         let meta_font = font_kind(meta).expect("theme checked");
         let date_width = self.text_width(date, meta.size_pt, meta_font);
         let same_line = date_width <= self.content_width() * 0.42;
@@ -526,13 +526,13 @@ impl<'a> PageWriter<'a> {
         placement: DatePlacement,
         style: &ThemeStyle,
     ) {
-        let body = &style.typography.body;
+        let body = &style.typography.item_title;
         let meta = &style.typography.meta;
         let ink = style.colors.ink;
         let muted = style.colors.muted;
         let lines = self.side_date_lines(heading, date, body, meta);
-        let heading_size = body.size_pt * 1.06;
-        let heading_leading = body.size_pt * body.line_height * 1.06;
+        let heading_size = body.size_pt;
+        let heading_leading = body.size_pt * body.line_height;
         let date_leading = meta.size_pt * meta.line_height;
         let body_font = font_kind(body).expect("theme checked");
         let meta_font = font_kind(meta).expect("theme checked");
@@ -735,6 +735,7 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     }
     for text_style in [
         &style.typography.body,
+        &style.typography.item_title,
         &style.typography.name,
         &style.typography.section_title,
         &style.typography.meta,
@@ -787,12 +788,11 @@ fn heading_height(page: &PageWriter<'_>, style: &ThemeStyle, id: &str, language:
         .saturating_sub(1) as f32;
     // The next item is baseline-positioned by the legacy stack renderer. Its
     // ascender must also be reserved below a filled box or underline.
-    let following_ascent = (font_kind(&style.typography.body)
+    let following_ascent = (font_kind(&style.typography.item_title)
         .expect("theme checked")
         .vertical_metrics()
         .0
-        * style.typography.body.size_pt
-        * 1.06)
+        * style.typography.item_title.size_pt)
         .max(
             font_kind(&style.typography.meta)
                 .expect("theme checked")
@@ -931,6 +931,7 @@ fn wrapped_height(
 
 fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &ThemeStyle) -> f32 {
     let body = &style.typography.body;
+    let heading = &style.typography.item_title;
     let meta = &style.typography.meta;
     let body_font = font_kind(body).expect("theme checked");
     let meta_font = font_kind(meta).expect("theme checked");
@@ -939,8 +940,8 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     if section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
-        let lines = page.side_date_lines(&item.heading, date, body, meta);
-        let heading_leading = body.size_pt * body.line_height * 1.06;
+        let lines = page.side_date_lines(&item.heading, date, heading, meta);
+        let heading_leading = heading.size_pt * heading.line_height;
         let date_leading = meta.size_pt * meta.line_height;
         height += if lines.same_line {
             (if lines.heading.is_empty() {
@@ -955,10 +956,10 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
         height += wrapped_height(
             page,
             &item.heading,
-            body.size_pt * 1.06,
-            body_font,
+            heading.size_pt,
+            font_kind(heading).expect("theme checked"),
             0.0,
-            body.size_pt * body.line_height * 1.06,
+            heading.size_pt * heading.line_height,
         );
     }
     let details = if section.date != DatePlacement::Inline && item.date().is_some() {
@@ -1051,7 +1052,7 @@ pub(crate) fn side_date_lines_for_style(
     PageWriter::new(sans_face, serif_face, style).side_date_lines(
         heading,
         date,
-        &style.typography.body,
+        &style.typography.item_title,
         &style.typography.meta,
     )
 }
@@ -1140,6 +1141,7 @@ fn layout_sections<'a>(
     style: &ThemeStyle,
 ) -> Result<(), String> {
     let body = &style.typography.body;
+    let item_title = &style.typography.item_title;
     let meta = &style.typography.meta;
     let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
     let section_gap = style.page.section_gap_mm * PT_PER_MM;
@@ -1169,11 +1171,11 @@ fn layout_sections<'a>(
             } else if !item.heading.is_empty() {
                 page.wrapped(
                     &item.heading,
-                    body.size_pt * 1.06,
+                    item_title.size_pt,
                     ink,
-                    font_kind(body)?,
+                    font_kind(item_title)?,
                     0.0,
-                    body.size_pt * body.line_height * 1.06,
+                    item_title.size_pt * item_title.line_height,
                 );
             }
             let details = if section.date != DatePlacement::Inline && item.date().is_some() {
@@ -1269,6 +1271,7 @@ fn sidebar_layout(
     // continuation pages so light glyphs cannot escape a dark lane's tint.
     let continuation_inset = [
         &style.typography.body,
+        &style.typography.item_title,
         &style.typography.meta,
         &style.typography.section_title,
     ]

@@ -6,6 +6,7 @@ use crate::render::{Language, title};
 use crate::semantic::{Item, ResumeContent};
 use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
 use ttf_parser::Face;
+mod sections;
 
 pub const SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
 pub const SERIF_FONT_BYTES: &[u8] =
@@ -702,13 +703,10 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     }
     if let Some(sections) = source["sections"].as_object() {
         for (id, value) in sections {
-            if value["items"]
-                .as_str()
-                .is_some_and(|items| !matches!(items, "stack" | "compact"))
-            {
-                return Err(format!(
-                    "当前排版引擎暂不支持 sections.{id}.items；目前支持 stack / compact"
-                ));
+            if value["items"].as_str().is_some_and(|items| {
+                !matches!(items, "stack" | "compact" | "timeline" | "cards" | "chips")
+            }) {
+                return Err(format!("当前排版引擎不支持 sections.{id}.items"));
             }
             if value["date"]
                 .as_str()
@@ -1158,19 +1156,16 @@ fn layout_sections<'a>(
         page.gap(section_gap);
         section_heading(page, section_content.id, language, style);
         for (index, item) in section_content.items.iter().enumerate() {
-            if style.page.avoid_split_items {
-                let height = item_height(page, item, section_content.id, style);
-                page.ensure(height);
-            }
-            page.mark(LayoutTarget {
-                section: section_content.id,
-                index: Some(index),
-            });
-            page.gap(section.item_gap_pt());
+            let frame = sections::ItemFrame::begin(page, item, section_content.id, index, style);
             if section.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
                 page.side_dated_heading(&item.heading, date, section.date, style);
+            } else if section.items == crate::theme_style::ItemLayout::Chips
+                && section_content.id == "languages"
+                && !item.heading.is_empty()
+            {
+                sections::chips(page, std::slice::from_ref(&item.heading), style);
             } else if !item.heading.is_empty() {
                 page.wrapped(
                     &item.heading,
@@ -1210,14 +1205,18 @@ fn layout_sections<'a>(
             if (section_content.id == "skills" || section_content.id == "interests")
                 && !item.bullets.is_empty()
             {
-                page.wrapped(
-                    &item.bullets.join("   ·   "),
-                    meta.size_pt,
-                    muted,
-                    font_kind(meta)?,
-                    0.0,
-                    meta.size_pt * meta.line_height,
-                );
+                if section.items == crate::theme_style::ItemLayout::Chips {
+                    sections::chips(page, &item.bullets, style);
+                } else {
+                    page.wrapped(
+                        &item.bullets.join("   ·   "),
+                        meta.size_pt,
+                        muted,
+                        font_kind(meta)?,
+                        0.0,
+                        meta.size_pt * meta.line_height,
+                    );
+                }
             } else {
                 for bullet in &item.bullets {
                     page.wrapped(
@@ -1240,6 +1239,7 @@ fn layout_sections<'a>(
                     meta.size_pt * meta.line_height,
                 );
             }
+            frame.finish(page, style);
         }
     }
     Ok(())
@@ -1875,6 +1875,54 @@ mod tests {
     }
 
     #[test]
+    fn rich_section_constructs_keep_text_and_bounds_across_pages() {
+        let source = serde_json::json!({
+            "basics":{"name":"Community Theme 简里"},
+            "work":[{"position":"Engineer", "name":"Example", "startDate":"2020", "summary":"中英 mixed long content ".repeat(500),"highlights":["Final work marker"]}],
+            "skills":[{"name":"Languages", "keywords":["Rust", "中文", "Long keyword which must wrap naturally instead of being clipped or dropped", "Final skill marker"]}]
+        });
+        let document = parse_resume(source.to_string().as_bytes()).unwrap();
+        let content = project(&document);
+        for items in ["timeline", "cards"] {
+            let mut theme = sections_theme();
+            theme.normalized["sections"] = serde_json::json!({"work":{"items":items,"date":"right"},"skills":{"items":"chips"}});
+            let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+            assert!(result.pages.len() > 1);
+            let texts: Vec<_> = result
+                .pages
+                .iter()
+                .flatten()
+                .filter_map(|op| {
+                    if let LayoutElement::Text(t) = op {
+                        Some(t)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            assert!(texts.iter().any(|t| t.text.contains("Final work marker")));
+            assert!(texts.iter().any(|t| t.text.contains("Final skill marker")));
+            for text in texts {
+                assert!(text.x_pt >= 0.0);
+                assert!(
+                    text.x_pt + text.font.text_width_pt(&text.text, text.size_pt)
+                        <= result.width_mm * PT_PER_MM + 0.1,
+                    "{}",
+                    text.text
+                );
+            }
+            assert!(
+                result
+                    .pages
+                    .iter()
+                    .flatten()
+                    .any(|op| matches!(op, LayoutElement::Fill(_)))
+            );
+        }
+        assert_eq!(document.value, source);
+    }
+
+    #[test]
     fn explicit_default_sections_are_legacy_identical_but_future_constructs_are_rejected() {
         let mut theme = sections_theme();
         theme.normalized["sections"] = serde_json::json!({});
@@ -1887,19 +1935,14 @@ mod tests {
             layout_with_theme(&content, Language::Zh, &theme).unwrap()
         );
         for value in [
-            serde_json::json!({"items":"timeline"}),
-            serde_json::json!({"items":"cards"}),
+            serde_json::json!({"items":"unknown"}),
             serde_json::json!({"date":"sideways"}),
         ] {
             theme.normalized["sections"]["work"] = value;
             assert!(check_theme(&theme).unwrap_err().contains("sections.work"));
         }
         theme.normalized["sections"] = serde_json::json!({"skills":{"items":"chips"}});
-        assert!(
-            check_theme(&theme)
-                .unwrap_err()
-                .contains("sections.skills.items")
-        );
+        assert!(check_theme(&theme).is_ok());
     }
 
     #[test]

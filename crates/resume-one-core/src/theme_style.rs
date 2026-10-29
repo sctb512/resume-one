@@ -53,7 +53,7 @@ impl Rgb {
         (a.max(b) + 0.05) / (a.min(b) + 0.05)
     }
 
-    fn readable(self, paper: Self, fallback: Self, minimum: f32) -> Self {
+    pub(crate) fn readable(self, paper: Self, fallback: Self, minimum: f32) -> Self {
         if self.contrast(paper) >= minimum {
             return self;
         }
@@ -140,6 +140,9 @@ pub enum ItemLayout {
     #[default]
     Stack,
     Compact,
+    Timeline,
+    Cards,
+    Chips,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
@@ -229,6 +232,17 @@ fn text_style(
 }
 
 impl ThemeStyle {
+    pub fn card_paper(&self) -> Rgb {
+        let tinted = self.colors.paper.mix(self.colors.accent, 0.035);
+        if [self.colors.ink, self.colors.muted, self.colors.accent]
+            .iter()
+            .all(|ink| ink.contrast(tinted) >= 4.5)
+        {
+            tinted
+        } else {
+            self.colors.paper
+        }
+    }
     pub fn has_sidebar(&self) -> bool {
         matches!(
             self.composition_preset.as_str(),
@@ -410,10 +424,12 @@ impl ThemeStyle {
                                 Some("filled") => SectionHeading::Filled,
                                 _ => SectionHeading::Plain,
                             },
-                            items: if value["items"] == "compact" {
-                                ItemLayout::Compact
-                            } else {
-                                ItemLayout::Stack
+                            items: match value["items"].as_str() {
+                                Some("compact") => ItemLayout::Compact,
+                                Some("timeline") => ItemLayout::Timeline,
+                                Some("cards") => ItemLayout::Cards,
+                                Some("chips") => ItemLayout::Chips,
+                                _ => ItemLayout::Stack,
                             },
                             date: match value["date"].as_str() {
                                 Some("left") => DatePlacement::Left,

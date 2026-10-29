@@ -13,7 +13,7 @@ use crate::ThemeManifest;
 use crate::layout::{PT_PER_MM, check_theme, side_date_lines_for_style};
 use crate::render::{Language, title};
 use crate::semantic::ResumeContent;
-use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
+use crate::theme_style::{DatePlacement, ItemLayout, Rgb, SectionHeading, TextStyle, ThemeStyle};
 
 fn color(rgb: Rgb) -> String {
     rgb.hex()[1..].to_owned()
@@ -145,6 +145,70 @@ fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragrap
             }
             p.property.borders = Some(borders);
         }
+    }
+    p
+}
+
+fn keyword_chips(labels: &[String], style: &ThemeStyle) -> Paragraph {
+    let meta = &style.typography.meta;
+    let background = style.colors.paper.mix(style.colors.accent, 0.08);
+    let ink = style.colors.ink.readable(background, style.colors.ink, 4.5);
+    let mut p = Paragraph::new().snap_to_grid(false).line_spacing(
+        LineSpacing::new()
+            .before(twips(4.0))
+            .line_rule(LineSpacingType::AtLeast)
+            .line(twips(meta.size_pt * meta.line_height + 8.0) as i32),
+    );
+    for label in labels {
+        p = p
+            .add_run(
+                Run::new()
+                    .fonts(font(meta))
+                    .size((meta.size_pt * 2.0).round() as usize)
+                    .color(color(ink))
+                    .shading(docx_rs::Shading::new().fill(color(background)))
+                    .add_text(format!(" {label} ")),
+            )
+            .add_run(Run::new().add_text("  "));
+    }
+    p
+}
+
+fn decorate_item(mut p: Paragraph, kind: ItemLayout, style: &ThemeStyle) -> Paragraph {
+    let cards = kind == ItemLayout::Cards;
+    if !cards && kind != ItemLayout::Timeline {
+        return p;
+    }
+    let mut borders = ParagraphBorders::with_empty();
+    let border_color = if cards {
+        style.colors.border
+    } else {
+        style.colors.accent
+    };
+    for (position, show) in [
+        (ParagraphBorderPosition::Left, true),
+        (ParagraphBorderPosition::Right, cards),
+        (ParagraphBorderPosition::Top, cards),
+        (ParagraphBorderPosition::Bottom, cards),
+    ] {
+        if show {
+            borders = borders.set(
+                ParagraphBorder::new(position)
+                    .color(color(border_color))
+                    .size(if cards { 5 } else { 8 })
+                    .space(5),
+            );
+        }
+    }
+    p.property.borders = Some(borders);
+    p = p.indent(
+        Some(twips(if cards { 8.0 } else { 16.0 }) as i32),
+        None,
+        cards.then(|| twips(8.0) as i32),
+        None,
+    );
+    if cards {
+        p.property.shading = Some(docx_rs::Shading::new().fill(color(style.card_paper())));
     }
     p
 }
@@ -372,7 +436,14 @@ fn build_document(
     let mut columns: [Vec<Paragraph>; 2] = Default::default();
     for section in &content.sections {
         let sidebar = style.in_sidebar(section.id);
-        let local = style.column_style(sidebar);
+        let mut local = style.column_style(sidebar);
+        let kind = local.section(section.id).items;
+        if kind == ItemLayout::Cards {
+            local.page.margins.left += 8.0 / PT_PER_MM;
+            local.page.margins.right += 8.0 / PT_PER_MM;
+        } else if kind == ItemLayout::Timeline {
+            local.page.margins.left += 16.0 / PT_PER_MM;
+        }
         let style = &local;
         let page = &style.page;
         let body = &style.typography.body;
@@ -458,6 +529,11 @@ fn build_document(
                         paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0));
                     }
                 }
+            } else if section_style.items == ItemLayout::Chips
+                && section.id == "languages"
+                && !item.heading.is_empty()
+            {
+                paragraphs.push(keyword_chips(std::slice::from_ref(&item.heading), style));
             } else if !item.heading.is_empty() {
                 paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
             }
@@ -479,13 +555,11 @@ fn build_document(
                 ));
             }
             if (section.id == "skills" || section.id == "interests") && !item.bullets.is_empty() {
-                paragraphs.push(paragraph(
-                    &item.bullets.join("   ·   "),
-                    meta,
-                    muted,
-                    0.0,
-                    0.0,
-                ));
+                paragraphs.push(if section_style.items == ItemLayout::Chips {
+                    keyword_chips(&item.bullets, style)
+                } else {
+                    paragraph(&item.bullets.join("   ·   "), meta, muted, 0.0, 0.0)
+                });
             } else {
                 for bullet in &item.bullets {
                     paragraphs.push(
@@ -503,6 +577,7 @@ fn build_document(
             }
             let count = paragraphs.len();
             for (index, mut p) in paragraphs.into_iter().enumerate() {
+                p = decorate_item(p, section_style.items, style);
                 if index == 0 {
                     let spacing = p.property.line_spacing.take().unwrap_or_default();
                     p.property.line_spacing =
@@ -511,6 +586,17 @@ fn build_document(
                 // Link only this item, never a complete section or neighbouring items.
                 // Oversized paragraphs stay splittable by Word to avoid overflow.
                 column.push(p.keep_next(page.avoid_split_items && index + 1 < count));
+            }
+            if section_style.items == ItemLayout::Cards {
+                // Identical paragraph borders merge into one editable card in
+                // Word. An unbordered spacer keeps adjacent cards independent.
+                column.push(
+                    Paragraph::new().line_spacing(
+                        LineSpacing::new()
+                            .line_rule(LineSpacingType::Exact)
+                            .line(twips(4.0) as i32),
+                    ),
+                );
             }
         }
     }
@@ -812,6 +898,40 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn cards_timeline_and_keyword_chips_are_native_editable_not_images() {
+        let mut theme = crate::parse_theme(include_bytes!(
+            "../../resume-one-cli/tests/fixtures/section-styles.theme.json"
+        ))
+        .unwrap();
+        theme.normalized["sections"] = serde_json::json!({
+            "work":{"items":"timeline"},"projects":{"items":"cards"},"skills":{"items":"chips"},"languages":{"items":"chips"}
+        });
+        let content = project(&parse_resume(br#"{"work":[{"name":"WorkTitle","summary":"WorkBody"}],"projects":[{"name":"CardTitle","description":"CardBody"}],"skills":[{"name":"Tools","keywords":["Rust","Final keyword"]}],"languages":[{"language":"English","fluency":"Native"}]}"#).unwrap());
+        let package =
+            build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme)).unwrap();
+        assert!(package.media.is_empty());
+        let xml = String::from_utf8(package.document).unwrap();
+        for text in [
+            "WorkTitle",
+            "WorkBody",
+            "CardTitle",
+            "CardBody",
+            "Rust",
+            "Final keyword",
+            "English",
+            "Native",
+        ] {
+            assert!(xml.contains(text));
+        }
+        let paragraph = |value: &str| xml.split("</w:p>").find(|p| p.contains(value)).unwrap();
+        assert!(paragraph("WorkTitle").contains("<w:left"));
+        assert!(paragraph("CardTitle").contains("<w:shd"));
+        assert!(paragraph("CardBody").contains("<w:bottom"));
+        assert!(paragraph("Final keyword").contains("<w:shd"));
+        assert!(paragraph("English").contains("<w:shd"));
     }
 
     #[test]

@@ -377,6 +377,38 @@ mod tests {
     }
 
     #[gpui::test]
+    fn rich_item_padding_remains_an_editable_module_hover_target(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let executor = cx.executor();
+        for kind in ["cards", "timeline"] {
+            let mut model = AppModel::load(None).unwrap();
+            model.document =
+                parse_resume(br#"{"basics":{"name":"Example"},"work":[{"name":"Short"}]}"#)
+                    .unwrap();
+            model.content = project(&model.document);
+            let mut value = model.themes[0].manifest.normalized.clone();
+            value["sections"] = serde_json::json!({"work":{"items":kind}});
+            let manifest = resume_one_core::parse_theme(value.to_string().as_bytes()).unwrap();
+            model.replace_themes(vec![BuiltinTheme {
+                style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+                manifest,
+                path: None,
+                identity: format!("fixture:{kind}"),
+            }]);
+            let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+            cx.update(|window, _| window.refresh());
+            let block = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+            let ink = cx.debug_bounds("preview-ink-work-Some(0)-0-0").unwrap();
+            let blank = point(block.left() + px(2.), block.center().y);
+            assert!(!ink.contains(&blank));
+            cx.simulate_mouse_move(blank, None, Modifiers::none());
+            executor.advance_clock(std::time::Duration::from_millis(140));
+            cx.run_until_parked();
+            cx.update(|_, cx| assert!(view.read(cx).inline_matches("work", Some(0)), "{kind}"));
+        }
+    }
+
+    #[gpui::test]
     fn module_blank_space_opens_after_one_dwell_without_modifying_content(cx: &mut TestAppContext) {
         cx.update(gpui_component::init);
         let executor = cx.executor();

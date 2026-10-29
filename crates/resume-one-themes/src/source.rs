@@ -440,10 +440,16 @@ mod tests {
         let mut unpinned = entry.clone();
         unpinned.sha256 = None;
         VerifiedTheme::parse(&unpinned, &serde_json::to_vec(&side_date).unwrap()).unwrap();
+        for items in ["timeline", "cards"] {
+            let mut rich = side_date.clone();
+            rich["sections"]["work"]["items"] = serde_json::json!(items);
+            rich["sections"]["skills"] = serde_json::json!({"items":"chips"});
+            VerifiedTheme::parse(&unpinned, &serde_json::to_vec(&rich).unwrap()).unwrap();
+        }
         side_date["sections"]["work"]["date"] = serde_json::json!("left");
         VerifiedTheme::parse(&unpinned, &serde_json::to_vec(&side_date).unwrap()).unwrap();
         let mut unsupported: serde_json::Value = serde_json::from_slice(bytes).unwrap();
-        unsupported["sections"]["work"]["items"] = serde_json::json!("timeline");
+        unsupported["decorations"] = serde_json::json!({"headerMark":"band"});
         let mut entry = entry;
         entry.sha256 = None;
         assert!(VerifiedTheme::parse(&entry, &serde_json::to_vec(&unsupported).unwrap()).is_err());

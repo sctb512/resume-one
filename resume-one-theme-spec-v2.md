@@ -106,10 +106,11 @@
 
 | 配置 | 当前渲染语义 |
 |---|---|
+| `title` | 可选的纯文字展示标题，1–120 个 Unicode 字符，至少包含一个非空白字符；不允许尖括号、换行或控制字符。不填则按应用语言显示标准标题；填写后忠实保留作者文字，不自动翻译。仅预览/PDF/DOCX 使用，不重命名模块 ID、右侧候选、JSON、纯文本/Markdown 标题或改变顺序。标题的大小写、字距、换行、对齐和避断仍由同一排版器计算，不接受模板表达式、HTML 或代码 |
 | `heading: plain` | 默认的强调色标题，无额外装饰 |
 | `heading: line` | 标题下方为 `border` 色细线，约 0.6 pt |
 | `heading: accent-line` | 标题下方为 `accent` 色强调线，约 1.2 pt |
-| `heading: filled` | 内容区等宽的 `accent` 色底、`paper` 色字；左右留白 6 pt、上下至少 4 pt；使用修正后的颜色保证文字对比度 |
+| `heading: filled` | 内容区等宽的 `accent` 色底、默认 `paper` 色字；左右留白 6 pt、上下至少 4 pt；未指定固定文字色时使用可读性修正后的语义颜色。显式 `typography.sectionTitle.color` 仍由作者负责确认对比度 |
 | `headingAlign` | `left` 默认、`center` 或 `right`；只对当前模块标题逐行对齐，按所在主栏/侧栏的内容区计算，色底标题保留两侧 6 pt 内距。装饰线/色块仍占原内容区，正文、日期与模块命中范围不随标题文字移动 |
 | `items: stack` | 默认条目前间距 4 pt、描述段落前间距 3 pt |
 | `items: compact` | 条目前间距 2 pt、描述段落前间距 1 pt；字号、字重、行高和全部内容保持不变 |

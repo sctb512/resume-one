@@ -599,6 +599,36 @@ mod tests {
     }
 
     #[test]
+    fn section_display_titles_are_bounded_plain_text_not_markup_or_instructions() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        for value in [
+            "Professional Experience".to_owned(),
+            "Awards & Honors — 荣誉".to_owned(),
+            "学".repeat(120),
+        ] {
+            theme["sections"]["work"]["title"] = json!(value);
+            assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+        }
+        for value in [
+            json!(""),
+            json!("   "),
+            json!("<b>Experience</b>"),
+            json!("Work\nProjects"),
+            json!("Work\tProjects"),
+            json!("Work\u{007f}Projects"),
+            json!("Work\u{0085}Projects"),
+            json!("Work\u{2028}Projects"),
+            json!("Work\u{2029}Projects"),
+            json!("学".repeat(121)),
+            json!(12),
+            json!({"en":"Work"}),
+        ] {
+            theme["sections"]["work"]["title"] = value;
+            assert!(parse_theme(theme.to_string().as_bytes()).is_err());
+        }
+    }
+
+    #[test]
     fn exact_role_colors_are_bounded_rgb_values_not_css_or_code() {
         let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
         for role in [

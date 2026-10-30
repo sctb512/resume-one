@@ -188,6 +188,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 120, "allOf": [{ "pattern": "\\S" }, { "pattern": "^[^<>\\u0000-\\u001F\\u007F-\\u009F\\u2028\\u2029]+$" }] },
         "heading": { "enum": ["plain", "line", "accent-line", "filled"] },
         "headingAlign": { "enum": ["left", "center", "right"] },
         "items": { "enum": ["stack", "compact", "timeline", "cards", "chips"] },

@@ -2,7 +2,7 @@
 //! All positions are points in a bottom-left page coordinate system.
 
 use crate::ThemeManifest;
-use crate::render::{Language, title};
+use crate::render::Language;
 use crate::semantic::{Item, ResumeContent};
 use crate::theme_style::{DatePlacement, Rgb, SectionHeading, TextStyle, ThemeStyle};
 use ttf_parser::Face;
@@ -870,7 +870,7 @@ fn heading_lines(
         0.0
     };
     page.wrap_style(
-        title(id, language),
+        style.section_title(id, language),
         text,
         (page.content_width() - padding).max(1.0),
     )
@@ -1614,6 +1614,78 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn authored_titles_wrap_in_all_lanes_without_changing_semantic_ids_or_source() {
+        let document = parse_resume(
+            br#"{"work":[{"name":"BODY_MARKER"}],"skills":[{"name":"SKILL_MARKER"}]}"#,
+        )
+        .unwrap();
+        let original = document.value.clone();
+        let content = project(&document);
+        let plain = crate::render::plain_text(&content, Language::En);
+        let markdown = crate::render::markdown(&content, Language::En);
+        let custom = "Professional Experience & Research Leadership — 专业经历与研究";
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            for heading in ["plain", "line", "accent-line", "filled"] {
+                let mut theme =
+                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                        .unwrap();
+                theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                if preset.starts_with("sidebar") {
+                    theme.normalized["composition"]["placements"] =
+                        serde_json::json!({"work":"sidebar"});
+                }
+                theme.normalized["sections"]["work"] = serde_json::json!({"heading":heading});
+                let default = layout_with_theme(&content, Language::En, &theme).unwrap();
+                theme.normalized["sections"]["work"]["title"] = serde_json::json!("Work");
+                assert_eq!(
+                    layout_with_theme(&content, Language::En, &theme).unwrap(),
+                    default
+                );
+                theme.normalized["sections"]["work"]["title"] = serde_json::json!(custom);
+                let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                let display: String = result
+                    .pages
+                    .iter()
+                    .flatten()
+                    .filter_map(|element| {
+                        if let LayoutElement::Text(text) = element
+                            && text.target
+                                == Some(LayoutTarget {
+                                    section: "work",
+                                    index: None,
+                                })
+                        {
+                            Some(text.text.as_str())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                let without_spaces = |value: &str| {
+                    value
+                        .chars()
+                        .filter(|c| !c.is_whitespace())
+                        .collect::<String>()
+                };
+                assert_eq!(
+                    without_spaces(&display),
+                    without_spaces(custom),
+                    "{preset}/{heading}"
+                );
+                assert!(result.pages.iter().flatten().any(|element| matches!(element, LayoutElement::Text(text) if text.text == "BODY_MARKER" && text.target == Some(LayoutTarget {section:"work",index:Some(0)}))));
+                assert_eq!(document.value, original);
+                assert_eq!(crate::render::plain_text(&content, Language::En), plain);
+                assert_eq!(crate::render::markdown(&content, Language::En), markdown);
+            }
+        }
+    }
 
     #[test]
     fn exact_role_colors_reach_every_layout_path_without_changing_geometry() {

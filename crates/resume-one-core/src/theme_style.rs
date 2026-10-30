@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use serde_json::Value;
 
 use crate::ThemeManifest;
+use crate::render::{Language, title};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Rgb {
@@ -251,6 +252,7 @@ pub struct ThemeStyle {
     pub sidebar_width_pct: f32,
     pub column_gap_mm: f32,
     pub sidebar_modules: Vec<String>,
+    pub section_titles: BTreeMap<String, String>,
     pub sections: BTreeMap<String, SectionStyle>,
 }
 
@@ -342,6 +344,14 @@ impl ThemeStyle {
 
     pub fn in_sidebar(&self, id: &str) -> bool {
         self.has_sidebar() && self.sidebar_modules.iter().any(|module| module == id)
+    }
+
+    /// Author-supplied plain display text never changes a section's identity.
+    pub fn section_title(&self, id: &str, language: Language) -> &str {
+        self.section_titles
+            .get(id)
+            .map(String::as_str)
+            .unwrap_or_else(|| title(id, language))
     }
 
     /// Content lanes include a 6 pt inset on each side of the tinted lane.
@@ -550,6 +560,17 @@ impl ThemeStyle {
                 .filter(|(_, region)| region.as_str() == Some("sidebar"))
                 .map(|(id, _)| id.clone())
                 .collect(),
+            section_titles: manifest
+                .get("sections")
+                .and_then(Value::as_object)
+                .into_iter()
+                .flatten()
+                .filter_map(|(id, value)| {
+                    value["title"]
+                        .as_str()
+                        .map(|text| (id.clone(), text.to_owned()))
+                })
+                .collect(),
             sections: manifest
                 .get("sections")
                 .and_then(Value::as_object)
@@ -616,6 +637,26 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn authored_display_title_is_preserved_in_both_languages_and_column_styles() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let original = ThemeStyle::from_manifest(&theme);
+        assert_eq!(original.section_title("work", Language::En), "Work");
+        assert_eq!(original.section_title("work", Language::Zh), "工作经历");
+        theme.normalized["sections"]["work"]["title"] =
+            serde_json::json!("Professional Experience");
+        let style = ThemeStyle::from_manifest(&theme);
+        for lang in [Language::En, Language::Zh] {
+            assert_eq!(style.section_title("work", lang), "Professional Experience");
+            assert_eq!(
+                style.column_style(true).section_title("work", lang),
+                "Professional Experience"
+            );
+        }
+        assert_eq!(style.section_title("skills", Language::En), "Skills");
+    }
 
     #[test]
     fn exact_role_colors_inherit_without_recoloring_document_or_application_palette() {

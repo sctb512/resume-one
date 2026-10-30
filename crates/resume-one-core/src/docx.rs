@@ -12,7 +12,7 @@ use docx_rs::{
 
 use crate::ThemeManifest;
 use crate::layout::{PT_PER_MM, check_theme, side_date_lines_for_style};
-use crate::render::{Language, title};
+use crate::render::Language;
 use crate::semantic::ResumeContent;
 use crate::theme_style::{
     DatePlacement, HeadingAlignment, ItemLayout, Rgb, SectionHeading, TextStyle, ThemeStyle,
@@ -149,7 +149,7 @@ fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragrap
     let heading = style.section(id).heading;
     let gap = style.page.section_gap_mm * PT_PER_MM;
     let mut p = paragraph(
-        title(id, language),
+        style.section_title(id, language),
         &style.typography.section_title,
         if heading == SectionHeading::Filled {
             style.colors.paper
@@ -962,6 +962,40 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn authored_titles_remain_editable_escaped_text_in_word() {
+        let content = project(&parse_resume(br#"{"awards":[{"title":"BODY_MARKER"}]}"#).unwrap());
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            for heading in ["plain", "line", "accent-line", "filled"] {
+                let mut theme =
+                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                        .unwrap();
+                theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                if preset.starts_with("sidebar") {
+                    theme.normalized["composition"]["placements"] =
+                        serde_json::json!({"awards":"sidebar"});
+                }
+                theme.normalized["sections"]["awards"] =
+                    serde_json::json!({"heading":heading,"title":"Awards & Honors — 荣誉"});
+                let xml = String::from_utf8(
+                    build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme))
+                        .unwrap()
+                        .document,
+                )
+                .unwrap();
+                assert!(xml.contains("Awards &amp; Honors"), "{preset}/{heading}");
+                assert!(xml.contains("荣誉"));
+                assert!(xml.contains("BODY_MARKER"));
+                assert!(!xml.contains("<w:drawing>"));
+            }
+        }
+    }
 
     #[test]
     fn exact_role_colors_reach_editable_text_dates_chips_and_filled_headings() {

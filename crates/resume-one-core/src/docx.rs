@@ -682,12 +682,17 @@ fn build_document(
             if !details.is_empty() {
                 paragraphs.push(paragraph(&details, meta, muted, 0.0, 0.0));
             }
-            for text in &item.paragraphs {
+            let tail_gap = crate::layout::entry_tail_gap(item, section.id, style);
+            for (index, text) in item.paragraphs.iter().enumerate() {
                 paragraphs.push(paragraph(
                     text,
                     body,
                     ink,
-                    section_style.paragraph_gap_pt(),
+                    if index == 0 {
+                        tail_gap
+                    } else {
+                        section_style.paragraph_gap_pt()
+                    },
                     0.0,
                 ));
             }
@@ -698,19 +703,35 @@ fn build_document(
                     paragraph(&item.bullets.join("   ·   "), meta, muted, 0.0, 0.0)
                 });
             } else {
-                for bullet in &item.bullets {
+                for (index, bullet) in item.bullets.iter().enumerate() {
                     paragraphs.push(
-                        paragraph(&format!("•  {bullet}"), body, ink, 0.0, 0.0).indent(
-                            Some(twips(11.0) as i32),
-                            None,
-                            None,
-                            None,
-                        ),
+                        paragraph(
+                            &format!("•  {bullet}"),
+                            body,
+                            ink,
+                            if index == 0 && item.paragraphs.is_empty() {
+                                tail_gap
+                            } else {
+                                0.0
+                            },
+                            0.0,
+                        )
+                        .indent(Some(twips(11.0) as i32), None, None, None),
                     );
                 }
             }
             if let Some(url) = &item.url {
-                paragraphs.push(paragraph(url, meta, accent, 0.0, 0.0));
+                paragraphs.push(paragraph(
+                    url,
+                    meta,
+                    accent,
+                    if item.paragraphs.is_empty() && item.bullets.is_empty() {
+                        tail_gap
+                    } else {
+                        0.0
+                    },
+                    0.0,
+                ));
             }
             let count = paragraphs.len();
             for (index, mut p) in paragraphs.into_iter().enumerate() {
@@ -724,7 +745,7 @@ fn build_document(
                 // Oversized paragraphs stay splittable by Word to avoid overflow.
                 column.push(p.keep_next(page.avoid_split_items && index + 1 < count));
             }
-            if section_style.items == ItemLayout::Cards {
+            if section_style.items == ItemLayout::Cards && count > 0 {
                 // Identical paragraph borders merge into one editable card in
                 // Word. An unbordered spacer keeps adjacent cards independent.
                 column.push(
@@ -975,6 +996,59 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn empty_first_card_cannot_insert_a_spacer_that_breaks_heading_keep_chain() {
+        let content = project(&parse_resume(br#"{"work":[{},{"name":"VISIBLE"}]}"#).unwrap());
+        for avoid_split in [true, false] {
+            let mut theme =
+                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                    .unwrap();
+            theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","items":"cards","entryHeader":[{"role":"body","parts":[{"field":"name"}]}]});
+            let mut style = ThemeStyle::from_manifest(&theme);
+            style.page.keep_heading_with_first_item = true;
+            style.page.avoid_split_items = avoid_split;
+            let xml = String::from_utf8(
+                build_document(&content, Language::En, &style)
+                    .unwrap()
+                    .document,
+            )
+            .unwrap();
+            let at = xml.find(">Work<").unwrap();
+            let visible = xml.find(">VISIBLE<").unwrap();
+            assert_eq!(xml[at..visible].matches("</w:p>").count(), 1);
+            let title = xml[..at].rsplit("</w:p>").next().unwrap();
+            assert!(title.contains("<w:keepNext"));
+        }
+    }
+
+    #[test]
+    fn large_continuation_has_explicit_clearance_even_with_collapsing_word_spacing() {
+        let content = project(
+            &parse_resume(br#"{"work":[{"position":"SMALL","summary":"BIGNEXT"}]}"#).unwrap(),
+        );
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["typography"]["body"] =
+            serde_json::json!({"family":"cjk-sans","weight":400,"sizePt":42,"lineHeight":1});
+        theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[{"role":"body","parts":[{"field":"position"}],"style":{"sizePt":7,"lineHeight":1},"spaceAfterPt":5}]});
+        let style = ThemeStyle::from_manifest(&theme);
+        let xml = String::from_utf8(
+            build_document(&content, Language::En, &style)
+                .unwrap()
+                .document,
+        )
+        .unwrap();
+        let at = xml.find(">BIGNEXT<").unwrap();
+        let paragraph = xml[..at].rsplit("</w:p>").next().unwrap();
+        let expected = twips(crate::layout::entry_tail_gap(
+            &content.sections[0].items[0],
+            "work",
+            &style,
+        ));
+        assert!(expected > 400);
+        assert!(paragraph.contains(&format!("w:before=\"{expected}\"")));
+    }
 
     #[test]
     fn entry_header_uses_editable_rows_and_preserves_first_row_spacing_and_field_order() {

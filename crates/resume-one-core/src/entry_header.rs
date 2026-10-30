@@ -77,7 +77,7 @@ pub(crate) fn parse_lines(
 /// punctuation, and an entirely empty row contributes neither text nor gaps.
 pub(crate) fn rows<'a>(item: &Item, id: &str, style: &'a ThemeStyle) -> Option<Vec<HeaderRow<'a>>> {
     let lines = style.entry_headers.get(id)?;
-    let mut previous: Option<(f32, f32, f32)> = None;
+    let mut previous: Option<(f32, f32)> = None;
     let mut rows = Vec::new();
     for line in lines {
         let mut text = String::new();
@@ -98,10 +98,10 @@ pub(crate) fn rows<'a>(item: &Item, id: &str, style: &'a ThemeStyle) -> Option<V
         let kind = crate::layout::font_kind(&line.style).expect("validated header font");
         let (ascent, descent) = kind.vertical_metrics();
         let leading = line.style.size_pt * line.style.line_height;
-        // Different-sized adjacent faces must not overlap even when a theme
-        // omits a needed gap. The same extra clearance is exported to Word.
-        let extra = previous.map_or(0.0, |(descent, leading, after)| {
-            (descent + ascent * line.style.size_pt - leading - after - line.before).max(0.0)
+        // Do not rely on summed before/after spacing: Word readers can use
+        // their maximum instead. An adequate before alone clears both faces.
+        let extra = previous.map_or(0.0, |(descent, leading)| {
+            (descent + ascent * line.style.size_pt - leading - line.before).max(0.0)
         });
         rows.push(HeaderRow {
             text,
@@ -114,7 +114,7 @@ pub(crate) fn rows<'a>(item: &Item, id: &str, style: &'a ThemeStyle) -> Option<V
             before: line.before + extra,
             after: line.after,
         });
-        previous = Some((descent * line.style.size_pt, leading, line.after));
+        previous = Some((descent * line.style.size_pt, leading));
     }
     Some(rows)
 }

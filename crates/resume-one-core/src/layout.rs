@@ -1049,12 +1049,53 @@ fn wrapped_height(page: &PageWriter<'_>, text: &str, style: &TextStyle, indent: 
         .sum()
 }
 
+/// The first body/bullet/URL must clear the last independently sized header.
+/// Use a sufficient paragraph-before gap even when a Word reader takes the
+/// maximum of adjacent paragraph spacing instead of adding both values.
+pub(crate) fn entry_tail_gap(item: &Item, id: &str, style: &ThemeStyle) -> f32 {
+    let base = if item.paragraphs.is_empty() {
+        0.0
+    } else {
+        style.section(id).paragraph_gap_pt()
+    };
+    let next = if !item.paragraphs.is_empty() || !item.bullets.is_empty() {
+        &style.typography.body
+    } else if item.url.is_some() {
+        &style.typography.meta
+    } else {
+        return 0.0;
+    };
+    let Some(rows) = crate::entry_header::rows(item, id, style) else {
+        return base;
+    };
+    let Some(last) = rows.last() else {
+        return base;
+    };
+    let descent = font_kind(last.style)
+        .expect("checked header font")
+        .vertical_metrics()
+        .1
+        * last.style.size_pt;
+    let ascent = font_kind(next)
+        .expect("checked continuation font")
+        .vertical_metrics()
+        .0
+        * next.size_pt;
+    base.max(descent + ascent - last.style.size_pt * last.style.line_height)
+}
+
 fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &ThemeStyle) -> f32 {
     let body = &style.typography.body;
     let heading = &style.typography.item_title;
     let meta = &style.typography.meta;
     let section = style.section(section_id);
     let mut height = section.item_gap_pt();
+    height += entry_tail_gap(item, section_id, style)
+        - if item.paragraphs.is_empty() {
+            0.0
+        } else {
+            section.paragraph_gap_pt()
+        };
     if let Some(rows) = crate::entry_header::rows(item, section_id, style) {
         for row in rows {
             height += row.before + wrapped_height(page, &row.text, row.style, 0.0) + row.after;
@@ -1404,8 +1445,16 @@ fn layout_sections<'a>(
             if !details.is_empty() {
                 page.wrapped(&details, meta, muted, 0.0);
             }
-            for paragraph in &item.paragraphs {
-                page.gap(section.paragraph_gap_pt());
+            let tail_gap = entry_tail_gap(item, section_content.id, style);
+            if item.paragraphs.is_empty() && tail_gap > 0.0 {
+                page.gap(tail_gap);
+            }
+            for (index, paragraph) in item.paragraphs.iter().enumerate() {
+                page.gap(if index == 0 {
+                    tail_gap
+                } else {
+                    section.paragraph_gap_pt()
+                });
                 page.wrapped(paragraph, body, ink, 0.0);
             }
             if (section_content.id == "skills" || section_content.id == "interests")
@@ -1645,6 +1694,78 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn header_row_clearance_does_not_rely_on_word_summing_adjacent_spacing() {
+        let content =
+            project(&parse_resume(br#"{"work":[{"position":"SMALL","name":"LARGE"}]}"#).unwrap());
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
+            {"role":"body","parts":[{"field":"position"}],"style":{"sizePt":7,"lineHeight":1},"spaceAfterPt":5},
+            {"role":"body","parts":[{"field":"name"}],"style":{"sizePt":42,"lineHeight":1},"spaceBeforePt":5}
+        ]});
+        let style = ThemeStyle::from_manifest(&theme);
+        let rows =
+            crate::entry_header::rows(&content.sections[0].items[0], "work", &style).unwrap();
+        let required = font_kind(rows[0].style).unwrap().vertical_metrics().1 * 7.0
+            + font_kind(rows[1].style).unwrap().vertical_metrics().0 * 42.0;
+        let smallest_word_baseline_gap = 7.0 + rows[0].after.max(rows[1].before);
+        assert!(smallest_word_baseline_gap + 0.01 >= required);
+    }
+
+    #[test]
+    fn entry_headers_clear_large_body_bullet_and_url_continuations() {
+        for (tail, marker) in [
+            (serde_json::json!({"summary":"BIGNEXT"}), "BIGNEXT"),
+            (serde_json::json!({"highlights":["BIGNEXT"]}), "•  BIGNEXT"),
+            (
+                serde_json::json!({"url":"https://x.test"}),
+                "https://x.test",
+            ),
+        ] {
+            let mut item = tail;
+            item["position"] = serde_json::json!("SMALL");
+            let content = project(
+                &parse_resume(serde_json::json!({"work":[item]}).to_string().as_bytes()).unwrap(),
+            );
+            let mut theme =
+                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                    .unwrap();
+            for role in ["body", "meta"] {
+                theme.normalized["typography"][role] = serde_json::json!({"family":"cjk-sans","weight":400,"sizePt":42,"lineHeight":1});
+            }
+            theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[{"role":"body","parts":[{"field":"position"}],"style":{"sizePt":7,"lineHeight":1}}]});
+            let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
+            let find = |marker: &str| {
+                layout
+                    .pages
+                    .iter()
+                    .flatten()
+                    .find_map(|el| {
+                        if let LayoutElement::Text(t) = el
+                            && t.text == marker
+                        {
+                            Some(t)
+                        } else {
+                            None
+                        }
+                    })
+                    .unwrap()
+            };
+            let first = find("SMALL");
+            let next = find(marker);
+            let required = first.font.vertical_metrics().1 * first.size_pt
+                + next.font.vertical_metrics().0 * next.size_pt;
+            assert!(
+                first.baseline_y_pt - next.baseline_y_pt + 0.01 >= required,
+                "{marker}"
+            );
+            // Total-height reservation must include the added clearance too.
+            let style = ThemeStyle::from_manifest(&theme);
+            assert!(entry_tail_gap(&content.sections[0].items[0], "work", &style) > 20.0);
+        }
+    }
 
     #[test]
     fn entry_headers_have_independent_lines_styles_and_stable_item_targets_in_every_lane() {

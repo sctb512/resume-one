@@ -27,6 +27,9 @@ pub struct Item {
     pub heading: String,
     /// Explicit standard header fields, separate from the legacy combined heading/details.
     pub header_fields: BTreeMap<&'static str, String>,
+    /// Alternate visual date text; only an explicit theme option uses it.
+    /// Legacy details and text/Markdown retain the original period projection.
+    pub short_en_date_range: String,
     pub details: Vec<String>,
     /// Position of the date inside `details`; inline output keeps its original order.
     pub date_detail_index: Option<usize>,
@@ -245,6 +248,19 @@ fn map_item(id: &str, source: &Value) -> Item {
     Item {
         heading,
         header_fields: header_fields(id, source),
+        short_en_date_range: if header_field_names(id).contains(&"dateRange") {
+            use crate::date_range::{RangeEnd, short_en_range};
+            let end = match source.get("endDate") {
+                None => RangeEnd::Missing,
+                Some(Value::Null) => RangeEnd::Present,
+                Some(Value::String(value)) => RangeEnd::Value(value),
+                // Invalid typed values must not become invented date strings.
+                _ => RangeEnd::Missing,
+            };
+            short_en_range(source["startDate"].as_str().unwrap_or_default(), end)
+        } else {
+            String::new()
+        },
         details,
         date_detail_index,
         paragraphs,
@@ -313,6 +329,67 @@ pub fn project(document: &ResumeDocument) -> ResumeContent {
 mod tests {
     use super::*;
     use crate::resume::parse_resume;
+
+    #[test]
+    fn visual_short_dates_preserve_presence_without_changing_legacy_periods_or_source() {
+        for id in ["work", "volunteer", "education", "projects"] {
+            for (fields, expected, legacy) in [
+                (
+                    serde_json::json!({"startDate":"2020-06-01"}),
+                    "Jun 2020",
+                    "2020-06-01",
+                ),
+                (
+                    serde_json::json!({"startDate":"2020-06","endDate":"2024-12"}),
+                    "Jun 2020 - Dec 2024",
+                    "2020-06 – 2024-12",
+                ),
+                (
+                    serde_json::json!({"startDate":"2020","endDate":null}),
+                    "Jan 2020 - Present",
+                    "2020",
+                ),
+                (
+                    serde_json::json!({"startDate":"2020","endDate":""}),
+                    "Jan 2020 - Present",
+                    "2020",
+                ),
+                (serde_json::json!({"endDate":"2024"}), "", "2024"),
+                (
+                    serde_json::json!({"startDate":"2024-02-31","endDate":"2024-03"}),
+                    "2024-02-31 - Mar 2024",
+                    "2024-02-31 – 2024-03",
+                ),
+                (
+                    serde_json::json!({"startDate":"2020","endDate":{}}),
+                    "Jan 2020",
+                    "2020",
+                ),
+            ] {
+                let original = fields.clone();
+                let item = map_item(id, &fields);
+                assert_eq!(item.short_en_date_range, expected, "{id}/{fields}");
+                assert_eq!(item.date().unwrap_or_default(), legacy);
+                assert_eq!(fields, original);
+            }
+        }
+        // The visual helper is defensive; it does not relax the official
+        // document schema to accept null/empty/incorrectly typed date input.
+        assert!(parse_resume(br#"{"work":[{"startDate":"2020","endDate":null}]}"#).is_err());
+        for id in [
+            "awards",
+            "certificates",
+            "publications",
+            "skills",
+            "references",
+        ] {
+            let item = map_item(
+                id,
+                &serde_json::json!({"startDate":"2020","date":"2024-03"}),
+            );
+            assert!(item.short_en_date_range.is_empty());
+        }
+    }
 
     #[test]
     fn header_fields_map_every_standard_module_without_changing_source_or_text_exports() {

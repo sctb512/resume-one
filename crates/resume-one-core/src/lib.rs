@@ -14,6 +14,7 @@ use sha2::{Digest, Sha256};
 
 pub mod appearance;
 pub mod content_edit;
+mod date_range;
 pub mod docx;
 pub mod draft;
 pub mod editor;
@@ -449,6 +450,13 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
                         line["parts"].as_array().into_iter().flatten().enumerate()
                     {
                         let field = part["field"].as_str().unwrap_or_default();
+                        if part.get("dateFormat").is_some() && field != "dateRange" {
+                            issues.push(diagnostic(
+                                "ENTRY_HEADER_DATE_FORMAT",
+                                format!("/sections/{module}/entryHeader/{line_index}/parts/{part_index}/dateFormat"),
+                                "dateFormat 仅适用于 dateRange 字段，不改变原始单日期或其他文字",
+                            ));
+                        }
                         let pointer = format!(
                             "/sections/{module}/entryHeader/{line_index}/parts/{part_index}/field"
                         );
@@ -650,6 +658,36 @@ mod tests {
             theme["sections"]["work"]["headingAlign"] = invalid;
             assert!(parse_theme(theme.to_string().as_bytes()).is_err());
         }
+    }
+
+    #[test]
+    fn entry_date_format_is_explicit_bounded_and_only_valid_for_ranges() {
+        let mut source: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        source["sections"]["work"]["date"] = json!("inline");
+        for format in [None, Some("raw"), Some("short-en")] {
+            let mut part = json!({"field":"dateRange"});
+            if let Some(format) = format {
+                part["dateFormat"] = json!(format);
+            }
+            source["sections"]["work"]["entryHeader"] = json!([{"role":"meta","parts":[part]}]);
+            assert!(parse_theme(source.to_string().as_bytes()).is_ok());
+        }
+        for (field, format) in [
+            ("name", "short-en"),
+            ("name", "raw"),
+            ("dateRange", "long"),
+            ("dateRange", "{{ formatDate() }}"),
+        ] {
+            source["sections"]["work"]["entryHeader"] =
+                json!([{"role":"meta","parts":[{"field":field,"dateFormat":format}]}]);
+            assert!(parse_theme(source.to_string().as_bytes()).is_err());
+        }
+        source["sections"]["work"]
+            .as_object_mut()
+            .unwrap()
+            .remove("entryHeader");
+        source["sections"]["awards"] = json!({"entryHeader":[{"role":"meta","parts":[{"field":"date","dateFormat":"short-en"}]}]});
+        assert!(parse_theme(source.to_string().as_bytes()).is_err());
     }
 
     #[test]

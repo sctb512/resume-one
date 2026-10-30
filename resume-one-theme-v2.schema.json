@@ -188,6 +188,7 @@
       "type": "object", "additionalProperties": false, "required": ["field"],
       "properties": {
         "field": { "enum": ["position", "name", "organization", "institution", "studyType", "area", "score", "dateRange", "date", "location", "title", "awarder", "issuer", "publisher", "releaseDate", "level", "language", "fluency", "entity", "type", "roles", "keywords"] },
+        "dateFormat": { "enum": ["raw", "short-en"] },
         "prefix": { "$ref": "#/definitions/headerLiteral" },
         "suffix": { "$ref": "#/definitions/headerLiteral" }
       }

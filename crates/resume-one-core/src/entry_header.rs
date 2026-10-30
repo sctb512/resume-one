@@ -11,6 +11,7 @@ pub(crate) struct HeaderPart {
     field: String,
     prefix: String,
     suffix: String,
+    short_en_dates: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -62,6 +63,7 @@ pub(crate) fn parse_lines(
                         field: part["field"].as_str().unwrap_or_default().into(),
                         prefix: part["prefix"].as_str().unwrap_or_default().into(),
                         suffix: part["suffix"].as_str().unwrap_or_default().into(),
+                        short_en_dates: part["dateFormat"].as_str() == Some("short-en"),
                     })
                     .collect(),
                 style,
@@ -82,11 +84,14 @@ pub(crate) fn rows<'a>(item: &Item, id: &str, style: &'a ThemeStyle) -> Option<V
     for line in lines {
         let mut text = String::new();
         for part in &line.parts {
-            if let Some(value) = item
-                .header_fields
-                .get(part.field.as_str())
-                .filter(|value| !value.is_empty())
-            {
+            let value = if part.short_en_dates && part.field == "dateRange" {
+                Some(item.short_en_date_range.as_str())
+            } else {
+                item.header_fields
+                    .get(part.field.as_str())
+                    .map(String::as_str)
+            };
+            if let Some(value) = value.filter(|value| !value.is_empty()) {
                 text.push_str(&part.prefix);
                 text.push_str(value);
                 text.push_str(&part.suffix);
@@ -171,6 +176,67 @@ mod tests {
         assert!(
             !crate::render::markdown(&content, crate::render::Language::En).contains("At Example")
         );
+    }
+
+    #[test]
+    fn explicit_date_format_is_shared_by_preview_and_editable_word_but_not_text_exports() {
+        use crate::render::Language;
+        use std::io::Read;
+        let document = parse_resume(br#"{"work":[{"startDate":"2020-06","endDate":"2024-12"},{"startDate":"2018"},{"endDate":"2025"}]}"#).unwrap();
+        let source = document.source.clone();
+        let content = project(&document);
+        let original_text = crate::render::plain_text(&content, Language::En);
+        let original_markdown = crate::render::markdown(&content, Language::En);
+        for (format, expected) in [
+            (None, vec!["2020-06 – 2024-12", "2018", "2025"]),
+            (Some("raw"), vec!["2020-06 – 2024-12", "2018", "2025"]),
+            (Some("short-en"), vec!["Jun 2020 - Dec 2024", "Jan 2018"]),
+        ] {
+            let mut part = json!({"field":"dateRange","prefix":"[","suffix":"]"});
+            if let Some(format) = format {
+                part["dateFormat"] = json!(format);
+            }
+            let theme = theme(json!([{"role":"meta","parts":[part]}]));
+            let layout = crate::layout::layout_with_theme(&content, Language::En, &theme).unwrap();
+            let actual: Vec<_> = layout
+                .pages
+                .iter()
+                .flatten()
+                .filter_map(|el| {
+                    if let crate::layout::LayoutElement::Text(text) = el
+                        && text.target.is_some_and(|t| t.index.is_some())
+                    {
+                        Some(text.text.as_str())
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            let expected: Vec<_> = expected.into_iter().map(|s| format!("[{s}]")).collect();
+            assert_eq!(actual, expected);
+            let bytes = crate::docx::render_with_theme(&content, Language::En, &theme).unwrap();
+            let mut zip = zip::ZipArchive::new(std::io::Cursor::new(bytes)).unwrap();
+            let mut xml = String::new();
+            zip.by_name("word/document.xml")
+                .unwrap()
+                .read_to_string(&mut xml)
+                .unwrap();
+            for value in expected {
+                assert!(xml.contains(&value), "{value}");
+            }
+            if format == Some("short-en") {
+                assert!(!xml.contains("[2025]") && !xml.contains("[2020-06"));
+            }
+            assert_eq!(
+                crate::render::plain_text(&content, Language::En),
+                original_text
+            );
+            assert_eq!(
+                crate::render::markdown(&content, Language::En),
+                original_markdown
+            );
+            assert_eq!(document.source, source);
+        }
     }
 
     #[test]

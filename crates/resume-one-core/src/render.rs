@@ -219,6 +219,7 @@ mod tests {
                 id: "projects",
                 items: vec![Item {
                     header_fields: Default::default(),
+                    short_en_date_range: String::new(),
                     heading: "[Test]".into(),
                     details: Vec::new(),
                     date_detail_index: None,

@@ -137,6 +137,11 @@ impl Appearance {
                     effective.normalized["typography"][role] = json!({});
                 }
                 effective.normalized["typography"][role]["family"] = json!(font.family());
+                // The picker selects a family, not an italic face. An explicit
+                // personal family override uses upright faces consistently,
+                // including CJK/system families with no real italic. Resetting
+                // the preference restores the theme's original slant.
+                effective.normalized["typography"][role]["fontStyle"] = json!("normal");
                 let weight = if matches!(font, FontChoice::Font(_)) {
                     effective.normalized["typography"][role]["weight"]
                         .as_u64()
@@ -161,6 +166,7 @@ impl Appearance {
                         .as_u64()
                         .unwrap_or(400) as u16;
                     effective.normalized["typography"][role]["family"] = json!(font.family());
+                    effective.normalized["typography"][role]["fontStyle"] = json!("normal");
                     effective.normalized["typography"][role]["weight"] =
                         json!(if matches!(font, FontChoice::Font(_)) {
                             weight
@@ -177,6 +183,57 @@ impl Appearance {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn explicit_family_override_uses_real_upright_faces_and_reset_restores_theme_italic() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let id = crate::fonts::register_asset(
+            include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
+        )
+        .unwrap();
+        theme.asset_fonts.insert("italic-fixture".into(), id);
+        for role in [
+            "body",
+            "meta",
+            "name",
+            "sectionTitle",
+            "itemTitle",
+            "label",
+            "summary",
+            "sideDate",
+        ] {
+            theme.normalized["typography"][role] = json!({"family":"asset:italic-fixture","weight":400,"fontStyle":"italic","sizePt":12});
+        }
+        let original = theme.normalized.clone();
+        crate::layout::check_theme(&theme).unwrap();
+        for choice in [FontChoice::Sans, FontChoice::Serif] {
+            let appearance = Appearance {
+                body_font: Some(choice.clone()),
+                heading_font: Some(choice),
+                ..Default::default()
+            };
+            let effective = appearance.apply(&theme);
+            crate::layout::check_theme(&effective).unwrap();
+            for role in [
+                "body",
+                "meta",
+                "name",
+                "sectionTitle",
+                "itemTitle",
+                "label",
+                "summary",
+                "sideDate",
+            ] {
+                assert_eq!(
+                    effective.normalized["typography"][role]["fontStyle"],
+                    "normal"
+                );
+            }
+            assert_eq!(theme.normalized, original);
+        }
+        assert_eq!(Appearance::default().apply(&theme).normalized, original);
+    }
 
     #[test]
     fn body_override_updates_explicit_item_title_without_persisting_it() {

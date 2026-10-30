@@ -184,11 +184,31 @@
         "textTransform": { "enum": ["none", "uppercase", "lowercase"] }
       }
     },
+    "headerPart": {
+      "type": "object", "additionalProperties": false, "required": ["field"],
+      "properties": {
+        "field": { "enum": ["position", "name", "organization", "institution", "studyType", "area", "score", "dateRange", "date", "location", "title", "awarder", "issuer", "publisher", "releaseDate", "level", "language", "fluency", "entity", "type", "roles", "keywords"] },
+        "prefix": { "$ref": "#/definitions/headerLiteral" },
+        "suffix": { "$ref": "#/definitions/headerLiteral" }
+      }
+    },
+    "headerLiteral": { "type": "string", "maxLength": 32, "pattern": "^[^<>\\u0000-\\u001F\\u007F-\\u009F\\u2028\\u2029]*$" },
+    "headerLine": {
+      "type": "object", "additionalProperties": false, "required": ["parts", "role"],
+      "properties": {
+        "parts": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "$ref": "#/definitions/headerPart" } },
+        "role": { "enum": ["itemTitle", "body", "meta", "sideDate"] },
+        "style": { "$ref": "#/definitions/textStyle" },
+        "spaceBeforePt": { "type": "number", "minimum": 0, "maximum": 48 },
+        "spaceAfterPt": { "type": "number", "minimum": 0, "maximum": 48 }
+      }
+    },
     "sectionStyle": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "minLength": 1, "maxLength": 120, "allOf": [{ "pattern": "\\S" }, { "pattern": "^[^<>\\u0000-\\u001F\\u007F-\\u009F\\u2028\\u2029]+$" }] },
+        "entryHeader": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/definitions/headerLine" } },
         "heading": { "enum": ["plain", "line", "accent-line", "filled"] },
         "headingAlign": { "enum": ["left", "center", "right"] },
         "items": { "enum": ["stack", "compact", "timeline", "cards", "chips"] },

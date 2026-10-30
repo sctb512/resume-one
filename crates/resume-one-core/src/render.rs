@@ -218,6 +218,7 @@ mod tests {
             sections: vec![crate::semantic::Section {
                 id: "projects",
                 items: vec![Item {
+                    header_fields: Default::default(),
                     heading: "[Test]".into(),
                     details: Vec::new(),
                     date_detail_index: None,

@@ -586,7 +586,27 @@ fn build_document(
         );
         for item in &section.items {
             let mut paragraphs = Vec::new();
-            if section_style.date != DatePlacement::Inline
+            let header_rows = crate::entry_header::rows(item, section.id, style);
+            let first_before = header_rows
+                .as_ref()
+                .and_then(|rows| rows.first())
+                .map_or_else(
+                    || {
+                        if header_rows.is_some() && !item.paragraphs.is_empty() {
+                            section_style.paragraph_gap_pt()
+                        } else {
+                            0.0
+                        }
+                    },
+                    |row| row.before,
+                );
+            if let Some(rows) = header_rows {
+                for row in rows {
+                    paragraphs.push(paragraph(
+                        &row.text, row.style, row.color, row.before, row.after,
+                    ));
+                }
+            } else if section_style.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
                 let lines = side_date_lines_for_style(style, &item.heading, date);
@@ -652,7 +672,9 @@ fn build_document(
             } else if !item.heading.is_empty() {
                 paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
             }
-            let details = if section_style.date != DatePlacement::Inline && item.date().is_some() {
+            let details = if style.entry_headers.contains_key(section.id) {
+                String::new()
+            } else if section_style.date != DatePlacement::Inline && item.date().is_some() {
                 item.other_details().join("   ·   ")
             } else {
                 item.details.join("   ·   ")
@@ -696,7 +718,7 @@ fn build_document(
                 if index == 0 {
                     let spacing = p.property.line_spacing.take().unwrap_or_default();
                     p.property.line_spacing =
-                        Some(spacing.before(twips(section_style.item_gap_pt())));
+                        Some(spacing.before(twips(section_style.item_gap_pt() + first_before)));
                 }
                 // Link only this item, never a complete section or neighbouring items.
                 // Oversized paragraphs stay splittable by Word to avoid overflow.
@@ -843,16 +865,7 @@ fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
     // for newly typed text; never subset against only the current resume.
     document.font_table = br#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:fonts xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:font w:name="Noto Sans SC"><w:family w:val="swiss"/><w:embedRegular r:id="rIdSans" w:fontKey="{00000000-0000-0000-0000-000000000001}" w:subsetted="false"/></w:font><w:font w:name="Noto Serif SC"><w:family w:val="roman"/><w:embedBold r:id="rIdSerif" w:fontKey="{00000000-0000-0000-0000-000000000002}" w:subsetted="false"/></w:font></w:fonts>"#.to_vec();
     let mut local_ids = std::collections::BTreeSet::new();
-    for role in [
-        &style.typography.body,
-        &style.typography.item_title,
-        &style.typography.name,
-        &style.typography.section_title,
-        &style.typography.meta,
-        &style.typography.label,
-        &style.typography.summary,
-        &style.typography.side_date,
-    ] {
+    for role in style.all_text_styles() {
         if let crate::layout::FontKind::Local(id) = crate::layout::font_kind(role)? {
             local_ids.insert(id);
         }
@@ -962,6 +975,71 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn entry_header_uses_editable_rows_and_preserves_first_row_spacing_and_field_order() {
+        let content=project(&parse_resume(br#"{"work":[{"position":"POSITION & <value>","name":"ORGANIZATION","location":"HIDDEN_LOCATION","summary":"BODY"}]}"#).unwrap());
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
+            {"role":"itemTitle","parts":[{"field":"position"}],"style":{"sizePt":14,"color":"#123456"},"spaceBeforePt":7,"spaceAfterPt":3},
+            {"role":"body","parts":[{"field":"name","prefix":"At "}],"style":{"color":"#345678"}}
+        ]});
+        let style = ThemeStyle::from_manifest(&theme);
+        let xml = String::from_utf8(
+            build_document(&content, Language::En, &style)
+                .unwrap()
+                .document,
+        )
+        .unwrap();
+        assert!(xml.contains("POSITION &amp; &lt;value&gt;"));
+        assert!(xml.find("POSITION").unwrap() < xml.find("At ORGANIZATION").unwrap());
+        assert!(xml.find("At ORGANIZATION").unwrap() < xml.find("BODY").unwrap());
+        let at = xml.find("POSITION").unwrap();
+        // docx-rs can add paragraph attributes; do not assume a bare <w:p>.
+        let paragraph = xml[..at].rsplit("</w:p>").next().unwrap();
+        assert!(paragraph.contains("w:before=\"220\"")); // 4pt item gap + 7pt authored before.
+        assert!(paragraph.contains("123456"));
+        assert!(!xml.contains("HIDDEN_LOCATION") && !xml.contains("<w:drawing>"));
+    }
+
+    #[test]
+    fn font_used_only_inside_entry_header_is_validated_embedded_and_personally_overridable() {
+        let root = tempfile::tempdir().unwrap();
+        let bytes = include_bytes!("../tests/fixtures/theme-italic-font.ttf");
+        std::fs::write(root.path().join("font.ttf"), bytes).unwrap();
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                .unwrap()
+                .normalized;
+        theme["assets"] = serde_json::json!({"fonts":[{"id":"header-italic","path":"font.ttf","sha256":"b294f4c5f3de886047ba99bc78854ee2e59dbb2eb47729f0ae8f5526c77fcae2","license":"OFL-1.1"}]});
+        theme["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[{"role":"body","parts":[{"field":"name"}],"style":{"family":"asset:header-italic","fontStyle":"italic","weight":400}}]});
+        std::fs::write(root.path().join("test.theme.json"), theme.to_string()).unwrap();
+        let loaded =
+            crate::load_theme(root.path(), std::path::Path::new("test.theme.json")).unwrap();
+        let content =
+            project(&parse_resume("{\"work\":[{\"name\":\"Ada 简里\"}]}".as_bytes()).unwrap());
+        let data = render_with_theme(&content, Language::En, &loaded).unwrap();
+        let mut zip = zip::ZipArchive::new(Cursor::new(data)).unwrap();
+        let mut table = String::new();
+        std::io::Read::read_to_string(&mut zip.by_name("word/fontTable.xml").unwrap(), &mut table)
+            .unwrap();
+        assert!(
+            table.contains("Resume One Italic Font Fixture") && table.contains("<w:embedItalic ")
+        );
+        let mut appearance = crate::appearance::Appearance::default();
+        appearance.body_font = Some(crate::appearance::FontChoice::Sans);
+        let effective = appearance.apply(&loaded);
+        assert!(render_with_theme(&content, Language::En, &effective).is_ok());
+        let mut invalid = loaded.clone();
+        invalid.normalized["sections"]["work"]["entryHeader"][0]["style"]["fontStyle"] =
+            serde_json::json!("normal");
+        assert!(
+            render_with_theme(&content, Language::En, &invalid)
+                .unwrap_err()
+                .contains("fontStyle")
+        );
+    }
 
     #[test]
     fn authored_titles_remain_editable_escaped_text_in_word() {

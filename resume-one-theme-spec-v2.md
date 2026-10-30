@@ -86,6 +86,43 @@
 
 `typography.itemTitle` 单独控制工作职位、教育条目、项目名等条目标题，字段与其他文字角色相同。省略时完整继承 body 的字族、字重和行高，仅字号为 body 的 1.06 倍，以保持旧主题的既有几何。显式声明时，未填写的字段仍继承上述值。模块标题继续使用 sectionTitle，正文继续使用 body，日期继续使用 meta；条目标题的测量、侧置日期留白、分页、预览、PDF 与可编辑 DOCX 均使用此角色。本机正文字体覆盖同时作用于显式 itemTitle，重置后恢复主题默认，不修改主题文件或 resume.json。
 
+### 条目页头分行
+
+`sections.<模块>.entryHeader` 为可选的、有界字段分行表，用于原主题将职位、机构、学位、日期分别排印的情况。它只替代该模块每个条目原有的合并标题和辅助信息行；描述、列表、URL、条目索引和原 JSON 不变。不声明时完全保留旧排版。每行使用一个完整文字样式，不支持行内混合字重、任意定位、条件表达式或 CSS。
+
+```json
+"work": {
+  "date": "inline",
+  "entryHeader": [
+    { "role": "itemTitle", "parts": [{ "field": "position" }], "spaceAfterPt": 3 },
+    { "role": "body", "parts": [{ "field": "name" }],
+      "style": { "family": "asset:company-italic", "weight": 400, "fontStyle": "italic", "sizePt": 12 } },
+    { "role": "meta", "parts": [{ "field": "dateRange" }], "style": { "sizePt": 10, "color": "#666666" } }
+  ]
+}
+```
+
+示例中的字面须在同一主题包中真实声明、加载和校验，不能仅复制引用名。每个页头含 1–8 行，每行含 1–6 个 `parts`；同一字段在整个页头中最多出现一次。`role` 必填，可为 `itemTitle/body/meta/sideDate`，只选择继承的文字角色，不决定空间位置。`style` 使用与 `typography.*` 相同的有界字段，逐属性继承所选角色；包括真实字体、正斜体、固定颜色、字距和大小写。资源检查及导出字体收集包括只在页头使用的字面。
+
+| 模块 | 可读取的字段 |
+| --- | --- |
+| `work` | `position`, `name`, `dateRange`, `location` |
+| `volunteer` | `position`, `organization`, `dateRange` |
+| `education` | `institution`, `studyType`, `area`, `score`, `dateRange` |
+| `awards` | `title`, `awarder`, `date` |
+| `certificates` | `name`, `issuer`, `date` |
+| `publications` | `name`, `publisher`, `releaseDate` |
+| `projects` | `name`, `dateRange`, `entity`, `type`, `roles`, `keywords` |
+| `references` | `name` |
+
+不接受 `basics/skills/languages/interests` 的页头，也不接受跨模块、私有扩展或描述字段引用。`dateRange` 当前使用应用已有的区间文字；原始单日期字段不改变。`roles/keywords` 使用既有语义投影的数组连接规则。主题作者应显式列出原版需要展示的页头字段：未列出的页头字段不在该主题中自动追加，但仍保存在原 JSON、表单和文本/Markdown 中；这不是删除内容的权限。主题切换不重排模块、条目或数组。
+
+`prefix/suffix` 均可省略，默认空串；各最多 32 个 Unicode 字符，不含尖括号、控制字符或换行。字段有非空文字时，输出「前缀＋字段＋后缀」；字段缺失/空值则三者一起省略，不补占位符，也不根据相邻字段自动修正连接词。整行为空时，不占任何高度或间距。`spaceBeforePt/spaceAfterPt` 各为 0–48 pt，默认 0，作用于每个非空行的首尾；相邻间距相加，不使用 CSS margin collapse。字号跨度较大且显式间距不足时，排版器按真实字面度量增加最小净空；不能通过负间距叠字。
+
+预览与 PDF 共用这些行的真实字体测量、自动换行、分页和命中区域；侧栏字号按区域比例缩放一次，仍不低于 7 pt。模块标题跟随首个实际可见行，而非空条目占位。DOCX 写入可编辑原生段落及同样的段前/段后间距，首行另加该条目的既有外间距；阅读器独立重排，不承诺像素相同。个人正文字体覆盖也作用于显式行样式并采用真实正体；个人颜色按所选 `role` 的 ink/muted 分组覆盖固定色，重置恢复主题，不能把这些操作写回简历或主题。
+
+目前 `entryHeader` 只接受省略或显式 `date: inline`，与左右侧置日期组合时报错；`sideDate` 角色不绕过这一限制。需要「左侧两行＋右侧日期」、出版物混合字面/悬挂缩进、技能定宽标签等原版构件时，必须另行实现并验收，不能借本字段假称已完整迁移。
+
 ### 社区内置包与署名
 
 社区内置包与用户本地主题使用相同的一级目录结构：`<id>/theme.json`、其字体、`LICENSE.txt`、字体许可和 `NOTICE.txt`。主题元数据保留可证实的上游 URL、固定版本、作者和原协议；NOTICE 说明改编及未保留的细节，不暗示原作者背书。软件许可不替换主题或字体的独立协议。CC BY-NC-SA 4.0 等有限制的内容必须保留署名、非商业与相同方式共享要求，并在主动打开的主题说明中明确展示，不使用常驻列表提示。
@@ -143,7 +180,7 @@
 | `headerRegion` | `page`；可为 `main` 或 `sidebar`，放置姓名、职业及随页眉的联系方式 |
 | `summaryRegion` | `page`；可为 `main` 或 `sidebar`，只放置摘要；`header` 表示跟随身份，位于联系方式之后、页眉分隔线之前 |
 | `contactRegion` | `header`，跟随身份；可为 `main` 或 `sidebar`，将联系方式独立放入指定栏，且不在身份中重复 |
-| `sidebarTypographyScale` | `1`，范围 0.7–1.2；仅缩放侧栏五种字号，最终不低于 7 pt，不改变字体、字重、行高比例或源文件 |
+| `sidebarTypographyScale` | `1`，范围 0.7–1.2；仅缩放侧栏全部文字角色及条目页头行的字号，最终不低于 7 pt，不改变字体、字重、行高比例或源文件 |
 
 区域内部的固定顺序为身份、独立联系方式、摘要、该区域已有标准模块；空摘要/联系方式不生成占位。每份内容仅渲染一次。`header` 的对齐只作用于身份及随身份的联系方式；独立联系方式左对齐，遵守 `contact` 换行方式。`header: split` 只有联系方式跟随身份且两侧都有内容时才分列。全宽区域始终先于两栏排版，不受 JSON 字段出现位置影响。基础信息落在两栏时，鼠标命中范围分别属于各栏，不合并成覆盖栏间空白的区域；任一位置仍编辑同一份干净 JSON 的 `basics`。
 

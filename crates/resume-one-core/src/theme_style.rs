@@ -253,6 +253,7 @@ pub struct ThemeStyle {
     pub column_gap_mm: f32,
     pub sidebar_modules: Vec<String>,
     pub section_titles: BTreeMap<String, String>,
+    pub(crate) entry_headers: BTreeMap<String, Vec<crate::entry_header::HeaderLine>>,
     pub sections: BTreeMap<String, SectionStyle>,
 }
 
@@ -299,7 +300,7 @@ fn text_style(
     }
 }
 
-fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
+pub(crate) fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
     let Some(value) = value else {
         return base.clone();
     };
@@ -324,6 +325,26 @@ fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
 }
 
 impl ThemeStyle {
+    pub fn all_text_styles(&self) -> impl Iterator<Item = &TextStyle> {
+        [
+            &self.typography.body,
+            &self.typography.item_title,
+            &self.typography.name,
+            &self.typography.section_title,
+            &self.typography.meta,
+            &self.typography.label,
+            &self.typography.summary,
+            &self.typography.side_date,
+        ]
+        .into_iter()
+        .chain(
+            self.entry_headers
+                .values()
+                .flatten()
+                .map(|line| &line.style),
+        )
+    }
+
     pub fn card_paper(&self) -> Rgb {
         let tinted = self.colors.paper.mix(self.colors.accent, 0.035);
         if [self.colors.ink, self.colors.muted, self.colors.accent]
@@ -380,6 +401,9 @@ impl ThemeStyle {
         style.page.margins.right =
             self.page.width_mm - self.page.margins.left - offset - width + inset;
         if sidebar {
+            for line in style.entry_headers.values_mut().flatten() {
+                line.style.size_pt = (line.style.size_pt * self.sidebar_typography_scale).max(7.0);
+            }
             for role in [
                 &mut style.typography.body,
                 &mut style.typography.item_title,
@@ -560,6 +584,7 @@ impl ThemeStyle {
                 .filter(|(_, region)| region.as_str() == Some("sidebar"))
                 .map(|(id, _)| id.clone())
                 .collect(),
+            entry_headers: BTreeMap::new(),
             section_titles: manifest
                 .get("sections")
                 .and_then(Value::as_object)
@@ -624,6 +649,19 @@ impl ThemeStyle {
                 .and_then(|id| theme.asset_fonts.get(id))
                 .copied();
         }
+        style.entry_headers = manifest["sections"]
+            .as_object()
+            .into_iter()
+            .flatten()
+            .filter_map(|(id, section)| {
+                section.get("entryHeader").map(|value| {
+                    (
+                        id.clone(),
+                        crate::entry_header::parse_lines(value, &style, theme),
+                    )
+                })
+            })
+            .collect();
         style
     }
 

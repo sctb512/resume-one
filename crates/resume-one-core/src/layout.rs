@@ -832,16 +832,7 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
             "主题字体资源尚未验证加载；须从主题目录加载，不能只解析清单后静默替换字体".into(),
         );
     }
-    for text_style in [
-        &style.typography.body,
-        &style.typography.item_title,
-        &style.typography.name,
-        &style.typography.section_title,
-        &style.typography.meta,
-        &style.typography.label,
-        &style.typography.summary,
-        &style.typography.side_date,
-    ] {
+    for text_style in style.all_text_styles() {
         font_kind(text_style)?;
     }
     Ok(())
@@ -909,7 +900,22 @@ fn heading_height(page: &PageWriter<'_>, style: &ThemeStyle, id: &str, language:
                 * style.typography.side_date.size_pt
         } else {
             0.0
-        });
+        })
+        .max(
+            style
+                .entry_headers
+                .get(id)
+                .into_iter()
+                .flatten()
+                .map(|line| {
+                    font_kind(&line.style)
+                        .expect("theme checked")
+                        .vertical_metrics()
+                        .0
+                        * line.style.size_pt
+                })
+                .fold(0.0, f32::max),
+        );
     if style.section(id).heading == SectionHeading::Plain {
         if style.has_sidebar() {
             return (extra_lines + 1.0) * leading + following_ascent + 6.0;
@@ -1049,7 +1055,11 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let meta = &style.typography.meta;
     let section = style.section(section_id);
     let mut height = section.item_gap_pt();
-    if section.date != DatePlacement::Inline
+    if let Some(rows) = crate::entry_header::rows(item, section_id, style) {
+        for row in rows {
+            height += row.before + wrapped_height(page, &row.text, row.style, 0.0) + row.after;
+        }
+    } else if section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
         let date_style = &style.typography.side_date;
@@ -1068,7 +1078,9 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     } else if !item.heading.is_empty() {
         height += wrapped_height(page, &item.heading, heading, 0.0);
     }
-    let details = if section.date != DatePlacement::Inline && item.date().is_some() {
+    let details = if style.entry_headers.contains_key(section_id) {
+        String::new()
+    } else if section.date != DatePlacement::Inline && item.date().is_some() {
         item.other_details().join("   ·   ")
     } else {
         item.details.join("   ·   ")
@@ -1106,7 +1118,11 @@ fn item_start_height(
     let meta = &style.typography.meta;
     let leading = |s: &TextStyle| s.size_pt * s.line_height;
     let visible = |s: &str| !s.trim().is_empty();
-    let first = if section.date != DatePlacement::Inline
+    let custom = crate::entry_header::rows(item, id, style);
+    let first = if let Some(row) = custom.as_ref().and_then(|rows| rows.first()) {
+        row.before + leading(row.style)
+    } else if custom.is_none()
+        && section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
         let date_style = &style.typography.side_date;
@@ -1118,13 +1134,13 @@ fn item_start_height(
         } else {
             leading(date_style)
         }
-    } else if visible(&item.heading) {
+    } else if custom.is_none() && visible(&item.heading) {
         if section.items == crate::theme_style::ItemLayout::Chips && id == "languages" {
             leading(meta) + 10.0
         } else {
             leading(heading)
         }
-    } else if item.details.iter().any(|s| visible(s)) {
+    } else if custom.is_none() && item.details.iter().any(|s| visible(s)) {
         leading(meta)
     } else if item.paragraphs.iter().any(|s| visible(s)) {
         section.paragraph_gap_pt() + leading(body)
@@ -1360,7 +1376,13 @@ fn layout_sections<'a>(
                 style,
                 first_visible.is_some_and(|first| index <= first),
             );
-            if section.date != DatePlacement::Inline
+            if let Some(rows) = crate::entry_header::rows(item, section_content.id, style) {
+                for row in rows {
+                    page.gap(row.before);
+                    page.wrapped(&row.text, row.style, row.color, 0.0);
+                    page.gap(row.after);
+                }
+            } else if section.date != DatePlacement::Inline
                 && let Some(date) = item.date()
             {
                 page.side_dated_heading(&item.heading, date, section.date, style);
@@ -1372,7 +1394,9 @@ fn layout_sections<'a>(
             } else if !item.heading.is_empty() {
                 page.wrapped(&item.heading, item_title, ink, 0.0);
             }
-            let details = if section.date != DatePlacement::Inline && item.date().is_some() {
+            let details = if style.entry_headers.contains_key(section_content.id) {
+                String::new()
+            } else if section.date != DatePlacement::Inline && item.date().is_some() {
                 item.other_details().join("   ·   ")
             } else {
                 item.details.join("   ·   ")
@@ -1438,6 +1462,13 @@ fn sidebar_layout(
         &style.typography.side_date,
     ]
     .into_iter()
+    .chain(
+        style
+            .entry_headers
+            .values()
+            .flatten()
+            .map(|line| &line.style),
+    )
     .map(|role| {
         font_kind(role)
             .expect("theme checked")
@@ -1614,6 +1645,127 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn entry_headers_have_independent_lines_styles_and_stable_item_targets_in_every_lane() {
+        let doc = parse_resume(br#"{"work":[{"position":"POSITION","name":"ORGANIZATION","startDate":"2020","location":"HIDDEN_LOCATION","summary":"BODY","highlights":["BULLET"],"url":"https://example.com"}]}"#).unwrap();
+        let source = doc.value.clone();
+        let content = project(&doc);
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            for frame in ["stack", "cards", "timeline"] {
+                let mut theme =
+                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                        .unwrap();
+                theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                if preset.starts_with("sidebar") {
+                    theme.normalized["composition"]["placements"] =
+                        serde_json::json!({"work":"sidebar"});
+                }
+                theme.normalized["sections"]["work"] = serde_json::json!({"items":frame,"date":"inline","entryHeader":[
+                    {"role":"itemTitle","parts":[{"field":"position"}],"style":{"sizePt":14,"lineHeight":1.4,"color":"#123456"},"spaceAfterPt":3},
+                    {"role":"body","parts":[{"field":"name"}],"style":{"family":"cjk-serif","weight":600,"sizePt":10,"color":"#345678"},"spaceBeforePt":2,"spaceAfterPt":4},
+                    {"role":"meta","parts":[{"field":"dateRange"}],"style":{"color":"#56789A"}}
+                ]});
+                let theme = crate::parse_theme(theme.normalized.to_string().as_bytes()).unwrap();
+                let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                let text = |marker: &str| {
+                    result
+                        .pages
+                        .iter()
+                        .flatten()
+                        .find_map(|element| {
+                            if let LayoutElement::Text(text) = element
+                                && text.text == marker
+                            {
+                                Some(text)
+                            } else {
+                                None
+                            }
+                        })
+                        .unwrap()
+                };
+                let first = text("POSITION");
+                let second = text("ORGANIZATION");
+                assert_eq!(first.color.hex(), "#123456");
+                assert_eq!(second.color.hex(), "#345678");
+                assert_eq!(second.font, FontKind::Serif);
+                assert!(
+                    (first.baseline_y_pt - second.baseline_y_pt - (14.0 * 1.4 + 3.0 + 2.0)).abs()
+                        < 0.01
+                );
+                for marker in [
+                    "POSITION",
+                    "ORGANIZATION",
+                    "2020",
+                    "BODY",
+                    "https://example.com",
+                ] {
+                    assert_eq!(
+                        text(marker).target,
+                        Some(LayoutTarget {
+                            section: "work",
+                            index: Some(0)
+                        })
+                    );
+                    assert!(text(marker).target_lane.is_some());
+                }
+                assert!(!result.pages.iter().flatten().any(|el| matches!(el,LayoutElement::Text(t) if t.text.contains("HIDDEN_LOCATION") || t.text.contains("POSITION ·"))));
+                assert_eq!(doc.value, source);
+            }
+        }
+    }
+
+    #[test]
+    fn oversized_entry_header_keeps_first_visible_line_with_heading_and_preserves_empty_indices() {
+        let position = format!("POSITION_START {}", "long position words ".repeat(120));
+        let source = serde_json::json!({"work":[{}, {"position":position,"name":"ORGANIZATION_END","summary":"BODY_END"}]});
+        let doc = parse_resume(source.to_string().as_bytes()).unwrap();
+        let content = project(&doc);
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
+            {"role":"itemTitle","parts":[{"field":"position"}],"style":{"color":"#123456"}},
+            {"role":"body","parts":[{"field":"name"}]}
+        ]});
+        let mut style = ThemeStyle::from_manifest(&theme);
+        style.page.height_mm = 95.0;
+        style.page.margins.top = 6.0;
+        style.page.margins.bottom = 6.0;
+        let result = layout_with_style(&content, Language::En, &style).unwrap();
+        assert!(result.pages.len() > 2);
+        let first = &result.pages[0];
+        assert!(
+            first
+                .iter()
+                .any(|el| matches!(el,LayoutElement::Text(t) if t.text=="Work"))
+        );
+        assert!(first.iter().any(|el| matches!(el,LayoutElement::Text(t) if t.text.contains("POSITION_START") && t.target==Some(LayoutTarget{section:"work",index:Some(1)}))));
+        assert!(first.iter().any(|el| matches!(el,LayoutElement::Anchor(a) if a.target==LayoutTarget{section:"work",index:Some(0)})));
+        let joined: String = result
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|el| {
+                if let LayoutElement::Text(t) = el
+                    && t.color.hex() == "#123456"
+                {
+                    Some(t.text.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let compact = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
+        assert_eq!(compact(&joined), compact(&position));
+        for marker in ["ORGANIZATION_END", "BODY_END"] {
+            assert!(result.pages.iter().flatten().any(|el| matches!(el,LayoutElement::Text(t) if t.text==marker && t.target==Some(LayoutTarget{section:"work",index:Some(1)}))))
+        }
+    }
 
     #[test]
     fn authored_titles_wrap_in_all_lanes_without_changing_semantic_ids_or_source() {

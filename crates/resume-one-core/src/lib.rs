@@ -17,6 +17,7 @@ pub mod content_edit;
 pub mod docx;
 pub mod draft;
 pub mod editor;
+mod entry_header;
 pub mod export;
 pub mod fonts;
 pub mod layout;
@@ -414,6 +415,59 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
     }
     if let Some(sections) = theme["sections"].as_object() {
         for (module, style) in sections {
+            if let Some(lines) = style["entryHeader"].as_array() {
+                if matches!(module.as_str(), "skills" | "languages" | "interests") {
+                    issues.push(diagnostic(
+                        "ENTRY_HEADER_UNSUPPORTED",
+                        format!("/sections/{module}/entryHeader"),
+                        "此模块的标签/网格需要独立的模板能力，当前不支持 entryHeader",
+                    ));
+                }
+                if style["date"].as_str().is_some_and(|date| date != "inline") {
+                    issues.push(diagnostic(
+                        "ENTRY_HEADER_DATE_CONFLICT",
+                        format!("/sections/{module}/date"),
+                        "entryHeader 自行安排日期，不能同时使用 left/right 日期",
+                    ));
+                }
+                let mut used_fields = HashSet::new();
+                for (line_index, line) in lines.iter().enumerate() {
+                    let font_pointer =
+                        format!("/sections/{module}/entryHeader/{line_index}/style/family");
+                    if let Some(id) = line["style"]["family"]
+                        .as_str()
+                        .and_then(|family| family.strip_prefix("asset:"))
+                        && !font_ids.contains(id)
+                    {
+                        issues.push(diagnostic(
+                            "UNKNOWN_FONT_ASSET",
+                            font_pointer,
+                            "字体引用没有对应的本地资源",
+                        ));
+                    }
+                    for (part_index, part) in
+                        line["parts"].as_array().into_iter().flatten().enumerate()
+                    {
+                        let field = part["field"].as_str().unwrap_or_default();
+                        let pointer = format!(
+                            "/sections/{module}/entryHeader/{line_index}/parts/{part_index}/field"
+                        );
+                        if !semantic::header_field_names(module).contains(&field) {
+                            issues.push(diagnostic(
+                                "ENTRY_HEADER_FIELD",
+                                &pointer,
+                                "不是此标准模块的可用条目页眉字段",
+                            ));
+                        } else if !used_fields.insert(field) {
+                            issues.push(diagnostic(
+                                "ENTRY_HEADER_DUPLICATE_FIELD",
+                                &pointer,
+                                "同一条目页眉不能重复显示同一字段",
+                            ));
+                        }
+                    }
+                }
+            }
             match style["items"].as_str() {
                 Some("timeline")
                     if !matches!(
@@ -596,6 +650,39 @@ mod tests {
             theme["sections"]["work"]["headingAlign"] = invalid;
             assert!(parse_theme(theme.to_string().as_bytes()).is_err());
         }
+    }
+
+    #[test]
+    fn entry_header_is_bounded_section_specific_and_code_free() {
+        let mut source: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        source["sections"]["work"]["date"] = json!("inline");
+        let valid = json!([{"role":"itemTitle","parts":[{"field":"position"}]},{"role":"meta","parts":[{"field":"name","prefix":"At ","suffix":"."}],"style":{"sizePt":11},"spaceBeforePt":1.5}]);
+        source["sections"]["work"]["entryHeader"] = valid.clone();
+        assert!(parse_theme(source.to_string().as_bytes()).is_ok());
+        for invalid in [
+            json!([]),
+            json!([{"role":"name","parts":[{"field":"name"}]}]),
+            json!([{"role":"body","parts":[]}]),
+            json!([{"role":"body","parts":[{"field":"position","prefix":"<b>"}]}]),
+            json!([{"role":"body","parts":[{"field":"position","prefix":"\n"}]}]),
+            json!([{"role":"body","parts":[{"field":"privateExtension"}]}]),
+            json!([{"role":"body","parts":[{"field":"institution"}]}]),
+            json!([{"role":"body","parts":[{"field":"name"},{"field":"name"}]}]),
+            json!([{"role":"body","parts":[{"field":"position"}],"spaceAfterPt":-1}]),
+            json!([{"role":"body","parts":[{"field":"position"}],"spaceBeforePt":49}]),
+            json!([{"role":"body","parts":[{"field":"position"}],"style":{"family":"asset:missing"}}]),
+            json!([{"role":"body","parts":[{"field":"position"}],"html":"x"}]),
+        ] {
+            source["sections"]["work"]["entryHeader"] = invalid;
+            assert!(parse_theme(source.to_string().as_bytes()).is_err());
+        }
+        source["sections"]["work"]["entryHeader"] = valid.clone();
+        source["sections"]["work"]["date"] = json!("right");
+        assert!(parse_theme(source.to_string().as_bytes()).is_err());
+        source["sections"]["work"]["date"] = json!("inline");
+        source["sections"]["skills"]["entryHeader"] =
+            json!([{"role":"body","parts":[{"field":"name"}]}]);
+        assert!(parse_theme(source.to_string().as_bytes()).is_err());
     }
 
     #[test]

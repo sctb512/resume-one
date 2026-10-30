@@ -52,6 +52,7 @@ pub(super) struct ItemFrame {
     first_page: usize,
     first_op: usize,
     first_top: f32,
+    first_ascent: f32,
 }
 
 impl ItemFrame {
@@ -108,6 +109,23 @@ impl ItemFrame {
                 0
             },
             first_top: page.y,
+            first_ascent: crate::entry_header::rows(item, id, style)
+                .and_then(|rows| {
+                    rows.first().map(|row| {
+                        font_kind(row.style)
+                            .expect("checked font")
+                            .vertical_metrics()
+                            .0
+                            * row.style.size_pt
+                    })
+                })
+                .unwrap_or_else(|| {
+                    font_kind(&style.typography.item_title)
+                        .expect("checked font")
+                        .vertical_metrics()
+                        .0
+                        * style.typography.item_title.size_pt
+                }),
         }
     }
 
@@ -117,11 +135,7 @@ impl ItemFrame {
         if !matches!(self.kind, ItemLayout::Cards | ItemLayout::Timeline) {
             return;
         }
-        let ascent = font_kind(&style.typography.item_title)
-            .expect("checked font")
-            .vertical_metrics()
-            .0
-            * style.typography.item_title.size_pt;
+        let ascent = self.first_ascent;
         let last = page.pages.len();
         for index in self.first_page..=last {
             let top = if index == self.first_page {

@@ -153,6 +153,27 @@ impl Appearance {
                     properties.remove("color");
                 }
             }
+            if let Some(sections) = effective
+                .normalized
+                .get_mut("sections")
+                .and_then(Value::as_object_mut)
+            {
+                for section in sections.values_mut() {
+                    for line in section
+                        .get_mut("entryHeader")
+                        .and_then(Value::as_array_mut)
+                        .into_iter()
+                        .flatten()
+                    {
+                        if roles.contains(&line["role"].as_str().unwrap_or("itemTitle"))
+                            && let Some(properties) =
+                                line.get_mut("style").and_then(Value::as_object_mut)
+                        {
+                            properties.remove("color");
+                        }
+                    }
+                }
+            }
         }
         for (font, roles) in [
             (self.body_font.as_ref(), &["body", "meta"][..]),
@@ -192,17 +213,37 @@ impl Appearance {
                     if !effective.normalized["typography"][role].is_object() {
                         continue;
                     }
-                    let weight = effective.normalized["typography"][role]["weight"]
-                        .as_u64()
-                        .unwrap_or(400) as u16;
                     effective.normalized["typography"][role]["family"] = json!(font.family());
                     effective.normalized["typography"][role]["fontStyle"] = json!("normal");
-                    effective.normalized["typography"][role]["weight"] =
-                        json!(if matches!(font, FontChoice::Font(_)) {
-                            weight
-                        } else {
-                            font.weight()
-                        });
+                    if !matches!(font, FontChoice::Font(_)) {
+                        effective.normalized["typography"][role]["weight"] = json!(font.weight());
+                    }
+                }
+                if let Some(sections) = effective
+                    .normalized
+                    .get_mut("sections")
+                    .and_then(Value::as_object_mut)
+                {
+                    for section in sections.values_mut() {
+                        for line in section
+                            .get_mut("entryHeader")
+                            .and_then(Value::as_array_mut)
+                            .into_iter()
+                            .flatten()
+                        {
+                            if let Some(properties) =
+                                line.get_mut("style").and_then(Value::as_object_mut)
+                            {
+                                properties.insert("family".into(), json!(font.family()));
+                                properties.insert("fontStyle".into(), json!("normal"));
+                                // Missing weight must continue to inherit the
+                                // selected role; a color-only row is not 400.
+                                if !matches!(font, FontChoice::Font(_)) {
+                                    properties.insert("weight".into(), json!(font.weight()));
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

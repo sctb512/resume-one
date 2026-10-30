@@ -1,6 +1,8 @@
 //! Theme-independent semantic projection of the standard JSON Resume sections.
 //! Unknown extension fields stay in the source document but are not exported implicitly.
 
+use std::collections::BTreeMap;
+
 use serde_json::Value;
 
 use crate::resume::ResumeDocument;
@@ -23,6 +25,8 @@ pub struct Section {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Item {
     pub heading: String,
+    /// Explicit standard header fields, separate from the legacy combined heading/details.
+    pub header_fields: BTreeMap<&'static str, String>,
     pub details: Vec<String>,
     /// Position of the date inside `details`; inline output keeps its original order.
     pub date_detail_index: Option<usize>,
@@ -44,6 +48,24 @@ const IDS: [&str; 11] = [
     "references",
     "projects",
 ];
+
+/// Allowed declarative entry-header fields for a standard section.
+/// Paragraphs, bullets, URLs and extension fields are never implicit header fields.
+pub fn header_field_names(id: &str) -> &'static [&'static str] {
+    match id {
+        "work" => &["position", "name", "dateRange", "location"],
+        "volunteer" => &["position", "organization", "dateRange"],
+        "education" => &["institution", "studyType", "area", "score", "dateRange"],
+        "awards" => &["title", "awarder", "date"],
+        "certificates" => &["name", "issuer", "date"],
+        "publications" => &["name", "publisher", "releaseDate"],
+        "skills" => &["name", "level"],
+        "languages" => &["language", "fluency"],
+        "interests" | "references" => &["name"],
+        "projects" => &["name", "dateRange", "entity", "type", "roles", "keywords"],
+        _ => &[],
+    }
+}
 
 fn string<'a>(item: &'a Value, key: &str) -> &'a str {
     item.get(key).and_then(Value::as_str).unwrap_or("").trim()
@@ -109,6 +131,20 @@ fn period(item: &Value, start: &str, end: &str) -> String {
         ("", end) => end.to_owned(),
         (start, end) => format!("{start} – {end}"),
     }
+}
+
+fn header_fields(id: &str, source: &Value) -> BTreeMap<&'static str, String> {
+    header_field_names(id)
+        .iter()
+        .filter_map(|&field| {
+            let value = match field {
+                "dateRange" => period(source, "startDate", "endDate"),
+                "roles" | "keywords" => strings(source, field).join(", "),
+                _ => string(source, field).to_owned(),
+            };
+            (!value.is_empty()).then_some((field, value))
+        })
+        .collect()
 }
 
 fn map_item(id: &str, source: &Value) -> Item {
@@ -208,6 +244,7 @@ fn map_item(id: &str, source: &Value) -> Item {
     let url = string(source, "url");
     Item {
         heading,
+        header_fields: header_fields(id, source),
         details,
         date_detail_index,
         paragraphs,
@@ -276,6 +313,257 @@ pub fn project(document: &ResumeDocument) -> ResumeContent {
 mod tests {
     use super::*;
     use crate::resume::parse_resume;
+
+    #[test]
+    fn header_fields_map_every_standard_module_without_changing_source_or_text_exports() {
+        let source = br#"{
+          "work":[{"position":" Lead ","name":"Work Org","startDate":"2020-01","endDate":"2022-12","location":" Remote ","description":"Work description","summary":"Work summary","highlights":["Work bullet"],"url":"https://example.com/work","customHeader":"private work extension"}],
+          "volunteer":[{"position":"Mentor","organization":"Volunteer Org","startDate":"2021-01","endDate":"2023-12","summary":"Volunteer summary","highlights":["Volunteer bullet"],"url":"https://example.com/volunteer"}],
+          "education":[{"institution":"University","studyType":"MSc","area":"Computing","score":"4.0","startDate":"2015-09","endDate":"2019-06","courses":["Algorithms"],"url":"https://example.com/education"}],
+          "awards":[{"title":"Prize","awarder":"Award Org","date":"2024-01","summary":"Award summary"}],
+          "certificates":[{"name":"Certificate","issuer":"Issuer","date":"2024-02","url":"https://example.com/certificate"}],
+          "publications":[{"name":"Article","publisher":"Publisher","releaseDate":"2024-03","summary":"Publication summary","url":"https://example.com/publication"}],
+          "skills":[{"name":"Rust","level":"Advanced","keywords":["Ownership","Testing"]}],
+          "languages":[{"language":"English","fluency":"Native"}],
+          "interests":[{"name":"Design","keywords":["Typography"]}],
+          "references":[{"name":"Reviewer","reference":"Reference paragraph"}],
+          "projects":[{"name":"Project","startDate":"2022-01","endDate":"2024-12","entity":"Project Org","type":"Library","roles":[" Design ","","Delivery","  "],"keywords":[" Rust ","","CLI","  "],"description":"Project description","highlights":["Project bullet"],"url":"https://example.com/project","customHeader":"private project extension"}],
+          "custom":{"name":"Private module"}
+        }"#;
+        let doc = parse_resume(source).unwrap();
+        let original_value = doc.value.clone();
+        let original_revision = doc.revision.clone();
+        let content = project(&doc);
+        let expected: &[(&str, &[(&str, &str)])] = &[
+            (
+                "work",
+                &[
+                    ("position", "Lead"),
+                    ("name", "Work Org"),
+                    ("dateRange", "2020-01 – 2022-12"),
+                    ("location", "Remote"),
+                ],
+            ),
+            (
+                "volunteer",
+                &[
+                    ("position", "Mentor"),
+                    ("organization", "Volunteer Org"),
+                    ("dateRange", "2021-01 – 2023-12"),
+                ],
+            ),
+            (
+                "education",
+                &[
+                    ("institution", "University"),
+                    ("studyType", "MSc"),
+                    ("area", "Computing"),
+                    ("score", "4.0"),
+                    ("dateRange", "2015-09 – 2019-06"),
+                ],
+            ),
+            (
+                "awards",
+                &[
+                    ("title", "Prize"),
+                    ("awarder", "Award Org"),
+                    ("date", "2024-01"),
+                ],
+            ),
+            (
+                "certificates",
+                &[
+                    ("name", "Certificate"),
+                    ("issuer", "Issuer"),
+                    ("date", "2024-02"),
+                ],
+            ),
+            (
+                "publications",
+                &[
+                    ("name", "Article"),
+                    ("publisher", "Publisher"),
+                    ("releaseDate", "2024-03"),
+                ],
+            ),
+            ("skills", &[("name", "Rust"), ("level", "Advanced")]),
+            (
+                "languages",
+                &[("language", "English"), ("fluency", "Native")],
+            ),
+            ("interests", &[("name", "Design")]),
+            ("references", &[("name", "Reviewer")]),
+            (
+                "projects",
+                &[
+                    ("name", "Project"),
+                    ("dateRange", "2022-01 – 2024-12"),
+                    ("entity", "Project Org"),
+                    ("type", "Library"),
+                    ("roles", "Design, Delivery"),
+                    ("keywords", "Rust, CLI"),
+                ],
+            ),
+        ];
+        assert_eq!(content.sections.len(), expected.len());
+        for (section, (id, fields)) in content.sections.iter().zip(expected) {
+            assert_eq!(section.id, *id);
+            assert_eq!(section.items.len(), 1);
+            assert_eq!(
+                header_field_names(id),
+                fields.iter().map(|(name, _)| *name).collect::<Vec<_>>(),
+                "{id} validation whitelist"
+            );
+            let item = &section.items[0];
+            let expected_map: BTreeMap<_, _> = fields
+                .iter()
+                .map(|(key, value)| (*key, value.to_string()))
+                .collect();
+            assert_eq!(item.header_fields, expected_map, "{id}");
+            let date = fields.iter().find_map(|(key, value)| {
+                matches!(*key, "dateRange" | "date" | "releaseDate").then_some(*value)
+            });
+            assert_eq!(item.date(), date, "{id} keeps the existing date projection");
+        }
+        // The new map is additional presentation input, not replacement text.
+        assert_eq!(content.sections[0].items[0].heading, "Lead · Work Org");
+        assert_eq!(content.sections[0].items[0].other_details(), ["Remote"]);
+        assert_eq!(
+            content.sections[0].items[0].paragraphs,
+            ["Work description", "Work summary"]
+        );
+        assert_eq!(content.sections[0].items[0].bullets, ["Work bullet"]);
+        assert_eq!(
+            content.sections[0].items[0].url.as_deref(),
+            Some("https://example.com/work")
+        );
+        assert_eq!(
+            content.sections[2].items[0].heading,
+            "MSc · Computing · University"
+        );
+        assert_eq!(
+            content.sections[10].items[0].details,
+            [
+                "2022-01 – 2024-12",
+                "Project Org",
+                "Library",
+                "Design, Delivery",
+                "Rust, CLI"
+            ]
+        );
+        let mut legacy = content.clone();
+        for section in &mut legacy.sections {
+            for item in &mut section.items {
+                item.header_fields.clear();
+            }
+        }
+        for language in [crate::render::Language::En, crate::render::Language::Zh] {
+            assert_eq!(
+                crate::render::plain_text(&content, language),
+                crate::render::plain_text(&legacy, language)
+            );
+            assert_eq!(
+                crate::render::markdown(&content, language),
+                crate::render::markdown(&legacy, language)
+            );
+        }
+        assert_eq!(doc.source, source);
+        assert_eq!(doc.value, original_value);
+        assert_eq!(doc.revision, original_revision);
+    }
+
+    #[test]
+    fn header_fields_omit_empty_and_non_string_values_and_never_copy_extensions() {
+        for id in IDS {
+            for empty in [
+                serde_json::json!(""),
+                serde_json::json!(" \t\n "),
+                Value::Null,
+                serde_json::json!(false),
+                serde_json::json!(42),
+                serde_json::json!({"nested": "not a scalar header"}),
+                serde_json::json!(["not a scalar header"]),
+            ] {
+                let mut source = serde_json::json!({
+                    "summary":"Summary is not a header",
+                    "description":"Description is not a header",
+                    "reference":"Reference is not a header",
+                    "highlights":["Bullet is not a header"],
+                    "courses":["Course is not a header"],
+                    "url":"https://example.com/not-a-header",
+                    "customHeader":"Unknown extension is not a header",
+                    "header_fields":{"name":"Do not trust a supplied map"},
+                    "dateRange":"Do not trust a supplied computed field",
+                    "roles":["", "  ", null, false, 42],
+                    "keywords":["", "  ", null, false, 42]
+                });
+                for field in header_field_names(id) {
+                    match *field {
+                        "dateRange" => {
+                            source["startDate"] = empty.clone();
+                            source["endDate"] = empty.clone();
+                        }
+                        "roles" | "keywords" => {}
+                        _ => source[*field] = empty.clone(),
+                    }
+                }
+                let original = source.clone();
+                assert!(
+                    map_item(id, &source).header_fields.is_empty(),
+                    "{id}: {empty}"
+                );
+                assert_eq!(source, original);
+            }
+        }
+        for id in ["", "basics", "custom", "Work", "work.summary"] {
+            assert!(header_field_names(id).is_empty(), "{id}");
+            assert!(
+                map_item(
+                    id,
+                    &serde_json::json!({"name":"Private", "title":"Private"})
+                )
+                .header_fields
+                .is_empty()
+            );
+        }
+    }
+
+    #[test]
+    fn header_date_ranges_reuse_period_and_project_arrays_reuse_existing_joining() {
+        for id in ["work", "volunteer", "education", "projects"] {
+            for (start, end, expected) in [
+                ("", "", None),
+                (" 2020-01 ", "", Some("2020-01")),
+                ("", " 2022-12 ", Some("2022-12")),
+                (" 2020-01 ", " 2022-12 ", Some("2020-01 – 2022-12")),
+            ] {
+                let source = serde_json::json!({
+                    "startDate":start, "endDate":end, "dateRange":"Ignored extension"
+                });
+                let item = map_item(id, &source);
+                assert_eq!(
+                    item.header_fields.get("dateRange").map(String::as_str),
+                    expected
+                );
+                assert_eq!(item.date(), expected);
+                assert!(!item.header_fields.contains_key("startDate"));
+                assert!(!item.header_fields.contains_key("endDate"));
+            }
+        }
+        let source = serde_json::json!({
+            "roles":[" Lead ", "", null, 12, " Reviewer ", "  "],
+            "keywords":[" Rust ", false, "", " CLI "]
+        });
+        let item = map_item("projects", &source);
+        assert_eq!(item.header_fields["roles"], "Lead, Reviewer");
+        assert_eq!(item.header_fields["keywords"], "Rust, CLI");
+        assert_eq!(item.details, ["Lead, Reviewer", "Rust, CLI"]);
+        for id in IDS.into_iter().filter(|id| *id != "projects") {
+            let item = map_item(id, &source);
+            assert!(!item.header_fields.contains_key("roles"), "{id}");
+            assert!(!item.header_fields.contains_key("keywords"), "{id}");
+        }
+    }
 
     #[test]
     fn projects_every_standard_section_and_preserves_source() {

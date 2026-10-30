@@ -1088,6 +1088,331 @@ mod tests {
     use gpui_component::WindowExt as _;
     use std::{cell::RefCell, rc::Rc};
 
+    fn assert_real_italic_picker_layout(app: &ResumeOne) -> resume_one_core::layout::ResumeLayout {
+        use resume_one_core::layout::{FontKind, LayoutElement};
+
+        let appearance = app.model.display_appearance();
+        let manifest = &app.model.applied_theme().manifest;
+        let effective = appearance.apply(manifest);
+        let source_font = FontKind::Local(manifest.font_asset_ids().next().unwrap());
+        assert!(source_font.is_italic());
+        for (roles, choice) in [
+            (
+                &["body", "meta", "itemTitle", "label", "summary", "sideDate"][..],
+                &appearance.body_font,
+            ),
+            (&["name", "sectionTitle"][..], &appearance.heading_font),
+        ] {
+            for role in roles {
+                let style = &effective.normalized["typography"][role];
+                if let Some(choice) = choice {
+                    assert_eq!(style["family"], choice.family(), "{role}");
+                    assert_eq!(
+                        style["weight"],
+                        if choice == &FontChoice::Sans {
+                            400
+                        } else {
+                            600
+                        },
+                        "{role}"
+                    );
+                    assert_eq!(style["fontStyle"], "normal", "{role}");
+                } else {
+                    assert_eq!(style, &manifest.normalized["typography"][role], "{role}");
+                }
+            }
+        }
+        // Resolve actual faces, not just family labels. This would fail on an
+        // inherited italic flag for either bundled upright-only family.
+        let layout = resume_one_core::layout::layout_with_theme(
+            &app.model.content,
+            resume_one_core::render::Language::Zh,
+            &effective,
+        )
+        .unwrap();
+        for (text, choice) in [
+            ("Ada", &appearance.heading_font),
+            ("Role", &appearance.body_font),
+            ("Summary", &appearance.body_font),
+            ("Company", &appearance.body_font),
+            ("Body", &appearance.body_font),
+        ] {
+            let expected = match choice {
+                Some(FontChoice::Sans) => FontKind::Sans,
+                Some(FontChoice::Serif) => FontKind::Serif,
+                None => source_font,
+                other => panic!("unexpected fixture choice: {other:?}"),
+            };
+            assert!(
+                layout.pages.iter().flatten().any(|element| {
+                    matches!(element, LayoutElement::Text(line)
+                    if line.text.contains(text) && line.font == expected)
+                }),
+                "{text} must use {expected:?}"
+            );
+            assert_eq!(expected.is_italic(), choice.is_none());
+        }
+        layout
+    }
+
+    #[gpui::test]
+    fn real_italic_font_picker_hover_confirm_reset_and_export_are_isolated(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        let themes = root.path().join("themes");
+        let source_path = root.path().join("resume.json");
+        let source = br#"{"basics":{"name":"Ada","label":"Role","summary":"Summary","email":"m@example.com"},"work":[{"name":"Company","summary":"Body","startDate":"2020-01"}]}"#;
+        std::fs::write(&source_path, source).unwrap();
+        let mut store = ThemeStore::new(settings.clone(), themes.clone()).unwrap();
+        store.save_appearance(Appearance::default()).unwrap();
+        let original_settings = std::fs::read(&settings).unwrap();
+        let builtin_path = themes.join("zhibai.theme.json");
+        let original_builtin = std::fs::read(&builtin_path).unwrap();
+        let font = include_bytes!("../../resume-one-core/tests/fixtures/theme-italic-font.ttf");
+        std::fs::write(root.path().join("italic.ttf"), font).unwrap();
+        let mut value: serde_json::Value = serde_json::from_slice(&original_builtin).unwrap();
+        value["assets"] = serde_json::json!({"fonts":[{
+            "id":"italic-fixture", "path":"italic.ttf", "license":"OFL-1.1",
+            "sha256":"b294f4c5f3de886047ba99bc78854ee2e59dbb2eb47729f0ae8f5526c77fcae2"
+        }]});
+        for role in [
+            "body",
+            "meta",
+            "name",
+            "sectionTitle",
+            "itemTitle",
+            "label",
+            "summary",
+            "sideDate",
+        ] {
+            value["typography"][role]["family"] = serde_json::json!("asset:italic-fixture");
+            value["typography"][role]["weight"] = serde_json::json!(400);
+            value["typography"][role]["fontStyle"] = serde_json::json!("italic");
+        }
+        let theme_path = root.path().join("italic.theme.json");
+        let theme_bytes = serde_json::to_vec(&value).unwrap();
+        std::fs::write(&theme_path, &theme_bytes).unwrap();
+        let manifest =
+            resume_one_core::load_theme(root.path(), std::path::Path::new("italic.theme.json"))
+                .unwrap();
+        let original_manifest = manifest.normalized.clone();
+        let mut model = AppModel::load(Some(&source_path)).unwrap();
+        model.replace_themes(vec![crate::model::BuiltinTheme {
+            style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
+            manifest,
+            path: Some(theme_path.clone()),
+            identity: "fixture:appearance-real-italic".into(),
+        }]);
+        let child = Rc::new(RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let owner = cx.new(|cx| {
+                let mut app = ResumeOne::new(model, cx);
+                app.theme_store = Some(store);
+                app
+            });
+            *output.borrow_mut() = Some(owner.clone());
+            gpui_component::Root::new(owner, window, cx)
+        });
+        let owner = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| owner.update(cx, |app, cx| app.show_appearance(window, cx)));
+        let original_layout = cx.update(|_, cx| assert_real_italic_picker_layout(owner.read(cx)));
+        let geometry = ["resume-paper", "resume-preview", "module-panel"]
+            .map(|selector| (selector, cx.debug_bounds(selector).unwrap()));
+        let original_lane = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+        let assert_geometry = |cx: &mut gpui::VisualTestContext| {
+            for (selector, bounds) in &geometry {
+                // resume-paper and hit targets exist only after the GPUI
+                // preview's own layout/face resolution has succeeded.
+                assert_eq!(cx.debug_bounds(selector).unwrap(), *bounds, "{selector}");
+            }
+            assert!(cx.debug_bounds("preview-basics").is_some());
+            let lane = cx.debug_bounds("preview-hit-work-Some(0)-0").unwrap();
+            assert_eq!(lane.left(), original_lane.left());
+            assert_eq!(lane.size.width, original_lane.size.width);
+        };
+        // TestAppContext has a NoopTextSystem. These are real GPUI pointer,
+        // layout and export-snapshot checks, not native font/screenshot or Word QA.
+        for (heading, trigger) in [
+            (false, "appearance-font-body"),
+            (true, "appearance-font-heading"),
+        ] {
+            let trigger_point = cx.debug_bounds(trigger).unwrap().center();
+            cx.simulate_click(trigger_point, Modifiers::none());
+            for (selector, choice) in [
+                ("appearance-font-choice-1", FontChoice::Sans),
+                ("appearance-font-choice-2", FontChoice::Serif),
+            ] {
+                let row = cx.debug_bounds(selector).unwrap();
+                cx.simulate_mouse_move(row.center(), None, Modifiers::none());
+                cx.update(|_, cx| {
+                    let app = owner.read(cx);
+                    let mut expected = Appearance::default();
+                    if heading {
+                        expected.heading_font = Some(choice);
+                    } else {
+                        expected.body_font = Some(choice);
+                    }
+                    assert_eq!(app.model.display_appearance(), &expected);
+                    assert_eq!(app.model.appearance, Appearance::default());
+                    assert_real_italic_picker_layout(app);
+                });
+                assert_geometry(cx);
+                assert_eq!(std::fs::read(&settings).unwrap(), original_settings);
+                cx.simulate_mouse_move(gpui::point(px(500.), px(30.)), None, Modifiers::none());
+                cx.update(|_, cx| {
+                    let app = owner.read(cx);
+                    assert_eq!(app.model.display_appearance(), &Appearance::default());
+                    assert_eq!(assert_real_italic_picker_layout(app), original_layout);
+                });
+                assert_geometry(cx);
+            }
+            let serif = cx
+                .debug_bounds("appearance-font-choice-2")
+                .unwrap()
+                .center();
+            cx.simulate_mouse_move(serif, None, Modifiers::none());
+            let expected_export = cx.update(|window, cx| {
+                owner.update(cx, |app, cx| {
+                    let expected = resume_one_core::docx::render_with_theme(
+                        &app.model.content,
+                        app.export_language,
+                        &app.model
+                            .appearance
+                            .apply(&app.model.applied_theme().manifest),
+                    )
+                    .unwrap();
+                    app.export_docx(&crate::export_ui::ExportDocx, window, cx);
+                    expected
+                })
+            });
+            assert!(cx.did_prompt_for_new_path());
+            let unconfirmed_path = root.path().join(format!("unconfirmed-{heading}.docx"));
+            cx.simulate_new_path_selection(|directory| {
+                assert_eq!(directory, root.path().canonicalize().unwrap());
+                Some(unconfirmed_path.clone())
+            });
+            cx.run_until_parked();
+            assert!(
+                std::fs::read(unconfirmed_path).unwrap() == expected_export,
+                "hover must not enter the exported snapshot"
+            );
+
+            let sans = cx
+                .debug_bounds("appearance-font-choice-1")
+                .unwrap()
+                .center();
+            cx.simulate_click(sans, Modifiers::none());
+            cx.simulate_mouse_move(gpui::point(px(500.), px(30.)), None, Modifiers::none());
+            let mut confirmed = Appearance::default();
+            if heading {
+                confirmed.heading_font = Some(FontChoice::Sans);
+            } else {
+                confirmed.body_font = Some(FontChoice::Sans);
+            }
+            cx.update(|_, cx| {
+                let app = owner.read(cx);
+                assert_eq!(app.model.appearance, confirmed);
+                assert_eq!(app.model.display_appearance(), &confirmed);
+                assert_real_italic_picker_layout(app);
+            });
+            assert_eq!(
+                ThemeStore::new(settings.clone(), themes.clone())
+                    .unwrap()
+                    .appearance,
+                confirmed
+            );
+            assert_geometry(cx);
+            cx.simulate_mouse_move(serif, None, Modifiers::none());
+            let expected_export = cx.update(|window, cx| {
+                owner.update(cx, |app, cx| {
+                    assert_eq!(app.model.appearance, confirmed);
+                    assert_ne!(app.model.display_appearance(), &confirmed);
+                    assert_real_italic_picker_layout(app);
+                    let expected = resume_one_core::docx::render_with_theme(
+                        &app.model.content,
+                        app.export_language,
+                        &confirmed.apply(&app.model.applied_theme().manifest),
+                    )
+                    .unwrap();
+                    app.export_docx(&crate::export_ui::ExportDocx, window, cx);
+                    expected
+                })
+            });
+            assert!(cx.did_prompt_for_new_path());
+            // Confirm a different family while the save dialog is pending:
+            // export must retain the earlier confirmed Sans, not either Serif.
+            cx.simulate_click(serif, Modifiers::none());
+            let confirmed_path = root.path().join(format!("confirmed-{heading}.docx"));
+            cx.simulate_new_path_selection(|directory| {
+                assert_eq!(directory, root.path().canonicalize().unwrap());
+                Some(confirmed_path.clone())
+            });
+            cx.run_until_parked();
+            assert!(
+                std::fs::read(confirmed_path).unwrap() == expected_export,
+                "export must capture the confirmed value at invocation time"
+            );
+            let back = cx.debug_bounds("font-browser-back").unwrap().center();
+            cx.simulate_click(back, Modifiers::none());
+            if heading {
+                confirmed.heading_font = Some(FontChoice::Serif);
+            } else {
+                confirmed.body_font = Some(FontChoice::Serif);
+            }
+            cx.update(|_, cx| {
+                let app = owner.read(cx);
+                assert!(!app.export_busy);
+                assert_eq!(app.model.appearance, confirmed);
+                assert_eq!(app.model.display_appearance(), &confirmed);
+                assert_real_italic_picker_layout(app);
+            });
+            assert_eq!(
+                ThemeStore::new(settings.clone(), themes.clone())
+                    .unwrap()
+                    .appearance,
+                confirmed
+            );
+            assert_geometry(cx);
+
+            let trigger_point = cx.debug_bounds(trigger).unwrap().center();
+            cx.simulate_click(trigger_point, Modifiers::none());
+            let reset = cx
+                .debug_bounds("appearance-font-choice-0")
+                .unwrap()
+                .center();
+            cx.simulate_mouse_move(reset, None, Modifiers::none());
+            cx.update(|_, cx| {
+                let app = owner.read(cx);
+                assert_eq!(app.model.appearance, confirmed);
+                assert_eq!(assert_real_italic_picker_layout(app), original_layout);
+            });
+            cx.simulate_click(reset, Modifiers::none());
+            let back = cx.debug_bounds("font-browser-back").unwrap().center();
+            cx.simulate_click(back, Modifiers::none());
+            cx.update(|_, cx| {
+                let app = owner.read(cx);
+                assert_eq!(app.model.appearance, Appearance::default());
+                assert_eq!(assert_real_italic_picker_layout(app), original_layout);
+                assert_eq!(
+                    app.model.applied_theme().manifest.normalized,
+                    original_manifest
+                );
+                assert_eq!(app.model.document.source, source);
+                assert!(app.visual_undo.is_empty());
+            });
+            assert_geometry(cx);
+            assert_eq!(std::fs::read(&settings).unwrap(), original_settings);
+            assert_eq!(std::fs::read(&source_path).unwrap(), source);
+            assert_eq!(std::fs::read(&theme_path).unwrap(), theme_bytes);
+            assert_eq!(std::fs::read(&builtin_path).unwrap(), original_builtin);
+            assert_eq!(std::fs::read(root.path().join("italic.ttf")).unwrap(), font);
+        }
+    }
+
     #[gpui::test]
     fn font_and_color_hover_preview_without_saving_and_click_confirms(cx: &mut TestAppContext) {
         cx.update(gpui_component::init);

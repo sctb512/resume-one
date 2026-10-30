@@ -599,6 +599,38 @@ mod tests {
     }
 
     #[test]
+    fn exact_role_colors_are_bounded_rgb_values_not_css_or_code() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        for role in [
+            "body",
+            "meta",
+            "name",
+            "sectionTitle",
+            "itemTitle",
+            "label",
+            "summary",
+            "sideDate",
+        ] {
+            for value in ["#000000", "#ffffff", "#DADADA", "#123aBC"] {
+                theme["typography"][role]["color"] = json!(value);
+                assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+            }
+            for value in [
+                json!("red"),
+                json!("#fff"),
+                json!("#12345678"),
+                json!("var(--ink)"),
+                json!("url(x)"),
+                json!(12),
+            ] {
+                let mut invalid = theme.clone();
+                invalid["typography"][role]["color"] = value;
+                assert!(parse_theme(invalid.to_string().as_bytes()).is_err());
+            }
+        }
+    }
+
+    #[test]
     fn rejects_unsafe_font_path() {
         let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
         theme["assets"] = json!({"fonts": [{"id":"body", "path":"fonts/../evil.ttf", "sha256":"a".repeat(64), "license":"OFL-1.1"}]});

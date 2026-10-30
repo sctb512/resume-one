@@ -207,7 +207,7 @@ pub(super) fn chips(page: &mut PageWriter<'_>, labels: &[String], style: &ThemeS
                 size_pt: meta.size_pt,
                 leading_pt: height,
                 tracking_pt: meta.tracking_pt(),
-                color: ink,
+                color: meta.color_or(ink),
                 font,
                 target: page.target,
                 target_lane: page.target_lane,

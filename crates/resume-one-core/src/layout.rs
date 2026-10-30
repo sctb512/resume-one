@@ -309,7 +309,7 @@ impl<'a> PageWriter<'a> {
             size_pt: style.size_pt,
             leading_pt: leading,
             tracking_pt: style.tracking_pt(),
-            color,
+            color: style.color_or(color),
             font: font_kind(style).expect("theme checked"),
             target: self.target,
             target_lane: self.target_lane,
@@ -368,7 +368,7 @@ impl<'a> PageWriter<'a> {
                         size: text_style.size_pt,
                         leading: text_style.size_pt * text_style.line_height,
                         tracking: text_style.tracking_pt(),
-                        color,
+                        color: text_style.color_or(color),
                         font,
                     });
                 }
@@ -427,7 +427,7 @@ impl<'a> PageWriter<'a> {
                 size: meta.size_pt,
                 leading: meta.size_pt * meta.line_height,
                 tracking: meta.tracking_pt(),
-                color: style.colors.muted,
+                color: meta.color_or(style.colors.muted),
                 font,
             })
             .collect();
@@ -637,7 +637,7 @@ impl<'a> PageWriter<'a> {
                     size_pt: heading_size,
                     leading_pt: first_height,
                     tracking_pt: body.tracking_pt(),
-                    color: ink,
+                    color: body.color_or(ink),
                     font: body_font,
                     target: self.target,
                     target_lane: self.target_lane,
@@ -654,7 +654,7 @@ impl<'a> PageWriter<'a> {
                 size_pt: meta.size_pt,
                 leading_pt: first_height,
                 tracking_pt: meta.tracking_pt(),
-                color: muted,
+                color: meta.color_or(muted),
                 font: meta_font,
                 target: self.target,
                 target_lane: self.target_lane,
@@ -1003,11 +1003,11 @@ fn section_heading(
             size_pt: text.size_pt,
             leading_pt: leading,
             tracking_pt: text.tracking_pt(),
-            color: if heading == SectionHeading::Filled {
+            color: text.color_or(if heading == SectionHeading::Filled {
                 style.colors.paper
             } else {
                 style.colors.accent
-            },
+            }),
             font: kind,
             target: page.target,
             target_lane: page.target_lane,
@@ -1614,6 +1614,104 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn exact_role_colors_reach_every_layout_path_without_changing_geometry() {
+        let source=br#"{"basics":{"name":"ROLE_NAME","label":"ROLE_LABEL","email":"ROLE_META@example.com","summary":"ROLE_SUMMARY"},"work":[{"name":"ROLE_ITEM","location":"ROLE_DETAIL","startDate":"2020-01","summary":"ROLE_BODY"}],"skills":[{"name":"ROLE_SKILL","keywords":["ROLE_CHIP"]}]}"#;
+        let document = parse_resume(source).unwrap();
+        let original = document.value.clone();
+        let content = project(&document);
+        let colors = [
+            ("body", "#112233"),
+            ("name", "#223344"),
+            ("itemTitle", "#334455"),
+            ("sectionTitle", "#445566"),
+            ("meta", "#556677"),
+            ("label", "#667788"),
+            ("summary", "#778899"),
+            ("sideDate", "#8899AA"),
+        ];
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            for heading in ["plain", "line", "accent-line", "filled"] {
+                for date in ["inline", "left", "right"] {
+                    let mut theme = crate::parse_theme(include_bytes!(
+                        "../../../assets/themes/zhibai.theme.json"
+                    ))
+                    .unwrap();
+                    theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                    if preset.starts_with("sidebar") {
+                        theme.normalized["composition"]["placements"] =
+                            serde_json::json!({"skills":"sidebar"});
+                        theme.normalized["composition"]["headerRegion"] =
+                            serde_json::json!("sidebar");
+                        theme.normalized["composition"]["summaryRegion"] =
+                            serde_json::json!("main");
+                        theme.normalized["composition"]["contactRegion"] =
+                            serde_json::json!("sidebar");
+                    }
+                    theme.normalized["sections"] = serde_json::json!({"work":{"heading":heading,"date":date},"skills":{"heading":heading,"items":"chips"}});
+                    let baseline = layout_with_theme(&content, Language::En, &theme).unwrap();
+                    for (role, color) in colors {
+                        theme.normalized["typography"][role]["color"] = serde_json::json!(color);
+                    }
+                    let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                    for (marker, role) in [
+                        ("ROLE_NAME", "name"),
+                        ("ROLE_LABEL", "label"),
+                        ("ROLE_SUMMARY", "summary"),
+                        ("ROLE_ITEM", "itemTitle"),
+                        ("ROLE_BODY", "body"),
+                        ("ROLE_DETAIL", "meta"),
+                        ("ROLE_CHIP", "meta"),
+                        ("Work", "sectionTitle"),
+                        (
+                            "2020-01",
+                            if date == "inline" { "meta" } else { "sideDate" },
+                        ),
+                    ] {
+                        let expected = colors.iter().find(|(id, _)| *id == role).unwrap().1;
+                        let colored_text: String = result
+                            .pages
+                            .iter()
+                            .flatten()
+                            .filter_map(|element| {
+                                if let LayoutElement::Text(text) = element
+                                    && text.color.hex() == expected
+                                {
+                                    Some(text.text.as_str())
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
+                        assert!(
+                            colored_text.contains(marker),
+                            "{preset}/{heading}/{date}/{marker}"
+                        );
+                    }
+                    let mut neutral = result.clone();
+                    assert_eq!(neutral.pages.len(), baseline.pages.len());
+                    for (page, old_page) in neutral.pages.iter_mut().zip(&baseline.pages) {
+                        assert_eq!(page.len(), old_page.len());
+                        for (element, old) in page.iter_mut().zip(old_page) {
+                            if let (LayoutElement::Text(text), LayoutElement::Text(previous)) =
+                                (element, old)
+                            {
+                                text.color = previous.color;
+                            }
+                        }
+                    }
+                    assert_eq!(neutral, baseline);
+                    assert_eq!(document.value, original);
+                }
+            }
+        }
+    }
 
     #[test]
     fn heading_alignment_moves_only_text_inside_each_lane_and_preserves_pagination_and_targets() {

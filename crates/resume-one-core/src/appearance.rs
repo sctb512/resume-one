@@ -123,6 +123,36 @@ impl Appearance {
         let mut effective = theme.clone();
         for (key, value) in &self.colors {
             effective.normalized["colors"][key] = json!(value);
+            // Explicit personal palette choices take precedence over authored
+            // role colors. Removing the temporary literal restores the role's
+            // semantic, readability-corrected palette fallback; the source
+            // theme stays intact and reappears on reset.
+            let roles: &[&str] = match key.as_str() {
+                "ink" => &["body", "name", "itemTitle", "summary"],
+                "muted" => &["meta", "sideDate"],
+                "accent" => &["label", "sectionTitle"],
+                "paper" => &[
+                    "body",
+                    "name",
+                    "itemTitle",
+                    "summary",
+                    "meta",
+                    "sideDate",
+                    "label",
+                    "sectionTitle",
+                ],
+                _ => &[],
+            };
+            for role in roles {
+                if let Some(properties) = effective
+                    .normalized
+                    .get_mut("typography")
+                    .and_then(|typography| typography.get_mut(*role))
+                    .and_then(Value::as_object_mut)
+                {
+                    properties.remove("color");
+                }
+            }
         }
         for (font, roles) in [
             (self.body_font.as_ref(), &["body", "meta"][..]),
@@ -183,6 +213,63 @@ impl Appearance {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn personal_palette_overrides_exact_role_colors_without_mutating_the_author_theme() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let groups: &[(&str, &[&str])] = &[
+            ("ink", &["body", "name", "itemTitle", "summary"]),
+            ("muted", &["meta", "sideDate"]),
+            ("accent", &["label", "sectionTitle"]),
+        ];
+        for (_, roles) in groups {
+            for role in *roles {
+                theme.normalized["typography"][role]["color"] = json!("#123456");
+            }
+        }
+        let original = theme.normalized.clone();
+        for key in [
+            "ink", "muted", "accent", "paper", "canvas", "border", "seal",
+        ] {
+            let mut prefs = Appearance::default();
+            prefs.set_color(key, "#E0E0E0").unwrap();
+            let effective = prefs.apply(&theme);
+            crate::layout::check_theme(&effective).unwrap();
+            for (semantic, roles) in groups {
+                for role in *roles {
+                    assert_eq!(
+                        effective.normalized["typography"][role]
+                            .get("color")
+                            .is_none(),
+                        key == *semantic || key == "paper",
+                        "{key}/{role}"
+                    );
+                }
+            }
+            assert_eq!(theme.normalized, original);
+            prefs.reset_colors();
+            assert_eq!(prefs.apply(&theme).normalized, original);
+        }
+    }
+
+    #[test]
+    fn palette_override_does_not_insert_missing_typography_or_null_roles() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme
+            .normalized
+            .as_object_mut()
+            .unwrap()
+            .remove("typography");
+        for key in ["ink", "muted", "accent", "paper"] {
+            let mut prefs = Appearance::default();
+            prefs.set_color(key, "#224466").unwrap();
+            let effective = prefs.apply(&theme);
+            assert!(effective.normalized.get("typography").is_none());
+            crate::layout::check_theme(&effective).unwrap();
+        }
+    }
 
     #[test]
     fn explicit_family_override_uses_real_upright_faces_and_reset_restores_theme_italic() {

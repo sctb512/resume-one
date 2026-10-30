@@ -114,6 +114,8 @@ pub struct TextStyle {
     pub size_pt: f32,
     pub weight: u16,
     pub italic: bool,
+    /// An author's exact document color, independent of readable app chrome.
+    pub color: Option<Rgb>,
     pub line_height: f32,
     pub tracking_em: f32,
     pub text_transform: TextTransform,
@@ -129,6 +131,10 @@ pub enum TextTransform {
 }
 
 impl TextStyle {
+    pub fn color_or(&self, fallback: Rgb) -> Rgb {
+        self.color.unwrap_or(fallback)
+    }
+
     /// Presentation only. Never changes the resume or its semantic projection.
     pub fn display_text<'a>(&self, text: &'a str) -> std::borrow::Cow<'a, str> {
         match self.text_transform {
@@ -279,6 +285,7 @@ fn text_style(
             .and_then(Value::as_u64)
             .map_or(weight, |value| value as u16),
         italic: value["fontStyle"].as_str() == Some("italic"),
+        color: value["color"].as_str().map(Rgb::parse),
         line_height: number(value, "lineHeight", line_height),
         tracking_em: number(value, "trackingEm", 0.0),
         text_transform: match value["textTransform"].as_str() {
@@ -302,6 +309,9 @@ fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
         base.line_height,
     );
     role.tracking_em = number(value, "trackingEm", base.tracking_em);
+    if value.get("color").is_none() {
+        role.color = base.color;
+    }
     if value.get("fontStyle").is_none() {
         role.italic = base.italic;
     }
@@ -447,6 +457,9 @@ impl ThemeStyle {
         );
         if typography["itemTitle"].get("fontStyle").is_none() {
             item_title.italic = body.italic;
+        }
+        if typography["itemTitle"].get("color").is_none() {
+            item_title.color = body.color;
         }
         let size = page.get("size").and_then(Value::as_str).unwrap_or("A4");
         let mut style = Self {
@@ -603,6 +616,34 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn exact_role_colors_inherit_without_recoloring_document_or_application_palette() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let before = ThemeStyle::from_manifest(&theme);
+        theme.normalized["typography"]["body"]["color"] = serde_json::json!("#DADADA");
+        theme.normalized["typography"]["meta"]["color"] = serde_json::json!("#445566");
+        theme.normalized["typography"]["label"] = serde_json::json!({"color":"#123456"});
+        let style = ThemeStyle::from_manifest(&theme);
+        assert_eq!(style.typography.body.color.unwrap().hex(), "#DADADA");
+        assert_eq!(
+            style.typography.item_title.color,
+            style.typography.body.color
+        );
+        assert_eq!(style.typography.summary.color, style.typography.body.color);
+        assert_eq!(
+            style.typography.side_date.color,
+            style.typography.meta.color
+        );
+        assert_eq!(style.typography.label.color.unwrap().hex(), "#123456");
+        assert!(
+            style.typography.name.color.is_none() && style.typography.section_title.color.is_none()
+        );
+        assert_eq!(style.colors.ink, before.colors.ink);
+        assert_eq!(style.colors.accent, before.colors.accent);
+        assert_eq!(style.colors.chrome, before.colors.chrome);
+    }
 
     #[test]
     fn real_slant_is_inherited_only_by_dependent_roles() {

@@ -58,7 +58,7 @@ fn effective_bold(style: &TextStyle) -> bool {
 fn styled_run(style: &TextStyle, ink: Rgb) -> Run {
     let mut run = Run::new()
         .size((style.size_pt * 2.0).round() as usize)
-        .color(color(ink))
+        .color(color(style.color_or(ink)))
         .fonts(font(style));
     if effective_bold(style) {
         run = run.bold();
@@ -962,6 +962,75 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn exact_role_colors_reach_editable_text_dates_chips_and_filled_headings() {
+        let content=project(&parse_resume(br#"{"basics":{"name":"ROLE_NAME","label":"ROLE_LABEL","email":"ROLE_META@example.com","summary":"ROLE_SUMMARY"},"work":[{"name":"ROLE_ITEM","location":"ROLE_DETAIL","startDate":"2020-01","summary":"ROLE_BODY"}],"skills":[{"name":"ROLE_SKILL","keywords":["ROLE_CHIP"]}]}"#).unwrap());
+        let colors = [
+            ("body", "112233"),
+            ("name", "223344"),
+            ("itemTitle", "334455"),
+            ("sectionTitle", "445566"),
+            ("meta", "556677"),
+            ("label", "667788"),
+            ("summary", "778899"),
+            ("sideDate", "8899AA"),
+        ];
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            for date in ["inline", "left", "right"] {
+                let mut theme =
+                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                        .unwrap();
+                theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                if preset.starts_with("sidebar") {
+                    theme.normalized["composition"]["placements"] =
+                        serde_json::json!({"skills":"sidebar"});
+                    theme.normalized["composition"]["headerRegion"] = serde_json::json!("sidebar");
+                    theme.normalized["composition"]["summaryRegion"] = serde_json::json!("main");
+                    theme.normalized["composition"]["contactRegion"] = serde_json::json!("sidebar");
+                }
+                theme.normalized["sections"] = serde_json::json!({"work":{"heading":"filled","date":date},"skills":{"items":"chips"}});
+                for (role, color) in colors {
+                    theme.normalized["typography"][role]["color"] =
+                        serde_json::json!(format!("#{color}"));
+                }
+                let xml = String::from_utf8(
+                    build_document(&content, Language::En, &ThemeStyle::from_manifest(&theme))
+                        .unwrap()
+                        .document,
+                )
+                .unwrap();
+                for (marker, role) in [
+                    ("ROLE_NAME", "name"),
+                    ("ROLE_LABEL", "label"),
+                    ("ROLE_SUMMARY", "summary"),
+                    ("ROLE_ITEM", "itemTitle"),
+                    ("ROLE_BODY", "body"),
+                    ("ROLE_DETAIL", "meta"),
+                    ("ROLE_CHIP", "meta"),
+                    ("Work", "sectionTitle"),
+                    (
+                        "2020-01",
+                        if date == "inline" { "meta" } else { "sideDate" },
+                    ),
+                ] {
+                    let at = xml.find(marker).unwrap();
+                    let run = &xml[xml[..at].rfind("<w:r>").unwrap()..at];
+                    let expected = colors.iter().find(|(id, _)| *id == role).unwrap().1;
+                    assert!(
+                        run.contains(&format!("w:color w:val=\"{expected}\"")),
+                        "{preset}/{date}/{marker}"
+                    );
+                }
+                assert!(!xml.contains("<w:drawing>"));
+            }
+        }
+    }
 
     #[test]
     fn heading_alignment_uses_editable_paragraphs_without_moving_body_or_rules() {

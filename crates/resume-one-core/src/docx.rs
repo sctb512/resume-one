@@ -89,13 +89,13 @@ fn add_lines(mut run: Run, text: &str) -> Run {
 fn text_runs(text: &str, style: &TextStyle, ink: Rgb) -> Vec<Run> {
     let displayed = style.display_text(text);
     let kind = crate::layout::font_kind(style).expect("validated document font");
-    // Keep legacy upright runs unchanged. Explicitly separate missing-glyph
-    // spans in italic runs so Word cannot synthesize italic on our upright CJK
-    // fallback, which preview/PDF also render as a real upright face.
+    // Separate every missing-glyph span, including upright faces. Otherwise a
+    // reader can synthesize bold/italic on the East Asian fallback or choose
+    // an unrelated system font. Preview/PDF use the same real upright face.
     let crate::layout::FontKind::Local(id) = kind else {
         return vec![add_lines(styled_run(style, ink), &displayed)];
     };
-    if !kind.is_italic() || displayed.is_empty() {
+    if displayed.is_empty() {
         return vec![add_lines(styled_run(style, ink), &displayed)];
     }
     let font = crate::fonts::get(id);
@@ -1125,6 +1125,45 @@ mod tests {
             );
             assert_eq!(entries, before);
         }
+    }
+
+    #[test]
+    fn upright_custom_fonts_use_explicit_real_fallback_for_missing_graphemes() {
+        let id = crate::fonts::register_asset(
+            include_bytes!("../tests/fixtures/theme-font.ttf").to_vec(),
+        )
+        .unwrap();
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.asset_fonts.insert("fixture".into(), id);
+        theme.normalized["typography"]["body"] = serde_json::json!({
+            "family":"asset:fixture", "weight":400, "color":"#123456", "trackingEm":0.12
+        });
+        let style = ThemeStyle::from_manifest(&theme);
+        // This tiny real upright fixture includes Ada and 中 but not 文档.
+        // Checking each grapheme, not just the face's 中 sentinel, is required.
+        let source = "Ada中 文档 Ada";
+        let xml = String::from_utf8(
+            paragraph(source, &style.typography.body, style.colors.ink, 0.0, 0.0).build(),
+        )
+        .unwrap();
+        let at = xml.find("文档").unwrap();
+        let fallback = &xml[xml[..at].rfind("<w:r>").unwrap()..at];
+        assert!(fallback.contains("Noto Sans SC"));
+        assert!(!fallback.contains("<w:b") && !fallback.contains("<w:i"));
+        assert!(fallback.contains("123456") && fallback.contains("<w:spacing"));
+        for run in xml.split("</w:r>").filter(|run| run.contains("Ada")) {
+            assert!(run.contains("Resume One Font Fixture"));
+        }
+        assert_eq!(
+            text_runs("Ada中", &style.typography.body, style.colors.ink).len(),
+            1
+        );
+        assert_eq!(
+            text_runs("", &style.typography.body, style.colors.ink).len(),
+            1
+        );
+        assert!(xml.contains("Ada中 "));
     }
 
     #[test]

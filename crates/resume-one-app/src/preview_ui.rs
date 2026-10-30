@@ -1088,6 +1088,11 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
                                     FontWeight(resume_one_core::fonts::get(id).weight as f32)
                                 }
                             },
+                            style: if text.font.is_italic() {
+                                gpui::FontStyle::Italic
+                            } else {
+                                gpui::FontStyle::Normal
+                            },
                             ..gpui::font(text.font.family())
                         };
                         Some(Painted::Text(

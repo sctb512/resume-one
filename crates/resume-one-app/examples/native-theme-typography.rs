@@ -62,10 +62,16 @@ fn main() {
             FontKind::Serif => 600.,
             FontKind::Local(id) => resume_one_core::fonts::get(id).weight as f32,
         });
+        font.style = if text.font.is_italic() {
+            gpui::FontStyle::Italic
+        } else {
+            gpui::FontStyle::Normal
+        };
         let font_id = system.resolve_font(&font);
         let resolved = system.get_font_for_id(font_id).unwrap();
         assert_eq!(resolved.family, font.family);
         assert_eq!(resolved.weight, font.weight);
+        assert_eq!(resolved.style, font.style);
         for (cluster, _) in text.paint_runs() {
             let expected = text.font.text_width_pt(cluster, text.size_pt);
             let measured: f32 = cluster

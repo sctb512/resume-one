@@ -2,6 +2,7 @@
 //! Word owns wrapping and pagination; this is not a raster export.
 
 use std::io::{Cursor, Write};
+use unicode_segmentation::UnicodeSegmentation;
 
 use docx_rs::{
     Docx, LineSpacing, LineSpacingType, PageMargin, Paragraph, ParagraphBorder,
@@ -52,7 +53,7 @@ fn effective_bold(style: &TextStyle) -> bool {
     }
 }
 
-fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: f32) -> Paragraph {
+fn styled_run(style: &TextStyle, ink: Rgb) -> Run {
     let mut run = Run::new()
         .size((style.size_pt * 2.0).round() as usize)
         .color(color(ink))
@@ -60,29 +61,86 @@ fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: 
     if effective_bold(style) {
         run = run.bold();
     }
+    if crate::layout::font_kind(style)
+        .expect("validated document font")
+        .is_italic()
+    {
+        run = run.italic();
+    }
     if style.tracking_em != 0.0 {
         run = run.character_spacing((style.tracking_pt() * 20.0).round() as i32);
     }
+    run
+}
+
+fn add_lines(mut run: Run, text: &str) -> Run {
     // Keep explicit newlines, but let Word wrap instead of hard-breaking at PDF wraps.
-    for (index, line) in style.display_text(text).split('\n').enumerate() {
+    for (index, line) in text.split('\n').enumerate() {
         if index > 0 {
             run = run.add_break(docx_rs::BreakType::TextWrapping);
         }
         run = run.add_text(line.trim_end_matches('\r'));
     }
-    Paragraph::new()
-        .add_run(run)
-        .snap_to_grid(false)
-        .widow_control(true)
-        .line_spacing(
-            LineSpacing::new()
-                .before(twips(before_pt))
-                .after(twips(after_pt))
-                // Auto multiplies a CJK face's already generous font metrics.
-                // AtLeast respects the requested leading without clipping tall glyphs.
-                .line_rule(LineSpacingType::AtLeast)
-                .line(twips(style.size_pt * style.line_height) as i32),
-        )
+    run
+}
+
+fn text_runs(text: &str, style: &TextStyle, ink: Rgb) -> Vec<Run> {
+    let displayed = style.display_text(text);
+    let kind = crate::layout::font_kind(style).expect("validated document font");
+    // Keep legacy upright runs unchanged. Explicitly separate missing-glyph
+    // spans in italic runs so Word cannot synthesize italic on our upright CJK
+    // fallback, which preview/PDF also render as a real upright face.
+    let crate::layout::FontKind::Local(id) = kind else {
+        return vec![add_lines(styled_run(style, ink), &displayed)];
+    };
+    if !kind.is_italic() || displayed.is_empty() {
+        return vec![add_lines(styled_run(style, ink), &displayed)];
+    }
+    let font = crate::fonts::get(id);
+    let face = ttf_parser::Face::parse(&font.bytes, 0).expect("validated font");
+    let mut spans: Vec<(usize, usize, bool)> = Vec::new();
+    for (start, cluster) in displayed.grapheme_indices(true) {
+        let fallback = !cluster
+            .chars()
+            .all(|c| c.is_whitespace() || face.glyph_index(c).is_some());
+        if let Some((_, end, previous)) = spans.last_mut()
+            && *previous == fallback
+        {
+            *end = start + cluster.len();
+        } else {
+            spans.push((start, start + cluster.len(), fallback));
+        }
+    }
+    let mut fallback = style.clone();
+    fallback.family = "cjk-sans".into();
+    fallback.weight = 400;
+    fallback.italic = false;
+    fallback.asset_font = None;
+    spans
+        .into_iter()
+        .map(|(start, end, missing)| {
+            add_lines(
+                styled_run(if missing { &fallback } else { style }, ink),
+                &displayed[start..end],
+            )
+        })
+        .collect()
+}
+
+fn paragraph(text: &str, style: &TextStyle, ink: Rgb, before_pt: f32, after_pt: f32) -> Paragraph {
+    let mut p = Paragraph::new();
+    for run in text_runs(text, style, ink) {
+        p = p.add_run(run);
+    }
+    p.snap_to_grid(false).widow_control(true).line_spacing(
+        LineSpacing::new()
+            .before(twips(before_pt))
+            .after(twips(after_pt))
+            // Auto multiplies a CJK face's already generous font metrics.
+            // AtLeast respects the requested leading without clipping tall glyphs.
+            .line_rule(LineSpacingType::AtLeast)
+            .line(twips(style.size_pt * style.line_height) as i32),
+    )
 }
 
 fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragraph {
@@ -163,17 +221,10 @@ fn keyword_chips(labels: &[String], style: &ThemeStyle) -> Paragraph {
             .line(twips(meta.size_pt * meta.line_height + 8.0) as i32),
     );
     for label in labels {
-        p = p
-            .add_run(
-                Run::new()
-                    .fonts(font(meta))
-                    .size((meta.size_pt * 2.0).round() as usize)
-                    .color(color(ink))
-                    .character_spacing((meta.tracking_pt() * 20.0).round() as i32)
-                    .shading(docx_rs::Shading::new().fill(color(background)))
-                    .add_text(format!(" {} ", meta.display_text(label))),
-            )
-            .add_run(Run::new().add_text("  "));
+        for run in text_runs(&format!(" {label} "), meta, ink) {
+            p = p.add_run(run.shading(docx_rs::Shading::new().fill(color(background))));
+        }
+        p = p.add_run(Run::new().add_text("  "));
     }
     p
 }
@@ -549,25 +600,17 @@ fn build_document(
                         paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
                     }
                 } else if section_style.date == DatePlacement::Left {
-                    let mut heading_run = Run::new()
-                        .add_tab()
-                        .add_text(&lines.heading[0])
-                        .size((heading.size_pt * 2.0).round() as usize)
-                        .color(color(ink))
-                        .character_spacing((heading.tracking_pt() * 20.0).round() as i32)
-                        .fonts(font(&heading));
-                    if effective_bold(&heading) {
-                        heading_run = heading_run.bold();
+                    let mut p = paragraph(date, date_style, muted, 0.0, 0.0)
+                        .add_tab(
+                            docx_rs::Tab::new()
+                                .val(docx_rs::TabValueType::Left)
+                                .pos(twips(lines.date_width_pt + 12.0) as usize),
+                        )
+                        .add_run(styled_run(&heading, ink).add_tab());
+                    for run in text_runs(&lines.heading[0], &heading, ink) {
+                        p = p.add_run(run);
                     }
-                    paragraphs.push(
-                        paragraph(date, date_style, muted, 0.0, 0.0)
-                            .add_tab(
-                                docx_rs::Tab::new()
-                                    .val(docx_rs::TabValueType::Left)
-                                    .pos(twips(lines.date_width_pt + 12.0) as usize),
-                            )
-                            .add_run(heading_run),
-                    );
+                    paragraphs.push(p);
                     for continuation in lines.heading.iter().skip(1) {
                         paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0).indent(
                             Some(twips(lines.date_width_pt + 12.0) as i32),
@@ -577,27 +620,19 @@ fn build_document(
                         ));
                     }
                 } else {
-                    let mut date_run = Run::new()
-                        .add_tab()
-                        .add_text(date_style.display_text(date).as_ref())
-                        .size((date_style.size_pt * 2.0).round() as usize)
-                        .color(color(muted))
-                        .character_spacing((date_style.tracking_pt() * 20.0).round() as i32)
-                        .fonts(font(date_style));
-                    if effective_bold(date_style) {
-                        date_run = date_run.bold();
-                    }
                     let content_width =
                         (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
-                    paragraphs.push(
-                        paragraph(&lines.heading[0], &heading, ink, 0.0, 0.0)
-                            .add_tab(
-                                docx_rs::Tab::new()
-                                    .val(docx_rs::TabValueType::Right)
-                                    .pos(twips(content_width) as usize),
-                            )
-                            .add_run(date_run),
-                    );
+                    let mut p = paragraph(&lines.heading[0], &heading, ink, 0.0, 0.0)
+                        .add_tab(
+                            docx_rs::Tab::new()
+                                .val(docx_rs::TabValueType::Right)
+                                .pos(twips(content_width) as usize),
+                        )
+                        .add_run(styled_run(date_style, muted).add_tab());
+                    for run in text_runs(date, date_style, muted) {
+                        p = p.add_run(run);
+                    }
+                    paragraphs.push(p);
                     for continuation in lines.heading.iter().skip(1) {
                         paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0));
                     }
@@ -772,6 +807,30 @@ fn build_document(
     Ok(package)
 }
 
+fn add_font_embedding(
+    entries: &mut String,
+    family: &str,
+    weight: u16,
+    italic: bool,
+    index: usize,
+    key: u8,
+) -> Result<(), String> {
+    let face_tag = match (weight >= 600, italic) {
+        (false, false) => "embedRegular",
+        (true, false) => "embedBold",
+        (false, true) => "embedItalic",
+        (true, true) => "embedBoldItalic",
+    };
+    // One slot cannot represent two different actual faces. No silent dropping.
+    if entries.contains(&format!("<w:{face_tag} ")) {
+        return Err(format!(
+            "字体「{family}」的多个静态字面占用同一 DOCX {face_tag} 槽位；请为这些字面使用独立字族名称"
+        ));
+    }
+    entries.push_str(&format!(r#"<w:{face_tag} r:id="rIdLocal{index}" w:fontKey="{{00000000-0000-0000-0000-0000000000{key:02X}}}" w:subsetted="false"/>"#));
+    Ok(())
+}
+
 fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
     // The bundled OFL fonts permit embedding. Full faces preserve editability
     // for newly typed text; never subset against only the current resume.
@@ -805,19 +864,11 @@ fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
         }
         let key = (index + 3) as u8;
         let name = xml_escape(&font.family);
-        let face_tag = if font.weight >= 600 {
-            "embedBold"
-        } else {
-            "embedRegular"
-        };
         let entries = family_entries.entry(name).or_default();
-        // Word only has regular/bold slots. A family without a bold face can
-        // resolve two requested weights to the same regular face; never emit
-        // duplicate slots or ask Word to synthesize a weight absent in preview.
-        if entries.contains(&format!("<w:{face_tag} ")) {
-            continue;
-        }
-        entries.push_str(&format!(r#"<w:{face_tag} r:id="rIdLocal{index}" w:fontKey="{{00000000-0000-0000-0000-0000000000{key:02X}}}" w:subsetted="false"/>"#));
+        // A slot cannot represent two distinct actual faces. Reject rather
+        // than silently discarding a weight; migrated packages can use licensed
+        // per-face primary-family identities to preserve all static faces.
+        add_font_embedding(entries, &font.family, font.weight, font.italic, index, key)?;
         relationships.push_str(&format!(r#"<Relationship Id="rIdLocal{index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/font" Target="fonts/local{index}.odttf"/>"#));
         local_fonts.push((format!("local{index}"), font.bytes, key));
     }
@@ -904,6 +955,105 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn all_four_embedding_slots_are_distinct_and_colliding_weights_fail_atomically() {
+        let mut entries = String::new();
+        for (i, (weight, italic, slot)) in [
+            (400, false, "embedRegular"),
+            (700, false, "embedBold"),
+            (400, true, "embedItalic"),
+            (700, true, "embedBoldItalic"),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            add_font_embedding(&mut entries, "Test", weight, italic, i, i as u8 + 3).unwrap();
+            assert!(entries.contains(&format!("<w:{slot} ")));
+        }
+        for (weight, italic) in [
+            (200, false),
+            (500, false),
+            (600, false),
+            (800, false),
+            (500, true),
+            (800, true),
+        ] {
+            let before = entries.clone();
+            assert!(
+                add_font_embedding(&mut entries, "Test", weight, italic, 4, 7)
+                    .unwrap_err()
+                    .contains("槽位")
+            );
+            assert_eq!(entries, before);
+        }
+    }
+
+    #[test]
+    fn italic_roles_use_real_embedded_faces_but_never_shear_missing_cjk() {
+        let id = crate::fonts::register_asset(
+            include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
+        )
+        .unwrap();
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.asset_fonts.insert("italic-fixture".into(), id);
+        for role in [
+            "body",
+            "name",
+            "sectionTitle",
+            "itemTitle",
+            "meta",
+            "label",
+            "summary",
+            "sideDate",
+        ] {
+            theme.normalized["typography"][role] = serde_json::json!({"family":"asset:italic-fixture","weight":400,"fontStyle":"italic"});
+        }
+        let content=project(&parse_resume("{\"basics\":{\"name\":\"Ada\",\"label\":\"Role 简里 End\",\"summary\":\"Summary\"},\"work\":[{\"name\":\"Company\",\"startDate\":\"2020\"}],\"skills\":[{\"name\":\"Skill\",\"keywords\":[\"Keyword 简里 End\"]}]}".as_bytes()).unwrap());
+        for placement in ["left", "right"] {
+            theme.normalized["sections"]["work"]["date"] = serde_json::json!(placement);
+            theme.normalized["sections"]["skills"]["items"] = serde_json::json!("chips");
+            let bytes = render_with_theme(&content, Language::En, &theme).unwrap();
+            let mut zip = zip::ZipArchive::new(Cursor::new(bytes)).unwrap();
+            let mut xml = String::new();
+            std::io::Read::read_to_string(&mut zip.by_name("word/document.xml").unwrap(), &mut xml)
+                .unwrap();
+            let mut checked_cjk = 0;
+            for run in xml.split("</w:r>") {
+                if run.contains("简里") {
+                    let run = &run[run.rfind("<w:r>").unwrap()..];
+                    assert!(run.contains("Noto Sans SC"));
+                    assert!(!run.contains("<w:i") && !run.contains("<w:b"));
+                    checked_cjk += 1;
+                }
+            }
+            assert!(checked_cjk >= 2);
+            for text in ["Ada", "Summary", "Company", "2020", "Keyword"] {
+                let at = xml.find(text).unwrap();
+                let run = &xml[xml[..at].rfind("<w:r>").unwrap()..at];
+                assert!(
+                    run.contains("<w:i") && run.contains("Resume One Italic Font Fixture"),
+                    "{text}"
+                );
+            }
+            let mut table = String::new();
+            std::io::Read::read_to_string(
+                &mut zip.by_name("word/fontTable.xml").unwrap(),
+                &mut table,
+            )
+            .unwrap();
+            assert!(table.contains("<w:embedItalic "));
+            let entry = table
+                .split("w:name=\"Resume One Italic Font Fixture\"")
+                .nth(1)
+                .unwrap()
+                .split("</w:font>")
+                .next()
+                .unwrap();
+            assert!(!entry.contains("<w:embedRegular ") && !entry.contains("<w:embedBold "));
+        }
+    }
 
     #[test]
     fn independent_label_summary_and_side_date_are_editable_styled_runs() {

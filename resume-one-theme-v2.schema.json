@@ -177,6 +177,7 @@
         "family": { "type": "string", "pattern": "^(system-sans|system-serif|cjk-sans|cjk-serif|asset:[a-z][a-z0-9-]{0,31})$" },
         "sizePt": { "type": "number", "minimum": 7, "maximum": 42 },
         "weight": { "enum": [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+        "fontStyle": { "enum": ["normal", "italic"] },
         "lineHeight": { "type": "number", "minimum": 1, "maximum": 2 },
         "trackingEm": { "type": "number", "minimum": -0.05, "maximum": 0.5 },
         "textTransform": { "enum": ["none", "uppercase", "lowercase"] }

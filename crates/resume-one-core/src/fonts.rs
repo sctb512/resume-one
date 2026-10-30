@@ -3,7 +3,7 @@
 use font_kit::{
     family_name::FamilyName,
     handle::Handle,
-    properties::{Properties, Weight},
+    properties::{Properties, Style, Weight},
     source::SystemSource,
 };
 use sha2::{Digest, Sha256};
@@ -28,6 +28,8 @@ pub struct LocalFont {
     pub bytes: Arc<Vec<u8>>,
     pub weight: u16,
     pub requested_weight: u16,
+    /// Actual italic/oblique face, never a synthetic shear.
+    pub italic: bool,
     pub subset_allowed: bool,
     pub pdf_embed: bool,
     pub editable_embed: bool,
@@ -36,7 +38,7 @@ pub struct LocalFont {
 #[derive(Default)]
 struct Registry {
     entries: Vec<LocalFont>,
-    keys: BTreeMap<(String, u16), u16>,
+    keys: BTreeMap<(String, u16, bool), u16>,
     bytes: usize,
 }
 fn registry() -> &'static Mutex<Registry> {
@@ -187,7 +189,7 @@ pub fn install(path: &Path, root: &Path) -> Result<Vec<String>, String> {
     if let Ok(mut registry) = registry().lock() {
         registry
             .keys
-            .retain(|(name, _), _| !families.contains(name));
+            .retain(|(name, _, _), _| !families.contains(name));
     }
     families.sort();
     families.dedup();
@@ -257,10 +259,16 @@ pub fn extract_face(data: &[u8], index: u32) -> Result<Vec<u8>, String> {
 }
 
 pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
+    resolve_style(family, weight, false)
+}
+
+/// Resolve a real requested slant; refusing a missing face avoids silently
+/// synthesizing italic in preview while printing unrelated upright outlines.
+pub fn resolve_style(family: &str, weight: u16, italic: bool) -> Result<u16, String> {
     if !valid_family(family) || !(100..=900).contains(&weight) {
         return Err("字体名称或字重无效".into());
     }
-    let key = (family.to_owned(), weight);
+    let key = (family.to_owned(), weight, italic);
     if let Some(id) = registry()
         .lock()
         .map_err(|_| "字体缓存不可用")?
@@ -280,7 +288,7 @@ pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
                     && face_family(&face).is_ok_and(|name| name == family)
                 {
                     let distance = (
-                        face.is_italic() || face.is_oblique(),
+                        (face.is_italic() || face.is_oblique()) != italic,
                         (i32::from(face.weight().to_number()) - i32::from(weight)).abs(),
                     );
                     if found.as_ref().is_none_or(|(best, _)| distance < *best) {
@@ -296,7 +304,9 @@ pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
         let handle = SystemSource::new()
             .select_best_match(
                 &[FamilyName::Title(family.to_owned())],
-                Properties::new().weight(Weight(weight as f32)),
+                Properties::new()
+                    .weight(Weight(weight as f32))
+                    .style(if italic { Style::Italic } else { Style::Normal }),
             )
             .map_err(|_| format!("字体「{family}」当前不可用，请安装后再试"))?;
         match handle {
@@ -314,6 +324,13 @@ pub fn resolve(family: &str, weight: u16) -> Result<u16, String> {
             }
         }
     };
+    let face = Face::parse(&bytes, 0).map_err(|_| "无法解析请求的字体")?;
+    if (face.is_italic() || face.is_oblique()) != italic {
+        return Err(format!(
+            "字体「{family}」没有请求的{}字面，未使用合成倾斜",
+            if italic { "斜体" } else { "正体" }
+        ));
+    }
     register(key, bytes)
 }
 /// Register a verified theme-local static face without adding it to the user's
@@ -331,11 +348,12 @@ pub(crate) fn register_asset(bytes: Vec<u8>) -> Result<u16, String> {
     let key = (
         format!("@theme:{:x}", Sha256::digest(&bytes)),
         face.weight().to_number(),
+        face.is_italic() || face.is_oblique(),
     );
     register(key, bytes)
 }
 
-fn register(key: (String, u16), bytes: Vec<u8>) -> Result<u16, String> {
+fn register(key: (String, u16, bool), bytes: Vec<u8>) -> Result<u16, String> {
     let face = Face::parse(&bytes, 0).map_err(|_| "字体无法解析")?;
     // GPUI requires this glyph when loading text families. Refuse explicitly
     // rather than letting the screen silently use an unrelated fallback face.
@@ -347,6 +365,7 @@ fn register(key: (String, u16), bytes: Vec<u8>) -> Result<u16, String> {
         family: face_family(&face)?,
         weight: face.weight().to_number(),
         requested_weight: key.1,
+        italic: face.is_italic() || face.is_oblique(),
         subset_allowed: face.is_subsetting_allowed(),
         pdf_embed: face.is_outline_embedding_allowed()
             && matches!(
@@ -375,6 +394,7 @@ fn register(key: (String, u16), bytes: Vec<u8>) -> Result<u16, String> {
         || registry.entries.iter().any(|previous| {
             previous.family == font.family
                 && previous.weight == font.weight
+                && previous.italic == font.italic
                 && previous.bytes != font.bytes
         })
     {
@@ -507,6 +527,17 @@ mod tests {
 
     #[cfg(target_os = "macos")]
     #[test]
+    fn native_resolution_caches_real_regular_and_italic_separately() {
+        let regular = resolve_style("Arial", 400, false).unwrap();
+        let italic = resolve_style("Arial", 400, true).unwrap();
+        assert_ne!(regular, italic);
+        assert!(!get(regular).italic && get(italic).italic);
+        assert_eq!(regular, resolve("Arial", 400).unwrap());
+        assert_eq!(italic, resolve_style("Arial", 400, true).unwrap());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
     fn system_font_has_shared_preview_pdf_docx_metrics_and_cjk_fallback() {
         use crate::{
             appearance::{Appearance, FontChoice},
@@ -572,7 +603,7 @@ mod tests {
     #[test]
     fn registered_font_has_real_metrics_and_embedding_flags() {
         let id = register(
-            ("test-font".into(), 400),
+            ("test-font".into(), 400, false),
             crate::layout::SANS_FONT_BYTES.to_vec(),
         )
         .unwrap();
@@ -593,6 +624,21 @@ mod tests {
         assert_eq!(font.family_name(), "Resume One Font Fixture");
         assert!(font.glyph_for_char('m').is_some());
         assert_eq!(font.properties().weight.0, 400.0);
+    }
+
+    #[test]
+    fn real_italic_fixture_keeps_its_slant_and_can_embed_editably() {
+        let bytes = include_bytes!("../tests/fixtures/theme-italic-font.ttf");
+        let id = register_asset(bytes.to_vec()).unwrap();
+        let font = get(id);
+        assert!(font.italic && font.pdf_embed && font.editable_embed);
+        assert_eq!(font.weight, 400);
+        assert_eq!(font.family, "Resume One Italic Font Fixture");
+        let face = Face::parse(&font.bytes, 0).unwrap();
+        assert!(face.is_italic() && !face.is_variable());
+        assert!(face.glyph_index('m').is_some());
+        assert!(face.glyph_index('中').is_none());
+        assert!(face.italic_angle() < 0.0);
     }
 
     #[test]

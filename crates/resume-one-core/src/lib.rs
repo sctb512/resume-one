@@ -552,6 +552,36 @@ mod tests {
     }
 
     #[test]
+    fn validates_declarative_real_slant_without_css() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        for role in [
+            "body",
+            "name",
+            "sectionTitle",
+            "itemTitle",
+            "meta",
+            "label",
+            "summary",
+            "sideDate",
+        ] {
+            for slant in [json!("normal"), json!("italic")] {
+                theme["typography"][role]["fontStyle"] = slant;
+                assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+            }
+            for slant in [
+                json!("oblique 12deg"),
+                json!("normal; color:red"),
+                json!(true),
+                json!(1),
+            ] {
+                let mut invalid = theme.clone();
+                invalid["typography"][role]["fontStyle"] = slant;
+                assert!(parse_theme(invalid.to_string().as_bytes()).is_err());
+            }
+        }
+    }
+
+    #[test]
     fn rejects_unsafe_font_path() {
         let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
         theme["assets"] = json!({"fonts": [{"id":"body", "path":"fonts/../evil.ttf", "sha256":"a".repeat(64), "license":"OFL-1.1"}]});

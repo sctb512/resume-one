@@ -22,6 +22,10 @@ pub enum FontKind {
 }
 
 impl FontKind {
+    pub fn is_italic(self) -> bool {
+        matches!(self, Self::Local(id) if crate::fonts::get(id).italic)
+    }
+
     pub fn family(self) -> String {
         match self {
             Self::Sans => "Noto Sans SC".into(),
@@ -722,23 +726,33 @@ fn append_footers(
 }
 pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
     match (style.family.as_str(), style.weight) {
-        ("cjk-sans" | "system-sans", 400) => Ok(FontKind::Sans),
-        ("cjk-serif" | "system-serif", 600) => Ok(FontKind::Serif),
+        ("cjk-sans" | "system-sans", 400) if !style.italic => Ok(FontKind::Sans),
+        ("cjk-serif" | "system-serif", 600) if !style.italic => Ok(FontKind::Serif),
         (family, weight) if family.starts_with("font:") => {
-            crate::fonts::resolve(&family[5..], weight).map(FontKind::Local)
+            crate::fonts::resolve_style(&family[5..], weight, style.italic).map(FontKind::Local)
         }
         (family, weight) if family.starts_with("asset:") => {
             let id = style
                 .asset_font
                 .ok_or_else(|| format!("主题字体资源 {family} 尚未加载"))?;
-            let actual = crate::fonts::get(id).weight;
-            if actual != weight {
+            let actual = crate::fonts::get(id);
+            if actual.weight != weight {
                 return Err(format!(
-                    "主题字体 {family} 的实际字重为 {actual}，与声明的 {weight} 不符"
+                    "主题字体 {family} 的实际字重为 {}，与声明的 {weight} 不符",
+                    actual.weight
+                ));
+            }
+            if actual.italic != style.italic {
+                return Err(format!(
+                    "主题字体 {family} 的实际正斜体与 fontStyle 声明不符，未使用合成倾斜"
                 ));
             }
             Ok(FontKind::Local(id))
         }
+        _ if style.italic => Err(format!(
+            "字体组合 {} / {} 没有已加载的真实斜体字面；请选用带有斜体的本机或主题字体，不能合成倾斜",
+            style.family, style.weight
+        )),
         _ => Err(format!(
             "当前排版引擎暂不支持字体组合 {} / {}；当前支持 cjk-sans 400 和 cjk-serif 600",
             style.family, style.weight
@@ -1586,6 +1600,46 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn real_italic_is_measured_and_missing_cjk_stays_upright_without_json_mutation() {
+        let document =
+            parse_resume("{\"basics\":{\"label\":\"Ada é e\\u0301 简里 Z\"}}".as_bytes()).unwrap();
+        let original = document.value.clone();
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let id = crate::fonts::register_asset(
+            include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
+        )
+        .unwrap();
+        theme.asset_fonts.insert("italic-fixture".into(), id);
+        theme.normalized["typography"]["label"] = serde_json::json!({"family":"asset:italic-fixture","weight":400,"fontStyle":"italic","trackingEm":0.03});
+        let result = layout_with_theme(&project(&document), Language::En, &theme).unwrap();
+        let texts: Vec<_> = result
+            .pages
+            .iter()
+            .flatten()
+            .filter_map(|element| {
+                if let LayoutElement::Text(text) = element {
+                    Some(text)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        assert!(texts.iter().any(|text| text.font == FontKind::Local(id)
+            && text.font.is_italic()
+            && text.text.contains("Ada")));
+        assert!(texts.iter().any(|text| text.font == FontKind::Sans
+            && !text.font.is_italic()
+            && text.text.contains("简里")));
+        assert_eq!(document.value, original);
+        theme.normalized["typography"]["label"]["fontStyle"] = serde_json::json!("normal");
+        assert!(check_theme(&theme).unwrap_err().contains("fontStyle"));
+        theme.normalized["typography"]["label"]["family"] = serde_json::json!("cjk-sans");
+        theme.normalized["typography"]["label"]["fontStyle"] = serde_json::json!("italic");
+        assert!(check_theme(&theme).is_err());
+    }
 
     #[test]
     fn independent_basics_and_side_date_roles_keep_defaults_and_work_in_all_regions() {

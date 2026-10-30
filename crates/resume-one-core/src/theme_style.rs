@@ -113,6 +113,7 @@ pub struct TextStyle {
     pub family: String,
     pub size_pt: f32,
     pub weight: u16,
+    pub italic: bool,
     pub line_height: f32,
     pub tracking_em: f32,
     pub text_transform: TextTransform,
@@ -257,6 +258,7 @@ fn text_style(
             .get("weight")
             .and_then(Value::as_u64)
             .map_or(weight, |value| value as u16),
+        italic: value["fontStyle"].as_str() == Some("italic"),
         line_height: number(value, "lineHeight", line_height),
         tracking_em: number(value, "trackingEm", 0.0),
         text_transform: match value["textTransform"].as_str() {
@@ -280,6 +282,9 @@ fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> TextStyle {
         base.line_height,
     );
     role.tracking_em = number(value, "trackingEm", base.tracking_em);
+    if value.get("fontStyle").is_none() {
+        role.italic = base.italic;
+    }
     if value.get("textTransform").is_none() {
         role.text_transform = base.text_transform;
     }
@@ -413,13 +418,16 @@ impl ThemeStyle {
         let summary = inherited_text_style(typography.get("summary"), &body);
         let side_date = inherited_text_style(typography.get("sideDate"), &meta);
         // Absent itemTitle preserves the legacy body-derived geometry exactly.
-        let item_title = text_style(
+        let mut item_title = text_style(
             typography.get("itemTitle"),
             &body.family,
             body.size_pt * 1.06,
             body.weight,
             body.line_height,
         );
+        if typography["itemTitle"].get("fontStyle").is_none() {
+            item_title.italic = body.italic;
+        }
         let size = page.get("size").and_then(Value::as_str).unwrap_or("A4");
         let mut style = Self {
             id: theme.id.clone(),
@@ -570,6 +578,40 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn real_slant_is_inherited_only_by_dependent_roles() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        theme.normalized["typography"]["body"]["fontStyle"] = serde_json::json!("italic");
+        theme.normalized["typography"]["meta"]["fontStyle"] = serde_json::json!("italic");
+        let style = ThemeStyle::from_manifest(&theme);
+        for role in [
+            &style.typography.body,
+            &style.typography.item_title,
+            &style.typography.label,
+            &style.typography.summary,
+            &style.typography.side_date,
+        ] {
+            assert!(role.italic);
+        }
+        assert!(!style.typography.name.italic);
+        assert!(!style.typography.section_title.italic);
+        for role in ["itemTitle", "label", "summary", "sideDate"] {
+            theme.normalized["typography"][role] = serde_json::json!({"fontStyle":"normal"});
+        }
+        let explicit = ThemeStyle::from_manifest(&theme);
+        for role in [
+            &explicit.typography.item_title,
+            &explicit.typography.label,
+            &explicit.typography.summary,
+            &explicit.typography.side_date,
+        ] {
+            assert!(!role.italic);
+        }
+        assert!(explicit.typography.body.italic);
+        assert!(explicit.typography.meta.italic);
+    }
 
     #[test]
     fn dependent_roles_inherit_all_base_properties_and_override_independently() {

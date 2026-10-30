@@ -188,6 +188,7 @@
       "additionalProperties": false,
       "properties": {
         "heading": { "enum": ["plain", "line", "accent-line", "filled"] },
+        "headingAlign": { "enum": ["left", "center", "right"] },
         "items": { "enum": ["stack", "compact", "timeline", "cards", "chips"] },
         "date": { "enum": ["inline", "left", "right"] }
       }

@@ -796,6 +796,12 @@ fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), Strin
     }
     if let Some(sections) = source["sections"].as_object() {
         for (id, value) in sections {
+            if value["headingAlign"]
+                .as_str()
+                .is_some_and(|align| !matches!(align, "left" | "center" | "right"))
+            {
+                return Err(format!("当前排版引擎不支持 sections.{id}.headingAlign"));
+            }
             if value["items"].as_str().is_some_and(|items| {
                 !matches!(items, "stack" | "compact" | "timeline" | "cards" | "chips")
             }) {
@@ -950,7 +956,11 @@ fn section_heading(
             page.y -= (leading - (ascent + descent) * text.size_pt) / 2.0 + ascent * text.size_pt;
         }
         for line in &lines {
-            page.line(line, text, style.colors.accent, 0.0, leading);
+            let inset = style
+                .section(id)
+                .heading_alignment
+                .inset(page.content_width(), page.styled_width(line, text));
+            page.line(line, text, style.colors.accent, inset, leading);
         }
         page.y = start - height;
         return;
@@ -973,14 +983,18 @@ fn section_heading(
         }));
     }
     for (line_index, line) in lines.iter().enumerate() {
+        let horizontal_padding = if heading == SectionHeading::Filled {
+            6.0
+        } else {
+            0.0
+        };
+        let aligned_inset = style.section(id).heading_alignment.inset(
+            page.content_width() - horizontal_padding * 2.0,
+            page.styled_width(line, text),
+        );
         page.ops.push(LayoutElement::Text(LayoutText {
             text: line.clone(),
-            x_pt: page.left
-                + if heading == SectionHeading::Filled {
-                    6.0
-                } else {
-                    0.0
-                },
+            x_pt: page.left + horizontal_padding + aligned_inset,
             baseline_y_pt: top
                 - line_index as f32 * leading
                 - padding
@@ -1600,6 +1614,83 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
 mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
+
+    #[test]
+    fn heading_alignment_moves_only_text_inside_each_lane_and_preserves_pagination_and_targets() {
+        let content = project(
+            &parse_resume(
+                br#"{"work":[{"name":"WORK_ITEM"}],"publications":[{"name":"PUBLICATION_ITEM"}]}"#,
+            )
+            .unwrap(),
+        );
+        for preset in ["single-column", "sidebar-left", "sidebar-right"] {
+            for heading in ["plain", "line", "accent-line", "filled"] {
+                let mut theme =
+                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                        .unwrap();
+                theme.normalized["composition"] = serde_json::json!({"preset":preset});
+                if preset != "single-column" {
+                    theme.normalized["composition"]["placements"] =
+                        serde_json::json!({"publications":"sidebar"});
+                    theme.normalized["composition"]["sidebarWidthPct"] = serde_json::json!(20);
+                }
+                theme.normalized["typography"]["sectionTitle"]["sizePt"] = serde_json::json!(32);
+                theme.normalized["typography"]["sectionTitle"]["trackingEm"] =
+                    serde_json::json!(0.1);
+                for id in ["work", "publications"] {
+                    theme.normalized["sections"][id] = serde_json::json!({"heading":heading});
+                }
+                let left = layout_with_theme(&content, Language::En, &theme).unwrap();
+                for align in ["left", "center", "right"] {
+                    for id in ["work", "publications"] {
+                        theme.normalized["sections"][id]["headingAlign"] = serde_json::json!(align);
+                    }
+                    let result = layout_with_theme(&content, Language::En, &theme).unwrap();
+                    let style = ThemeStyle::from_manifest(&theme);
+                    assert_eq!(result.pages.len(), left.pages.len());
+                    for (actual, old) in result
+                        .pages
+                        .iter()
+                        .flatten()
+                        .zip(left.pages.iter().flatten())
+                    {
+                        match (actual, old) {
+                            (LayoutElement::Text(text), LayoutElement::Text(previous))
+                                if text.target.is_some_and(|target| target.index.is_none()) =>
+                            {
+                                let target = text.target.unwrap();
+                                let local = style.column_style(style.in_sidebar(target.section));
+                                let padding = if heading == "filled" { 6.0 } else { 0.0 };
+                                let inner_left = local.page.margins.left * PT_PER_MM + padding;
+                                let width = (local.page.width_mm
+                                    - local.page.margins.left
+                                    - local.page.margins.right)
+                                    * PT_PER_MM
+                                    - padding * 2.0;
+                                let expected = inner_left
+                                    + local
+                                        .section(target.section)
+                                        .heading_alignment
+                                        .inset(width, text.width_pt());
+                                assert!(
+                                    (text.x_pt - expected).abs() < 0.01,
+                                    "{preset}/{heading}/{align}"
+                                );
+                                let mut at_left = text.clone();
+                                at_left.x_pt = previous.x_pt;
+                                assert_eq!(&at_left, previous);
+                            }
+                            _ => assert_eq!(actual, old),
+                        }
+                    }
+                    assert_eq!(
+                        result.pages.iter().flatten().count(),
+                        left.pages.iter().flatten().count()
+                    );
+                }
+            }
+        }
+    }
 
     #[test]
     fn real_italic_is_measured_and_missing_cjk_stays_upright_without_json_mutation() {

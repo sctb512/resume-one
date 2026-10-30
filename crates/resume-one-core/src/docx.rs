@@ -14,7 +14,9 @@ use crate::ThemeManifest;
 use crate::layout::{PT_PER_MM, check_theme, side_date_lines_for_style};
 use crate::render::{Language, title};
 use crate::semantic::ResumeContent;
-use crate::theme_style::{DatePlacement, ItemLayout, Rgb, SectionHeading, TextStyle, ThemeStyle};
+use crate::theme_style::{
+    DatePlacement, HeadingAlignment, ItemLayout, Rgb, SectionHeading, TextStyle, ThemeStyle,
+};
 
 fn color(rgb: Rgb) -> String {
     rgb.hex()[1..].to_owned()
@@ -165,6 +167,11 @@ fn section_heading(id: &str, language: Language, style: &ThemeStyle) -> Paragrap
             4.0
         },
     );
+    p = match style.section(id).heading_alignment {
+        HeadingAlignment::Left => p,
+        HeadingAlignment::Center => p.align(docx_rs::AlignmentType::Center),
+        HeadingAlignment::Right => p.align(docx_rs::AlignmentType::Right),
+    };
     match heading {
         SectionHeading::Plain => {}
         SectionHeading::Line | SectionHeading::AccentLine => {
@@ -955,6 +962,34 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn heading_alignment_uses_editable_paragraphs_without_moving_body_or_rules() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        for heading in ["plain", "line", "accent-line", "filled"] {
+            theme.normalized["sections"]["work"] = serde_json::json!({"heading":heading});
+            let left_style = ThemeStyle::from_manifest(&theme);
+            let left =
+                String::from_utf8(section_heading("work", Language::En, &left_style).build())
+                    .unwrap();
+            for align in ["center", "right"] {
+                theme.normalized["sections"]["work"]["headingAlign"] = serde_json::json!(align);
+                let style = ThemeStyle::from_manifest(&theme);
+                let aligned =
+                    String::from_utf8(section_heading("work", Language::En, &style).build())
+                        .unwrap();
+                assert!(aligned.contains(&format!("<w:jc w:val=\"{align}\"")));
+                // The document library allocates a new paragraph id each time.
+                let without_alignment = aligned.replace(&format!("<w:jc w:val=\"{align}\" />"), "");
+                assert_eq!(
+                    without_alignment.split_once('>').unwrap().1,
+                    left.split_once('>').unwrap().1
+                );
+            }
+            theme.normalized["sections"]["work"]["headingAlign"] = serde_json::json!("left");
+        }
+    }
 
     #[test]
     fn all_four_embedding_slots_are_distinct_and_colliding_weights_fail_atomically() {

@@ -183,8 +183,28 @@ pub enum DatePlacement {
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum HeadingAlignment {
+    #[default]
+    Left,
+    Center,
+    Right,
+}
+
+impl HeadingAlignment {
+    pub(crate) fn inset(self, available: f32, used: f32) -> f32 {
+        let free = (available - used).max(0.0);
+        match self {
+            Self::Left => 0.0,
+            Self::Center => free / 2.0,
+            Self::Right => free,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct SectionStyle {
     pub heading: SectionHeading,
+    pub heading_alignment: HeadingAlignment,
     pub items: ItemLayout,
     pub date: DatePlacement,
 }
@@ -526,6 +546,11 @@ impl ThemeStyle {
                     (
                         id.clone(),
                         SectionStyle {
+                            heading_alignment: match value["headingAlign"].as_str() {
+                                Some("center") => HeadingAlignment::Center,
+                                Some("right") => HeadingAlignment::Right,
+                                _ => HeadingAlignment::Left,
+                            },
                             heading: match value["heading"].as_str() {
                                 Some("line") => SectionHeading::Line,
                                 Some("accent-line") => SectionHeading::AccentLine,
@@ -699,6 +724,7 @@ mod tests {
             style.section("work"),
             SectionStyle {
                 heading: SectionHeading::Filled,
+                heading_alignment: HeadingAlignment::Left,
                 items: ItemLayout::Compact,
                 date: DatePlacement::Inline,
             }
@@ -707,6 +733,7 @@ mod tests {
             style.section("projects"),
             SectionStyle {
                 heading: SectionHeading::AccentLine,
+                heading_alignment: HeadingAlignment::Left,
                 items: ItemLayout::Stack,
                 date: DatePlacement::Inline,
             }

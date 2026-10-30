@@ -108,6 +108,7 @@
 | `heading: line` | 标题下方为 `border` 色细线，约 0.6 pt |
 | `heading: accent-line` | 标题下方为 `accent` 色强调线，约 1.2 pt |
 | `heading: filled` | 内容区等宽的 `accent` 色底、`paper` 色字；左右留白 6 pt、上下至少 4 pt；使用修正后的颜色保证文字对比度 |
+| `headingAlign` | `left` 默认、`center` 或 `right`；只对当前模块标题逐行对齐，按所在主栏/侧栏的内容区计算，色底标题保留两侧 6 pt 内距。装饰线/色块仍占原内容区，正文、日期与模块命中范围不随标题文字移动 |
 | `items: stack` | 默认条目前间距 4 pt、描述段落前间距 3 pt |
 | `items: compact` | 条目前间距 2 pt、描述段落前间距 1 pt；字号、字重、行高和全部内容保持不变 |
 | `date: inline` | 日期与其他辅助信息沿用行内顺序 |

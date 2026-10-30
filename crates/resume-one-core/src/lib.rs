@@ -582,6 +582,23 @@ mod tests {
     }
 
     #[test]
+    fn validates_scoped_heading_alignment_without_css() {
+        let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
+        for align in ["left", "center", "right"] {
+            theme["sections"]["work"]["headingAlign"] = json!(align);
+            assert!(parse_theme(theme.to_string().as_bytes()).is_ok());
+        }
+        for invalid in [
+            json!("justify"),
+            json!("center; position:absolute"),
+            json!(3),
+        ] {
+            theme["sections"]["work"]["headingAlign"] = invalid;
+            assert!(parse_theme(theme.to_string().as_bytes()).is_err());
+        }
+    }
+
+    #[test]
     fn rejects_unsafe_font_path() {
         let mut theme: Value = serde_json::from_str(V2_EXAMPLE).unwrap();
         theme["assets"] = json!({"fonts": [{"id":"body", "path":"fonts/../evil.ttf", "sha256":"a".repeat(64), "license":"OFL-1.1"}]});

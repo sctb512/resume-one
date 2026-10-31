@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2"
 members = ["crates/resume-one-core", "crates/resume-one-cli", "crates/resume-one-theme-migrate", "crates/resume-one-app", "crates/resume-one-themes"]
-exclude = ["vendor/gpui-component"]
+exclude = ["vendor/gpui-component", "vendor/tree-sitter-javascript"]
 
 [patch.crates-io]
 gpui-component = { path = "vendor/gpui-component" }
+tree-sitter-javascript = { path = "vendor/tree-sitter-javascript" }
 
 [workspace.package]
 version = "0.1.0"

@@ -1,5 +1,35 @@
 # 第三方规范许可
 
+## 迁移器语法解析器
+
+独立迁移工具使用固定版本的 [tree-sitter 0.25.10](https://github.com/tree-sitter/tree-sitter/tree/v0.25.10)、[tree-sitter-javascript 0.25.0](https://github.com/tree-sitter/tree-sitter-javascript/tree/v0.25.0) 及 [tree-sitter-css 0.25.0](https://github.com/tree-sitter/tree-sitter-css/tree/v0.25.0)，均按 MIT 许可分发。JS grammar 保留于 [vendor/tree-sitter-javascript](../vendor/tree-sitter-javascript/)，原始 crates.io 发布包 SHA-256 为 `68204f2abc0627a90bdf06e605f5c470aa26fdcb2081ea553a04bdad756693f5`。唯一源码修改位于 `src/scanner.c`：依照 JSX 语法直接支持非字符引用的裸 `&` 文本，保留字符引用与原文位置，不重写来源或忽略语法错误。其余两包未修改源码。三者的原始版权声明依次为：
+
+Copyright (c) 2018-2024 Max Brunsfeld
+
+Copyright (c) 2014 Max Brunsfeld
+
+Copyright (c) 2018 Max Brunsfeld
+
+共同适用的许可正文：
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 ## gpui-component
 
 桌面组件固定于 crates.io 的 `gpui-component 0.5.1`，原始发布包 SHA-256：`d021d46b4088d3d93a57ccdf443da85695a77272108caca2f6fe5369f584966a`。源码、翻译和原始说明保留于 [vendor/gpui-component](../vendor/gpui-component/)，采用 Apache-2.0；完整原始许可见 [LICENSE-APACHE](../vendor/gpui-component/LICENSE-APACHE)。不从开发机 Cargo 缓存打临时补丁，其他机器构建也使用同一版本。

@@ -2,7 +2,7 @@
 
 锁竞争：`patch`、`structure`、`set-field` 在其他写入者持锁时立即以退出码 `5` 和错误码 `RESUME_BUSY` 返回，不无限等待、不覆盖原文件。稍后重新 `inspect` 获取 revision 后再决定是否重试；不要删除旁路锁文件。
 
-状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。PDF 和 DOCX 支持主题的单栏基础视觉参数；独立迁移工具支持 v1→v2 及第三方主题低置信度静态提取。完整主题排版仍在开发。
+状态：本地文档命令及 PDF、DOCX、纯文本、Markdown 导出已实现。独立迁移工具支持 v1→v2、第三方低置信度候选，以及完整有界源码快照、JS/JSX/CSS 语法证据和严格未完成拦截；结构编译及完整视觉迁移仍在开发，不能把语法解析通过当成 100% 还原。
 
 `resume-one` 是独立本地程序，不依赖桌面应用运行，不会自动读取 GUI 当前打开的简历。所有文件操作都需要显式的**绝对路径** `--file` 或 `--dir`。从仓库运行时可使用 `cargo run -p resume-one-cli -- <命令>`；构建后的程序名为 `resume-one`。Windows PowerShell 中路径应加引号，例如 `--file 'C:\Users\Me\Documents\resume.json'`。
 
@@ -84,7 +84,7 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 resume-one-theme-migrate --source /absolute/old.theme.json --out /absolute/new.theme.json --license MIT --upstream-url https://example.com/theme --upstream-revision abc123 --dry-run
 ```
 
-第三方主题包的静态提取用法：
+第三方主题包的旧版低置信度候选提取用法（不是完整迁移）：
 
 ```sh
 resume-one-theme-migrate --source /absolute/jsonresume-theme-example --out /absolute/example.theme.json --upstream-url https://github.com/owner/jsonresume-theme-example --dry-run
@@ -93,3 +93,18 @@ resume-one-theme-migrate --source /absolute/jsonresume-theme-example --out /abso
 `--source` 可指向主题目录或单个 CSS/HTML/JS/TS 等静态源码文件。工具只读取 `package.json` 和浅层样式源码，不运行 JS、模板或安装依赖，也不读取任何简历；从目录提取时最多扫描两层子目录、64 个样式文件、每文件 512 KiB、总共 4 MiB，跳过符号链接和超限文件。候选配色可从十六进制或不透明、整数通道的 `rgb(...)` / `rgba(..., 1)` 静态文本提取；半透明颜色需要背景合成，故不猜测结果。候选还包含包名、版本与许可声明；布局固定为安全的单栏保底样式。报告另列 `fontFamiliesFound`（原始字体声明）与 `layoutSignals`（如 grid、分栏、打印页面），每项都只是有界静态文本线索，可能来自注释或脚本字符串，**不会自动写入候选主题**；字体、模块构件、条件逻辑和原视觉效果没有自动迁移。`extraction.confidence` 为 `low`，`unmapped` 列出差异；缺少可信配色时使用保底色。该候选可供人工继续编辑，不能直接收入默认在线主题仓库。
 
 去掉 `--dry-run` 才写入。目标为新的 `*.theme.json` 或 `theme.json`，默认不覆盖，`--overwrite` 也绝不覆盖来源。`--license`、`--upstream-url` 和 `--upstream-revision` 只记录声明，迁移器不会联网核实；没有许可声明时使用 `NOASSERTION`。程序始终返回单行 JSON，含 v2 `candidate`、来源/候选 SHA-256、`written` 和人工审核清单；`licenseVerified`、`visualVerified` 均为 `false`。目录来源的 SHA-256 是本次实际读取文件的有序内容指纹，不代表未扫描或被跳过文件。v1 升级仅转换数据结构；第三方提取仅为人工移植起点，都不构成视觉或再分发许可验收。
+
+### 完整源码与语法检查
+
+```sh
+resume-one-theme-migrate --inspect --source /absolute/upstream-theme
+resume-one-theme-migrate --inspect --source /absolute/upstream-theme --require-complete
+```
+
+`--inspect` 是只读操作，仅接受绝对主题目录，不接受 `--out`、许可覆盖、`--dry-run` 或 `--overwrite`。它读取包内普通文件及二进制资源并逐项计算 SHA-256；不再局限于浅层样式文件。限制为 16 层、1024 文件、4096 目录条目、每文件 8 MiB、总计 64 MiB；超限、特殊文件、路径冲突或符号链接（包含根目录/父路径）直接失败，不静默跳过。仅 `.git/node_modules/target` 三种目录树被明确排除并列于报告。原始包内的示例 JSON 只作为静态文件参与摘要，不作为用户简历渲染或执行。
+
+JS/JSX 和 CSS 使用固定版本的 Tree-sitter 语法解析，报告保留静态导入、组件基类、重复声明、嵌套选择器/打印规则、JSX 字段/条件表达式的源位置。注释、普通字符串中的样式不冒充真实样式。动态样式、尚未解码的模板转义、未支持格式和缺失依赖均列为阻断项；不会执行表达式、安装依赖或请求字体网络地址。完整源码快照不等于依赖闭包完整，也不等于结构编译/许可/视觉验收通过。
+
+报告为单行 JSON，包含 `inspectionVersion: 1`、`sourceSnapshot`、`statistics`、`syntaxEvidence` 和 `blockers`。`sourceSnapshot.complete` 只说明已完整读取声明边界内的文件；`migrationComplete/visualVerified/licenseVerified` 当前仍为 false。没有可靠的相似度或迁移百分比。详细契约见[迁移检查规范](../spec/theme-migration-inspection-v1.md)。
+
+加 `--require-complete` 后，只要尚有未完成迁移或验收就返回退出码 `3`、错误 `MIGRATION_INCOMPLETE`，完整检查报告位于 `error.inspection`；不能被当成可发布主题。该标志也可用于旧候选命令：当前即使指定 `--overwrite` 也会在写入前拒绝，不改变已有文件。未加严格标志的旧候选输出保留兼容行为，但明确返回 `migrationComplete: false`。目前尚无完整语义编译与自动视觉通过路径，严格命令不会成功；这不是已实现“100% 自动迁移”的声明。

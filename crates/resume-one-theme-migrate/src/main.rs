@@ -1,4 +1,5 @@
-//! Separate, data-only theme migrator. This binary never opens a resume or executes theme code.
+//! Separate, data-only theme migrator. No theme code or user resume is rendered.
+//! Package examples are inert source assets included only in the package digest.
 
 use std::fs::{self, File};
 use std::io::Read;
@@ -11,7 +12,10 @@ use resume_one_core::{Diagnostic, parse_theme};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
+mod inspection;
+mod source_bundle;
 mod static_source;
+mod syntax;
 
 const MAX_SOURCE_BYTES: u64 = 1_048_576;
 
@@ -19,15 +23,21 @@ const MAX_SOURCE_BYTES: u64 = 1_048_576;
 #[command(
     name = "resume-one-theme-migrate",
     version,
-    about = "以纯静态方式生成待审核的 Resume One v2 主题候选文件"
+    about = "静态检查完整主题源码，或生成明确标为待审核的声明式主题候选"
 )]
 struct Cli {
     /// v1 声明式主题文件、第三方主题目录或静态源码文件的绝对路径
     #[arg(long)]
     source: PathBuf,
     /// 新 v2 主题文件的绝对路径；不得覆盖来源
+    #[arg(long, required_unless_present = "inspect", conflicts_with = "inspect")]
+    out: Option<PathBuf>,
+    /// 完整读取有界源码包并输出语法/依赖/阻断报告，不生成近似主题
+    #[arg(long,conflicts_with_all=["dry_run","overwrite","license","upstream_url","upstream_revision"])]
+    inspect: bool,
+    /// 严格要求完整迁移；不完整时失败且不写入候选，供 Agent/批处理使用
     #[arg(long)]
-    out: PathBuf,
+    require_complete: bool,
     /// 来源许可声明；迁移器不会自行核验许可
     #[arg(long)]
     license: Option<String>,
@@ -51,6 +61,7 @@ struct AppError {
     code: &'static str,
     message: String,
     diagnostics: Vec<Value>,
+    inspection: Option<Box<Value>>,
 }
 
 impl AppError {
@@ -60,6 +71,7 @@ impl AppError {
             code,
             message: message.into(),
             diagnostics: Vec::new(),
+            inspection: None,
         }
     }
 
@@ -74,6 +86,7 @@ impl AppError {
                     json!({"code": issue.code, "path": issue.path, "message": issue.message})
                 })
                 .collect(),
+            inspection: None,
         }
     }
 
@@ -85,6 +98,9 @@ impl AppError {
         });
         if !self.diagnostics.is_empty() {
             output["error"]["diagnostics"] = json!(self.diagnostics);
+        }
+        if let Some(inspection) = &self.inspection {
+            output["error"]["inspection"] = (**inspection).clone();
         }
         output
     }
@@ -104,7 +120,25 @@ fn main() -> ExitCode {
             return emit(Err(AppError::new(2, "ARGUMENT_ERROR", error.to_string())));
         }
     };
-    emit(migrate(cli))
+    if cli.inspect {
+        let result = inspection::inspect(&cli.source).and_then(|report| {
+            if cli.require_complete && report["migrationComplete"] != true {
+                let mut error = AppError::new(
+                    3,
+                    "MIGRATION_INCOMPLETE",
+                    "存在未迁移能力或未完成的视觉验收；没有生成主题",
+                );
+                error.diagnostics = report["blockers"].as_array().cloned().unwrap_or_default();
+                error.inspection = Some(Box::new(report));
+                Err(error)
+            } else {
+                Ok(report)
+            }
+        });
+        emit(result)
+    } else {
+        emit(migrate(cli))
+    }
 }
 
 fn emit(result: Result<Value, AppError>) -> ExitCode {
@@ -208,9 +242,12 @@ fn source_candidate(path: &Path) -> Result<SourceCandidate, AppError> {
 
 fn migrate(cli: Cli) -> Result<Value, AppError> {
     absolute(&cli.source)?;
-    absolute(&cli.out)?;
-    if !cli
+    let out = cli
         .out
+        .as_ref()
+        .ok_or_else(|| AppError::new(2, "ARGUMENT_ERROR", "生成候选需要 --out"))?;
+    absolute(out)?;
+    if !out
         .file_name()
         .and_then(|name| name.to_str())
         .is_some_and(|name| name.ends_with(".theme.json") || name == "theme.json")
@@ -221,10 +258,23 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
             "目标文件名必须以 .theme.json 结尾",
         ));
     }
+    if cli.require_complete {
+        let mut error = AppError::new(
+            3,
+            "MIGRATION_INCOMPLETE",
+            "当前候选转换不构成完整视觉迁移；未写入目标。请先用 --inspect 查看阻断项",
+        );
+        if cli.source.is_dir() {
+            let report = inspection::inspect(&cli.source)?;
+            error.diagnostics = report["blockers"].as_array().cloned().unwrap_or_default();
+            error.inspection = Some(Box::new(report));
+        }
+        return Err(error);
+    }
     let source_path = fs::canonicalize(&cli.source)
         .map_err(|error| AppError::new(5, "SOURCE_IO", error.to_string()))?;
-    if cli.out.exists() {
-        let output_path = fs::canonicalize(&cli.out)
+    if out.exists() {
+        let output_path = fs::canonicalize(out)
             .map_err(|error| AppError::new(5, "OUTPUT_IO", error.to_string()))?;
         if source_path == output_path {
             return Err(AppError::new(2, "SAME_FILE", "目标不能是来源文件"));
@@ -253,12 +303,12 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
         .map_err(|error| AppError::new(3, "SERIALIZE", error.to_string()))?;
     serialized.push(b'\n');
     if !cli.dry_run {
-        write_export(&source_path, &cli.out, &serialized, cli.overwrite)
+        write_export(&source_path, out, &serialized, cli.overwrite)
             .map_err(|error| AppError::new(5, error.code, error.message))?;
     }
     Ok(json!({
         "source": cli.source,
-        "out": cli.out,
+        "out": out,
         "sourceKind": source.source_kind,
         "sourceVersion": source.source_version,
         "targetVersion": 2,
@@ -268,6 +318,7 @@ fn migrate(cli: Cli) -> Result<Value, AppError> {
         "licenseDeclared": candidate["license"] != "NOASSERTION",
         "licenseVerified": false,
         "visualVerified": false,
+        "migrationComplete": false,
         "requiresReview": true,
         "reviewChecklist": ["人工核验来源许可与再分发条件", "使用中英文、短长简历和多页样例比对视觉效果", "第三方主题需人工重建未映射的布局、字体与模块构件"],
         "extraction": source.extraction,

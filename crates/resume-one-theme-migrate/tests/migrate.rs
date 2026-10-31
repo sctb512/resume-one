@@ -143,6 +143,134 @@ fn does_not_rewrite_already_v2_or_invalid_theme() {
 }
 
 #[test]
+fn inspection_records_full_source_and_real_syntax_without_executing_or_claiming_migration() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = root.join("source");
+    fs::create_dir_all(source.join("src/deep/components")).unwrap();
+    fs::create_dir(source.join("fonts")).unwrap();
+    fs::write(
+        source.join("package.json"),
+        r#"{"name":"jsonresume-theme-example","version":"1.0.0","license":"MIT"}"#,
+    )
+    .unwrap();
+    fs::write(source.join("LICENSE.txt"), "MIT test fixture license").unwrap();
+    fs::write(source.join("fonts/face.ttf"), [0, 1, 255]).unwrap();
+    fs::write(
+        source.join("src/deep/components/Resume.jsx"),
+        r#"import styled from 'styled-components';
+import {DateRange} from '@jsonresume/core';
+const Name=styled.h1`font-size: 28pt; @media print {margin: 0;} &:hover {color: #123456;}`;
+const fake='const Wrong=styled.div`color:red;`';
+function Resume({basics}) {return <Name>{basics.name}</Name>;}
+require('fs').writeFileSync('SHOULD_NOT_EXECUTE','bad');"#,
+    )
+    .unwrap();
+    let (status, response) = call(&["--inspect", "--source", path(&source)]);
+    assert!(status.status.success(), "{response}");
+    let report = &response["result"];
+    assert_eq!(report["statistics"]["sourceFiles"], 4);
+    assert_eq!(report["statistics"]["styledComponents"], 1);
+    assert_eq!(report["statistics"]["cssDeclarations"], 3);
+    assert_eq!(report["sourceSnapshot"]["complete"], true);
+    assert_eq!(report["migrationComplete"], false);
+    assert_eq!(report["visualVerified"], false);
+    assert_eq!(report["executedSourceCode"], false);
+    assert_eq!(report["licenseVerified"], false);
+    assert!(
+        report["syntaxEvidence"][0]["styledComponents"][0]["css"]["declarations"][1]["scope"]
+            == serde_json::json!(["@media print"])
+    );
+    assert!(
+        report["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|b| b["code"] == "EXTERNAL_DEPENDENCIES_UNRESOLVED")
+    );
+    assert!(!source.join("SHOULD_NOT_EXECUTE").exists());
+    assert!(!root.join("SHOULD_NOT_EXECUTE").exists());
+    assert_eq!(
+        fs::read(source.join("fonts/face.ttf")).unwrap(),
+        [0, 1, 255]
+    );
+    let original = report["sourceSnapshot"]["sourceSha256"].clone();
+    fs::write(source.join("fonts/face.ttf"), [0, 2, 255]).unwrap();
+    let (_, second) = call(&["--inspect", "--source", path(&source)]);
+    assert_ne!(second["result"]["sourceSnapshot"]["sourceSha256"], original);
+}
+
+#[test]
+fn strict_migration_never_writes_or_overwrites_an_incomplete_result() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = root.join("source");
+    fs::create_dir(&source).unwrap();
+    fs::write(source.join("style.css"), "p {color: #123456;}").unwrap();
+    let out = root.join("candidate.theme.json");
+    let (status, response) = call(&["--inspect", "--source", path(&source), "--require-complete"]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(response["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(response["error"]["inspection"]["migrationComplete"], false);
+    assert!(!out.exists());
+    fs::write(&out, "EXISTING").unwrap();
+    let (status, response) = call(&[
+        "--source",
+        path(&source),
+        "--out",
+        path(&out),
+        "--overwrite",
+        "--require-complete",
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(response["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(fs::read_to_string(&out).unwrap(), "EXISTING");
+    let (status, response) = call(&["--inspect", "--source", path(&source), "--out", path(&out)]);
+    assert_eq!(status.status.code(), Some(2));
+    assert_eq!(response["error"]["code"], "ARGUMENT_ERROR");
+}
+
+#[test]
+fn inspection_exposes_missing_local_dependencies_dynamic_styles_and_unsupported_templates() {
+    let directory = tempfile::tempdir().unwrap();
+    let source = directory.path().canonicalize().unwrap();
+    fs::write(source.join("Resume.jsx"),r#"import styled from 'styled-components'; import './missing.css'; const A=styled.div`color:${props=>props.color};`;"#).unwrap();
+    fs::write(source.join("layout.hbs"), "{{#each work}}{{name}}{{/each}}").unwrap();
+    let (status, response) = call(&["--inspect", "--source", path(&source)]);
+    assert!(status.status.success(), "{response}");
+    let codes: Vec<_> = response["result"]["blockers"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|v| v["code"].as_str().unwrap())
+        .collect();
+    for expected in [
+        "DYNAMIC_STYLE_UNRESOLVED",
+        "LOCAL_DEPENDENCY_UNRESOLVED",
+        "FORMAT_ADAPTER_REQUIRED",
+        "DECLARATIVE_COMPILER_REQUIRED",
+        "VISUAL_ACCEPTANCE_REQUIRED",
+    ] {
+        assert!(codes.contains(&expected), "{response}");
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn inspection_rejects_a_symlink_root_instead_of_canonicalizing_it_away() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = root.join("source");
+    fs::create_dir(&source).unwrap();
+    fs::write(source.join("style.css"), "p {color:red;}").unwrap();
+    let link = root.join("linked");
+    std::os::unix::fs::symlink(&source, &link).unwrap();
+    let (status, response) = call(&["--inspect", "--source", path(&link)]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(response["error"]["code"], "SOURCE_SYMLINK");
+}
+
+#[test]
 fn extracts_third_party_package_without_executing_its_code() {
     let root = tempfile::tempdir().unwrap();
     let source = root.path().join("external-theme");

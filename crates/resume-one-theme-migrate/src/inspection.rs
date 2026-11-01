@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
-use crate::{AppError, source_bundle, syntax, template_ir};
+use crate::{AppError, source_bundle, style_link, syntax, template_ir};
 
 const STYLE_EXTENSIONS: &[&str] = &[
     "js",
@@ -218,6 +218,22 @@ pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value
         }
         let program = template_ir::compile(entry, &file.bytes)
             .map_err(|message| AppError::new(3, "TEMPLATE_IR_ERROR", message))?;
+        let analysis = files.iter().find(|f| f["file"] == *entry).ok_or_else(|| {
+            AppError::new(
+                3,
+                "STYLE_LINK_INPUT",
+                "template entry has no JavaScript evidence",
+            )
+        })?;
+        let style_graph = style_link::link(entry, analysis, &program)
+            .map_err(|message| AppError::new(3, "STYLE_LINK_ERROR", message))?;
+        blockers.extend(
+            style_graph["blockers"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .cloned(),
+        );
         for issue in program["blockers"].as_array().into_iter().flatten() {
             let mut issue = issue.clone();
             issue["file"] = json!(entry);
@@ -225,7 +241,8 @@ pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value
             blockers.push(issue);
         }
         evidence_bytes = evidence_bytes
-            .saturating_add(serde_json::to_vec(&program).map_or(usize::MAX, |b| b.len()));
+            .saturating_add(serde_json::to_vec(&program).map_or(usize::MAX, |b| b.len()))
+            .saturating_add(serde_json::to_vec(&style_graph).map_or(usize::MAX, |b| b.len()));
         if evidence_bytes > 16 * 1024 * 1024 {
             return Err(AppError::new(
                 3,
@@ -233,7 +250,7 @@ pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value
                 "模板 IR 与语法证据合计超过 16 MiB",
             ));
         }
-        templates.push(json!({"entryFile":entry,"sourceSha256":file.sha256,"program":program}));
+        templates.push(json!({"entryFile":entry,"sourceSha256":file.sha256,"program":program,"styleGraph":style_graph}));
     }
     if license_files.is_empty() {
         blockers.push(blocker(

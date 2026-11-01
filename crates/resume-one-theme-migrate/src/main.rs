@@ -16,6 +16,7 @@ mod constant_expr;
 mod inspection;
 mod source_bundle;
 mod static_source;
+mod style_link;
 mod syntax;
 mod template_ir;
 

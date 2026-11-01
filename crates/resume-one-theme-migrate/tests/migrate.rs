@@ -137,6 +137,52 @@ fn template_entry_errors_and_unknown_semantics_are_explicit_and_never_read_outsi
 }
 
 #[test]
+fn style_inheritance_links_symbol_ids_but_does_not_claim_a_finished_theme() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    fs::write(root.join("Resume.jsx"),"import s from 'styled-components';const Base=s.div`color:red;`;const Card=s(Base)`padding:8px;`;export default()=> <Card/>;").unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+    ]);
+    assert!(status.status.success(), "{report}");
+    let template = &report["result"]["templatePrograms"][0];
+    let graph = &template["styleGraph"];
+    assert_eq!(graph["inheritanceLinked"], true);
+    assert_eq!(graph["layoutCompiled"], false);
+    assert_eq!(
+        graph["nodes"][1]["layers"],
+        serde_json::json!([graph["nodes"][0]["id"], graph["nodes"][1]["id"]])
+    );
+    assert_eq!(template["program"]["resolved"], false);
+    assert_eq!(report["result"]["migrationComplete"], false);
+    fs::write(root.join("Resume.jsx"),"import s from 'styled-components';import {Section} from '@jsonresume/core';const Card=s(Section)`padding:8px;`;export default()=> <Card/>;").unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+    ]);
+    assert!(status.status.success());
+    assert_eq!(
+        report["result"]["templatePrograms"][0]["styleGraph"]["inheritanceLinked"],
+        false
+    );
+    assert!(
+        report["result"]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|b| b["code"] == "STYLE_EXTERNAL_BASE_UNRESOLVED"
+                && b["stage"] == "style-inheritance")
+    );
+}
+
+#[test]
 fn upgrades_v1_without_touching_source_or_claiming_review() {
     let root = tempfile::tempdir().unwrap();
     let source = root.path().join("original.theme.json");

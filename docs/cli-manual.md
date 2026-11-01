@@ -122,3 +122,5 @@ resume-one-theme-migrate --source /absolute/upstream-theme --inspect --template-
 `program.resolved` 只表示受限模板前端无阻断；不代表 CSS、依赖、排版或视觉完成。缺省值不等于空字符串，可选链与括号边界保持独立语义。完整契约见[模板 IR 规范](../spec/theme-template-ir-v1.md)。最终主题迁移仍须通过来源协议的严格门禁。
 
 模板前端也可描述无转义的非标签文本模板，以及数组字段的 `.join()` / `.join(', ')` 等有限操作；不会调用源代码。标量转文本、null/undefined、可选链、分隔符和原始空白各自保留语义。未知类型仍附带明确约束，复合值、未知调用或动态分隔符不能据此被认定为等价转换。
+
+`templatePrograms[].styleGraph` 连接同模块的真实 styled 继承与模板 binding id，保留基类→派生类的样式层、重复声明和打印规则。外部共享组件仍须锁定其实现，不会被替换为普通容器。`inheritanceLinked` 不等于排版或视觉完成，`layoutCompiled` 当前仍为 false，严格迁移门禁不会因此放行。

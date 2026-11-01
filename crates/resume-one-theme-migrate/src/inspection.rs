@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
-use crate::{AppError, source_bundle, syntax};
+use crate::{AppError, source_bundle, syntax, template_ir};
 
 const STYLE_EXTENSIONS: &[&str] = &[
     "js",
@@ -34,6 +34,27 @@ fn blocker(code: &str, file: Option<&str>, message: &str) -> Value {
 }
 
 pub(crate) fn inspect(root: &Path) -> Result<Value, AppError> {
+    inspect_templates(root, &[])
+}
+
+pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value, AppError> {
+    let unique = entries.iter().collect::<BTreeSet<_>>();
+    if entries.len() > 8
+        || unique.len() != entries.len()
+        || entries.iter().any(|entry| {
+            entry.len() > 512
+                || entry.contains(['\\', ':'])
+                || entry
+                    .split('/')
+                    .any(|p| p.is_empty() || p == "." || p == "..")
+        })
+    {
+        return Err(AppError::new(
+            2,
+            "TEMPLATE_ENTRY_PATH",
+            "模板入口须为唯一、包内相对路径，最多 8 个；不能含空段、.、..、盘符或反斜杠",
+        ));
+    }
     let snapshot =
         source_bundle::snapshot(root).map_err(|e| AppError::new(3, e.code, e.message))?;
     let started = Instant::now();
@@ -47,6 +68,7 @@ pub(crate) fn inspect(root: &Path) -> Result<Value, AppError> {
     let mut expressions = 0usize;
     let mut package = Value::Null;
     let mut evidence_bytes = 0usize;
+    let mut templates = Vec::new();
     for file in &snapshot.files {
         if started.elapsed() > Duration::from_secs(30) {
             return Err(AppError::new(
@@ -168,6 +190,51 @@ pub(crate) fn inspect(root: &Path) -> Result<Value, AppError> {
         }
         files.push(analysis);
     }
+    for entry in entries {
+        let file = snapshot
+            .files
+            .iter()
+            .find(|f| &f.relative_path == entry)
+            .ok_or_else(|| {
+                AppError::new(
+                    3,
+                    "TEMPLATE_ENTRY_NOT_FOUND",
+                    format!("源码包中没有模板入口：{entry}"),
+                )
+            })?;
+        if !matches!(entry.rsplit('.').next(), Some("js" | "jsx" | "mjs" | "cjs")) {
+            return Err(AppError::new(
+                2,
+                "TEMPLATE_ENTRY_FORMAT",
+                "模板入口目前仅支持 JS/JSX/MJS/CJS",
+            ));
+        }
+        if started.elapsed() > Duration::from_secs(30) {
+            return Err(AppError::new(
+                3,
+                "INSPECTION_LIMIT",
+                "模板编译前已超过整包检查预算",
+            ));
+        }
+        let program = template_ir::compile(entry, &file.bytes)
+            .map_err(|message| AppError::new(3, "TEMPLATE_IR_ERROR", message))?;
+        for issue in program["blockers"].as_array().into_iter().flatten() {
+            let mut issue = issue.clone();
+            issue["file"] = json!(entry);
+            issue["stage"] = json!("template-ir");
+            blockers.push(issue);
+        }
+        evidence_bytes = evidence_bytes
+            .saturating_add(serde_json::to_vec(&program).map_or(usize::MAX, |b| b.len()));
+        if evidence_bytes > 16 * 1024 * 1024 {
+            return Err(AppError::new(
+                3,
+                "INSPECTION_LIMIT",
+                "模板 IR 与语法证据合计超过 16 MiB",
+            ));
+        }
+        templates.push(json!({"entryFile":entry,"sourceSha256":file.sha256,"program":program}));
+    }
     if license_files.is_empty() {
         blockers.push(blocker(
             "LICENSE_EVIDENCE_MISSING",
@@ -201,7 +268,7 @@ pub(crate) fn inspect(root: &Path) -> Result<Value, AppError> {
         "parsers":{"javascript":"tree-sitter-javascript@0.25.0","javascriptPatch":"resume-one-jsx-ampersand-v1","css":"tree-sitter-css@0.25.0","engine":"tree-sitter@0.25.10"},
         "package":{"name":package["name"],"version":package["version"],"licenseDeclaration":package["license"]},
         "statistics":{"sourceFiles":snapshot.files.len(),"syntaxFiles":files.len(),"styledComponents":styles,"cssDeclarations":declarations,"jsxExpressions":expressions},
-        "cssProperties":properties,"externalImports":external,"licenseFiles":license_files,"syntaxEvidence":files,
+        "cssProperties":properties,"externalImports":external,"licenseFiles":license_files,"syntaxEvidence":files,"templatePrograms":templates,
         "migrationComplete":false,"visualVerified":false,"licenseVerified":false,"executedSourceCode":false,"sourceModified":false,"blockers":blockers});
     if serde_json::to_vec(&result).map_or(true, |b| b.len() > 16 * 1024 * 1024) {
         return Err(AppError::new(

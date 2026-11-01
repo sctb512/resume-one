@@ -12,10 +12,12 @@ use resume_one_core::{Diagnostic, parse_theme};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
+mod constant_expr;
 mod inspection;
 mod source_bundle;
 mod static_source;
 mod syntax;
+mod template_ir;
 
 const MAX_SOURCE_BYTES: u64 = 1_048_576;
 
@@ -35,6 +37,9 @@ struct Cli {
     /// 完整读取有界源码包并输出语法/依赖/阻断报告，不生成近似主题
     #[arg(long,conflicts_with_all=["dry_run","overwrite","license","upstream_url","upstream_revision"])]
     inspect: bool,
+    /// 显式选择源码包内的 JSX 入口，生成受限的纯数据模板 IR；可重复，最多 8 个
+    #[arg(long, requires = "inspect")]
+    template_entry: Vec<String>,
     /// 严格要求完整迁移；不完整时失败且不写入候选，供 Agent/批处理使用
     #[arg(long)]
     require_complete: bool,
@@ -121,20 +126,21 @@ fn main() -> ExitCode {
         }
     };
     if cli.inspect {
-        let result = inspection::inspect(&cli.source).and_then(|report| {
-            if cli.require_complete && report["migrationComplete"] != true {
-                let mut error = AppError::new(
-                    3,
-                    "MIGRATION_INCOMPLETE",
-                    "存在未迁移能力或未完成的视觉验收；没有生成主题",
-                );
-                error.diagnostics = report["blockers"].as_array().cloned().unwrap_or_default();
-                error.inspection = Some(Box::new(report));
-                Err(error)
-            } else {
-                Ok(report)
-            }
-        });
+        let result =
+            inspection::inspect_templates(&cli.source, &cli.template_entry).and_then(|report| {
+                if cli.require_complete && report["migrationComplete"] != true {
+                    let mut error = AppError::new(
+                        3,
+                        "MIGRATION_INCOMPLETE",
+                        "存在未迁移能力或未完成的视觉验收；没有生成主题",
+                    );
+                    error.diagnostics = report["blockers"].as_array().cloned().unwrap_or_default();
+                    error.inspection = Some(Box::new(report));
+                    Err(error)
+                } else {
+                    Ok(report)
+                }
+            });
         emit(result)
     } else {
         emit(migrate(cli))

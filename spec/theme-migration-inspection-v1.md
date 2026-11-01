@@ -36,7 +36,15 @@ resume-one-theme-migrate --source /absolute/path/to/theme --inspect --require-co
 
 上游固定 JS grammar 会将 JSX 文本中的合法裸 `&` 识别为 ERROR（例如 `Awards & Honors`）。本仓库只在该 grammar 的 JSX 文本扫描器中修复这一点：非字符引用的 `&` 直接成为原始 `jsx_text`，合法字符引用仍由原 grammar 处理，位置与值均来自原始字节。不替换解析缓冲区、不忽略 ERROR、不作通用语法修复。依据为 [JSX 文本语法](https://github.com/facebook/jsx/blob/main/spec.emu)。报告的 `parsers.javascriptPatch` 固定为 `resume-one-jsx-ampersand-v1`。
 
-动态插值、需解码的模板转义、非顶层绑定及未分类模板字符串不能静默退化为静态样式。语法错误必须保留 `syntaxValid: false` 及阻断项。单次解析预算 2 秒、每文件最多 100000 个命名节点、单类证据最多 12000 条、CSS 上下文最多 128 层；整包语法检查预算 30 秒，最多 4096 条阻断项，完整报告最多 16 MiB。超限失败，不截断后宣称成功。
+动态插值、需解码的模板转义、非顶层绑定及未分类模板字符串不能静默退化为静态样式。语法错误和 JSX 开闭标签不匹配必须保留 `syntaxValid: false` 及阻断项。单次解析预算 2 秒、每文件最多 100000 个命名节点、单类证据最多 12000 条、CSS 上下文最多 128 层；整包语法检查预算 30 秒，最多 4096 条阻断项，完整报告最多 16 MiB。超限失败，不截断后宣称成功。
+
+### 受限常量折叠
+
+styled 模板的直接插值可按原始 AST 做有界常量求值，不从展示片段编译，不运行 JavaScript。支持唯一、简单、顶层 `const` 的无转义字符串、十进制数值、引用别名、括号和数值 `+ - * /`；不做字符串拼接或隐式类型转换。保留声明顺序与初始化时点，引用不可越过暂时性死区。同名声明/参数/import、任何位置的赋值/update、动态作用域、显式 eval/Function/global 访问均保守拒绝相应求值。未知调用不执行；求值成功不证明整个模块安全。
+
+字符串最多 4096 字节；数值必须有限且为零或绝对值在 `1e-6..1e12`，结果十进制表示最多 12 位有效数字，避免冒充完整 ECMAScript 数字字符串规则。表达式/引用深度最多 64，单次求值最多 1024 步，绑定最多 4096；函数、props、成员读取、对象/getter、导入、模板求值、除零、过精确舍入及未知操作均显式保留原因，不猜测结果。
+
+`constantSubstitutions` 保留表达式原始位置及所得数据；`dynamicExpressions` 仅包含未解析项并携带 `reason`。只要仍有未解析项或模板转义，整个样式的 `css` 为 null，不输出用空值拼接的半成品。常量展开累计每文件最多 8 MiB，超限在 CSS 解析前失败。生成 CSS 以真实 CSS grammar 再解析，`sourceMapping: "constant-folded"` 明确区分原字面内容；字面部分精确映射，替换值的范围回指整个原始 `${...}`。重复属性与顺序仍保留，不表示已完成 cascade、继承或排版后端转换。
 
 ## 依赖与状态
 
@@ -50,6 +58,8 @@ resume-one-theme-migrate --source /absolute/path/to/theme --inspect --require-co
 - `executedSourceCode`、`sourceModified`：本前端始终为 false。
 
 当前前端始终附带 `DECLARATIVE_COMPILER_REQUIRED` 和 `VISUAL_ACCEPTANCE_REQUIRED`，上述前三项均为 false。`--require-complete` 因而必须失败，不写主题文件；错误中的 `inspection` 保留完整报告。旧候选生成模式继续兼容，但结果显式标记 `migrationComplete: false`，严格模式同样拒绝生成或覆盖候选。
+
+可通过 `--inspect --template-entry src/Resume.jsx` 显式选择包内模板编译入口，最多 8 个且不可重复。入口只能为已纳入快照的 JS/JSX/MJS/CJS 相对路径，不能含空段、`.`、`..`、反斜杠或绝对路径；不会读取快照外文件。`templatePrograms` 每项包含入口文件、文件 SHA-256 和受限模板 IR。此阶段的 `program.resolved` 仅表示有限模板前端无阻断，仍不表示主题、样式、依赖、许可或视觉验收通过。节点与运行边界见[模板 IR 规范](theme-template-ir-v1.md)。
 
 ## 后续编译及验收约束
 

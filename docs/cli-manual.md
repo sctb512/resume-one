@@ -105,6 +105,20 @@ resume-one-theme-migrate --inspect --source /absolute/upstream-theme --require-c
 
 JS/JSX 和 CSS 使用固定版本的 Tree-sitter 语法解析，报告保留静态导入、组件基类、重复声明、嵌套选择器/打印规则、JSX 字段/条件表达式的源位置。注释、普通字符串中的样式不冒充真实样式。动态样式、尚未解码的模板转义、未支持格式和缺失依赖均列为阻断项；不会执行表达式、安装依赖或请求字体网络地址。完整源码快照不等于依赖闭包完整，也不等于结构编译/许可/视觉验收通过。
 
+固定字面量和顶层唯一 `const` 的有限数值运算可以静态展开，例如 `${GRID_SIZE * 10}px`；不调用 JS，不解释 props 函数或使用猜测值。成功项在 `constantSubstitutions`，未完成项在 `dynamicExpressions`，并保留原始位置和原因。展开 CSS 由真实 CSS 解析器再次处理，生成的声明范围映射回原文件；作用域冲突、写入、未初始化引用、未知运算或超限均拒绝。不支持项不会被替换成空文本。
+
 报告为单行 JSON，包含 `inspectionVersion: 1`、`sourceSnapshot`、`statistics`、`syntaxEvidence` 和 `blockers`。`sourceSnapshot.complete` 只说明已完整读取声明边界内的文件；`migrationComplete/visualVerified/licenseVerified` 当前仍为 false。没有可靠的相似度或迁移百分比。详细契约见[迁移检查规范](../spec/theme-migration-inspection-v1.md)。
 
 加 `--require-complete` 后，只要尚有未完成迁移或验收就返回退出码 `3`、错误 `MIGRATION_INCOMPLETE`，完整检查报告位于 `error.inspection`；不能被当成可发布主题。该标志也可用于旧候选命令：当前即使指定 `--overwrite` 也会在写入前拒绝，不改变已有文件。未加严格标志的旧候选输出保留兼容行为，但明确返回 `migrationComplete: false`。目前尚无完整语义编译与自动视觉通过路径，严格命令不会成功；这不是已实现“100% 自动迁移”的声明。
+
+### 显式模板编译入口
+
+```sh
+resume-one-theme-migrate --source /absolute/upstream-theme --inspect --template-entry src/Resume.jsx
+```
+
+`--template-entry` 必须和 `--inspect` 一起使用，只能选择来源快照内的相对 JS/JSX 路径，最多 8 个、不重复，不读取包外文件。报告的 `templatePrograms` 保留真实 default-export 函数的元素、字段、条件、列表映射、词法作用域与来源范围。未知调用、属性、语句、样式或共享组件不能被静默跳过。输入无副作用执行，输出是纯数据中间结构，不是可直接安装的主题。
+
+`program.resolved` 只表示受限模板前端无阻断；不代表 CSS、依赖、排版或视觉完成。缺省值不等于空字符串，可选链与括号边界保持独立语义。完整契约见[模板 IR 规范](../spec/theme-template-ir-v1.md)。最终主题迁移仍须通过来源协议的严格门禁。
+
+模板前端也可描述无转义的非标签文本模板，以及数组字段的 `.join()` / `.join(', ')` 等有限操作；不会调用源代码。标量转文本、null/undefined、可选链、分隔符和原始空白各自保留语义。未知类型仍附带明确约束，复合值、未知调用或动态分隔符不能据此被认定为等价转换。

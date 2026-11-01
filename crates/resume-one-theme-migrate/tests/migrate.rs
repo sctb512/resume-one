@@ -24,6 +24,119 @@ fn path(path: &Path) -> &str {
 }
 
 #[test]
+fn compiles_an_explicit_snapshot_locked_template_entry_without_claiming_theme_migration() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    fs::create_dir(root.join("src")).unwrap();
+    let text = "export default function Resume({resume}) {const {basics={},work=[]}=resume;return <main><h1>{basics?.name}</h1>{work.length > 0 && work.map((job,index)=><section key={index}><h2>{job.position}</h2></section>)}</main>;}";
+    fs::write(root.join("src/Resume.jsx"), text).unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "src/Resume.jsx",
+    ]);
+    assert!(status.status.success(), "{report}");
+    let result = &report["result"];
+    let program = &result["templatePrograms"][0];
+    assert_eq!(program["entryFile"], "src/Resume.jsx");
+    assert_eq!(program["sourceSha256"].as_str().unwrap().len(), 64);
+    assert_eq!(program["program"]["format"], "resume-one-template-ir-v1");
+    assert_eq!(program["program"]["resolved"], true);
+    assert_eq!(program["program"]["syntaxValid"], true);
+    assert!(!program["program"]["entry"].is_null());
+    assert_eq!(result["migrationComplete"], false);
+    assert_eq!(result["visualVerified"], false);
+    assert_eq!(result["executedSourceCode"], false);
+    assert_eq!(
+        fs::read_to_string(root.join("src/Resume.jsx")).unwrap(),
+        text
+    );
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "src/Resume.jsx",
+        "--require-complete",
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(
+        report["error"]["inspection"]["templatePrograms"][0]["program"]["resolved"],
+        true
+    );
+}
+
+#[test]
+fn template_entry_errors_and_unknown_semantics_are_explicit_and_never_read_outside_snapshot() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    fs::write(
+        root.join("Resume.jsx"),
+        "export default ({resume})=><p>{run(resume)}</p>;",
+    )
+    .unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+    ]);
+    assert!(status.status.success());
+    assert_eq!(
+        report["result"]["templatePrograms"][0]["program"]["resolved"],
+        false
+    );
+    assert!(
+        report["result"]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|b| b["code"] == "UNSUPPORTED_CALL" && b["stage"] == "template-ir")
+    );
+    for entry in [
+        "../private.jsx",
+        "/absolute.jsx",
+        "src/./Resume.jsx",
+        "src\\Resume.jsx",
+        "C:/private.jsx",
+    ] {
+        let (status, report) = call(&[
+            "--source",
+            path(&root),
+            "--inspect",
+            "--template-entry",
+            entry,
+        ]);
+        assert_eq!(status.status.code(), Some(2), "{report}");
+        assert_eq!(report["error"]["code"], "TEMPLATE_ENTRY_PATH");
+    }
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "absent.jsx",
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "TEMPLATE_ENTRY_NOT_FOUND");
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--template-entry",
+        "Resume.jsx",
+    ]);
+    assert_eq!(status.status.code(), Some(2));
+    assert_eq!(report["error"]["code"], "TEMPLATE_ENTRY_PATH");
+}
+
+#[test]
 fn upgrades_v1_without_touching_source_or_claiming_review() {
     let root = tempfile::tempdir().unwrap();
     let source = root.path().join("original.theme.json");

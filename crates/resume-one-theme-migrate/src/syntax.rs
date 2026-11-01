@@ -10,6 +10,7 @@ use tree_sitter::{Language, Node, ParseOptions, Parser, Tree};
 const MAX_NODES: usize = 100_000;
 const MAX_RECORDS: usize = 12_000;
 const MAX_SNIPPET_BYTES: usize = 2_048;
+const MAX_FOLDED_CSS_BYTES: usize = 8 * 1024 * 1024;
 
 #[derive(Debug)]
 pub(crate) struct SyntaxError {
@@ -233,11 +234,47 @@ fn styled_base(
     }
 }
 
+/// Constant replacement maps a rendered CSS token back to the entire original
+/// substitution; literal segments retain exact byte positions.
+struct CssSegment {
+    output_start: usize,
+    output_end: usize,
+    source_start: usize,
+    source_end: usize,
+    substitution: bool,
+}
+
+fn css_offset(segments: &[CssSegment], at: usize, end: bool, fallback: usize) -> usize {
+    let index = segments.partition_point(|s| {
+        if end {
+            s.output_end < at
+        } else {
+            s.output_end <= at
+        }
+    });
+    if let Some(segment) = segments.get(index) {
+        if segment.substitution {
+            if end {
+                segment.source_end
+            } else {
+                segment.source_start
+            }
+        } else {
+            segment.source_start
+                + at.saturating_sub(segment.output_start)
+                    .min(segment.source_end - segment.source_start)
+        }
+    } else {
+        segments.last().map_or(fallback, |s| s.source_end)
+    }
+}
+
 fn css(
     body: &str,
     base: usize,
     wrap: bool,
     locations: &Locations<'_>,
+    segments: Option<&[CssSegment]>,
 ) -> Result<Value, SyntaxError> {
     let prefix = if wrap { ".__resume_one__ {\n" } else { "" };
     let parsed = format!("{prefix}{body}{}", if wrap { "\n}" } else { "" });
@@ -253,8 +290,14 @@ fn css(
         if seen > MAX_NODES || depth > 128 {
             return Err(failure("CSS_AST_LIMIT", "CSS 节点数量或嵌套深度超限"));
         }
-        let original = |at: usize| base + at.saturating_sub(prefix.len()).min(body.len());
-        let span = locations.span(original(node.start_byte()), original(node.end_byte()));
+        let original = |at: usize, end: bool| {
+            let relative = at.saturating_sub(prefix.len()).min(body.len());
+            segments.map_or(base + relative, |s| {
+                css_offset(s, relative, end, base + relative)
+            })
+        };
+        let start = original(node.start_byte(), false);
+        let span = locations.span(start, original(node.end_byte(), true).max(start));
         if node.is_error() || node.is_missing() {
             errors.push(json!({"code":"CSS_SYNTAX","kind":node.kind(),"span":span}));
         }
@@ -319,8 +362,104 @@ fn css(
         }
     }
     Ok(
-        json!({"syntaxValid":!tree.root_node().has_error(),"declarations":declarations,"directives":directives,"errors":errors}),
+        json!({"syntaxValid":!tree.root_node().has_error(),"sourceMapping":if segments.is_some(){"constant-folded"}else{"literal"},"declarations":declarations,"directives":directives,"errors":errors}),
     )
+}
+
+struct FoldedCss {
+    text: String,
+    segments: Vec<CssSegment>,
+    constants: Vec<Value>,
+    unresolved: Vec<Value>,
+}
+
+fn css_piece(
+    result: &mut FoldedCss,
+    text: &str,
+    start: usize,
+    end: usize,
+    substitution: bool,
+) -> Result<(), SyntaxError> {
+    if result.text.len().saturating_add(text.len()) > MAX_FOLDED_CSS_BYTES {
+        return Err(failure("CSS_FOLD_LIMIT", "常量展开后的 CSS 超过 8 MiB"));
+    }
+    let output_start = result.text.len();
+    result.text.push_str(text);
+    if !text.is_empty() {
+        result.segments.push(CssSegment {
+            output_start,
+            output_end: result.text.len(),
+            source_start: start,
+            source_end: end,
+            substitution,
+        });
+    }
+    Ok(())
+}
+
+fn fold_css(
+    template: Node<'_>,
+    source: &[u8],
+    constants: &crate::constant_expr::Constants<'_, '_>,
+    locations: &Locations<'_>,
+) -> Result<FoldedCss, SyntaxError> {
+    let mut result = FoldedCss {
+        text: String::new(),
+        segments: Vec::new(),
+        constants: Vec::new(),
+        unresolved: Vec::new(),
+    };
+    let mut cursor = template.start_byte() + 1;
+    for index in 0..template.named_child_count() {
+        let node = template.named_child(index).expect("template child");
+        if node.kind() != "template_substitution" {
+            continue;
+        }
+        css_piece(
+            &mut result,
+            std::str::from_utf8(&source[cursor..node.start_byte()]).expect("source utf8"),
+            cursor,
+            node.start_byte(),
+            false,
+        )?;
+        let expressions = (0..node.named_child_count())
+            .filter_map(|i| node.named_child(i))
+            .filter(|n| n.kind() != "comment")
+            .collect::<Vec<_>>();
+        let value = if expressions.len() == 1 {
+            constants.evaluate(expressions[0], template.start_byte())
+        } else {
+            Err("CONST_EXPRESSION: substitution requires exactly one expression".into())
+        };
+        let span = locations.span(node.start_byte(), node.end_byte());
+        match value {
+            Ok(value) => {
+                css_piece(
+                    &mut result,
+                    &value,
+                    node.start_byte(),
+                    node.end_byte(),
+                    true,
+                )?;
+                result.constants.push(
+                    json!({"expression":snippet(text(node,source)),"value":value,"span":span}),
+                );
+            }
+            Err(reason) => result
+                .unresolved
+                .push(json!({"expression":snippet(text(node,source)),"reason":reason,"span":span})),
+        }
+        cursor = node.end_byte();
+    }
+    let end = template.end_byte() - 1;
+    css_piece(
+        &mut result,
+        std::str::from_utf8(&source[cursor..end]).expect("source utf8"),
+        cursor,
+        end,
+        false,
+    )?;
+    Ok(result)
 }
 
 fn static_member_path(mut node: Node<'_>, source: &[u8]) -> Option<Vec<String>> {
@@ -358,11 +497,13 @@ pub(crate) fn analyze(path: &str, source: &[u8]) -> Result<Option<Value>, Syntax
     let locations = Locations::new(path, source);
     if extension == "css" {
         return Ok(Some(
-            json!({"file":path,"format":"css","styles":css(source_text,0,false,&locations)?}),
+            json!({"file":path,"format":"css","styles":css(source_text,0,false,&locations,None)?}),
         ));
     }
     let (tree, compatibility) = parse_javascript(path, source)?;
     let (imports, apis) = imports_and_apis(tree.root_node(), source, &locations)?;
+    let constants = crate::constant_expr::Constants::from_program(tree.root_node(), source);
+    let mut css_bytes = 0usize;
     if imports.len() > MAX_RECORDS {
         return Err(failure("JS_RECORD_LIMIT", "JavaScript 导入记录超限"));
     }
@@ -414,19 +555,27 @@ pub(crate) fn analyze(path: &str, source: &[u8]) -> Result<Option<Value>, Syntax
                 });
             let raw = text(template, source);
             let body = &raw[1..raw.len() - 1];
-            let dynamic=nodes(template)?.into_iter().filter(|p|p.kind()=="template_substitution").map(|p|json!({"expression":snippet(text(p,source)),"span":locations.span(p.start_byte(),p.end_byte())})).collect::<Vec<_>>();
+            let folded = fold_css(template, source, &constants, &locations)?;
             let escaped = body.contains('\\');
-            let parsed = if dynamic.is_empty() && !escaped {
+            css_bytes = css_bytes.saturating_add(folded.text.len());
+            if css_bytes > MAX_FOLDED_CSS_BYTES {
+                return Err(failure(
+                    "CSS_FOLD_LIMIT",
+                    "单文件 CSS 常量展开累计超过 8 MiB",
+                ));
+            }
+            let parsed = if folded.unresolved.is_empty() && !escaped {
                 Some(css(
-                    body,
+                    &folded.text,
                     template.start_byte() + 1,
                     base["kind"] != "global",
                     &locations,
+                    (!folded.constants.is_empty()).then_some(folded.segments.as_slice()),
                 )?)
             } else {
                 None
             };
-            styles.push(json!({"name":name,"base":base,"topLevelBinding":top_level,"dynamicExpressions":dynamic,"templateEscapesRequireDecoding":escaped,"css":parsed,"span":span,"templateSpan":locations.span(template.start_byte(),template.end_byte())}));
+            styles.push(json!({"name":name,"base":base,"topLevelBinding":top_level,"dynamicExpressions":folded.unresolved,"constantSubstitutions":folded.constants,"templateEscapesRequireDecoding":escaped,"css":parsed,"span":span,"templateSpan":locations.span(template.start_byte(),template.end_byte())}));
         } else if node.kind() == "jsx_expression" {
             let expression = node.named_child(0);
             expressions.push(json!({"kind":expression.map(|p|p.kind()),"memberPath":expression.and_then(|p|static_member_path(p,source)),"expression":snippet(text(node,source)),"span":span}));
@@ -510,6 +659,85 @@ mod tests {
         let source = format!("a {{{}}}", "margin: 0;".repeat(MAX_RECORDS + 1));
         let error = analyze("style.css", source.as_bytes()).unwrap_err();
         assert_eq!(error.code, "CSS_RECORD_LIMIT");
+    }
+
+    #[test]
+    fn static_constants_compile_to_real_css_with_original_source_spans() {
+        let source = r#"import styled from 'styled-components';
+const INK='#123456'; const GRID=8; const FONT="'Merriweather', Georgia, serif";
+// 真实来源，位置使用 UTF-8 字节
+const Layout=styled.div`color:${INK}; padding:${GRID*10}px ${GRID*6}px; font-family:${FONT}; @media print {margin:${GRID}px;}`;"#;
+        let result = js(source);
+        let style = &result["styledComponents"][0];
+        assert!(style["dynamicExpressions"].as_array().unwrap().is_empty());
+        assert_eq!(style["constantSubstitutions"].as_array().unwrap().len(), 5);
+        let css = &style["css"];
+        assert_eq!(css["syntaxValid"], true);
+        assert_eq!(css["sourceMapping"], "constant-folded");
+        assert_eq!(css["declarations"][0]["value"]["text"], "#123456");
+        assert_eq!(css["declarations"][1]["value"]["text"], "80px 48px");
+        assert_eq!(css["declarations"][3]["scope"], json!(["@media print"]));
+        let span = &css["declarations"][1]["span"];
+        let start = span["startByte"].as_u64().unwrap() as usize;
+        let end = span["endByte"].as_u64().unwrap() as usize;
+        assert_eq!(&source[start..end], "padding:${GRID*10}px ${GRID*6}px;");
+        let whole = js(
+            "import s from 'styled-components';const DECL='color: red; padding: 8px;';const C=s.div`${DECL}`;",
+        );
+        for declaration in whole["styledComponents"][0]["css"]["declarations"]
+            .as_array()
+            .unwrap()
+        {
+            let start = declaration["span"]["startByte"].as_u64().unwrap() as usize;
+            let end = declaration["span"]["endByte"].as_u64().unwrap() as usize;
+            assert_eq!(
+                &"import s from 'styled-components';const DECL='color: red; padding: 8px;';const C=s.div`${DECL}`;"
+                    [start..end],
+                "${DECL}"
+            );
+        }
+    }
+
+    #[test]
+    fn unresolved_props_tdz_and_shadowed_constants_do_not_create_partial_css() {
+        let result = js(
+            "import s from 'styled-components';const COLOR='#fff';const C=s.div`color:${COLOR};padding:${p=>p.tight?4:8}px;`;",
+        );
+        let style = &result["styledComponents"][0];
+        assert!(style["css"].is_null());
+        assert_eq!(style["constantSubstitutions"].as_array().unwrap().len(), 1);
+        assert_eq!(style["dynamicExpressions"].as_array().unwrap().len(), 1);
+        assert!(
+            style["dynamicExpressions"][0]["reason"]
+                .as_str()
+                .unwrap()
+                .contains("CONST_UNSUPPORTED")
+        );
+        for source in [
+            "import s from 'styled-components';const C=s.div`padding:${GRID}px;`;const GRID=8;",
+            "import s from 'styled-components';const GRID=8;function f(GRID){};const C=s.div`padding:${GRID}px;`;",
+        ] {
+            let result = js(source);
+            assert!(result["styledComponents"][0]["css"].is_null());
+            assert_eq!(
+                result["styledComponents"][0]["dynamicExpressions"]
+                    .as_array()
+                    .unwrap()
+                    .len(),
+                1
+            );
+        }
+    }
+
+    #[test]
+    fn constant_expansion_is_bounded_before_css_parsing() {
+        let source = format!(
+            "import s from 'styled-components';const TEXT='{}';const C=s.div`{}`;",
+            "x".repeat(4096),
+            "content:${TEXT};".repeat(2050)
+        );
+        let error = analyze("Resume.jsx", source.as_bytes()).unwrap_err();
+        assert_eq!(error.code, "CSS_FOLD_LIMIT");
     }
 
     #[test]

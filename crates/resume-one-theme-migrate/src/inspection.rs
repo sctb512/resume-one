@@ -1,12 +1,12 @@
 //! Source-complete package inventory and syntax evidence, not a visual certificate.
 
 use std::collections::BTreeSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
-use crate::{AppError, source_bundle, style_link, syntax, template_ir};
+use crate::{AppError, dependency_bundle, source_bundle, style_link, syntax, template_ir};
 
 const STYLE_EXTENSIONS: &[&str] = &[
     "js",
@@ -35,6 +35,66 @@ fn blocker(code: &str, file: Option<&str>, message: &str) -> Value {
 
 pub(crate) fn inspect(root: &Path) -> Result<Value, AppError> {
     inspect_templates(root, &[])
+}
+
+pub(crate) fn inspect_dependencies(
+    root: &Path,
+    entries: &[String],
+    dependencies: &[PathBuf],
+) -> Result<Value, AppError> {
+    let mut report = inspect_templates(root, entries)?;
+    if dependencies.is_empty() {
+        return Ok(report);
+    }
+    let bundle = dependency_bundle::inspect(dependencies).map_err(|message| {
+        let code = message
+            .split_once(':')
+            .map_or("DEPENDENCY_ERROR", |(code, _)| code)
+            .to_owned();
+        let mut error = AppError::new(3, "DEPENDENCY_BUNDLE_ERROR", message);
+        error
+            .diagnostics
+            .push(json!({"code":code,"stage":"dependency-bundle"}));
+        error
+    })?;
+    if let Some(name) = report["package"]["name"].as_str()
+        && bundle["fingerprints"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .any(|p| p["name"] == name)
+    {
+        return Err(AppError::new(
+            3,
+            "DEPENDENCY_DUPLICATES_SOURCE",
+            "依赖包名与主题来源相同，不能形成无歧义的源码身份",
+        ));
+    }
+    let additional = bundle["blockers"].as_array().map_or(0, Vec::len);
+    let blockers = report["blockers"]
+        .as_array_mut()
+        .expect("inspection blockers");
+    if blockers.len().saturating_add(additional) > 4096 {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "来源与依赖的总阻断项超过 4096 个",
+        ));
+    }
+    for issue in bundle["blockers"].as_array().into_iter().flatten() {
+        let mut issue = issue.clone();
+        issue["stage"] = json!("dependency-bundle");
+        blockers.push(issue);
+    }
+    report["dependencyBundle"] = bundle;
+    if serde_json::to_vec(&report).map_or(true, |b| b.len() > 16 * 1024 * 1024) {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "来源、模板、样式和依赖的合并报告超过 16 MiB",
+        ));
+    }
+    Ok(report)
 }
 
 pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value, AppError> {

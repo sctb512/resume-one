@@ -124,3 +124,13 @@ resume-one-theme-migrate --source /absolute/upstream-theme --inspect --template-
 模板前端也可描述无转义的非标签文本模板，以及数组字段的 `.join()` / `.join(', ')` 等有限操作；不会调用源代码。标量转文本、null/undefined、可选链、分隔符和原始空白各自保留语义。未知类型仍附带明确约束，复合值、未知调用或动态分隔符不能据此被认定为等价转换。
 
 `templatePrograms[].styleGraph` 连接同模块的真实 styled 继承与模板 binding id，保留基类→派生类的样式层、重复声明和打印规则。外部共享组件仍须锁定其实现，不会被替换为普通容器。`inheritanceLinked` 不等于排版或视觉完成，`layoutCompiled` 当前仍为 false，严格迁移门禁不会因此放行。
+
+### 显式共享依赖源码
+
+```sh
+resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src/Resume.jsx --dependency /absolute/core --dependency /absolute/utils
+```
+
+每个 `--dependency` 指定一个本地包的绝对目录，最多 8 个；不会搜索、安装、下载或执行依赖。`dependencyBundle` 记录每包明确版本、完整文件指纹、exports 的精确文件与缺失项、原始导入和未支持能力。多个同名包或与主题同名的依赖会失败，不能按提供顺序猜测。全部依赖源码合计最多 64 MiB，仍拒绝符号链接与包外路径。
+
+目前只支持显式字符串/子路径 exports 检查，不执行条件导出、wildcard、loader 或 Node fallback。`file-present` 仅表示文件存在；外部导入仍保持未连接，`dependencyGraphComplete` 和 `rootExternalImportsResolved` 为 false，不能用提供了目录替代真正的共享组件/传递依赖编译。详细行为与机器错误码见[依赖源码包协议](../spec/theme-dependency-bundle-v1.md)。

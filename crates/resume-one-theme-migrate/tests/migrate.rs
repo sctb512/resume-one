@@ -183,6 +183,159 @@ fn style_inheritance_links_symbol_ids_but_does_not_claim_a_finished_theme() {
 }
 
 #[test]
+fn explicit_dependency_snapshots_are_locked_without_implicitly_resolving_or_executing_them() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = root.join("theme");
+    let core = root.join("core");
+    let utils = root.join("utils");
+    for dir in [&source, &core, &utils] {
+        fs::create_dir(dir).unwrap();
+    }
+    fs::write(
+        source.join("package.json"),
+        r#"{"name":"test-theme","version":"1.0.0"}"#,
+    )
+    .unwrap();
+    let content = "import {Section} from '@jsonresume/core';export default({resume})=><Section>{resume.name}</Section>;";
+    fs::write(source.join("Resume.jsx"), content).unwrap();
+    fs::write(
+        core.join("package.json"),
+        r#"{"name":"@jsonresume/core","version":"0.3.6","exports":"./index.js"}"#,
+    )
+    .unwrap();
+    fs::write(
+        core.join("index.js"),
+        "export {identity} from '@jsonresume/utils';",
+    )
+    .unwrap();
+    fs::write(
+        utils.join("package.json"),
+        r#"{"name":"@jsonresume/utils","version":"0.4.0","exports":"./index.js"}"#,
+    )
+    .unwrap();
+    fs::write(
+        utils.join("index.js"),
+        "export const identity=value=>value;",
+    )
+    .unwrap();
+    let args = [
+        "--source",
+        path(&source),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--dependency",
+        path(&core),
+        "--dependency",
+        path(&utils),
+    ];
+    let (status, report) = call(&args);
+    assert!(status.status.success(), "{report}");
+    let bundle = &report["result"]["dependencyBundle"];
+    assert_eq!(bundle["packageCount"], 2);
+    assert_eq!(bundle["fingerprints"][0]["name"], "@jsonresume/core");
+    assert_eq!(
+        bundle["fingerprints"][0]["sourceSha256"]
+            .as_str()
+            .unwrap()
+            .len(),
+        64
+    );
+    assert_eq!(
+        bundle["packages"][0]["exportsEntries"][0]["status"],
+        "file-present"
+    );
+    for key in [
+        "rootExternalImportsResolved",
+        "dependencyGraphComplete",
+        "migrationComplete",
+        "executedSourceCode",
+        "networkAccessed",
+    ] {
+        assert_eq!(bundle[key], false);
+    }
+    assert!(
+        report["result"]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|b| b["code"] == "EXTERNAL_DEPENDENCIES_UNRESOLVED")
+    );
+    assert_eq!(
+        fs::read_to_string(source.join("Resume.jsx")).unwrap(),
+        content
+    );
+    let mut strict = args.to_vec();
+    strict.push("--require-complete");
+    let (status, report) = call(&strict);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(
+        report["error"]["inspection"]["dependencyBundle"]["packageCount"],
+        2
+    );
+}
+
+#[test]
+fn dependency_roots_are_explicit_and_duplicates_or_invalid_packages_fail_without_writes() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = root.join("source");
+    let dep = root.join("dependency");
+    fs::create_dir(&source).unwrap();
+    fs::create_dir(&dep).unwrap();
+    let package = r#"{"name":"same-package","version":"1.0.0","exports":"./index.js"}"#;
+    for dir in [&source, &dep] {
+        fs::write(dir.join("package.json"), package).unwrap();
+        fs::write(dir.join("index.js"), "export const x=1;").unwrap();
+    }
+    let (status, report) = call(&[
+        "--source",
+        path(&source),
+        "--inspect",
+        "--dependency",
+        path(&dep),
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "DEPENDENCY_DUPLICATES_SOURCE");
+    let (status, report) = call(&[
+        "--source",
+        path(&source),
+        "--inspect",
+        "--dependency",
+        "relative",
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "DEPENDENCY_BUNDLE_ERROR");
+    assert_eq!(
+        report["error"]["diagnostics"][0]["code"],
+        "DEPENDENCY_ROOT_PATH"
+    );
+    fs::write(
+        dep.join("package.json"),
+        r#"{"name":"dep","version":"^1.0.0"}"#,
+    )
+    .unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&source),
+        "--inspect",
+        "--dependency",
+        path(&dep),
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(
+        report["error"]["diagnostics"][0]["code"],
+        "DEPENDENCY_PACKAGE_VERSION"
+    );
+    assert_eq!(
+        fs::read_to_string(source.join("package.json")).unwrap(),
+        package
+    );
+}
+
+#[test]
 fn upgrades_v1_without_touching_source_or_claiming_review() {
     let root = tempfile::tempdir().unwrap();
     let source = root.path().join("original.theme.json");

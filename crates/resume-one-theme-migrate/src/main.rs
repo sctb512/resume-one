@@ -16,6 +16,7 @@ mod constant_expr;
 mod dependency_bundle;
 mod inspection;
 mod module_symbols;
+mod section_adapter;
 mod source_bundle;
 mod static_source;
 mod style_link;

@@ -6,7 +6,7 @@
 
 沿用 `--inspect --template-entry ... --dependency ...`，不新增搜索路径或隐式包下载。全部证据取自同一次有界来源快照：同一个 Tree-sitter 完整文件 CST 与原始字节生成 `syntaxEvidence[].moduleSymbols`，不从展示片段重新解析；模块连接器不再读取文件系统。
 
-`moduleSymbols` 格式为 `resume-one-module-symbols-v1`，保留 imports（local/module/imported）、exports（exported/local 或 module/imported）、declarations（独立 id、声明类型、可变性、初始化式证据）、原始位置、顶层顺序、副作用证据与阻断项。位置为原始 UTF-8 字节区间及一基字节列号。默认导出匿名函数有合成声明身份，函数表达式内部名字不泄漏为模块绑定；const 别名保持独立声明，不擅自执行初始化式。
+`moduleSymbols` 格式为 `resume-one-module-symbols-v1`，保留 imports（local/module/imported，以及本地标识符的 localSpan）、exports（exported/local 或 module/imported）、declarations（独立 id、声明类型、可变性、初始化式证据）、原始位置、顶层顺序、副作用证据与阻断项。位置为原始 UTF-8 字节区间及一基字节列号。整个 import specifier 的 span 与别名 localSpan 不可互换。默认导出匿名函数有合成声明身份，函数表达式内部名字不泄漏为模块绑定；const 别名保持独立声明，不擅自执行初始化式。
 
 输出 `moduleLinks`，格式 `resume-one-module-links-v1`：
 

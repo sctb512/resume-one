@@ -74,6 +74,18 @@ fn shared_import_links_to_real_exported_declaration_but_strict_migration_still_f
         "function"
     );
     assert_eq!(links["componentSemanticsCompiled"], false);
+    assert_eq!(
+        report["result"]["componentContent"]["statistics"]["wrappersLowered"],
+        0
+    );
+    assert!(
+        report["result"]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|issue| issue["stage"] == "component-content"
+                && issue["code"] == "SECTION_PINNED_DECLARATION_MISMATCH")
+    );
     assert_eq!(report["result"]["migrationComplete"], false);
     assert_eq!(
         report["result"]["dependencyBundle"]["dependencyGraphComplete"],

@@ -7,7 +7,8 @@ use std::time::{Duration, Instant};
 use serde_json::{Value, json};
 
 use crate::{
-    AppError, dependency_bundle, source_bundle, style_link, symbol_link, syntax, template_ir,
+    AppError, dependency_bundle, section_adapter, source_bundle, style_link, symbol_link, syntax,
+    template_ir,
 };
 
 const STYLE_EXTENSIONS: &[&str] = &[
@@ -47,6 +48,7 @@ pub(crate) fn inspect_dependencies(
     let mut report = inspect_templates(root, entries)?;
     if dependencies.is_empty() {
         attach_symbol_links(&mut report, &json!({"packages":[]}))?;
+        attach_component_content(&mut report)?;
         return Ok(report);
     }
     let bundle = dependency_bundle::inspect(dependencies).map_err(|message| {
@@ -91,6 +93,7 @@ pub(crate) fn inspect_dependencies(
     }
     attach_symbol_links(&mut report, &bundle)?;
     report["dependencyBundle"] = bundle;
+    attach_component_content(&mut report)?;
     if serde_json::to_vec(&report).map_or(true, |b| b.len() > 16 * 1024 * 1024) {
         return Err(AppError::new(
             3,
@@ -99,6 +102,53 @@ pub(crate) fn inspect_dependencies(
         ));
     }
     Ok(report)
+}
+
+fn attach_component_content(report: &mut Value) -> Result<(), AppError> {
+    let content = section_adapter::compile(report)
+        .map_err(|message| AppError::new(3, "COMPONENT_CONTENT_ERROR", message))?;
+    let mut additional = content["blockers"].as_array().cloned().unwrap_or_default();
+    for instance in content["instances"].as_array().into_iter().flatten() {
+        for issue in instance["blockers"].as_array().into_iter().flatten() {
+            let mut issue = issue.clone();
+            issue["file"] = instance["entryFile"].clone();
+            issue["inputPointer"] = instance["inputPointer"].clone();
+            if issue["span"].is_null() {
+                issue["span"] = instance["span"].clone();
+            }
+            additional.push(issue);
+            if additional.len() > 4096 {
+                return Err(AppError::new(
+                    3,
+                    "INSPECTION_LIMIT",
+                    "内容转换阻断项超过 4096 个",
+                ));
+            }
+        }
+    }
+    let issues = report["blockers"]
+        .as_array_mut()
+        .expect("inspection blockers");
+    if issues.len().saturating_add(additional.len()) > 4096 {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "内容转换与已有阻断项合计超过 4096 个",
+        ));
+    }
+    for mut issue in additional {
+        issue["stage"] = json!("component-content");
+        issues.push(issue);
+    }
+    report["componentContent"] = content;
+    if serde_json::to_vec(report).map_or(true, |bytes| bytes.len() > 16 * 1024 * 1024) {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "内容转换后的检查报告超过 16 MiB",
+        ));
+    }
+    Ok(())
 }
 
 fn attach_symbol_links(report: &mut Value, bundle: &Value) -> Result<(), AppError> {

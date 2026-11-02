@@ -136,3 +136,5 @@ resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src
 目前只支持显式字符串/子路径 exports，不执行条件导出、wildcard、loader 或 Node fallback。`file-present` 仅表示文件存在。所选模板另有 `moduleLinks`：可沿精确文件、具名/default 转导出与局部 import 别名追到真实声明，保留各层文件与包指纹；缺失、歧义、循环、星号/namespace 等明确阻断。
 
 `declarationResolved` 只表示声明定位，不表示导出值稳定、组件已转换或 CSS 已恢复。`dependencyGraphComplete` 和 `rootExternalImportsResolved` 继续为 false，不能用提供了目录或找到函数替代真正的组件/传递依赖编译。`--require-complete` 仍会拒绝未完成的主题，不写近似产物。详见[依赖源码包协议](../spec/theme-dependency-bundle-v1.md)与[模块声明连接协议](../spec/theme-module-links-v1.md)。
+
+同一命令还输出 `componentContent`。当前仅对固定版本、完整文件哈希及真实导入绑定匹配的 core Section，转换直接调用的有限容器内容，保留 children 顺序、空值、静态 id/className 和原始阻断。`wrapperContentLowered` 不表示子树、样式或排版完成；styled 包装、未知属性、动态 key/id/className 等继续阻断。完整边界见[共享组件内容转换规范](../spec/theme-shared-components-v1.md)。它仍不是可安装主题，也不会修改简历或上游源码。

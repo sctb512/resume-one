@@ -407,7 +407,7 @@ impl Symbols<'_> {
                     if let (Some(local), Some(local_node)) = (&local, local_node) {
                         self.register(local, local_node, 0);
                     }
-                    self.imports.push(json!({"local":local,"module":module,"imported":imported,"kind":kind,
+                    self.imports.push(json!({"local":local,"module":module,"imported":imported,"kind":kind,"localSpan":local_node.map(|n|self.span(n)),
                         "supported":supported&&module.is_some()&&local.is_some()&&imported.is_some(),"order":order,"span":self.span(specifier)}));
                     count += 1;
                 }

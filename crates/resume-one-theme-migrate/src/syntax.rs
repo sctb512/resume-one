@@ -501,6 +501,8 @@ pub(crate) fn analyze(path: &str, source: &[u8]) -> Result<Option<Value>, Syntax
         ));
     }
     let (tree, compatibility) = parse_javascript(path, source)?;
+    let module_symbols = crate::module_symbols::extract(path, source, tree.root_node())
+        .map_err(|message| failure("MODULE_SYMBOL_ERROR", message))?;
     let (imports, apis) = imports_and_apis(tree.root_node(), source, &locations)?;
     let constants = crate::constant_expr::Constants::from_program(tree.root_node(), source);
     let mut css_bytes = 0usize;
@@ -587,7 +589,7 @@ pub(crate) fn analyze(path: &str, source: &[u8]) -> Result<Option<Value>, Syntax
         }
     }
     Ok(Some(
-        json!({"file":path,"format":"javascript-jsx","syntaxValid":!tree.root_node().has_error() && errors.is_empty(),"parserCompatibility":compatibility,"imports":imports,"styledComponents":styles,"jsxExpressions":expressions,"unclassifiedTemplates":templates,"errors":errors}),
+        json!({"file":path,"format":"javascript-jsx","syntaxValid":!tree.root_node().has_error() && errors.is_empty(),"parserCompatibility":compatibility,"moduleSymbols":module_symbols,"imports":imports,"styledComponents":styles,"jsxExpressions":expressions,"unclassifiedTemplates":templates,"errors":errors}),
     ))
 }
 

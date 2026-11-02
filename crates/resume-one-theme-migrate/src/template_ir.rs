@@ -680,11 +680,19 @@ impl Compiler<'_> {
                             self.reject(value,"UNSUPPORTED_ENTRYPOINT_EXPRESSION","default export is not a directly declared function or lexical reference; no factory/expression is evaluated")?;
                         }
                     }
-                } else {
+                } else if !node
+                    .child_by_field_name("declaration")
+                    .is_some_and(|declaration| {
+                        matches!(
+                            declaration.kind(),
+                            "function_declaration" | "lexical_declaration"
+                        )
+                    })
+                {
                     self.reject(
                         *node,
                         "UNSUPPORTED_EXPORT",
-                        "only an explicit default-exported function is a template entry",
+                        "named export must declare a function or lexical binding; re-exports and export clauses need separate module linking",
                     )?;
                 }
                 node.child_by_field_name("declaration")
@@ -1592,6 +1600,31 @@ mod tests {
         assert!(codes(&value).contains(&"UNSUPPORTED_TOP_LEVEL"));
         assert_eq!(nodes(&value["entry"], "text")[0]["value"], "real");
         assert!(value["dependencies"].to_string().contains("never.invalid"));
+    }
+
+    #[test]
+    fn named_declaration_and_default_alias_share_one_actual_entry() {
+        let value = ir(
+            "export function Section({children}) { return <section>{children}</section>; } export default Section;",
+        );
+        assert_eq!(value["resolved"], true, "{:#}", value["blockers"]);
+        assert_eq!(nodes(&value["entry"], "intrinsic")[0]["name"], "section");
+        let constant = ir(
+            "export const title = 'Hello'; export default function Resume(){return <h1>{title}</h1>;}",
+        );
+        assert_eq!(constant["resolved"], true, "{:#}", constant["blockers"]);
+        let helper = ir(
+            "export function helper(){return <b/>;} export default function Resume(){return <p/>;}",
+        );
+        assert!(codes(&helper).contains(&"UNCOMPILED_FUNCTION_DEPENDENCY"));
+        let reexport = ir(
+            "export {Section} from './Section.jsx'; export default function Resume(){return <p/>;}",
+        );
+        assert!(codes(&reexport).contains(&"UNSUPPORTED_EXPORT"));
+        let mutable = ir(
+            "export let title = 'Hello'; export default function Resume(){return <h1>{title}</h1>;}",
+        );
+        assert_ne!(mutable["resolved"], true);
     }
 
     #[test]

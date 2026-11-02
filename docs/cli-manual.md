@@ -133,4 +133,6 @@ resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src
 
 每个 `--dependency` 指定一个本地包的绝对目录，最多 8 个；不会搜索、安装、下载或执行依赖。`dependencyBundle` 记录每包明确版本、完整文件指纹、exports 的精确文件与缺失项、原始导入和未支持能力。多个同名包或与主题同名的依赖会失败，不能按提供顺序猜测。全部依赖源码合计最多 64 MiB，仍拒绝符号链接与包外路径。
 
-目前只支持显式字符串/子路径 exports 检查，不执行条件导出、wildcard、loader 或 Node fallback。`file-present` 仅表示文件存在；外部导入仍保持未连接，`dependencyGraphComplete` 和 `rootExternalImportsResolved` 为 false，不能用提供了目录替代真正的共享组件/传递依赖编译。详细行为与机器错误码见[依赖源码包协议](../spec/theme-dependency-bundle-v1.md)。
+目前只支持显式字符串/子路径 exports，不执行条件导出、wildcard、loader 或 Node fallback。`file-present` 仅表示文件存在。所选模板另有 `moduleLinks`：可沿精确文件、具名/default 转导出与局部 import 别名追到真实声明，保留各层文件与包指纹；缺失、歧义、循环、星号/namespace 等明确阻断。
+
+`declarationResolved` 只表示声明定位，不表示导出值稳定、组件已转换或 CSS 已恢复。`dependencyGraphComplete` 和 `rootExternalImportsResolved` 继续为 false，不能用提供了目录或找到函数替代真正的组件/传递依赖编译。`--require-complete` 仍会拒绝未完成的主题，不写近似产物。详见[依赖源码包协议](../spec/theme-dependency-bundle-v1.md)与[模块声明连接协议](../spec/theme-module-links-v1.md)。

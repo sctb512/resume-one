@@ -15,9 +15,11 @@ use sha2::{Digest, Sha256};
 mod constant_expr;
 mod dependency_bundle;
 mod inspection;
+mod module_symbols;
 mod source_bundle;
 mod static_source;
 mod style_link;
+mod symbol_link;
 mod syntax;
 mod template_ir;
 

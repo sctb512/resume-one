@@ -24,6 +24,74 @@ fn path(path: &Path) -> &str {
 }
 
 #[test]
+fn shared_import_links_to_real_exported_declaration_but_strict_migration_still_fails() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let theme = root.join("theme");
+    let dependency = root.join("core");
+    fs::create_dir_all(&theme).unwrap();
+    fs::create_dir_all(&dependency).unwrap();
+    fs::write(
+        theme.join("package.json"),
+        r#"{"name":"example","version":"1.0.0"}"#,
+    )
+    .unwrap();
+    fs::write(theme.join("Resume.jsx"), "import {Section as Group} from '@jsonresume/core'; export default function Resume(){return <Group>Text</Group>;}").unwrap();
+    fs::write(
+        dependency.join("package.json"),
+        r#"{"name":"@jsonresume/core","version":"0.3.6","exports":"./index.js"}"#,
+    )
+    .unwrap();
+    fs::write(
+        dependency.join("index.js"),
+        "export {Section} from './Section.jsx';",
+    )
+    .unwrap();
+    fs::write(
+        dependency.join("Section.jsx"),
+        "export function Section({children}){return <section>{children}</section>;}",
+    )
+    .unwrap();
+    let args = [
+        "--source",
+        path(&theme),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--dependency",
+        path(&dependency),
+    ];
+    let (status, report) = call(&args);
+    assert!(status.status.success(), "{report:#}");
+    let links = &report["result"]["moduleLinks"];
+    assert_eq!(
+        links["requests"][0]["declarationResolved"], true,
+        "{links:#}"
+    );
+    assert_eq!(links["requests"][0]["target"]["file"], "Section.jsx");
+    assert_eq!(
+        links["requests"][0]["target"]["declaration"]["kind"],
+        "function"
+    );
+    assert_eq!(links["componentSemanticsCompiled"], false);
+    assert_eq!(report["result"]["migrationComplete"], false);
+    assert_eq!(
+        report["result"]["dependencyBundle"]["dependencyGraphComplete"],
+        false
+    );
+    let mut strict = args.to_vec();
+    strict.push("--require-complete");
+    let (status, report) = call(&strict);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(
+        report["error"]["inspection"]["moduleLinks"]["allRequestedDeclarationsResolved"],
+        true
+    );
+    assert_eq!(fs::read_dir(&theme).unwrap().count(), 2);
+}
+
+#[test]
 fn compiles_an_explicit_snapshot_locked_template_entry_without_claiming_theme_migration() {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().canonicalize().unwrap();

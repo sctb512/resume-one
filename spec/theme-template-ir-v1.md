@@ -12,6 +12,8 @@ resume-one-theme-migrate --source /absolute/upstream-theme --inspect --template-
 
 模板入口仅为唯一 default export 直接指向的函数声明、函数表达式或同步箭头函数。分析其真实返回值，不把源码字符串或旁支 JSX 当成模板。最多一个 props 参数，支持显式对象解构、别名和 undefined-only 默认值。函数体只接受有限 const 声明后直接 return；helper、工厂、循环语句、任意调用、async/generator、条件 return 与未知语句均阻断。
 
+允许入口函数或 const 同时通过具名声明导出，例如 `export function Section(...) {...}; export default Section;`；这两条声明必须连接到同一个真实绑定，不生成两个入口。具名 helper 仍保留未编译函数阻断，可变声明不因加了 export 而获准。转导出和 `export { ... }` 子句不在此单文件前端内猜测，由独立的模块声明连接步骤追踪，不能把同名私有函数冒充已导出函数。
+
 ## 程序结构
 
 `templatePrograms[]` 包含 `entryFile`、`sourceSha256` 与 `program`。程序至少包含：

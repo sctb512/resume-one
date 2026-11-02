@@ -6,7 +6,9 @@ use std::time::{Duration, Instant};
 
 use serde_json::{Value, json};
 
-use crate::{AppError, dependency_bundle, source_bundle, style_link, syntax, template_ir};
+use crate::{
+    AppError, dependency_bundle, source_bundle, style_link, symbol_link, syntax, template_ir,
+};
 
 const STYLE_EXTENSIONS: &[&str] = &[
     "js",
@@ -44,6 +46,7 @@ pub(crate) fn inspect_dependencies(
 ) -> Result<Value, AppError> {
     let mut report = inspect_templates(root, entries)?;
     if dependencies.is_empty() {
+        attach_symbol_links(&mut report, &json!({"packages":[]}))?;
         return Ok(report);
     }
     let bundle = dependency_bundle::inspect(dependencies).map_err(|message| {
@@ -86,6 +89,7 @@ pub(crate) fn inspect_dependencies(
         issue["stage"] = json!("dependency-bundle");
         blockers.push(issue);
     }
+    attach_symbol_links(&mut report, &bundle)?;
     report["dependencyBundle"] = bundle;
     if serde_json::to_vec(&report).map_or(true, |b| b.len() > 16 * 1024 * 1024) {
         return Err(AppError::new(
@@ -95,6 +99,32 @@ pub(crate) fn inspect_dependencies(
         ));
     }
     Ok(report)
+}
+
+fn attach_symbol_links(report: &mut Value, bundle: &Value) -> Result<(), AppError> {
+    let links = symbol_link::link(report, bundle)
+        .map_err(|message| AppError::new(3, "SYMBOL_LINK_ERROR", message))?;
+    let additional = links["blockers"].as_array().map_or(0, Vec::len);
+    let issues = report["blockers"]
+        .as_array_mut()
+        .expect("inspection blockers");
+    if issues.len().saturating_add(additional) > 4096 {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "符号连接与已有阻断项合计超过 4096 个",
+        ));
+    }
+    issues.extend(links["blockers"].as_array().into_iter().flatten().cloned());
+    report["moduleLinks"] = links;
+    if serde_json::to_vec(report).map_or(true, |bytes| bytes.len() > 16 * 1024 * 1024) {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "符号连接后的检查报告超过 16 MiB",
+        ));
+    }
+    Ok(())
 }
 
 pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value, AppError> {

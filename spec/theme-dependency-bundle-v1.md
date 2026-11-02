@@ -1,6 +1,6 @@
 # 迁移依赖源码包协议 v1
 
-状态：独立迁移工具的只读依赖输入检查。目标是锁定显式选择的共享源码及缺口，不是下载器、Node 解析器、完整模块连接器或原版渲染验收。
+状态：独立迁移工具的只读依赖输入检查。目标是锁定显式选择的共享源码及缺口，不是下载器、Node 解析器、完整模块连接器或原版渲染验收。所选模板的有限声明追踪另见[模块声明连接协议](theme-module-links-v1.md)，不改变此处的闭包与验收状态。
 
 ```sh
 resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src/Resume.jsx --dependency /absolute/core --dependency /absolute/utils

@@ -13,9 +13,13 @@ use resume_one_core::{Diagnostic, parse_theme};
 use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
+mod adapt_fonts;
+mod adapt_style;
+mod adaptation;
 mod constant_expr;
 mod content_eval;
 mod dependency_bundle;
+mod embedded_css;
 mod external_styles;
 mod inspection;
 mod module_symbols;
@@ -28,6 +32,7 @@ mod style_link;
 mod symbol_link;
 mod syntax;
 mod template_ir;
+mod utility_style;
 
 const MAX_SOURCE_BYTES: u64 = 1_048_576;
 
@@ -74,6 +79,24 @@ struct Cli {
     /// 只校验并输出候选与审核报告，不写文件
     #[arg(long)]
     dry_run: bool,
+    /// 显式生成尽量还原的 v2 适配版；不声称与原版像素一致
+    #[arg(long, conflicts_with_all = ["inspect", "require_complete"])]
+    adapt: bool,
+    /// 将 --source 作为批量来源清单，--out 作为新目录；逐项迁移并报告失败
+    #[arg(long, requires = "adapt", conflicts_with_all = ["dry_run", "overwrite"])]
+    batch: bool,
+    /// 批量并行数（1 至 4），报告保持清单顺序
+    #[arg(long,default_value_t=1,value_parser=clap::value_parser!(u8).range(1..=4),requires="batch")]
+    jobs: u8,
+    /// 显式读取公开样本进行布局验收，可重复；报告只记录指纹和计数
+    #[arg(long, requires = "adapt")]
+    verify_fixture: Vec<PathBuf>,
+    /// 验证 PDF 与 DOCX 序列化（不证明 Microsoft Word 或原版视觉等价）
+    #[arg(long, requires = "verify_fixture")]
+    verify_exports: bool,
+    /// 显式本地静态字体与许可资料库，不联网或安装字体
+    #[arg(long, requires = "adapt")]
+    font_library: Option<PathBuf>,
 }
 
 #[derive(Debug)]
@@ -141,7 +164,13 @@ fn main() -> ExitCode {
             return emit(Err(AppError::new(2, "ARGUMENT_ERROR", error.to_string())));
         }
     };
-    if cli.inspect {
+    if cli.adapt {
+        emit(if cli.batch {
+            adaptation::batch(&cli)
+        } else {
+            adaptation::single(&cli)
+        })
+    } else if cli.inspect {
         let result =
             inspection::inspect_dependencies(&cli.source, &cli.template_entry, &cli.dependency)
                 .and_then(|mut report| {

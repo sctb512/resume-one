@@ -78,6 +78,25 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 
 ## 独立迁移工具
 
+### 尽量还原的适配模式
+
+允许明确视觉替代时，使用 `--adapt`；原有 `--require-complete` 仍是严格等价门禁，不与它混用。适配器读取真实语法证据，将可表达的颜色、字体角色、字号、版面与模块标题/顺序投影到声明式 v2；未支持的样式、推断和替代写入报告，不执行主题代码，不修改 resume JSON。
+
+```sh
+resume-one-theme-migrate --source /absolute/upstream --adapt --out /absolute/example.theme.json --verify-fixture /absolute/public-en.json --verify-fixture /absolute/public-zh.json
+resume-one-theme-migrate --source /absolute/catalog.json --adapt --batch --out /absolute/new-theme-packages --font-library /absolute/font-library.json --verify-fixture /absolute/public-en.json --verify-fixture /absolute/public-zh.json --verify-fixture /absolute/public-long.json --verify-fixture /absolute/public-missing.json --verify-exports
+```
+
+批量清单为 `{"items":[{"slug":"example","sourceDirectory":"/absolute/upstream","upstreamUrl":"https://example.com/source","upstreamRevision":"fixed-version","license":"MIT","licenseFile":"/absolute/LICENSE"}]}`。目录必须是绝对路径，slug 唯一。目标必须是新目录，不覆盖已有本地主题。每套输出 `community-<slug>/theme.json`、`MIGRATION.json`、`NOTICE.txt` 及引用的字体/许可，汇总为 `migration-report.json`。单项失败继续检查其余项，但整批返回退出码 3 和 `ADAPT_BATCH_PARTIAL`，不把失败算成完成。
+
+`--verify-fixture` 只读取明确选择的公开/脱敏样本；报告保存指纹和计数，不保存样本正文。它检查 schema、模块渲染目标与纸面边界；`--verify-exports` 再检查 PDF/DOCX 字节生成。自动检查不代替原版逐主题截图、阅读器布局检查或 Microsoft Word 实机验收，`visualVerified` 仍为 false。
+
+字体资料库是 `{"formatVersion":1,"fonts":[...]}`，每项含 `family/weight/fontStyle/path/sha256/license/licensePath`；字体和许可路径必须绝对，字体最多 8 MiB，只支持静态 TTF/OTF。对已改名但有明确来源的字体可用 `fontFamily` 指定真实内部字族，别名关系会记录为差异。工具只按精确字重与斜体匹配，最多嵌入 4 个字面；缺失时保留明确的内置字体替代，不安装字体或联网下载。带字体的适配使用批量目录模式。
+
+完整约束见[适配协议](../spec/theme-adaptation-v1.md)。主题可用 `composition.moduleOrder` 指定显示顺序；未列出的模块稳定追加，不删数据，详见[模块顺序规范](../spec/theme-module-order-v1.md)。
+
+批量可加 `--jobs 4` 并行处理；允许范围 1 至 4，默认 1。单项失败不影响其余主题继续检查，汇总顺序仍与清单一致。
+
 迁移主题的独立程序名为 `resume-one-theme-migrate`，**不属于**这个 CLI；它只处理主题文件，不处理用户的 `resume.json`。从源码可用 `cargo run -p resume-one-theme-migrate -- <参数>`。v1 声明式主题升级用法：
 
 ```sh

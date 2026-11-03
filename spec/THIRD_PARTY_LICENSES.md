@@ -1,5 +1,9 @@
 # 第三方规范许可
 
+## 迁移器数字文本转换
+
+有界内容求值器固定使用 [ryu-js 1.0.3](https://github.com/boa-dev/ryu-js)，作者为 David Tolnay、boa-dev；它为有限标量文本采用 ECMAScript 数字拼写，不执行 JavaScript。原包以 Apache-2.0 OR BSL-1.0 授权，本项目选择 BSL-1.0，完整正文见 [LICENSE-BOOST-1.0.txt](LICENSE-BOOST-1.0.txt)。依赖版本及发布包校验和保留于 Cargo.lock；未修改该包源码。
+
 ## 迁移器语法解析器
 
 独立迁移工具使用固定版本的 [tree-sitter 0.25.10](https://github.com/tree-sitter/tree-sitter/tree/v0.25.10)、[tree-sitter-javascript 0.25.0](https://github.com/tree-sitter/tree-sitter-javascript/tree/v0.25.0) 及 [tree-sitter-css 0.25.0](https://github.com/tree-sitter/tree-sitter-css/tree/v0.25.0)，均按 MIT 许可分发。JS grammar 保留于 [vendor/tree-sitter-javascript](../vendor/tree-sitter-javascript/)，原始 crates.io 发布包 SHA-256 为 `68204f2abc0627a90bdf06e605f5c470aa26fdcb2081ea553a04bdad756693f5`。唯一源码修改位于 `src/scanner.c`：依照 JSX 语法直接支持非字符引用的裸 `&` 文本，保留字符引用与原文位置，不重写来源或忽略语法错误。其余两包未修改源码。三者的原始版权声明依次为：

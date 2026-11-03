@@ -17,6 +17,7 @@ sha2.workspace = true
 tree-sitter = "=0.25.10"
 tree-sitter-javascript = "=0.25.0"
 tree-sitter-css = "=0.25.0"
+ryu-js = "=1.0.3"
 
 [dev-dependencies]
 tempfile.workspace = true

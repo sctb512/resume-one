@@ -25,6 +25,8 @@ resume-one-theme-migrate --source /absolute/upstream-theme --inspect --template-
 - `blockers`：所有未转换能力、来源范围与原因；展示片段的截断必须明确标注。
 - `evaluationContract`：未来有限数据求值器必须遵守的语义，不代表当前已有求值器。
 
+显式 `--fixture` 的[内容求值协议](theme-content-evaluation-v1.md)现实现了其中有界子集；它对固定组件、类型和来源继续做独立验证，并不把前端 unresolved 程序改为完整主题。样式/组件/动态 URL 的有限连接例外只适用于该内容步骤，不改变其他消费者必须拒绝未知依赖的要求。
+
 位置为原始 UTF-8 字节区间与一基行/字节列号，不从展示片段重新解析或编译。作用域 id 与 binding id 在同一程序中可追溯，列表回调不可泄漏或重用其他回调的同名绑定。未知 binding、初始化之前读取、同作用域冲突、可变绑定和 prototype 相关属性不能猜测。
 
 ## 有限节点

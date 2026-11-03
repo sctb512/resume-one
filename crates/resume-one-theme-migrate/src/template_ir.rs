@@ -1314,6 +1314,18 @@ impl Compiler<'_> {
             "startDate",
             "endDate",
             "basics",
+            "separator",
+            "format",
+            "locale",
+            "numberingSystem",
+            "presentLabel",
+            "level",
+            "icon",
+            "email",
+            "phone",
+            "url",
+            "location",
+            "profiles",
         ];
         if name.kind() != "property_identifier" || !ATTRS.contains(&key.as_str()) {
             self.issue(node,"UNSAFE_OR_UNSUPPORTED_ATTRIBUTE","attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported")?;

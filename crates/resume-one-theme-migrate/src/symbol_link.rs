@@ -349,6 +349,48 @@ pub(crate) fn link(root: &Value, bundle: &Value) -> Result<Value, String> {
     )
 }
 
+/// Resolve a request originating in a previously snapshot-linked module.
+/// This remains declaration evidence, not stable values or module evaluation.
+pub(crate) fn imported_target(
+    report: &Value,
+    identity: &Value,
+    file: &str,
+    module: &str,
+    exported: &str,
+) -> Result<Value, String> {
+    let mut linker = Linker {
+        root: report,
+        packages: array(&report["dependencyBundle"], "packages").collect(),
+        steps: 0,
+        started: Instant::now(),
+    };
+    let mut candidates = Vec::new();
+    for index in 0..=linker.packages.len() {
+        let package = linker.package(index);
+        let name = if index == 0 {
+            &package["package"]["name"]
+        } else {
+            &package["name"]
+        };
+        if *name == identity["packageName"]
+            && package["sourceSnapshot"]["sourceSha256"] == identity["sourceSha256"]
+        {
+            candidates.push(index);
+        }
+    }
+    if candidates.len() != 1 {
+        return Err("SYMBOL_ORIGIN_IDENTITY_UNRESOLVED".into());
+    }
+    let index = candidates[0];
+    let origin = linker.identity(index, file)?;
+    if identity["file"] != file || origin["fileSha256"] != identity["fileSha256"] {
+        return Err("SYMBOL_ORIGIN_FILE_MISMATCH".into());
+    }
+    linker.symbols(index, file)?;
+    let (next, path) = linker.target(index, file, module)?;
+    linker.resolve(next, &path, exported, &mut Vec::new())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

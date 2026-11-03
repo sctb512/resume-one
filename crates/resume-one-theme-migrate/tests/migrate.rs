@@ -24,6 +24,191 @@ fn path(path: &Path) -> &str {
 }
 
 #[test]
+fn explicit_fixture_evaluates_content_without_modifying_any_input_or_claiming_a_theme() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let source = "export default ({resume})=><main><h1>{resume.basics.name}</h1>{resume.work.map((job,i)=><p key={i}>{job.name}</p>)}</main>;";
+    fs::write(root.join("Resume.jsx"), source).unwrap();
+    let fixture = root.join("resume.json");
+    let bytes = br#"{"basics":{"name":"Ada"},"work":[{"name":"Company"}]}"#;
+    fs::write(&fixture, bytes).unwrap();
+    let args = [
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+    ];
+    let (status, inspection) = call(&args);
+    assert!(status.status.success());
+    assert!(inspection["result"]["contentEvaluation"].is_null());
+    let mut evaluate = args.to_vec();
+    evaluate.extend(["--fixture", path(&fixture)]);
+    let (status, report) = call(&evaluate);
+    assert!(status.status.success(), "{report:#}");
+    let result = &report["result"]["contentEvaluation"]["entries"][0]["result"];
+    assert_eq!(result["contentEvaluated"], true);
+    assert_eq!(result["tree"][0]["children"][0]["children"][0], "Ada");
+    assert_eq!(result["tree"][0]["children"][1]["children"][0], "Company");
+    assert_eq!(result["stylesCompiled"], false);
+    assert_eq!(report["result"]["migrationComplete"], false);
+    evaluate.push("--require-complete");
+    let (status, report) = call(&evaluate);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "MIGRATION_INCOMPLETE");
+    assert_eq!(
+        report["error"]["inspection"]["contentEvaluation"]["entries"][0]["result"]["contentEvaluated"],
+        true
+    );
+    assert_eq!(fs::read(&fixture).unwrap(), bytes);
+    assert_eq!(fs::read_to_string(root.join("Resume.jsx")).unwrap(), source);
+    assert_eq!(fs::read_dir(&root).unwrap().count(), 2);
+}
+
+#[test]
+fn fixture_errors_are_explicit_and_failed_content_has_no_partial_tree() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let fixture = root.join("resume.json");
+    fs::write(
+        root.join("Resume.jsx"),
+        "export default ({resume})=><main><p>prefix</p>{resume.x.y}</main>;",
+    )
+    .unwrap();
+    fs::write(&fixture, b"{}").unwrap();
+    let args = [
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--fixture",
+        path(&fixture),
+    ];
+    let (status, report) = call(&args);
+    assert!(status.status.success());
+    let entry = &report["result"]["contentEvaluation"]["entries"][0];
+    assert_eq!(entry["contentEvaluated"], false);
+    assert!(entry["result"].is_null());
+    assert_eq!(entry["error"]["code"], "CONTENT_NULLISH_PROPERTY_ACCESS");
+    assert!(
+        report["result"]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|b| b["stage"] == "content-evaluation")
+    );
+    fs::write(&fixture, b"{invalid}").unwrap();
+    let (status, report) = call(&args);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "FIXTURE_INVALID");
+    fs::write(&fixture, br#"{"basics":{"name":123}}"#).unwrap();
+    let (status, report) = call(&args);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "FIXTURE_INVALID");
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--fixture",
+        path(&fixture),
+    ]);
+    assert_eq!(status.status.code(), Some(2));
+    assert_eq!(report["error"]["code"], "ARGUMENT_ERROR");
+    let (status, report) = call(&[
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--fixture",
+        "resume.json",
+    ]);
+    assert_eq!(status.status.code(), Some(2));
+    assert_eq!(report["error"]["code"], "PATH_NOT_ABSOLUTE");
+}
+
+#[cfg(unix)]
+#[test]
+fn explicit_fixture_rejects_symlinks_without_following_or_changing_them() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    fs::write(root.join("Resume.jsx"), "export default ()=> <p>ok</p>;").unwrap();
+    fs::write(root.join("resume.json"), b"{}").unwrap();
+    let link = root.join("linked.json");
+    std::os::unix::fs::symlink(root.join("resume.json"), &link).unwrap();
+    // Keep the linked fixture outside the source snapshot to test fixture input,
+    // not source_bundle's independent symlink guard.
+    let theme = root.join("theme");
+    fs::create_dir(&theme).unwrap();
+    fs::rename(root.join("Resume.jsx"), theme.join("Resume.jsx")).unwrap();
+    let (status, report) = call(&[
+        "--source",
+        path(&theme),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--fixture",
+        path(&link),
+    ]);
+    assert_eq!(status.status.code(), Some(3));
+    assert_eq!(report["error"]["code"], "FIXTURE_SYMLINK");
+    assert_eq!(fs::read(root.join("resume.json")).unwrap(), b"{}");
+}
+
+#[test]
+fn fixture_follows_imported_styled_alias_and_preserves_external_layer_provenance() {
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    fs::write(
+        root.join("package.json"),
+        r#"{"name":"style-fixture","version":"1.0.0"}"#,
+    )
+    .unwrap();
+    fs::write(
+        root.join("Resume.jsx"),
+        "import {Card as Box} from './styles.jsx';export default()=> <Box>content</Box>;",
+    )
+    .unwrap();
+    fs::write(root.join("styles.jsx"),"import styled from 'styled-components';const Base=styled.section`color:red;`;export const Card=styled(Base)`margin:2px;`;").unwrap();
+    let fixture = root.join("resume.json");
+    fs::write(&fixture, b"{}").unwrap();
+    let args = [
+        "--source",
+        path(&root),
+        "--inspect",
+        "--template-entry",
+        "Resume.jsx",
+        "--fixture",
+        path(&fixture),
+    ];
+    let (status, report) = call(&args);
+    assert!(status.status.success(), "{report:#}");
+    let value = &report["result"]["contentEvaluation"]["entries"][0]["result"];
+    assert_eq!(
+        value["contentEvaluated"], true,
+        "{:#}",
+        report["result"]["contentEvaluation"]
+    );
+    assert_eq!(value["tree"][0]["tag"], "section");
+    assert_eq!(value["tree"][0]["children"], serde_json::json!(["content"]));
+    let layers = &value["tree"][0]["externalStyleLayers"];
+    assert_eq!(layers[0]["name"], "Base");
+    assert_eq!(layers[1]["name"], "Card");
+    assert_eq!(layers[0]["file"], "styles.jsx");
+    assert_eq!(layers[0]["fileSha256"].as_str().unwrap().len(), 64);
+    assert_eq!(value["layoutCompiled"], false);
+    assert_eq!(report["result"]["migrationComplete"], false);
+    fs::write(root.join("styles.jsx"),"import styled from 'styled-components';export const Card=styled(Base)`margin:2px;`;const Base=styled.section`color:red;`;").unwrap();
+    let (status, report) = call(&args);
+    assert!(status.status.success());
+    let entry = &report["result"]["contentEvaluation"]["entries"][0];
+    assert_eq!(entry["contentEvaluated"], false);
+    assert_eq!(entry["error"]["code"], "EXTERNAL_STYLE_BASE_TDZ");
+    assert!(entry["result"].is_null());
+}
+
+#[test]
 fn shared_import_links_to_real_exported_declaration_but_strict_migration_still_fails() {
     let directory = tempfile::tempdir().unwrap();
     let root = directory.path().canonicalize().unwrap();

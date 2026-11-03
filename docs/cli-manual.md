@@ -138,3 +138,13 @@ resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src
 `declarationResolved` 只表示声明定位，不表示导出值稳定、组件已转换或 CSS 已恢复。`dependencyGraphComplete` 和 `rootExternalImportsResolved` 继续为 false，不能用提供了目录或找到函数替代真正的组件/传递依赖编译。`--require-complete` 仍会拒绝未完成的主题，不写近似产物。详见[依赖源码包协议](../spec/theme-dependency-bundle-v1.md)与[模块声明连接协议](../spec/theme-module-links-v1.md)。
 
 同一命令还输出 `componentContent`。当前仅对固定版本、完整文件哈希及真实导入绑定匹配的 core Section，转换直接调用的有限容器内容，保留 children 顺序、空值、静态 id/className 和原始阻断。`wrapperContentLowered` 不表示子树、样式或排版完成；styled 包装、未知属性、动态 key/id/className 等继续阻断。完整边界见[共享组件内容转换规范](../spec/theme-shared-components-v1.md)。它仍不是可安装主题，也不会修改简历或上游源码。
+
+### 用公开样例验证内容
+
+```sh
+resume-one-theme-migrate --source /absolute/theme --inspect --template-entry src/Resume.jsx --dependency /absolute/core --dependency /absolute/utils --fixture /absolute/public-resume.json
+```
+
+`--fixture` 是显式读取简历内容的开关，必须同时选择模板入口；不自动使用包里的示例。输出会包含样例文本，请使用公开/脱敏文件并保护报告。文件不超过 1 MiB，须通过内置 JSON Resume schema 校验；不会修改文件或把样式写回 JSON。
+
+`contentEvaluation` 输出保留条件、列表、缺失/null 区别的未排版内容树，并支持固定来源 Section、SectionTitle、DateRange、ContactInfo 的有限域。错误不输出部分树，不用空内容顶替。`contentEvaluated:true` 只针对本次样例，不能当成主题已经迁移、CSS/分页已恢复或视觉验收通过；`--require-complete` 仍拒绝未完成主题。类型、来源与资源限制见[内容求值协议](../spec/theme-content-evaluation-v1.md)。

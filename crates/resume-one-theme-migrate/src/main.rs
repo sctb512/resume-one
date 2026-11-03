@@ -1,5 +1,6 @@
-//! Separate, data-only theme migrator. No theme code or user resume is rendered.
-//! Package examples are inert source assets included only in the package digest.
+//! Separate, data-only theme migrator. Theme source code is never executed.
+//! Only explicit --fixture input enables bounded unstyled content evaluation;
+//! package examples otherwise remain inert assets in the package digest.
 
 use std::fs::{self, File};
 use std::io::Read;
@@ -13,9 +14,13 @@ use serde_json::{Map, Value, json};
 use sha2::{Digest, Sha256};
 
 mod constant_expr;
+mod content_eval;
 mod dependency_bundle;
+mod external_styles;
 mod inspection;
 mod module_symbols;
+mod primitive_contacts;
+mod primitive_dates;
 mod section_adapter;
 mod source_bundle;
 mod static_source;
@@ -48,6 +53,9 @@ struct Cli {
     /// 显式读取共享依赖包的绝对目录并锁定来源；可重复，最多 8 个，不安装依赖
     #[arg(long, requires = "inspect")]
     dependency: Vec<PathBuf>,
+    /// 显式读取 JSON Resume 样例，求值模板内容；输出会含样例文本，不生成主题
+    #[arg(long, requires_all = ["inspect", "template_entry"])]
+    fixture: Option<PathBuf>,
     /// 严格要求完整迁移；不完整时失败且不写入候选，供 Agent/批处理使用
     #[arg(long)]
     require_complete: bool,
@@ -136,7 +144,10 @@ fn main() -> ExitCode {
     if cli.inspect {
         let result =
             inspection::inspect_dependencies(&cli.source, &cli.template_entry, &cli.dependency)
-                .and_then(|report| {
+                .and_then(|mut report| {
+                    if let Some(path) = &cli.fixture {
+                        evaluate_fixture(&mut report, path)?;
+                    }
                     if cli.require_complete && report["migrationComplete"] != true {
                         let mut error = AppError::new(
                             3,
@@ -187,6 +198,91 @@ fn absolute(path: &Path) -> Result<(), AppError> {
 
 fn sha256(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
+}
+
+fn evaluate_fixture(report: &mut Value, path: &Path) -> Result<(), AppError> {
+    absolute(path)?;
+    if path.components().any(|c| {
+        matches!(
+            c,
+            std::path::Component::ParentDir | std::path::Component::CurDir
+        )
+    }) {
+        return Err(AppError::new(2, "FIXTURE_PATH", "样例路径不能包含 . 或 .."));
+    }
+    for ancestor in path.ancestors() {
+        let metadata = fs::symlink_metadata(ancestor)
+            .map_err(|e| AppError::new(3, "FIXTURE_IO", e.to_string()))?;
+        if metadata.file_type().is_symlink() {
+            return Err(AppError::new(
+                3,
+                "FIXTURE_SYMLINK",
+                "样例及其父路径不能是符号链接",
+            ));
+        }
+    }
+    let before = fs::metadata(path).map_err(|e| AppError::new(3, "FIXTURE_IO", e.to_string()))?;
+    if !before.is_file() || before.len() > MAX_SOURCE_BYTES {
+        return Err(AppError::new(
+            3,
+            "FIXTURE_LIMIT",
+            "样例必须为不超过 1 MiB 的普通文件",
+        ));
+    }
+    let mut bytes = Vec::new();
+    File::open(path)
+        .and_then(|f| f.take(MAX_SOURCE_BYTES + 1).read_to_end(&mut bytes))
+        .map_err(|e| AppError::new(3, "FIXTURE_IO", e.to_string()))?;
+    let after = fs::metadata(path).map_err(|e| AppError::new(3, "FIXTURE_IO", e.to_string()))?;
+    if bytes.len() > MAX_SOURCE_BYTES as usize
+        || before.len() != after.len()
+        || before.modified().ok() != after.modified().ok()
+    {
+        return Err(AppError::new(
+            3,
+            "FIXTURE_CHANGED",
+            "读取期间样例发生变化或超限",
+        ));
+    }
+    let document = resume_one_core::resume::parse_resume(&bytes).map_err(|issues| {
+        let mut error = AppError::new(3, "FIXTURE_INVALID", "样例未通过 JSON Resume 校验");
+        error.diagnostics = issues
+            .iter()
+            .map(|i| json!({"code":i.code,"path":i.path,"message":i.message}))
+            .collect();
+        error
+    })?;
+    let mut evaluation = content_eval::evaluate(report, &document.value)
+        .map_err(|e| AppError::new(3, "CONTENT_EVALUATION_ERROR", e))?;
+    evaluation["fixture"] =
+        json!({"path":path,"sha256":sha256(&bytes),"bytes":bytes.len(),"sourceModified":false});
+    let blockers = report["blockers"]
+        .as_array_mut()
+        .expect("inspection blockers");
+    for entry in evaluation["entries"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|e| e["contentEvaluated"] == false)
+    {
+        if blockers.len() >= 4096 {
+            return Err(AppError::new(
+                3,
+                "INSPECTION_LIMIT",
+                "内容求值阻断项超过 4096 个",
+            ));
+        }
+        blockers.push(json!({"code":entry["error"]["code"],"file":entry["entryFile"],"stage":"content-evaluation","message":"样例内容求值未完成；没有用空内容替代失败节点"}));
+    }
+    report["contentEvaluation"] = evaluation;
+    if serde_json::to_vec(report).map_or(true, |v| v.len() > 16 * 1024 * 1024) {
+        return Err(AppError::new(
+            3,
+            "INSPECTION_LIMIT",
+            "内容求值后的报告超过 16 MiB",
+        ));
+    }
+    Ok(())
 }
 
 struct SourceCandidate {

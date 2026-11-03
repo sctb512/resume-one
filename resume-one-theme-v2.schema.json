@@ -75,6 +75,15 @@
       "required": ["preset"],
       "properties": {
         "preset": { "enum": ["single-column", "sidebar-left", "sidebar-right", "split-header"] },
+        "moduleOrder": {
+          "description": "Optional presentation order, excluding basics. Missing or empty preserves resume order; unlisted sections follow in resume order within their assigned region.",
+          "type": "array",
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"]
+          }
+        },
         "sidebarWidthPct": { "type": "number", "minimum": 20, "maximum": 40 },
         "gapMm": { "type": "number", "minimum": 0, "maximum": 15 },
         "header": { "enum": ["stacked", "centered", "split"] },

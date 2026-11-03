@@ -560,7 +560,7 @@ fn build_document(
         };
     }
     let mut columns: [Vec<Paragraph>; 2] = Default::default();
-    for section in &content.sections {
+    for section in style.ordered_sections(&content.sections) {
         let sidebar = style.in_sidebar(section.id);
         let mut local = style.column_style(sidebar);
         let kind = local.section(section.id).items;

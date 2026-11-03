@@ -6,6 +6,7 @@ use serde_json::Value;
 
 use crate::ThemeManifest;
 use crate::render::{Language, title};
+use crate::semantic::Section;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Rgb {
@@ -242,6 +243,8 @@ pub struct ThemeStyle {
     pub page: PageStyle,
     pub typography: Typography,
     pub composition_preset: String,
+    /// Optional presentation order. Unlisted sections retain their input order.
+    pub module_order: Vec<String>,
     pub centered_header: bool,
     pub split_header: bool,
     pub stacked_contacts: bool,
@@ -365,6 +368,21 @@ impl ThemeStyle {
 
     pub fn in_sidebar(&self, id: &str) -> bool {
         self.has_sidebar() && self.sidebar_modules.iter().any(|module| module == id)
+    }
+
+    /// Shared by preview/PDF and editable Word output; never mutates source content.
+    pub(crate) fn ordered_sections<'a>(&self, sections: &'a [Section]) -> Vec<&'a Section> {
+        let mut ordered: Vec<_> = sections.iter().collect();
+        if !self.module_order.is_empty() {
+            // Stable sorting appends every unlisted section in its original order.
+            ordered.sort_by_key(|section| {
+                self.module_order
+                    .iter()
+                    .position(|id| id == section.id)
+                    .unwrap_or(usize::MAX)
+            });
+        }
+        ordered
     }
 
     /// Author-supplied plain display text never changes a section's identity.
@@ -554,6 +572,12 @@ impl ThemeStyle {
                 .and_then(Value::as_str)
                 .unwrap_or("single-column")
                 .to_owned(),
+            module_order: manifest["composition"]["moduleOrder"]
+                .as_array()
+                .into_iter()
+                .flatten()
+                .map(|id| id.as_str().expect("schema checked module order").to_owned())
+                .collect(),
             centered_header: manifest["composition"]["header"] == "centered",
             split_header: manifest["composition"]["header"] == "split"
                 || manifest["composition"]["preset"] == "split-header",

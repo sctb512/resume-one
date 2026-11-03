@@ -1251,7 +1251,12 @@ fn layout_with_style(
     if style.has_sidebar() {
         return sidebar_layout(page, content, language, style);
     }
-    layout_sections(&mut page, content.sections.iter(), language, style)?;
+    layout_sections(
+        &mut page,
+        style.ordered_sections(&content.sections).into_iter(),
+        language,
+        style,
+    )?;
     Ok(ResumeLayout {
         width_mm: style.page.width_mm,
         height_mm: style.page.height_mm,
@@ -1559,15 +1564,16 @@ fn sidebar_layout(
         }
         layout_basics(writer, content, local, region)?;
     }
+    let ordered = style.ordered_sections(&content.sections);
     layout_sections(
         &mut main,
-        content.sections.iter().filter(|s| !style.in_sidebar(s.id)),
+        ordered.iter().copied().filter(|s| !style.in_sidebar(s.id)),
         language,
         &main_style,
     )?;
     layout_sections(
         &mut side,
-        content.sections.iter().filter(|s| style.in_sidebar(s.id)),
+        ordered.iter().copied().filter(|s| style.in_sidebar(s.id)),
         language,
         &side_style,
     )?;

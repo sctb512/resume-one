@@ -1,0 +1,117 @@
+{
+  "formatVersion": 2,
+  "id": "community-tailwind",
+  "name": "Tailwind",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#666666",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-serif",
+      "sizePt": 16.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 18.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 10.6,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 8.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 8.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#666666",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
+    }
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-tailwind",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "formatVersion": 2,
+  "id": "community-even",
+  "name": "Even",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#000000",
+    "seal": "#334155",
+    "paper": "#F3F4F6",
+    "canvas": "#F5F3EE",
+    "ink": "#111827",
+    "muted": "#000000",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "fontStyle": "normal",
+      "color": "#111827"
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 26.0,
+      "weight": 400,
+      "lineHeight": 1.2,
+      "fontStyle": "normal",
+      "color": "#111827"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "fontStyle": "normal",
+      "color": "#111827"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "fontStyle": "normal",
+      "color": "#111827"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 13.0,
+      "weight": 400,
+      "lineHeight": 1.2,
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 10.6,
+      "weight": 400,
+      "lineHeight": 1.2,
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "fontStyle": "normal",
+      "color": "#111827"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-even/v/0.27.0",
+    "upstreamRevision": "0.27.0"
+  }
+}

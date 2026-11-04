@@ -1,0 +1,150 @@
+{
+  "formatVersion": 2,
+  "id": "community-tan-responsive",
+  "name": "Tan Responsive",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "minimal",
+  "colors": {
+    "accent": "#FFFFFF",
+    "seal": "#334155",
+    "paper": "#181818",
+    "canvas": "#F5F3EE",
+    "ink": "#FFFFFF",
+    "muted": "#FFFFFF",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.3999999999999997
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 39.599999999999994,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal",
+      "color": "#CF8A05"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.3999999999999997
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.3999999999999997
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 31.200000000000003,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.3999999999999997
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.3999999999999997
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 19.08,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "sectionGapMm": 4.0
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "sidebarWidthPct": 30.0,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
+    "headerRegion": "main",
+    "summaryRegion": "main",
+    "sidebarTypographyScale": 1.0
+  },
+  "sections": {
+    "awards": {
+      "heading": "plain"
+    },
+    "certificates": {
+      "heading": "plain"
+    },
+    "education": {
+      "heading": "plain"
+    },
+    "interests": {
+      "heading": "plain"
+    },
+    "languages": {
+      "heading": "plain"
+    },
+    "projects": {
+      "heading": "plain"
+    },
+    "publications": {
+      "heading": "plain"
+    },
+    "references": {
+      "heading": "plain"
+    },
+    "skills": {
+      "heading": "plain"
+    },
+    "volunteer": {
+      "heading": "plain"
+    },
+    "work": {
+      "heading": "plain"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-tan-responsive/v/0.0.7",
+    "upstreamRevision": "0.0.7"
+  }
+}

@@ -1,0 +1,178 @@
+{
+  "formatVersion": 2,
+  "id": "community-london-bureau",
+  "name": "London Bureau",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#2A2A2A",
+    "seal": "#334155",
+    "paper": "#FAF8F5",
+    "canvas": "#F5F3EE",
+    "ink": "#3A3A3A",
+    "muted": "#4A4A4A",
+    "border": "#E8E4DD"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#3A3A3A"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 31.5,
+      "weight": 600,
+      "lineHeight": 1.1,
+      "trackingEm": -0.011904761904761904,
+      "color": "#2A2A2A",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "fontStyle": "normal",
+      "color": "#4A4A4A"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#3A3A3A"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.025,
+      "textTransform": "uppercase",
+      "color": "#2A2A2A",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "textTransform": "none",
+      "color": "#2A2A2A",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 11.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 9.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "fontStyle": "normal",
+      "color": "#666666"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 15.8,
+      "right": 10.583333333333334,
+      "bottom": 12.7,
+      "left": 10.583333333333334
+    },
+    "sectionGapMm": 8.466666666666665
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "awards",
+      "certificates",
+      "publications",
+      "volunteer",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "items": "cards",
+      "title": "Awards"
+    },
+    "certificates": {
+      "items": "cards",
+      "title": "Certificates"
+    },
+    "education": {
+      "items": "cards",
+      "title": "Education"
+    },
+    "interests": {
+      "items": "cards",
+      "title": "Interests"
+    },
+    "languages": {
+      "items": "cards",
+      "title": "Languages"
+    },
+    "projects": {
+      "items": "cards",
+      "title": "Projects"
+    },
+    "publications": {
+      "items": "cards",
+      "title": "Publications"
+    },
+    "references": {
+      "items": "cards",
+      "title": "References"
+    },
+    "skills": {
+      "items": "cards",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "items": "cards",
+      "title": "Volunteer"
+    },
+    "work": {
+      "items": "cards",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-london-bureau",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

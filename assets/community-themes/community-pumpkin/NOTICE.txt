@@ -1,0 +1,7 @@
+Pumpkin — Resume One best-effort declarative adaptation
+Source: https://www.npmjs.com/package/jsonresume-theme-pumpkin/v/1.1.4
+Revision: 1.1.4
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.

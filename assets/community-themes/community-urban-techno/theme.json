@@ -1,0 +1,195 @@
+{
+  "formatVersion": 2,
+  "id": "community-urban-techno",
+  "name": "Urban Techno",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#000000",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#111111",
+    "muted": "#333333",
+    "border": "#111111",
+    "sidebar": "#E8E8E8"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#111111"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 27.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.013888888888888888,
+      "textTransform": "uppercase",
+      "color": "#111111",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 8.25,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.09090909090909091,
+      "textTransform": "uppercase",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#111111"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 9.75,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.0923076923076923,
+      "textTransform": "uppercase",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 7.5,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "trackingEm": 0.05,
+      "textTransform": "uppercase",
+      "color": "#111111",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 8.25,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.045454545454545456,
+      "textTransform": "uppercase",
+      "color": "#333333",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 8.5,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.026470588235294114,
+      "textTransform": "uppercase",
+      "color": "#111111",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "contact": "stacked",
+    "sidebarWidthPct": 30.0,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
+    "headerRegion": "main",
+    "summaryRegion": "main",
+    "moduleOrder": [
+      "skills",
+      "languages",
+      "interests",
+      "work",
+      "education",
+      "projects",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "heading": "filled",
+      "title": "Awards"
+    },
+    "certificates": {
+      "heading": "filled",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "filled",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "filled",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "filled",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "filled",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "filled",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "filled",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "filled",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "filled",
+      "title": "Volunteer"
+    },
+    "work": {
+      "heading": "filled",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-urban-techno",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

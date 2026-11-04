@@ -1,0 +1,124 @@
+{
+  "formatVersion": 2,
+  "id": "community-macchiato",
+  "name": "Macchiato",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#39424B",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 8.25,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.02727272727272727,
+      "color": "#39424B"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 30.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.025,
+      "textTransform": "none",
+      "color": "#39424B",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 8.25,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.02727272727272727,
+      "color": "#39424B"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 8.25,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.02727272727272727,
+      "color": "#39424B"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.03125,
+      "textTransform": "none",
+      "color": "#39424B",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 9.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": 0.03333333333333334,
+      "textTransform": "none",
+      "color": "#39424B",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.026470588235294114,
+      "color": "#39424B"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.026470588235294114,
+      "color": "#39424B"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 15.19,
+      "right": 5.820833333333333,
+      "bottom": 7.9375,
+      "left": 8.995833333333332
+    },
+    "size": "A4"
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-macchiato/v/1.1.0",
+    "upstreamRevision": "1.1.0"
+  }
+}

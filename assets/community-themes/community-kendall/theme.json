@@ -1,0 +1,121 @@
+{
+  "formatVersion": 2,
+  "id": "community-kendall",
+  "name": "Kendall",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#227C74",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#334960",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-serif",
+      "sizePt": 11.399999999999999,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 17.099999999999998,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "trackingEm": -0.04385964912280702,
+      "textTransform": "uppercase",
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 13.679999999999998,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-serif",
+      "sizePt": 11.399999999999999,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 17.099999999999998,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "textTransform": "uppercase",
+      "color": "#227C74",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.679999999999998,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 8.5,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 8.5,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#334960",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "avoidSplitItems": true
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-kendall/v/0.2.0",
+    "upstreamRevision": "0.2.0"
+  }
+}

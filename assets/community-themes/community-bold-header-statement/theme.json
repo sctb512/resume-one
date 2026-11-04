@@ -1,0 +1,157 @@
+{
+  "formatVersion": 2,
+  "id": "community-bold-header-statement",
+  "name": "Bold Header Statement",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#0F766E",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#1F2937",
+    "muted": "#4B5563",
+    "border": "#0F766E"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#1F2937",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 26.0,
+      "weight": 600,
+      "lineHeight": 1.0,
+      "trackingEm": 0.0,
+      "textTransform": "uppercase",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 18.0,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "trackingEm": 0.020833333333333332,
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 13.5,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#374151",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": 0.14285714285714285,
+      "textTransform": "uppercase",
+      "color": "#0F766E",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": -0.025,
+      "textTransform": "uppercase",
+      "color": "#111827",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#4B5563"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "trackingEm": 0.07142857142857142,
+      "textTransform": "uppercase",
+      "color": "#6B7280"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 6.35
+    },
+    "sectionGapMm": 15.875
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {
+    "awards": {
+      "heading": "line"
+    },
+    "certificates": {
+      "heading": "line"
+    },
+    "education": {
+      "heading": "line"
+    },
+    "interests": {
+      "heading": "line"
+    },
+    "languages": {
+      "heading": "line"
+    },
+    "projects": {
+      "heading": "line"
+    },
+    "publications": {
+      "heading": "line"
+    },
+    "references": {
+      "heading": "line"
+    },
+    "skills": {
+      "heading": "line"
+    },
+    "volunteer": {
+      "heading": "line"
+    },
+    "work": {
+      "heading": "line"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-bold-header-statement",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

@@ -1,0 +1,27 @@
+Upstream theme: jsonresume-theme-lucide 1.1.0
+Author declared by upstream package: Clement Cauet
+Source: https://www.npmjs.com/package/jsonresume-theme-lucide/v/1.1.0
+Source repository: https://github.com/Clement-Cauet/jsonresume-theme-lucide
+Upstream package license declaration: MIT
+
+The pinned package did not contain a separate original license text or copyright notice. The following standard SPDX license text is supplied for reference. Its placeholders are not an upstream copyright attribution. This is not an original upstream LICENSE file or a determination of redistribution clearance.
+Reference: https://spdx.org/licenses/MIT.html
+
+MIT License
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -1,0 +1,182 @@
+{
+  "formatVersion": 2,
+  "id": "community-clinical-precision",
+  "name": "Clinical Precision",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#0F2A25",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#26433D",
+    "muted": "#5B746E",
+    "border": "#059669"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#26433D"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 28.5,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": -0.015789473684210523,
+      "color": "#0F2A25",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 11.25,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.013333333333333336,
+      "color": "#047857",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#26433D"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 9.75,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.15384615384615385,
+      "textTransform": "uppercase",
+      "color": "#0F2A25",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.75,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#0F2A25",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.25,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "trackingEm": 0.045454545454545456,
+      "textTransform": "uppercase",
+      "color": "#5B746E"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 9.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#047857",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "sectionGapMm": 8.995833333333332
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": [
+      "education",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "Awards"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "plain",
+      "items": "timeline",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "plain",
+      "items": "timeline"
+    },
+    "publications": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "plain",
+      "items": "stack",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "stack"
+    },
+    "volunteer": {
+      "heading": "plain",
+      "items": "timeline"
+    },
+    "work": {
+      "heading": "plain",
+      "items": "timeline"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-clinical-precision",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

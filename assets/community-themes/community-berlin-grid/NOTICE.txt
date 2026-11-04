@@ -1,0 +1,7 @@
+Berlin Grid — Resume One best-effort declarative adaptation
+Source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-berlin-grid
+Revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.

@@ -1,0 +1,195 @@
+{
+  "formatVersion": 2,
+  "id": "community-berlin-grid",
+  "name": "Berlin Grid",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#1A1A1A",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#2A2A2A",
+    "muted": "#4A4A4A",
+    "border": "#E5E5E5"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.7142857142857142,
+      "color": "#2A2A2A"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 33.0,
+      "weight": 600,
+      "lineHeight": 1.2727272727272727,
+      "trackingEm": -0.011363636363636364,
+      "textTransform": "uppercase",
+      "color": "#2A2A2A",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "trackingEm": 0.01875,
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#2A2A2A"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "trackingEm": 0.075,
+      "textTransform": "uppercase",
+      "color": "#1A1A1A",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.5,
+      "weight": 600,
+      "lineHeight": 1.3333333333333333,
+      "trackingEm": -0.011111111111111113,
+      "textTransform": "uppercase",
+      "color": "#1A1A1A",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 11.25,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.03333333333333333,
+      "textTransform": "uppercase",
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 9.75,
+      "weight": 600,
+      "lineHeight": 1.8461538461538463,
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 21.166666666666668,
+      "right": 12.7,
+      "bottom": 21.166666666666668,
+      "left": 12.7
+    },
+    "sectionGapMm": 16.93333333333333
+  },
+  "composition": {
+    "preset": "single-column",
+    "contact": "stacked",
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "awards",
+      "certificates",
+      "publications",
+      "volunteer",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Awards"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "line",
+      "items": "timeline",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "timeline",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "items": "stack",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "stack",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "timeline",
+      "title": "Volunteer"
+    },
+    "work": {
+      "heading": "line",
+      "items": "timeline",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-berlin-grid",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "formatVersion": 2,
+  "id": "community-paper-plus-plus",
+  "name": "Paper Plus Plus",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FAFAFA",
+    "canvas": "#F5F3EE",
+    "ink": "#424242",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 8.399999999999999,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 26.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 10.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#424242",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 8.399999999999999,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 13.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 8.399999999999999,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#424242"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 13.64,
+      "right": 16,
+      "bottom": 16,
+      "left": 16.0
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-paper-plus-plus/v/0.6.0",
+    "upstreamRevision": "0.6.0"
+  }
+}

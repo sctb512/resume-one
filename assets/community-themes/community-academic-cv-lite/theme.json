@@ -1,0 +1,210 @@
+{
+  "formatVersion": 2,
+  "id": "community-academic-cv-lite",
+  "name": "Academic CV Lite",
+  "description": "学术衬线 · 居中刊头 · 深色标题线",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#111827",
+    "seal": "#111827",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F5F5",
+    "ink": "#111827",
+    "muted": "#6B7280",
+    "border": "#6B7280"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "marginsMm": {
+      "top": 27,
+      "right": 27,
+      "bottom": 27,
+      "left": 27
+    },
+    "sectionGapMm": 8.5,
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "color": "#1F2937",
+      "family": "asset:merriweather-400",
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.5
+    },
+    "name": {
+      "color": "#111827",
+      "family": "asset:merriweather-700",
+      "sizePt": 28,
+      "weight": 700,
+      "lineHeight": 1.6,
+      "trackingEm": 0.0133928571
+    },
+    "sectionTitle": {
+      "color": "#111827",
+      "family": "asset:merriweather-700",
+      "sizePt": 16,
+      "weight": 700,
+      "lineHeight": 1.6,
+      "trackingEm": 0.046875,
+      "textTransform": "uppercase"
+    },
+    "itemTitle": {
+      "color": "#111827",
+      "family": "asset:merriweather-700",
+      "sizePt": 13,
+      "weight": 700,
+      "lineHeight": 1.3
+    },
+    "meta": {
+      "family": "asset:merriweather-400",
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.5
+    },
+    "label": {
+      "color": "#1F2937",
+      "family": "asset:merriweather-italic-400",
+      "fontStyle": "italic",
+      "sizePt": 14,
+      "weight": 400,
+      "lineHeight": 1.6
+    },
+    "summary": {
+      "color": "#1F2937",
+      "sizePt": 12,
+      "lineHeight": 1.6
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "summaryRegion": "header",
+    "contact": "inline"
+  },
+  "sections": {
+    "work": {
+      "title": "Professional Experience",
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "position" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 },
+        { "role": "body", "parts": [{ "field": "name" }], "style": { "family": "asset:merriweather-italic-400", "weight": 400, "fontStyle": "italic", "sizePt": 12, "lineHeight": 1.6, "color": "#1F2937" }, "spaceAfterPt": 3 },
+        { "role": "meta", "parts": [{ "field": "dateRange", "dateFormat": "short-en" }], "style": { "sizePt": 10, "lineHeight": 1.6, "color": "#666666" }, "spaceAfterPt": 6 }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "volunteer": {
+      "title": "Service & Leadership",
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "position" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 },
+        { "role": "body", "parts": [{ "field": "organization" }], "style": { "family": "asset:merriweather-italic-400", "weight": 400, "fontStyle": "italic", "sizePt": 12, "lineHeight": 1.6, "color": "#1F2937" }, "spaceAfterPt": 3 },
+        { "role": "meta", "parts": [{ "field": "dateRange", "dateFormat": "short-en" }], "style": { "sizePt": 10, "lineHeight": 1.6, "color": "#666666" }, "spaceAfterPt": 6 }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "education": {
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "institution" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 },
+        { "role": "body", "parts": [{ "field": "studyType" }, { "field": "area", "prefix": " in " }, { "field": "score", "prefix": " • " }], "style": { "sizePt": 12, "lineHeight": 1.6, "color": "#1F2937" }, "spaceAfterPt": 3 },
+        { "role": "meta", "parts": [{ "field": "dateRange", "dateFormat": "short-en" }], "style": { "sizePt": 10, "lineHeight": 1.6, "color": "#666666" } }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "awards": {
+      "title": "Awards & Honors",
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "title" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 },
+        { "role": "body", "parts": [{ "field": "awarder" }], "style": { "family": "asset:merriweather-italic-400", "weight": 400, "fontStyle": "italic", "sizePt": 11, "lineHeight": 1.6, "color": "#1F2937" }, "spaceAfterPt": 3 },
+        { "role": "meta", "parts": [{ "field": "date" }], "style": { "lineHeight": 1.6, "color": "#6B7280" }, "spaceAfterPt": 6 }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "certificates": {
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "name" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 },
+        { "role": "body", "parts": [{ "field": "issuer" }], "style": { "family": "asset:merriweather-italic-400", "weight": 400, "fontStyle": "italic", "sizePt": 11, "lineHeight": 1.6, "color": "#1F2937" }, "spaceAfterPt": 3 },
+        { "role": "meta", "parts": [{ "field": "date" }], "style": { "lineHeight": 1.6, "color": "#6B7280" }, "spaceAfterPt": 6 }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "date": "inline"
+    },
+    "skills": {
+      "heading": "accent-line"
+    },
+    "languages": {
+      "heading": "accent-line"
+    },
+    "interests": {
+      "title": "Research Interests",
+      "heading": "accent-line"
+    },
+    "references": {
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "name" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 }
+      ],
+      "heading": "accent-line"
+    },
+    "projects": {
+      "title": "Research Projects",
+      "entryHeader": [
+        { "role": "itemTitle", "parts": [{ "field": "name" }], "style": { "lineHeight": 1.6 }, "spaceAfterPt": 3 }
+      ],
+      "heading": "accent-line",
+      "date": "inline"
+    }
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "merriweather-400",
+        "path": "merriweather-400.ttf",
+        "sha256": "b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "merriweather-700",
+        "path": "merriweather-700.ttf",
+        "sha256": "3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "merriweather-italic-400",
+        "path": "merriweather-italic-400.ttf",
+        "sha256": "f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8",
+        "license": "OFL-1.1"
+      }
+    ]
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-academic-cv-lite",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
+    "upstreamAuthor": "JSON Resume contributors",
+    "upstreamLicense": "MIT",
+    "migratedBy": "Resume One contributors",
+    "fidelity": "adapted"
+  }
+}

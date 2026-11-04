@@ -1,0 +1,76 @@
+{
+  "formatVersion": 2,
+  "id": "community-rickosborne",
+  "name": "Rick Osborne",
+  "description": "轻衬线双栏 · 独立联系方式 · 灰阶标签",
+  "version": "1.0.0",
+  "license": "CC-BY-NC-SA-4.0",
+  "layout": "minimal",
+  "colors": {
+    "accent": "#666666",
+    "seal": "#224488",
+    "paper": "#FFFFFF",
+    "canvas": "#E6E6E6",
+    "ink": "#222222",
+    "muted": "#666666",
+    "border": "#EEEEEE",
+    "sidebar": "#FFFFFF"
+  },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": {
+    "size": "A4",
+    "marginsMm": {"top": 14, "right": 14, "bottom": 14, "left": 14},
+    "sectionGapMm": 3.5,
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {"family": "asset:light", "sizePt": 8.75, "weight": 200, "lineHeight": 1.3},
+    "name": {"family": "asset:light", "sizePt": 17.5, "weight": 200, "lineHeight": 1.6},
+    "sectionTitle": {"family": "asset:regular", "sizePt": 8.75, "weight": 400, "lineHeight": 1.6},
+    "itemTitle": {"family": "asset:regular", "sizePt": 8.75, "weight": 400, "lineHeight": 1.3},
+    "meta": {"family": "asset:light", "sizePt": 8.75, "weight": 200, "lineHeight": 1.3}
+  },
+  "composition": {
+    "preset": "sidebar-right",
+    "sidebarWidthPct": 32,
+    "gapMm": 6,
+    "header": "stacked",
+    "contact": "stacked",
+    "headerRegion": "main",
+    "summaryRegion": "main",
+    "contactRegion": "sidebar",
+    "sidebarTypographyScale": 0.9,
+    "placements": {
+      "languages": "sidebar", "certificates": "sidebar", "publications": "sidebar",
+      "awards": "sidebar", "projects": "sidebar", "skills": "sidebar", "interests": "sidebar"
+    }
+  },
+  "sections": {
+    "work": {"items": "compact"},
+    "volunteer": {"items": "compact"},
+    "education": {"items": "compact"},
+    "references": {"items": "compact"},
+    "awards": {"items": "compact"},
+    "certificates": {"items": "compact"},
+    "publications": {"items": "compact"},
+    "projects": {"items": "compact"},
+    "skills": {"items": "chips"},
+    "interests": {"items": "chips"},
+    "languages": {"items": "compact"}
+  },
+  "assets": {
+    "fonts": [
+      {"id": "light", "path": "normal-200.ttf", "sha256": "b534b9bc17eb14f941c073323371ef2d068858275f2160d7268f43cbbfcd00e1", "license": "Apache-2.0"},
+      {"id": "regular", "path": "normal-400.ttf", "sha256": "c5519b8e805f3fff1a0912723021bd217f894b2adcf89357303a36de1526124a", "license": "Apache-2.0"}
+    ]
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/rickosborne/jsonresume-theme-rickosborne",
+    "upstreamRevision": "2022.09.16-T1450",
+    "upstreamAuthor": "Rick Osborne (https://rickosborne.org)",
+    "upstreamLicense": "CC-BY-NC-SA-4.0",
+    "migratedBy": "Resume One contributors",
+    "fidelity": "adapted"
+  }
+}

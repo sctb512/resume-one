@@ -3,6 +3,7 @@
 mod appearance_ui;
 mod chrome;
 mod color_sampler;
+mod community_themes;
 mod editor_ui;
 mod export_ui;
 mod files;
@@ -13,6 +14,7 @@ mod preview_ui;
 mod source_gutter;
 mod structure_ui;
 mod theme_browser_ui;
+mod theme_info;
 mod theme_local;
 mod theme_manager;
 mod theme_online;
@@ -23,9 +25,10 @@ use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
 use gpui::{
-    App, Application, Bounds, Context, FocusHandle, IntoElement, MouseButton, Render, ScrollHandle,
-    Window, WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
+    App, Application, Bounds, Context, FocusHandle, IntoElement, Render, ScrollHandle, Window,
+    WindowBounds, WindowOptions, div, prelude::*, px, rgb, size,
 };
+use gpui_component::menu::{ContextMenuExt, PopupMenuItem};
 use model::AppModel;
 use resume_one_core::structure::StructureEdit;
 use resume_one_core::theme_style::{Rgb, ThemeStyle};
@@ -226,13 +229,27 @@ impl ResumeOne {
             .px_2()
             .overflow_y_scroll()
             .flex_1()
-            .on_scroll_wheel(cx.listener(|this, _, _, cx| {
+            .min_h_0()
+            .track_scroll(&self.theme_scroll)
+            .on_scroll_wheel(cx.listener(|this, _, window, cx| {
                 this.theme_hover_generation += 1;
                 this.theme_hover_candidate = None;
-                if this.hovered_theme.take().is_some() {
-                    cx.notify();
-                }
+                this.hovered_theme = None;
+                // GPUI commits the scroll offset after this event. Render the
+                // newly visible thumbnails against that committed offset.
+                let owner = cx.entity().downgrade();
+                window.defer(cx, move |_, cx| {
+                    if let Some(owner) = owner.upgrade() {
+                        owner.update(cx, |_, cx| cx.notify());
+                    }
+                });
+                cx.notify();
             }));
+        let visible = theme_browser_ui::thumbnail_window(
+            f32::from(self.theme_scroll.offset().y),
+            f32::from(self.theme_scroll.bounds().size.height).max(self.viewport_height - 210.),
+            self.model.themes.len(),
+        );
         for (index, theme) in self
             .model
             .themes
@@ -242,6 +259,12 @@ impl ResumeOne {
         {
             let selected =
                 self.model.applied_online.is_none() && index == self.model.selected_theme;
+            let info_owner = cx.entity().downgrade();
+            let reveal_owner = info_owner.clone();
+            let identity = theme.identity.clone();
+            let reveal_identity = identity.clone();
+            let can_reveal = theme.path.is_some();
+            let menu_focus = self.focus.clone();
             let row = div()
                 .id(("theme", index))
                 .debug_selector(|| format!("theme-{index}"))
@@ -270,7 +293,7 @@ impl ResumeOne {
                             .bg(accent),
                     )
                 })
-                .child(self.theme_thumbnail(Some(theme)))
+                .child(self.theme_thumbnail(visible.contains(&index).then_some(theme)))
                 .child(
                     div()
                         .flex_1()
@@ -302,17 +325,75 @@ impl ResumeOne {
                 .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
                     this.hover_local_theme(index, *hovering, window, cx);
                 }))
-                .on_click(cx.listener(move |this, _, window, cx| {
-                    this.apply_theme_selection(this.model.themes[index].clone());
-                    window.focus(&this.focus);
-                    cx.notify();
-                }))
-                .on_mouse_down(
-                    MouseButton::Right,
-                    cx.listener(move |this, _, window, cx| {
-                        this.reveal_theme(index, window, cx);
+                .on_click(
+                    cx.listener(move |this, event: &gpui::ClickEvent, window, cx| {
+                        if !event.standard_click() {
+                            return;
+                        }
+                        this.apply_theme_selection(this.model.themes[index].clone());
+                        window.focus(&this.focus);
+                        cx.notify();
                     }),
-                );
+                )
+                .context_menu(move |menu, _, cx| {
+                    if let Some(owner) = info_owner.upgrade() {
+                        owner.update(cx, |this, cx| {
+                            this.theme_hover_generation += 1;
+                            this.theme_hover_candidate = None;
+                            this.hovered_theme = None;
+                            cx.notify();
+                        });
+                    }
+                    let owner = reveal_owner.clone();
+                    let identity = reveal_identity.clone();
+                    let info_owner = info_owner.clone();
+                    let info_identity = identity.clone();
+                    menu.action_context(menu_focus.clone())
+                        .item(
+                            PopupMenuItem::new("显示主题文件")
+                                .disabled(!can_reveal)
+                                .on_click(move |_, window, cx| {
+                                    if let Some(owner) = owner.upgrade() {
+                                        owner.update(cx, |this, cx| {
+                                            if let Some(index) = this
+                                                .model
+                                                .themes
+                                                .iter()
+                                                .position(|theme| theme.identity == identity)
+                                            {
+                                                this.reveal_theme(index, window, cx);
+                                            }
+                                        });
+                                    }
+                                }),
+                        )
+                        .item(
+                            PopupMenuItem::new("主题说明").on_click(move |_, window, cx| {
+                                if let Some(owner) = info_owner.upgrade() {
+                                    owner.update(cx, |this, cx| {
+                                        if let Some(theme) = this
+                                            .model
+                                            .themes
+                                            .iter()
+                                            .find(|theme| theme.identity == info_identity)
+                                        {
+                                            let manifest = theme.manifest.clone();
+                                            let owner = cx.entity().downgrade();
+                                            // Wait for the menu to return focus before
+                                            // opening the keyboard-operable dialog.
+                                            window.defer(cx, move |window, cx| {
+                                                if let Some(owner) = owner.upgrade() {
+                                                    owner.update(cx, |this, cx| {
+                                                        this.show_theme_info(manifest, window, cx)
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            }),
+                        )
+                });
             list = list.child(row);
         }
         if self.online.online {

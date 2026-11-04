@@ -1,0 +1,54 @@
+Architect's Portfolio - Resume One declarative adaptation
+
+Original author: JSON Resume contributors
+Original source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-architects-portfolio
+Source revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+Theme package version: 1.1.9
+Theme license: MIT (LICENSE.txt). No package-specific license file was supplied; the collection-root MIT license applies to this package.
+Adapted by Resume One contributors. No endorsement by the original authors.
+
+The original React/CSS was inspected as text and was not executed. This package contains only declarative JSON, static font data and license notices. No remote image or font requests occur while rendering. Resume JSON remains untouched. This is an adaptation, not a pixel-identical rendering. Native GUI and Microsoft Word acceptance are separate checks.
+
+Preservation and exact differences
+Jost is the original first-choice family; Red Hat Display is a source fallback, not the primary typography. Print paper is white as specified by the print override. Name and section headings retain uppercase transformation and the source tracking (0.5px and 3px); item headings retain 0.5px tracking. Independent label, summary and sideDate roles preserve the 13px/400 uppercase tagline with 2px tracking, 15px/300 summary at 1.8 leading, and 13px/300 dates with 0.5px tracking. The masthead rule uses 0.7pt instead of 1.5pt; inter-item keylines and em-dash list markers are unavailable. Skill/language/interest cards retain individual frames but use full-width stacking instead of auto-fill grids; 2px corner rounding is omitted. Entry position/company grouping and its subline typography are still merged by the shared semantic renderer. Shared-role colors are preserved as described below; finer field/context colors and per-element spacing are not yet reproduced. Print margins combine 0.5in page margin with 40px layout padding. These remaining visible differences block the near-100-percent fidelity gate; successful rendering and this disclosure are not acceptance.
+
+All modules retain Resume One's localized standard labels, field semantics and input order. Optional portraits, web hover styles and source-specific metadata overrides are not reproduced. Explicit role colors retain original RGB values; semantic palette fallbacks and application chrome still receive readability correction. Chinese and unsupported glyphs use the application's explicit Noto fallback. Source CSS pixel sizes are converted at 0.75pt per px. Editable DOCX reflows independently and is not visually certified by this package.
+
+Shared-role color update (2026-10-30): source Name/Position titles #111827,
+Label #6b7280, Summary #374151, SectionTitle/shared prose #4b5563 and independent
+side dates #9ca3af are now explicit typography colors. The light source date
+color is retained exactly instead of being darkened by the global interface
+contrast rule. Body-derived item titles have their own explicit color, so
+changing prose does not recolor them. Contact/metadata and position/company
+fragments still share roles where the source distinguishes them, and local
+grid/spacing differences remain. These partial corrections are not final
+high-fidelity acceptance. Personal palette changes remain separate overrides.
+
+Font provenance
+
+Google Fonts repository revision: 9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0
+Static faces instantiated at the recorded axes using fontTools; other axes use their source defaults. Glyphs are not subsetted. The intermediate Resume One Jost Static faces are given separate primary families Resume One Architects Jost W300, W400 and W500. All non-name/head tables remain byte-identical to those intermediate faces, including outlines, positioning, metrics and embedding flags; copyright/license name records remain unchanged. Per-face identities prevent different weights competing for the same DOCX family slot and late native-family selection caches. They do not constitute Microsoft Word or high-fidelity acceptance. Full OFL remains alongside the modified fonts.
+
+jost 300: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/Jost%5Bwght%5D.ttf
+Original SHA-256: 6343b70971000b04c5d401c96ae08ce371086135e999d5e1e1413039c0213076
+Static axes: {"wght": 300}
+Intermediate SHA-256: 37506711949b66af63c503849fa63cb5df5d93522b64e6f76d02f4e39cca5bbf
+Output family: Resume One Architects Jost W300
+Output SHA-256: d8992cb24957f1909c216541a1291fb9e27d0e2eaa7faddc6252721189292564
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/OFL.txt (OFL-jost.txt, retained in full).
+
+jost 500: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/Jost%5Bwght%5D.ttf
+Original SHA-256: 6343b70971000b04c5d401c96ae08ce371086135e999d5e1e1413039c0213076
+Static axes: {"wght": 500}
+Intermediate SHA-256: f528c9a63b353cee9673e7a71b3f92ff1c24ef4ed8b2b399b0c094f51f44ce18
+Output family: Resume One Architects Jost W500
+Output SHA-256: 6a127b3be5a49a80b79c2ae73ae0363bc1ed6d31e5ebefa42507e321aa8794ae
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/OFL.txt (OFL-jost.txt, retained in full).
+
+jost 400: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/Jost%5Bwght%5D.ttf
+Original SHA-256: 6343b70971000b04c5d401c96ae08ce371086135e999d5e1e1413039c0213076
+Static axes: {"wght": 400}
+Intermediate SHA-256: aed014c616038fd60e885aec909084f9cc9daf54dd19f62e648be9653864d226
+Output family: Resume One Architects Jost W400
+Output SHA-256: ef46177ac33ae44864ba417a69469910786f76479fdb91b543d61a3f1aea5361
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/jost/OFL.txt (OFL-jost.txt, retained in full).

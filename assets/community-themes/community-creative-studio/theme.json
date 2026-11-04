@@ -1,0 +1,170 @@
+{
+  "formatVersion": 2,
+  "id": "community-creative-studio",
+  "name": "Creative Studio",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#000000",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#555555",
+    "muted": "#000000",
+    "border": "#FF6363"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-serif",
+      "sizePt": 13.200000000000001,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal",
+      "color": "#555555"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 33.0,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "fontStyle": "normal",
+      "trackingEm": -0.011363636363636364
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 13.5,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-serif",
+      "sizePt": 13.200000000000001,
+      "weight": 600,
+      "lineHeight": 1.9,
+      "fontStyle": "normal",
+      "color": "#555555"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 21.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal",
+      "color": "#333333"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 13.200000000000001,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.4,
+      "right": 10.583333333333334,
+      "bottom": 13.229166666666666,
+      "left": 6.35
+    },
+    "sectionGapMm": 7.9375
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "education",
+      "projects",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "heading": "line"
+    },
+    "certificates": {
+      "heading": "line",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "line",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "line",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "items": "stack",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "line"
+    },
+    "work": {
+      "heading": "line",
+      "items": "timeline",
+      "title": "Work Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-creative-studio",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

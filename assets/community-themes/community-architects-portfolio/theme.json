@@ -1,0 +1,190 @@
+{
+  "formatVersion": 2,
+  "id": "community-architects-portfolio",
+  "name": "Architect's Portfolio",
+  "description": "轻盈 Jost · 细线分隔 · 疏朗作品档案",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#4B5563",
+    "seal": "#4B5563",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F5F5",
+    "ink": "#1F2937",
+    "muted": "#6B7280",
+    "border": "#D1D5DB"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "marginsMm": {
+      "top": 23.3,
+      "right": 23.3,
+      "bottom": 23.3,
+      "left": 23.3
+    },
+    "sectionGapMm": 14.8,
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "color": "#4B5563",
+      "family": "asset:jost-300",
+      "sizePt": 10.5,
+      "weight": 300,
+      "lineHeight": 1.8
+    },
+    "name": {
+      "color": "#111827",
+      "family": "asset:jost-300",
+      "sizePt": 36,
+      "weight": 300,
+      "lineHeight": 1.2,
+      "trackingEm": 0.0104166667,
+      "textTransform": "uppercase"
+    },
+    "sectionTitle": {
+      "color": "#4B5563",
+      "family": "asset:jost-500",
+      "sizePt": 9,
+      "weight": 500,
+      "lineHeight": 1.4,
+      "trackingEm": 0.25,
+      "textTransform": "uppercase"
+    },
+    "itemTitle": {
+      "color": "#111827",
+      "family": "asset:jost-400",
+      "sizePt": 13.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": 0.0277777778
+    },
+    "meta": {
+      "family": "asset:jost-300",
+      "sizePt": 9.75,
+      "weight": 300,
+      "lineHeight": 1.4
+    },
+    "label": {
+      "color": "#6B7280",
+      "family": "asset:jost-400",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "trackingEm": 0.1538461538,
+      "textTransform": "uppercase"
+    },
+    "summary": {
+      "color": "#374151",
+      "family": "asset:jost-300",
+      "sizePt": 11.25,
+      "weight": 300,
+      "lineHeight": 1.8
+    },
+    "sideDate": {
+      "color": "#9CA3AF",
+      "family": "asset:jost-300",
+      "sizePt": 9.75,
+      "weight": 300,
+      "lineHeight": 1.6,
+      "trackingEm": 0.0384615385
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "stacked",
+    "summaryRegion": "header",
+    "contact": "inline"
+  },
+  "sections": {
+    "work": {
+      "heading": "line",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "line",
+      "date": "right"
+    },
+    "education": {
+      "heading": "line",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "line",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "line",
+      "date": "right"
+    },
+    "publications": {
+      "heading": "line",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "references": {
+      "heading": "line"
+    },
+    "projects": {
+      "heading": "line",
+      "date": "right"
+    }
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "jost-300",
+        "path": "jost-300.ttf",
+        "sha256": "d8992cb24957f1909c216541a1291fb9e27d0e2eaa7faddc6252721189292564",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "jost-500",
+        "path": "jost-500.ttf",
+        "sha256": "6a127b3be5a49a80b79c2ae73ae0363bc1ed6d31e5ebefa42507e321aa8794ae",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "jost-400",
+        "path": "jost-400.ttf",
+        "sha256": "ef46177ac33ae44864ba417a69469910786f76479fdb91b543d61a3f1aea5361",
+        "license": "OFL-1.1"
+      }
+    ]
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-architects-portfolio",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
+    "upstreamAuthor": "JSON Resume contributors",
+    "upstreamLicense": "MIT",
+    "migratedBy": "Resume One contributors",
+    "fidelity": "adapted"
+  }
+}

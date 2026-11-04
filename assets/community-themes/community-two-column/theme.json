@@ -1,0 +1,108 @@
+{
+  "formatVersion": 2,
+  "id": "community-two-column",
+  "name": "Two Column",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#000000",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#000000",
+    "muted": "#000000",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 26.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 13.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "textTransform": "uppercase",
+      "color": "#000000"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 10.6,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.0909090909090908,
+      "color": "#000000"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 5.0,
+      "bottom": 16.0,
+      "left": 5.0
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true,
+    "size": "A4"
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-two-column/v/0.2.0",
+    "upstreamRevision": "0.2.0"
+  }
+}

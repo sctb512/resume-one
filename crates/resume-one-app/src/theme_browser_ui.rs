@@ -6,6 +6,19 @@ use resume_one_themes::{GithubClient, GithubSource, ThemeCache, VerifiedTheme};
 
 use crate::{ResumeOne, color, model::BuiltinTheme, theme_online::Provider};
 
+/// Keep all lightweight rows for a stable scroll range, but only measure
+/// previews within two rows of the viewport. This stays below the 40-layout
+/// cache even when the local library grows beyond the bundled collection.
+pub(super) fn thumbnail_window(offset: f32, height: f32, total: usize) -> std::ops::Range<usize> {
+    let row = crate::chrome::THEME_ROW_HEIGHT;
+    // Wheel deltas can overshoot the end. GPUI clamps its handle in prepaint,
+    // after this render, so culling must clamp before calculating row indices.
+    let max_offset = (total as f32 * row - height.max(row)).max(0.);
+    let first = ((-offset).clamp(0., max_offset) / row).floor() as usize;
+    let count = (height.max(row) / row).ceil() as usize;
+    first.saturating_sub(2).min(total)..first.saturating_add(count + 2).min(total)
+}
+
 impl ResumeOne {
     pub(super) fn hover_local_theme(
         &mut self,
@@ -419,15 +432,20 @@ impl ResumeOne {
                         }
                         cx.notify();
                     }))
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        if let Some(theme) = this.online.apply(&click_id) {
-                            this.drawer = None;
-                            this.apply_online_theme(theme);
-                        }
-                        this.pump_online(window, cx);
-                        window.focus(&this.focus);
-                        cx.notify();
-                    }));
+                    .on_click(
+                        cx.listener(move |this, event: &gpui::ClickEvent, window, cx| {
+                            if !event.standard_click() {
+                                return;
+                            }
+                            if let Some(theme) = this.online.apply(&click_id) {
+                                this.drawer = None;
+                                this.apply_online_theme(theme);
+                            }
+                            this.pump_online(window, cx);
+                            window.focus(&this.focus);
+                            cx.notify();
+                        }),
+                    );
                 list = list.child(div().id(("online-theme-row", index)).flex_none().child(
                     row.context_menu(move |menu, _, _| {
                         let owner = owner.clone();
@@ -466,6 +484,14 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn thumbnail_culling_survives_both_end_overscroll_and_empty_lists() {
+        assert_eq!(thumbnail_window(-100_000., 600., 21), 12..21);
+        assert_eq!(thumbnail_window(100_000., 600., 21), 0..9);
+        assert_eq!(thumbnail_window(-100_000., 600., 0), 0..0);
+        assert_eq!(thumbnail_window(-100_000., 600., 1), 0..1);
+    }
     use crate::{
         model::AppModel,
         theme_local::{ResetThemeDirectory, ThemeStore},
@@ -589,7 +615,10 @@ mod tests {
         cx.run_until_parked();
         cx.update(|_, cx| {
             let app = owner.read(cx);
-            assert_eq!(app.model.themes.len(), 21);
+            assert_eq!(
+                app.model.themes.len(),
+                crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
+            );
             let downloaded = app
                 .model
                 .themes
@@ -681,13 +710,16 @@ mod tests {
             assert_eq!(std::fs::read(path).unwrap(), bytes(1));
             assert!(app.online.diagnostics.is_empty());
             assert_eq!(app.model.document.source, resume);
-            assert_eq!(app.model.themes.len(), 21);
+            assert_eq!(
+                app.model.themes.len(),
+                crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
+            );
         });
         assert_eq!(
             std::fs::read_dir(root.path().join("defaults"))
                 .unwrap()
                 .count(),
-            20
+            crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
         );
     }
 }

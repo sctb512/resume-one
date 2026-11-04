@@ -1,0 +1,22 @@
+Pro — Resume One declarative adaptation
+
+Original project: JSON Resume contributors, jsonresume-theme-pro
+Original source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-pro
+Gallery: https://jsonresume.org/themes
+Source revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+Theme license: MIT (see LICENSE.txt)
+Adaptation by Resume One contributors; no endorsement by the original authors.
+
+Changes: HTML/CSS/JavaScript replaced by bounded declarative JSON; print tokens,
+centered masthead, serif typography and fine rules retained. Item headings use
+Resume One's combined semantic labels rather than separate italic organization
+lines. Optional portraits and custom .meta settings are not interpreted. CJK
+glyphs use the bundled Noto fallback. Word reflows editable content independently.
+This is an adaptation, not a pixel-identical rendering of the web theme.
+
+Font source: Adobe Source Serif 4, embedded static faces supplied by the upstream
+theme (fonts.generated.js SHA-256 4c903cd277355ad01e587a78d697da06b055c2518847aab5398a496a41316d9e).
+Copyright 2014–2023 Adobe; SIL Open Font License 1.1 (see OFL.txt).
+WOFF2 faces decompressed to TTF; names changed to Resume One Pro Serif to respect
+the reserved name Source. Glyph outlines are not subsetted or redrawn.
+The application license does not replace the font license.

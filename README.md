@@ -4,7 +4,9 @@
 
 ## 当前实现状态
 
-左右侧栏已接入预览、PDF 和可编辑 DOCX：页眉/摘要保持全宽，主栏与侧栏分别换行和延续到下一页；窄栏长标题换行，页脚不重复，页内增删/悬停命中跟随所属栏位。侧栏底色独立检查文字对比度。PDF 与 DOCX 已用本地渲染图片检查，Word 的实际分页和底色高度仍须独立验收；这项基础能力不表示 67 套社区主题已完成迁移。
+本地验收版内置 67 套社区主题的声明式适配。60 套由独立迁移工具批量生成，7 套保留已有精修版；工具同时对固定来源的 67 套完成全量复跑。这里的适配验收指主题可离线加载、样本排版及导出正常，不是原版视觉等价认证。公开默认源仍须通过[高保真验收门槛](./resume-one-theme-spec-v2.md#高保真验收门槛)。
+
+左右侧栏已接入预览、PDF 和可编辑 DOCX：页眉/摘要默认全宽，也可独立放入主栏或侧栏；联系方式可跟随身份或单独入栏，主栏与侧栏分别换行和延续到下一页；窄栏长标题换行，页脚不重复，页内增删/悬停命中跟随所属栏位。侧栏底色独立检查文字对比度。PDF 与 DOCX 已用本地渲染图片检查，Word 的实际分页和底色高度仍须独立验收；这项基础能力不表示 67 套社区主题已完成迁移。
 
 新增独立的本机外观设置：点击右侧模块栏的“外观”，在固定右栏内即时调整正文/标题字体和配色，文档始终可见，不使用遮罩或模态窗口；“完成”回到模块列表。字体、颜色可分别恢复主题默认。预览、缩略图与 PDF/DOCX 使用同一有效主题快照，原始主题和简历 JSON 均不改写。CLI 通过 `export --theme ... --appearance ...` 显式复用外观设置，不隐式读取桌面配置。在线列表只保留仓库选择器，不重复显示“管理来源”。数据格式和验收边界见[独立外观设置](./spec/appearance-settings.md)。
 
@@ -12,9 +14,11 @@
 
 macOS 本机已检查字体搜索、选择、原生安装及取消、色盘联动、右栏固定和页内表单；系统取色界面已确认出现，选中/取消/失败回调通过自动化契约测试。系统取色的真实桌面点击与取消手势尚未完成自动化端到端验收，不能把回调模拟当作该项通过，也不能据此宣称正式发布验收完成。
 
-本地声明式主题现可携带经路径、SHA-256、格式及字重校验的静态 TTF/OTF：同一真实字体用于预览、PDF 和 DOCX，不安装到字体库，不写回简历 JSON。macOS 原生字体引擎已独立验证加载与字形测量；界面模拟测试不冒充原生验收。详情见[主题字体资源契约](./resume-one-theme-spec-v2.md#3-字段语义)。在线字体包传输仍未实现；社区 67 套目前仍是待重建/验收的源码与候选，不能按数量视为迁移完成。
+本地声明式主题现可携带经路径、SHA-256、格式及字重校验的静态 TTF/OTF：同一真实字体用于预览、PDF 和 DOCX，不安装到字体库，不写回简历 JSON。macOS 原生字体引擎已独立验证加载与字形测量；界面模拟测试不冒充原生验收。详情见[主题字体资源契约](./resume-one-theme-spec-v2.md#3-字段语义)。在线字体包传输仍未实现。独立迁移工具的 `--adapt --batch` 会静态提取排版、配色和模块顺序，生成可追溯差异报告，不执行上游代码。详见[近似适配协议](./spec/theme-adaptation-v1.md)。
 
-本地验收版提供 macOS 应用、文档 CLI、独立主题迁移器、20 套声明式主题、主题规范和两份手册。macOS 打包后，命令行工具位于 `.app/Contents/MacOS/`，规范、手册、主题文件和完整示例位于 `.app/Contents/Resources/`。它采用临时签名，仅供当前约定的本地交付；Windows 原生环境、Microsoft Word 实机验收和公开默认主题源仍是正式发布的未完成项。
+本地验收版提供 macOS 应用、文档 CLI、独立主题迁移器、20 套原生及 67 套社区适配声明式主题、主题规范和两份手册。macOS 打包后，命令行工具位于 `.app/Contents/MacOS/`，规范、手册、主题文件和完整示例位于 `.app/Contents/Resources/`。它采用临时签名，仅供当前约定的本地交付；Windows 原生环境、Microsoft Word 实机验收和公开默认主题源仍是正式发布的未完成项。
+
+社区适配包位于 [assets/community-themes](./assets/community-themes/)，与本地主题同格式、同交互。主题 JSON 最后落盘，已有本地修改与符号链接不会覆盖。右键“显示主题文件”可定位包；`NOTICE.txt` 和 `LICENSE.txt` 记录出处、许可及差异，工具生成的包还附 `MIGRATION.json`。Rick Osborne 保留原始项目链接与 CC BY-NC-SA 4.0 正文。上游仅声明协议而未提供独立正文的包，明确区分所附标准许可文本与上游原件。主题缩略图仅排版可视范围附近，避免大目录反复挤出预览缓存。
 
 本轮交互精修：360ms 视图切换从 62% 时程开始内容交接，右栏固定；外壳配色以 160ms 过渡；纸张无模块的空白处不自动展开表单，字段区提供常驻溢出滚动条。草稿恢复使用中央提示，选择前保留原文件与草稿并暂时锁定修改。macOS 窗口按钮与工具栏合并为一行。完整示例仍是干净的 JSON Resume，不含样式或应用元数据。
 
@@ -52,7 +56,7 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
 
-Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配本地便携 ZIP；脚本自动定位 Windows SDK 的 `x64/fxc.exe`（也可设置 `GPUI_FXC_PATH`），同时附带规范、手册、20 套主题和示例，拒绝覆盖已有 ZIP。该脚本仍待原生 Windows 运行验收。当前固定版本 GPUI 在 macOS 主机构建 Windows 时不会生成 DirectX 着色器，因此不能仅靠交叉编译得到有效桌面程序；命令行工具可独立交叉编译，但不等于 Windows GUI 或原生运行验收通过。
+Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配本地便携 ZIP；脚本自动定位 Windows SDK 的 `x64/fxc.exe`（也可设置 `GPUI_FXC_PATH`），同时附带规范、手册、20 套原生及 67 套社区适配主题和示例，拒绝覆盖已有 ZIP。该脚本仍待原生 Windows 运行验收。当前固定版本 GPUI 在 macOS 主机构建 Windows 时不会生成 DirectX 着色器，因此不能仅靠交叉编译得到有效桌面程序；命令行工具可独立交叉编译，但不等于 Windows GUI 或原生运行验收通过。
 
 macOS 如需保留已有应用，可向 `bundle.sh` 传第二个参数指定尚不存在的绝对 `.app` 路径；向 `archive.sh` 传第三个参数指定该应用归档。归档前后均检查封签。项目采用 [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt)，第三方与字体声明保留在包内。
 

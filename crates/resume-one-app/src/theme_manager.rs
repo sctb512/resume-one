@@ -507,6 +507,7 @@ impl ResumeOne {
         let close_owner = owner.downgrade();
         let quiet = quiet_button(&self.model.selected_style(), cx);
         let border = color(self.model.selected_style().colors.border);
+        self.focus_current(window, cx);
         window.open_dialog(cx, move |dialog, _, _| {
             dialog
                 .title("主题管理")
@@ -522,10 +523,11 @@ impl ResumeOne {
                 .child(manager.clone())
                 .on_close({
                     let owner = close_owner.clone();
-                    move |_, _, cx| {
+                    move |_, window, cx| {
                         if let Some(owner) = owner.upgrade() {
                             owner.update(cx, |owner, cx| {
                                 owner.theme_manager_open = false;
+                                owner.focus_current(window, cx);
                                 cx.notify();
                             });
                         }

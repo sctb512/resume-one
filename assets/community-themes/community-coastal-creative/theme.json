@@ -1,0 +1,187 @@
+{
+  "formatVersion": 2,
+  "id": "community-coastal-creative",
+  "name": "Coastal Creative",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#0369A1",
+    "seal": "#334155",
+    "paper": "#FDFDF9",
+    "canvas": "#F5F3EE",
+    "ink": "#334155",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.9,
+      "color": "#334155",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 31.5,
+      "weight": 600,
+      "lineHeight": 1.9,
+      "trackingEm": -0.011904761904761904,
+      "color": "#0F172A",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-1",
+      "sizePt": 13.5,
+      "weight": 500,
+      "lineHeight": 1.9,
+      "color": "#0369A1",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 12.75,
+      "weight": 400,
+      "lineHeight": 2.0,
+      "color": "#475569",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 18.0,
+      "weight": 600,
+      "lineHeight": 1.9,
+      "trackingEm": 0.041666666666666664,
+      "textTransform": "uppercase",
+      "color": "#0369A1",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 11.25,
+      "weight": 600,
+      "lineHeight": 1.9,
+      "trackingEm": 0.03333333333333333,
+      "textTransform": "uppercase",
+      "color": "#0369A1",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-1",
+      "sizePt": 11.25,
+      "weight": 500,
+      "lineHeight": 1.9,
+      "color": "#64748B",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "asset:font-0",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.9,
+      "color": "#334155",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 15.8,
+      "right": 10.583333333333334,
+      "bottom": 14.816666666666666,
+      "left": 10.583333333333334
+    },
+    "sectionGapMm": 12.7
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "projects",
+      "education",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "work": {
+      "title": "Experience"
+    },
+    "skills": {
+      "title": "Skills"
+    },
+    "projects": {
+      "title": "Projects"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "volunteer": {
+      "title": "Volunteer"
+    },
+    "awards": {
+      "title": "Awards"
+    },
+    "certificates": {
+      "title": "Certificates"
+    },
+    "publications": {
+      "title": "Publications"
+    },
+    "languages": {
+      "title": "Languages"
+    },
+    "interests": {
+      "title": "Interests"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-coastal-creative",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "license": "OFL-1.1"
+      }
+    ]
+  }
+}

@@ -465,6 +465,7 @@ impl ThemeStore {
                 ));
             }
         }
+        warnings.extend(crate::community_themes::seed(directory));
         Ok(warnings)
     }
 
@@ -750,7 +751,10 @@ mod tests {
             BUILTIN_THEMES[0].as_bytes()
         );
         assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
-        assert_eq!(store.load_themes().unwrap().len(), 20);
+        assert_eq!(
+            store.load_themes().unwrap().len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+        );
         assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
         assert_eq!(
             fs::read(&settings).unwrap(),
@@ -963,7 +967,10 @@ mod tests {
         let original = theme.to_string();
         fs::write(package.join("theme.json"), &original).unwrap();
         let themes = store.load_themes().unwrap();
-        assert_eq!(themes.len(), 21);
+        assert_eq!(
+            themes.len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
+        );
         assert!(store.warnings.is_empty());
         let font_theme = themes
             .iter()
@@ -972,7 +979,10 @@ mod tests {
         assert_eq!(font_theme.style.typography.body.family, "asset:body");
         assert!(resume_one_core::layout::check_theme(&font_theme.manifest).is_ok());
         fs::write(package.join("fixture.ttf"), b"tampered font").unwrap();
-        assert_eq!(store.load_themes().unwrap().len(), 20);
+        assert_eq!(
+            store.load_themes().unwrap().len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+        );
         assert!(
             store
                 .warnings
@@ -1045,7 +1055,10 @@ mod tests {
         let defaults = root.path().join("defaults");
         let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
         let themes = store.load_themes().unwrap();
-        assert_eq!(themes.len(), 20);
+        assert_eq!(
+            themes.len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+        );
         assert_eq!(themes[0].manifest.id, "zhibai");
         let path = themes[0].path.as_ref().unwrap();
         assert!(path.is_file());
@@ -1070,7 +1083,10 @@ mod tests {
         )
         .unwrap();
         let themes = store.choose(custom.clone()).unwrap();
-        assert_eq!(themes.len(), 22);
+        assert_eq!(
+            themes.len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 2
+        );
         assert!(
             themes
                 .iter()
@@ -1094,7 +1110,10 @@ mod tests {
             serde_json::from_slice(&fs::read(&store.settings_path).unwrap()).unwrap();
         saved["future"] = json!({"onlineSources": ["example"]});
         fs::write(&store.settings_path, serde_json::to_vec(&saved).unwrap()).unwrap();
-        assert_eq!(store.reset().unwrap().len(), 20);
+        assert_eq!(
+            store.reset().unwrap().len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+        );
         assert_eq!(store.directory, defaults.canonicalize().unwrap());
         let saved: Value =
             serde_json::from_slice(&fs::read(&store.settings_path).unwrap()).unwrap();
@@ -1109,7 +1128,10 @@ mod tests {
         let defaults = root.path().join("defaults");
         fs::write(&settings, b"{invalid").unwrap();
         let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
-        assert_eq!(store.load_themes().unwrap().len(), 20);
+        assert_eq!(
+            store.load_themes().unwrap().len(),
+            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+        );
         assert!(!store.warnings.is_empty());
         assert_eq!(fs::read(&settings).unwrap(), b"{invalid");
         let missing = root.path().join("missing");

@@ -1,0 +1,190 @@
+{
+  "formatVersion": 2,
+  "id": "community-minimalist-grid",
+  "name": "Minimalist Grid",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#6B7280",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#374151",
+    "muted": "#6B7280",
+    "border": "#E5E7EB"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "color": "#374151",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 27.0,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "trackingEm": 0.05555555555555555,
+      "textTransform": "uppercase",
+      "color": "#111827",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-1",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "trackingEm": 0.10714285714285714,
+      "textTransform": "uppercase",
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "color": "#374151",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "asset:font-0",
+      "sizePt": 9.0,
+      "weight": 500,
+      "lineHeight": 1.75,
+      "trackingEm": 0.16666666666666666,
+      "textTransform": "uppercase",
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "asset:font-0",
+      "sizePt": 9.0,
+      "weight": 500,
+      "lineHeight": 1.75,
+      "trackingEm": 0.125,
+      "textTransform": "uppercase",
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-1",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "trackingEm": 0.038461538461538464,
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "color": "#374151",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 14.05,
+      "right": 8.466666666666665,
+      "bottom": 12.7,
+      "left": 8.466666666666665
+    },
+    "sectionGapMm": 10.583333333333334
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "projects",
+      "education",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "work": {
+      "title": "Experience"
+    },
+    "skills": {
+      "title": "Skills"
+    },
+    "projects": {
+      "title": "Projects"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "volunteer": {
+      "title": "Volunteer"
+    },
+    "awards": {
+      "title": "Awards"
+    },
+    "certificates": {
+      "title": "Certificates"
+    },
+    "publications": {
+      "title": "Publications"
+    },
+    "languages": {
+      "title": "Languages"
+    },
+    "interests": {
+      "title": "Interests"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-minimalist-grid",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "license": "OFL-1.1"
+      }
+    ]
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "formatVersion": 2,
+  "id": "community-elegant",
+  "name": "Elegant",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#555555",
+    "muted": "#64748B",
+    "border": "#E6E6E6"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 18.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#707070"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.0,
+      "weight": 600,
+      "lineHeight": 1.5,
+      "color": "#555555",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 10.6,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.5,
+      "color": "#555555"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "sidebarWidthPct": 30.0,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
+    "headerRegion": "main",
+    "summaryRegion": "main"
+  },
+  "sections": {
+    "awards": {
+      "items": "cards"
+    },
+    "certificates": {
+      "items": "cards"
+    },
+    "education": {
+      "items": "cards"
+    },
+    "interests": {
+      "items": "cards"
+    },
+    "languages": {
+      "items": "cards"
+    },
+    "projects": {
+      "items": "cards"
+    },
+    "publications": {
+      "items": "cards"
+    },
+    "references": {
+      "items": "cards"
+    },
+    "skills": {
+      "items": "cards"
+    },
+    "volunteer": {
+      "items": "cards"
+    },
+    "work": {
+      "items": "cards"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-elegant/v/1.16.1",
+    "upstreamRevision": "1.16.1"
+  }
+}

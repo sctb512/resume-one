@@ -1,0 +1,115 @@
+{
+  "formatVersion": 2,
+  "id": "community-flat",
+  "name": "Flat",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#647274",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#1F2937",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.8
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 26.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.8
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.8
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 18.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "color": "#647274",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 19.5,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.8
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.8
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 7.9375,
+      "bottom": 16.0,
+      "left": 7.9375
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "sidebarWidthPct": 30.0,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
+    "headerRegion": "main",
+    "summaryRegion": "main"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-flat",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

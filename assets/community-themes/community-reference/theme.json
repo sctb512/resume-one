@@ -1,0 +1,159 @@
+{
+  "formatVersion": 2,
+  "id": "community-reference",
+  "name": "Reference",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#000000",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#000000"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 28.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#000000",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 16.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#333333"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#333333"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#000000",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 10.6,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#000000"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#000000"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#000000"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 14.37,
+      "right": 5.291666666666667,
+      "bottom": 10.583333333333334,
+      "left": 5.291666666666667
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "volunteer",
+      "awards",
+      "publications",
+      "certificates",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "work": {
+      "title": "work"
+    },
+    "education": {
+      "title": "education"
+    },
+    "skills": {
+      "title": "skills"
+    },
+    "projects": {
+      "title": "projects"
+    },
+    "volunteer": {
+      "title": "volunteer"
+    },
+    "awards": {
+      "title": "awards"
+    },
+    "publications": {
+      "title": "publications"
+    },
+    "certificates": {
+      "title": "certificates"
+    },
+    "languages": {
+      "title": "languages"
+    },
+    "interests": {
+      "title": "interests"
+    },
+    "references": {
+      "title": "references"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-reference",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

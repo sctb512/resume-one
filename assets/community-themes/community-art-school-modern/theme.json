@@ -1,0 +1,128 @@
+{
+  "formatVersion": 2,
+  "id": "community-art-school-modern",
+  "name": "Art School Modern",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#111111",
+    "seal": "#334155",
+    "paper": "#F6F4EF",
+    "canvas": "#F5F3EE",
+    "ink": "#2A2722",
+    "muted": "#000000",
+    "border": "#111111"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.875,
+      "weight": 400,
+      "lineHeight": 1.62,
+      "trackingEm": -0.015,
+      "color": "#2A2722",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 26.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "trackingEm": -0.030000000000000002,
+      "textTransform": "uppercase",
+      "color": "#111111"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.2,
+      "fontStyle": "normal",
+      "trackingEm": -0.015,
+      "color": "#111111"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.875,
+      "weight": 400,
+      "lineHeight": 1.62,
+      "trackingEm": -0.015,
+      "color": "#2A2722",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 22.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "trackingEm": -0.02,
+      "textTransform": "uppercase",
+      "color": "#111111",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 15.75,
+      "weight": 600,
+      "lineHeight": 1.62,
+      "trackingEm": -0.01,
+      "textTransform": "uppercase",
+      "color": "#111111",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 12.75,
+      "weight": 600,
+      "lineHeight": 1.62,
+      "fontStyle": "normal",
+      "trackingEm": 0.16,
+      "textTransform": "uppercase"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.62,
+      "trackingEm": -0.015,
+      "color": "#2A2722",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "sectionGapMm": 6.35
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-art-school-modern",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

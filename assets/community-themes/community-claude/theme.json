@@ -1,0 +1,170 @@
+{
+  "formatVersion": 2,
+  "id": "community-claude",
+  "name": "Claude",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#78716C",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#1C1917",
+    "muted": "#57534E",
+    "border": "#E7E5E4"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#1C1917",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 27.0,
+      "weight": 600,
+      "lineHeight": 1.1,
+      "trackingEm": -0.04,
+      "color": "#1C1917",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-1",
+      "sizePt": 13.5,
+      "weight": 500,
+      "lineHeight": 1.6,
+      "color": "#2563EB",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#57534E",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 8.25,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "trackingEm": 0.1,
+      "textTransform": "uppercase",
+      "color": "#78716C",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.6,
+      "color": "#1C1917",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-0",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#57534E",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.6,
+      "color": "#78716C",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 13.97,
+      "right": 4.2333333333333325,
+      "bottom": 8.466666666666665,
+      "left": 4.2333333333333325
+    }
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {
+    "awards": {
+      "items": "cards"
+    },
+    "certificates": {
+      "items": "cards"
+    },
+    "education": {
+      "items": "cards"
+    },
+    "interests": {
+      "items": "cards"
+    },
+    "languages": {
+      "items": "cards"
+    },
+    "projects": {
+      "items": "cards"
+    },
+    "publications": {
+      "items": "cards"
+    },
+    "references": {
+      "items": "cards"
+    },
+    "skills": {
+      "items": "cards"
+    },
+    "volunteer": {
+      "items": "cards"
+    },
+    "work": {
+      "items": "cards"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-claude",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "license": "OFL-1.1"
+      }
+    ]
+  }
+}

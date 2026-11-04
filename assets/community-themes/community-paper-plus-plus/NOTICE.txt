@@ -1,0 +1,7 @@
+Paper Plus Plus — Resume One best-effort declarative adaptation
+Source: https://www.npmjs.com/package/jsonresume-theme-paper-plus-plus/v/0.6.0
+Revision: 0.6.0
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.

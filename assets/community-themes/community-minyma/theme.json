@@ -1,0 +1,101 @@
+{
+  "formatVersion": 2,
+  "id": "community-minyma",
+  "name": "Minyma",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "ISC",
+  "layout": "classic",
+  "colors": {
+    "accent": "#334155",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#1F2937",
+    "muted": "#64748B",
+    "border": "#CBD5E1"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "name": {
+      "family": "cjk-sans",
+      "sizePt": 26.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 13.0,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 10.6,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.4
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
+    }
+  },
+  "composition": {
+    "preset": "single-column"
+  },
+  "sections": {},
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "ISC",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-minyma/v/0.0.5",
+    "upstreamRevision": "0.0.5"
+  }
+}

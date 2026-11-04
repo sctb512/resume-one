@@ -1,0 +1,189 @@
+{
+  "formatVersion": 2,
+  "id": "community-asymmetric-timeline",
+  "name": "Asymmetric Timeline",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#0F172A",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#475569",
+    "muted": "#334155",
+    "border": "#E2E8F0"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#475569",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 36.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": -0.010416666666666666,
+      "color": "#0F172A",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "trackingEm": 0.03333333333333333,
+      "color": "#475569",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#475569",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 21.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#0F172A",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.5,
+      "weight": 600,
+      "lineHeight": 1.3,
+      "color": "#0F172A",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-0",
+      "sizePt": 12.0,
+      "weight": 500,
+      "lineHeight": 1.7,
+      "color": "#334155",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "trackingEm": 0.023076923076923075,
+      "color": "#64748B",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 17.62,
+      "right": 10.583333333333334,
+      "bottom": 15.875,
+      "left": 5.291666666666667
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "moduleOrder": [
+      "work",
+      "education",
+      "projects",
+      "skills",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "headingAlign": "center",
+      "title": "Awards"
+    },
+    "certificates": {
+      "headingAlign": "center",
+      "title": "Certificates"
+    },
+    "education": {
+      "headingAlign": "center",
+      "title": "Education"
+    },
+    "interests": {
+      "headingAlign": "center",
+      "title": "Interests"
+    },
+    "languages": {
+      "headingAlign": "center",
+      "title": "Languages"
+    },
+    "projects": {
+      "headingAlign": "center",
+      "title": "Projects"
+    },
+    "publications": {
+      "headingAlign": "center",
+      "title": "Publications"
+    },
+    "references": {
+      "headingAlign": "center",
+      "title": "References"
+    },
+    "skills": {
+      "headingAlign": "center",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "headingAlign": "center",
+      "title": "Volunteer"
+    },
+    "work": {
+      "headingAlign": "center",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-asymmetric-timeline",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "license": "OFL-1.1"
+      }
+    ]
+  }
+}

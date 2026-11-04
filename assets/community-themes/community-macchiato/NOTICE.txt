@@ -1,0 +1,7 @@
+Macchiato — Resume One best-effort declarative adaptation
+Source: https://www.npmjs.com/package/jsonresume-theme-macchiato/v/1.1.0
+Revision: 1.1.0
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.

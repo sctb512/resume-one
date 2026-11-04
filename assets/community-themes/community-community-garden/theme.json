@@ -1,0 +1,182 @@
+{
+  "formatVersion": 2,
+  "id": "community-community-garden",
+  "name": "Community Garden",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#0C4A6E",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#2D3748",
+    "muted": "#475569",
+    "border": "#86EFAC"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 11.625,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#2D3748"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 27.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": 0.013888888888888888,
+      "color": "#0C4A6E",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 14.25,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "fontStyle": "normal",
+      "color": "#047857"
+    },
+    "summary": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "fontStyle": "normal",
+      "color": "#1E40AF"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 18.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#0C4A6E",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.75,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#0C4A6E",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 10.875,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#475569",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 9.75,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "fontStyle": "normal",
+      "color": "#64748B"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 13.97,
+      "right": 11.90625,
+      "bottom": 13.229166666666666,
+      "left": 11.90625
+    },
+    "sectionGapMm": 11.641666666666666
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "education": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "items": "cards",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "cards"
+    },
+    "work": {
+      "heading": "line",
+      "items": "cards",
+      "title": "Professional Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-community-garden",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

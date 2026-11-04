@@ -1,0 +1,161 @@
+{
+  "formatVersion": 2,
+  "id": "community-two-column-modernist",
+  "name": "Two Column Modernist",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#1F1F1F",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#374151",
+    "muted": "#6B7280",
+    "border": "#D1D5DB",
+    "sidebar": "#F9FAFB"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.8,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#374151"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 11.399999999999999,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": 0.01,
+      "color": "#4B5563",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.8,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#374151"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 10.8,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#374151"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 13.200000000000001,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": -0.01,
+      "textTransform": "uppercase",
+      "color": "#1F1F1F",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#1F1F1F",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 10.2,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#6B7280"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 9.600000000000001,
+      "weight": 400,
+      "lineHeight": 1.7
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 12.7,
+      "right": 8.466666666666665,
+      "bottom": 12.7,
+      "left": 8.466666666666665
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "contact": "stacked",
+    "sidebarWidthPct": 35.0,
+    "gapMm": 12.7,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
+    "headerRegion": "main",
+    "summaryRegion": "main"
+  },
+  "sections": {
+    "awards": {
+      "heading": "line"
+    },
+    "certificates": {
+      "heading": "line"
+    },
+    "education": {
+      "heading": "line"
+    },
+    "interests": {
+      "heading": "line"
+    },
+    "languages": {
+      "heading": "line"
+    },
+    "projects": {
+      "heading": "line"
+    },
+    "publications": {
+      "heading": "line"
+    },
+    "references": {
+      "heading": "line"
+    },
+    "skills": {
+      "heading": "line"
+    },
+    "volunteer": {
+      "heading": "line"
+    },
+    "work": {
+      "heading": "line"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-two-column-modernist",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  }
+}

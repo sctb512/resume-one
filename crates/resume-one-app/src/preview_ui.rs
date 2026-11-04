@@ -277,6 +277,63 @@ mod tests {
     }
 
     #[gpui::test]
+    fn large_local_theme_library_only_measures_nearby_thumbnails(cx: &mut TestAppContext) {
+        let mut model = AppModel::load(None).unwrap();
+        let base = model.themes[0].clone();
+        model.replace_themes(
+            (0..100)
+                .map(|index| {
+                    let mut theme = base.clone();
+                    theme.identity = format!("fixture:theme-{index}");
+                    theme.manifest.id = format!("theme-{index}");
+                    theme
+                })
+                .collect(),
+        );
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.simulate_resize(gpui::size(px(1280.), px(820.)));
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.preview.cache.borrow().len() < 20);
+            assert!(
+                !app.preview
+                    .cache
+                    .borrow()
+                    .iter()
+                    .any(|entry| entry.theme_identity == "fixture:theme-60")
+            );
+        });
+        let list = cx.debug_bounds("theme-panel").unwrap();
+        cx.simulate_event(gpui::ScrollWheelEvent {
+            position: list.center(),
+            delta: gpui::ScrollDelta::Pixels(gpui::point(px(0.), px(-100_000.))),
+            ..Default::default()
+        });
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.theme_scroll.offset().y < px(-5000.));
+            assert!(app.preview.cache.borrow().len() < 30);
+            assert!(
+                app.preview
+                    .cache
+                    .borrow()
+                    .iter()
+                    .any(|entry| entry.theme_identity == "fixture:theme-99")
+            );
+        });
+        let entries = cx.update(|_, cx| view.read(cx).preview.cache.borrow().len());
+        for _ in 0..3 {
+            cx.update(|window, _| window.refresh());
+        }
+        assert_eq!(
+            entries,
+            cx.update(|_, cx| view.read(cx).preview.cache.borrow().len())
+        );
+    }
+
+    #[gpui::test]
     fn remove_control_only_exists_for_hovered_region_and_survives_pointer_handoff(
         cx: &mut TestAppContext,
     ) {

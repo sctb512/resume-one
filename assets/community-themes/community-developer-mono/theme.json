@@ -1,0 +1,191 @@
+{
+  "formatVersion": 2,
+  "id": "community-developer-mono",
+  "name": "Developer Mono",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
+  "version": "1.0.0",
+  "license": "MIT",
+  "layout": "classic",
+  "colors": {
+    "accent": "#6B7280",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
+    "ink": "#1F2937",
+    "muted": "#6B7280",
+    "border": "#F3F4F6"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "typography": {
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#1F2937",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 27.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": -0.013888888888888888,
+      "color": "#111827",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#2563EB",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#374151",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": 0.07142857142857142,
+      "textTransform": "uppercase",
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "cjk-serif",
+      "sizePt": 9.75,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "trackingEm": 0.038461538461538464,
+      "textTransform": "uppercase",
+      "color": "#2563EB",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.7,
+      "color": "#6B7280",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "asset:font-0",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.7,
+      "color": "#1F2937",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 13.97,
+      "right": 8.466666666666665,
+      "bottom": 10.583333333333334,
+      "left": 8.466666666666665
+    },
+    "sectionGapMm": 10.583333333333334
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "projects",
+      "education",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
+  "sections": {
+    "awards": {
+      "items": "cards",
+      "title": "Awards"
+    },
+    "certificates": {
+      "items": "cards",
+      "title": "Certificates"
+    },
+    "education": {
+      "items": "cards",
+      "title": "Education"
+    },
+    "interests": {
+      "items": "cards",
+      "title": "Interests"
+    },
+    "languages": {
+      "items": "cards",
+      "title": "Languages"
+    },
+    "projects": {
+      "items": "cards",
+      "title": "Projects"
+    },
+    "publications": {
+      "items": "cards",
+      "title": "Publications"
+    },
+    "references": {
+      "items": "cards",
+      "title": "References"
+    },
+    "skills": {
+      "items": "cards",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "items": "cards",
+      "title": "Volunteer"
+    },
+    "work": {
+      "items": "cards",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-developer-mono",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "license": "OFL-1.1"
+      }
+    ]
+  }
+}

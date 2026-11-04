@@ -216,13 +216,14 @@ fn verify(
             match element {
                 layout::LayoutElement::Text(line) => {
                     texts += 1;
+                    let (ascent, descent) = line.font.vertical_metrics();
                     if !line.x_pt.is_finite()
                         || !line.baseline_y_pt.is_finite()
                         || !line.width_pt().is_finite()
                         || line.x_pt < -1.0
                         || line.x_pt + line.width_pt() > width + 1.0
-                        || line.baseline_y_pt < 0.0
-                        || line.baseline_y_pt > height
+                        || line.baseline_y_pt - descent * line.size_pt < -1.0
+                        || line.baseline_y_pt + ascent * line.size_pt > height + 1.0
                     {
                         return Err(AppError::new(
                             3,

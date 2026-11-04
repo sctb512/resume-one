@@ -51,7 +51,7 @@ fn styled_roles_use_ast_and_explicit_family_fallback_requests() {
     let (theme, report) = from_js(
         r#"
         import styled from 'styled-components';
-        const Layout=styled.div`font-family:'Merriweather',Georgia,serif;font-size:12pt;line-height:1.6;color:#111827;padding:50px 40px;background:white;`;
+        const Layout=styled.div`font-family:'Merriweather',Georgia,serif;font-size:12pt;line-height:1.6;color:#111827;padding:60px 40px;background:white;`;
         const Header=styled.header`text-align:center;border-bottom:1px solid #667788;`;
         const Name=styled.h1`font-size:28pt;font-weight:700;letter-spacing:0.5px;`;
         const Label=styled.div`font-size:14pt;font-style:italic;`;
@@ -78,7 +78,7 @@ fn styled_roles_use_ast_and_explicit_family_fallback_requests() {
     assert_eq!(theme["sections"]["work"]["date"], "right");
     assert_eq!(theme["sections"]["work"]["heading"], "line");
     assert!(
-        (theme["page"]["marginsMm"]["top"].as_f64().unwrap() - 50.0 * 25.4 / 96.0).abs() < 1e-8
+        (theme["page"]["marginsMm"]["top"].as_f64().unwrap() - 60.0 * 25.4 / 96.0).abs() < 1e-8
     );
     let requests = report["fontRequests"].as_array().unwrap();
     assert_eq!(requests.len(), 8);
@@ -220,6 +220,36 @@ fn one_modules_zero_margin_cannot_collapse_every_section() {
     let (theme, report) = from_css("section{margin-bottom:0;}");
     assert_eq!(theme["page"]["sectionGapMm"], 4.0);
     assert!(has(&report, "COMPACT_SECTION_GAP_APPROXIMATED"));
+}
+
+#[test]
+fn logical_padding_maps_to_known_physical_margins_without_invalid_keys() {
+    let (theme, report) = from_css(
+        "body{padding-inline-start:12mm;padding-inline-end:13mm;padding-block-start:14mm;padding-block-end:15mm;padding-inline:99mm;}",
+    );
+    valid(&theme);
+    let margins = &theme["page"]["marginsMm"];
+    for (edge, expected) in [
+        ("left", 12.0),
+        ("right", 13.0),
+        ("top", 14.0),
+        ("bottom", 15.0),
+    ] {
+        assert!((margins[edge].as_f64().unwrap() - expected).abs() < 1e-6);
+    }
+    assert_eq!(margins.as_object().unwrap().len(), 4);
+    assert!(has(&report, "LOGICAL_PAGE_EDGE_APPROXIMATED"));
+}
+
+#[test]
+fn tiny_top_padding_keeps_large_name_inside_the_page() {
+    let (theme, report) = from_css("body{padding-top:3mm;} h1{font-size:30pt;font-weight:700;}");
+    valid(&theme);
+    assert!(theme["page"]["marginsMm"]["top"].as_f64().unwrap() > 10.0);
+    assert!(has(&report, "BASELINE_TOP_CLEARANCE_ADAPTED"));
+    let (theme, report) = from_css("body{padding-top:25mm;} h1{font-size:30pt;font-weight:700;}");
+    assert!((theme["page"]["marginsMm"]["top"].as_f64().unwrap() - 25.0).abs() < 1e-6);
+    assert!(!has(&report, "BASELINE_TOP_CLEARANCE_ADAPTED"));
 }
 
 #[test]

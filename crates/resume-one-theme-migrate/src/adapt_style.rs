@@ -1295,11 +1295,26 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
             }
             _ => (),
         }
-        if d.property.starts_with("padding-") && matches!(d.role, "body" | "main" | "page")
-            || d.property.starts_with("margin-") && d.role == "page"
+        if let Some((kind, edge)) = d.property.split_once('-')
+            && (kind == "padding" && matches!(d.role, "body" | "main" | "page")
+                || kind == "margin" && d.role == "page")
+            && let Some(side) = match edge {
+                "top" | "right" | "bottom" | "left" => Some(edge),
+                "block-start" => Some("top"),
+                "block-end" => Some("bottom"),
+                "inline-start" => Some("left"),
+                "inline-end" => Some("right"),
+                _ => None,
+            }
         {
             handled = true;
-            let side = d.property.rsplit('-').next().unwrap();
+            if edge != side {
+                audit.difference(
+                    "LOGICAL_PAGE_EDGE_APPROXIMATED",
+                    &d.source,
+                    "按当前横排从左到右的文档方向投影到物理页边；不模拟 CSS writing-mode 或 RTL",
+                );
+            }
             let val = length_pt(v, 10.0, 12.0).map(|n| n * 25.4 / 72.0);
             let val = match val {
                 Some(n) if (3.0..=35.0).contains(&n) => n,
@@ -1854,6 +1869,36 @@ fn renderer_font_fallbacks(theme: &mut Value, audit: &mut Audit) {
     }
 }
 
+fn reserve_first_baseline_clearance(theme: &mut Value, audit: &mut Audit) {
+    // The shared stack writer starts at a text baseline, whereas CSS padding
+    // starts above the line box. A small CSS inset cannot be copied blindly.
+    let sans = layout::FontKind::Sans.vertical_metrics().0 as f64;
+    let serif = layout::FontKind::Serif.vertical_metrics().0 as f64;
+    let ascent = ROLES
+        .iter()
+        .map(|role| {
+            let text = &theme["typography"][role];
+            let factor = if text["family"] == "cjk-serif" {
+                serif
+            } else {
+                sans
+            };
+            text["sizePt"].as_f64().unwrap_or(0.0) * factor
+        })
+        .fold(0.0, f64::max);
+    let minimum = (ascent / f64::from(layout::PT_PER_MM) + 3.0).min(35.0);
+    let top = theme["page"]["marginsMm"]["top"].as_f64().unwrap_or(16.0);
+    if top < minimum {
+        let chosen = (minimum * 100.0).ceil() / 100.0;
+        audit.difference(
+            "BASELINE_TOP_CLEARANCE_ADAPTED",
+            &json!({"requestedMm":top,"chosenMm":chosen}),
+            "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白",
+        );
+        put(theme, "/page/marginsMm/top", json!(chosen));
+    }
+}
+
 /// Parse complete JSX snippets already present in the inspection. This uses
 /// literal headings/ids, not arbitrary string searches for module names. A
 /// heading's binding, reachability and runtime condition remain unverified.
@@ -2166,6 +2211,7 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
     readable_colors(&mut theme, &mut audit);
     let font_requests = font_requests(&theme, &selected, &mut audit);
     renderer_font_fallbacks(&mut theme, &mut audit);
+    reserve_first_baseline_clearance(&mut theme, &mut audit);
     put(&mut theme, "/provenance/fidelity", json!("adapted"));
     let parsed = parse_theme(theme.to_string().as_bytes())
         .map_err(|e| format!("STYLE_ADAPT_OUTPUT_INVALID: {e:?}"))?;

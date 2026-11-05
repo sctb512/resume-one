@@ -82,10 +82,11 @@ fn styled_roles_use_ast_and_explicit_family_fallback_requests() {
     );
     let requests = report["fontRequests"].as_array().unwrap();
     assert_eq!(requests.len(), 8);
-    assert!(
-        requests.iter().any(|r| r
-            == &json!({"role":"label","family":"Merriweather","weight":400,"fontStyle":"italic"}))
-    );
+    assert!(requests.iter().any(|r| r["role"] == "label"
+        && r["family"] == "Merriweather"
+        && r["weight"] == 400
+        && r["fontStyle"] == "italic"
+        && r["families"] == json!(["Merriweather", "Georgia", "serif"])));
     assert!(has(&report, "FONT_FAMILY_FALLBACK"));
     assert_eq!(report["visualVerified"], false);
     assert_eq!(report["completeCssCascade"], false);
@@ -253,6 +254,98 @@ fn tiny_top_padding_keeps_large_name_inside_the_page() {
 }
 
 #[test]
+fn namespaced_selectors_keep_identity_label_and_real_document_font() {
+    let (theme, report) = from_css(
+        ".pro{max-width:800px;padding:18mm;font-family:'Inter',sans-serif;font-size:11pt;} .pro-name{font-size:25pt;font-weight:600;} .pro-label{font-size:12pt;} .pro-section-title{font-size:14pt;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["typography"]["name"]["sizePt"], 25.0);
+    assert_eq!(theme["typography"]["label"]["sizePt"], 12.0);
+    assert!(
+        report["fontRequests"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|r| r["family"] == "Inter")
+    );
+    assert!(report["fontRequests"].as_array().unwrap().len() >= 6);
+}
+
+#[test]
+fn section_label_aside_never_creates_persistent_resume_sidebar() {
+    let (theme, _) = from_css(
+        "body{font-size:12pt;} #content aside{text-align:right;padding-right:30px;} #header h2{font-size:18pt;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["composition"]["preset"], "single-column");
+    assert_eq!(theme["typography"]["label"]["sizePt"], 18.0);
+    assert_ne!(theme["typography"]["sectionTitle"]["sizePt"], 18.0);
+}
+
+#[test]
+fn narrow_named_grid_area_is_side_column_and_does_not_shrink_identity() {
+    let (theme, report) = from_css(
+        "body{font-size:10pt;} #person-name{font-size:200%;} #left{grid-area:left;flex-basis:60%;} #right{grid-area:right;min-width:30%;flex-basis:30%;} #right h1{font-size:90%;} .list h1{font-size:10pt;text-transform:uppercase;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["composition"]["preset"], "sidebar-right");
+    assert_eq!(theme["typography"]["name"]["sizePt"], 20.0);
+    assert_eq!(theme["typography"]["sectionTitle"]["sizePt"], 10.0);
+    assert_ne!(theme["typography"]["name"]["textTransform"], "uppercase");
+    assert!(
+        report["evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["target"] == "side-column-inferred")
+    );
+    let (theme, _) = from_css("#right{min-width:30%;} #left{text-align:left;}");
+    assert_eq!(theme["composition"]["preset"], "single-column");
+}
+
+#[test]
+fn inherited_document_sizes_and_effective_print_side_columns_are_validated() {
+    let (theme, report) = from_css("body{font-size:6pt;}");
+    valid(&theme);
+    for role in ["body", "label", "summary"] {
+        assert!(theme["typography"][role]["sizePt"].as_f64().unwrap() >= 7.0);
+    }
+    assert!(has(&report, "NUMERIC_VALUE_UNREPRESENTABLE"));
+    for css in [
+        ".rail{grid-area:right;width:30%} @media print{.rail{grid-area:main;width:100%}}",
+        ".rail{grid-area:right;width:30%} @media print{.rail{width:100%}}",
+        ".rail{grid-area:right;width:30%} @media print{.rail, .other{width:100%}}",
+        ".rail{grid-area:main!important;width:100%!important} @media print{.rail{grid-area:right;width:30%}}",
+    ] {
+        let mut inspection = json!({"syntaxEvidence":[syntax("page.css",css)]});
+        crate::css_print::project(&mut inspection).unwrap();
+        let (theme, _) = adapt(&inspection, candidate()).unwrap();
+        valid(&theme);
+        assert_eq!(theme["composition"]["preset"], "single-column", "{css}");
+    }
+}
+
+#[test]
+fn paragraph_specific_rules_do_not_become_global_header_inheritance_or_page_padding() {
+    let (theme, report) = from_css(
+        "body{font-family:Inter,sans-serif;font-size:12pt;padding:18mm;} .description{font-family:Lato,sans-serif;font-size:9pt;text-transform:uppercase;padding-left:30mm;} h1{font-size:25pt;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["typography"]["body"]["textTransform"], "uppercase");
+    assert_ne!(theme["typography"]["name"]["textTransform"], "uppercase");
+    assert!((theme["page"]["marginsMm"]["left"].as_f64().unwrap() - 18.0).abs() < 1e-6);
+    let requests = report["fontRequests"].as_array().unwrap();
+    assert_eq!(
+        requests.iter().find(|r| r["role"] == "body").unwrap()["family"],
+        "Lato"
+    );
+    assert_eq!(
+        requests.iter().find(|r| r["role"] == "name").unwrap()["family"],
+        "Inter"
+    );
+}
+
+#[test]
 fn local_custom_properties_are_not_promoted_and_cycles_are_reported() {
     let (theme, report) = from_css(
         ":root{--a:var(--b);--b:var(--a);} .other{--ink:red;} body{color:var(--ink);background:var(--a);} h1{color:var(--missing,#123456);}",
@@ -410,7 +503,7 @@ fn family_requests_preserve_quoted_comma_and_skip_generic_families() {
     );
     assert_eq!(
         report["fontRequests"][0],
-        json!({"role":"body","family":"Example, Display","weight":500,"fontStyle":"italic"})
+        json!({"role":"body","family":"Example, Display","families":["serif","Example, Display","sans-serif"],"weight":500,"fontStyle":"italic"})
     );
     let (_, report) = from_css("body{font-family:serif,sans-serif;}");
     assert_eq!(report["fontRequests"], json!([]));

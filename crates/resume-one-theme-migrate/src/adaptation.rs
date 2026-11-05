@@ -105,6 +105,8 @@ fn plan(
     safe_path(source)?;
     let mut report = inspection::inspect_templates(source, &[])?;
     crate::embedded_css::augment(&mut report, source)?;
+    crate::css_print::project(&mut report)
+        .map_err(|e| AppError::new(3, "ADAPT_PRINT_PROFILE", e))?;
     let package_name = report["package"]["name"]
         .as_str()
         .unwrap_or("migrated-theme");
@@ -170,6 +172,8 @@ fn plan(
     let mut adaptation = adaptation;
     adaptation["embeddedStyles"] = report["embeddedStyles"].clone();
     adaptation["utilityStyles"] = report["utilityStyles"].clone();
+    adaptation["markupHints"] = report["markupHints"].clone();
+    adaptation["printProfile"] = report["printProfile"].clone();
     Ok(Plan {
         manifest,
         report: adaptation,

@@ -80,7 +80,7 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 
 ### 尽量还原的适配模式
 
-允许明确视觉替代时，使用 `--adapt`；原有 `--require-complete` 仍是严格等价门禁，不与它混用。适配器读取真实语法证据，将可表达的颜色、字体角色、字号、版面与模块标题/顺序投影到声明式 v2；未支持的样式、推断和替代写入报告，不执行主题代码，不修改 resume JSON。
+允许明确视觉替代时，使用 `--adapt`；原有 `--require-complete` 仍是严格等价门禁，不与它混用。适配器读取真实语法证据，将可表达的颜色、字体角色、字号、版面与模块标题/顺序投影到声明式 v2；未支持的样式、推断和替代写入报告，不执行主题代码，不修改 resume JSON。预览和导出采用纸面样式，工具会提取确定适用的静态打印规则，保留顺序、重要性和来源；有条件的宽度规则不猜测。纯文本 HTML/JSX 标题用于辅助识别模块层级和源码顺序，局部段落样式不会成为全局文字继承来源。字体资料库按 CSS 字族栈顺序选用真实字重和斜体均匹配的字体，越过缺失字体时记录明确差异，遇到通用/系统字体即停止。详细边界与报告字段见适配协议。
 
 ```sh
 resume-one-theme-migrate --source /absolute/upstream --adapt --out /absolute/example.theme.json --verify-fixture /absolute/public-en.json --verify-fixture /absolute/public-zh.json

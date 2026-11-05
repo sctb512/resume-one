@@ -16,6 +16,7 @@ const MAX_LIBRARY: u64 = 1024 * 1024;
 const MAX_FONT: u64 = 8 * 1024 * 1024;
 // License bytes are preserved, including their encoding and line endings.
 const MAX_LICENSE: u64 = 1024 * 1024;
+const MAX_FAMILIES: usize = 16;
 const ROLES: [&str; 8] = [
     "body",
     "name",
@@ -86,6 +87,94 @@ fn key(value: &Value) -> Result<FaceKey, String> {
         weight: weight as u16,
         style: style.into(),
     })
+}
+
+struct FontRequest {
+    primary: FaceKey,
+    families: Option<Vec<String>>,
+}
+
+impl FontRequest {
+    fn parse(value: &Value) -> Result<Self, String> {
+        let primary = key(value)?;
+        let families = value
+            .get("families")
+            .map(|value| {
+                let array = value
+                    .as_array()
+                    .filter(|a| !a.is_empty() && a.len() <= MAX_FAMILIES)
+                    .ok_or_else(|| {
+                        fail(
+                            "FONT_REQUEST_INVALID",
+                            "families must contain 1..=16 family strings",
+                        )
+                    })?;
+                // Validate even the suffix after a generic sentinel. Use the
+                // same 256-byte/control-character bounds as real family names.
+                array
+                    .iter()
+                    .map(|family| {
+                        family
+                            .as_str()
+                            .filter(|s| fonts::valid_family(s))
+                            .map(str::to_owned)
+                            .ok_or_else(|| fail("FONT_REQUEST_INVALID", "invalid families entry"))
+                    })
+                    .collect::<Result<Vec<_>, String>>()
+            })
+            .transpose()?;
+        Ok(Self { primary, families })
+    }
+
+    fn exact_index(&self, entries: &[Entry]) -> Option<usize> {
+        let Some(families) = &self.families else {
+            // Requests without a stack retain the original exact-key behavior.
+            return entries.iter().position(|e| e.key == self.primary);
+        };
+        families
+            .iter()
+            .take_while(|family| !generic_family(family))
+            .find_map(|family| {
+                entries.iter().position(|entry| {
+                    entry.key.family == *family
+                        && entry.key.weight == self.primary.weight
+                        && entry.key.style == self.primary.style
+                })
+            })
+    }
+}
+
+fn generic_family(family: &str) -> bool {
+    // A generic/system choice cannot be resolved through this explicit offline
+    // library. Stop here rather than guessing a face or skipping past it.
+    [
+        "serif",
+        "sans-serif",
+        "monospace",
+        "cursive",
+        "fantasy",
+        "system-ui",
+        "ui-serif",
+        "ui-sans-serif",
+        "ui-monospace",
+        "ui-rounded",
+        "emoji",
+        "math",
+        "fangsong",
+        "inherit",
+        "initial",
+        "unset",
+        "revert",
+        "revert-layer",
+        "cjk-sans",
+        "cjk-serif",
+        "system-sans",
+        "system-serif",
+        "-apple-system",
+        "BlinkMacSystemFont",
+    ]
+    .iter()
+    .any(|generic| family.trim().eq_ignore_ascii_case(generic))
 }
 
 fn absolute(path: &Path) -> Result<(), String> {
@@ -435,8 +524,9 @@ fn candidate_error(issues: Vec<resume_one_core::Diagnostic>) -> String {
     )
 }
 
-/// `requests` is exactly [{role,family,weight,fontStyle}], with the source's
-/// first-choice family name, never a replacement already put into the schema.
+/// `requests` is [{role,family,weight,fontStyle,families?}], with the source's
+/// primary family, never a replacement already put into the schema. An optional
+/// decoded CSS stack is authoritative in its original order, up to a generic.
 /// Candidate changes are transactional: every error leaves it untouched.
 type FontProjection = (Value, Vec<(String, Vec<u8>)>);
 
@@ -454,7 +544,7 @@ pub(crate) fn apply(
     let mut wanted = BTreeMap::new();
     for request in requests {
         let role = field(request, "role")?;
-        if !ROLES.contains(&role) || wanted.insert(role, key(request)?).is_some() {
+        if !ROLES.contains(&role) || wanted.insert(role, FontRequest::parse(request)?).is_some() {
             return Err(fail("FONT_REQUEST_INVALID", "unknown or duplicate role"));
         }
     }
@@ -492,10 +582,10 @@ pub(crate) fn apply(
     let mut selected_hashes = BTreeSet::new();
     let mut available = 4usize.saturating_sub(assets.len());
     for role in ROLES {
-        if let Some(key) = wanted.get(role)
-            && (100..=900).contains(&key.weight)
-            && key.weight % 100 == 0
-            && let Some(index) = entries.iter().position(|e| &e.key == key)
+        if let Some(request) = wanted.get(role)
+            && (100..=900).contains(&request.primary.weight)
+            && request.primary.weight % 100 == 0
+            && let Some(index) = request.exact_index(&entries)
         {
             let hash = &entries[index].sha256;
             if selected_hashes.contains(hash) || available > 0 {
@@ -538,22 +628,37 @@ pub(crate) fn apply(
         let Some(request) = wanted.get(role) else {
             continue;
         };
+        let primary = &request.primary;
         let before = old[position];
-        let source = json!({"role":role,"family":request.family,"weight":request.weight,"fontStyle":request.style});
+        let mut source = json!({"role":role,"family":primary.family,"weight":primary.weight,"fontStyle":primary.style});
+        if let Some(families) = &request.families {
+            source["families"] = json!(families);
+        }
         let retained = json!({"family":before.family,"weight":before.weight,"fontStyle":if before.italic {"italic"} else {"normal"}});
         let Some(&index) = indices.get(role) else {
-            let code = if !(100..=900).contains(&request.weight) || request.weight % 100 != 0 {
+            let code = if !(100..=900).contains(&primary.weight) || primary.weight % 100 != 0 {
                 "FONT_WEIGHT_UNREPRESENTABLE"
-            } else if entries.iter().any(|e| &e.key == request) {
+            } else if request.exact_index(&entries).is_some() {
                 "FONT_ASSET_LIMIT"
             } else {
                 "FONT_FACE_UNAVAILABLE"
             };
-            differences.push(json!({"code":code,"source":source,"retained":retained,"message":"No exact first-family/weight/slant face was applied; existing candidate font retained.","equivalent":false}));
+            differences.push(json!({"code":code,"source":source,"retained":retained,"message":"No permitted exact family/weight/slant face was applied; existing candidate font retained.","equivalent":false}));
             mappings.push(json!({"role":role,"requested":source,"status":"retained-fallback","applied":retained,"equivalent":false}));
             continue;
         };
         let entry = &entries[index];
+        if let Some(families) = &request.families
+            && entry.key.family != primary.family
+        {
+            let skipped = families
+                .iter()
+                .take_while(|family| family.as_str() != entry.key.family.as_str())
+                .collect::<Vec<_>>();
+            differences.push(json!({"code":"FONT_STACK_FALLBACK","source":source,
+                "selectedFamily":entry.key.family,"skippedFamilies":skipped,
+                "message":"A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.","equivalent":false}));
+        }
         if entry.font_family != entry.key.family {
             differences.push(json!({"code":"FONT_EXPLICIT_SOURCE_ALIAS","sourceFamily":entry.key.family,"fontFamily":entry.font_family,"sha256":entry.sha256,"message":"字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。","equivalent":false}));
         }
@@ -607,14 +712,15 @@ pub(crate) fn apply(
             next["typography"][role] = json!({});
         }
         next["typography"][role]["family"] = json!(format!("asset:{id}"));
-        next["typography"][role]["weight"] = json!(request.weight);
-        next["typography"][role]["fontStyle"] = json!(request.style);
+        next["typography"][role]["weight"] = json!(primary.weight);
+        next["typography"][role]["fontStyle"] = json!(primary.style);
         mappings.push(json!({"role":role,"requested":source,"status":"exact-static-face","assetId":id,
-            "applied":{"family":format!("asset:{id}"),"weight":request.weight,"fontStyle":request.style},
+            "selectedFamily":entry.key.family,
+            "applied":{"family":format!("asset:{id}"),"weight":primary.weight,"fontStyle":primary.style},
             "sha256":entry.sha256,"license":entry.license,"licensePath":license_name,
             "metadataVerified":true,"equivalent":false}));
         differences.push(json!({"code":"FONT_FALLBACK_DIFFERENCE","source":source,"assetId":id,
-            "message":"Only the requested first static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.","equivalent":false}));
+            "message":"Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.","equivalent":false}));
     }
     if !selected.is_empty() {
         // Pin inherited roles to their original effective font unless explicitly
@@ -777,6 +883,301 @@ mod tests {
                 .iter()
                 .all(|m| m["status"] == "retained-fallback")
         );
+    }
+
+    #[test]
+    fn stack_selects_first_exact_family_in_css_order() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        let mut later = f.entry("later.ttf", REGULAR, "Later Family", 400, "normal");
+        later["fontFamily"] = json!(family);
+        // Library order must not override CSS order, even for identical bytes.
+        f.write(json!([
+            later,
+            f.entry("first.ttf", REGULAR, family, 400, "normal")
+        ]));
+        for families in [
+            json!([family, "Later Family"]),
+            json!([family, "sans-serif", "Later Family"]),
+        ] {
+            let mut wanted = request("body", family, 400, "normal");
+            wanted["families"] = families.clone();
+            let (report, _) = apply(&mut candidate(), &json!([wanted]), &f.library).unwrap();
+            let mapping = &report["fontMappings"][0];
+            assert_eq!(mapping["selectedFamily"], family);
+            assert_eq!(mapping["requested"]["families"], families);
+            assert_eq!(mapping["status"], "exact-static-face");
+            assert!(report["differences"].as_array().unwrap().iter().all(|d| {
+                d["code"] != "FONT_STACK_FALLBACK" && d["code"] != "FONT_EXPLICIT_SOURCE_ALIAS"
+            }));
+        }
+    }
+
+    #[test]
+    fn stack_falls_back_to_later_exact_family_with_explicit_evidence() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        f.write(json!([f.entry(
+            "regular.ttf",
+            REGULAR,
+            family,
+            400,
+            "normal"
+        )]));
+        let mut wanted = request("body", "Missing Primary", 400, "normal");
+        let families = json!(["Missing Primary", "Also Missing", family, "sans-serif"]);
+        wanted["families"] = families.clone();
+        let mut c = candidate();
+        let (report, files) = apply(&mut c, &json!([wanted]), &f.library).unwrap();
+        assert_eq!(c["typography"]["body"]["family"], "asset:font-0");
+        assert!(files.iter().any(|(_, bytes)| bytes == REGULAR));
+        let mapping = &report["fontMappings"][0];
+        assert_eq!(mapping["requested"]["family"], "Missing Primary");
+        assert_eq!(mapping["requested"]["families"], families);
+        assert_eq!(mapping["selectedFamily"], family);
+        assert_eq!(mapping["equivalent"], false);
+        let fallback = report["differences"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|d| d["code"] == "FONT_STACK_FALLBACK")
+            .unwrap();
+        assert_eq!(fallback["source"]["family"], "Missing Primary");
+        assert_eq!(fallback["selectedFamily"], family);
+        assert_eq!(
+            fallback["skippedFamilies"],
+            json!(["Missing Primary", "Also Missing"])
+        );
+        assert_eq!(fallback["equivalent"], false);
+    }
+
+    #[test]
+    fn generic_sentinels_stop_stack_search_even_with_explicit_library_alias() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        let regular = f.entry("regular.ttf", REGULAR, family, 400, "normal");
+        for generic in [
+            "sans-serif",
+            "serif",
+            "system-ui",
+            "monospace",
+            "cursive",
+            "fantasy",
+            "ui-serif",
+            "ui-sans-serif",
+            "ui-monospace",
+            "ui-rounded",
+            "emoji",
+            "math",
+            "fangsong",
+            "inherit",
+            "initial",
+            "unset",
+            "revert",
+            "revert-layer",
+            "cjk-sans",
+            "cjk-serif",
+            "system-sans",
+            "system-serif",
+            "SANS-SERIF",
+            " sans-serif ",
+            "-apple-system",
+            "BlinkMacSystemFont",
+        ] {
+            let mut alias = f.entry("generic.ttf", REGULAR, generic, 400, "normal");
+            alias["fontFamily"] = json!(family);
+            f.write(json!([regular.clone(), alias]));
+            for families in [
+                json!(["Missing", generic, family]),
+                json!([generic, family]),
+            ] {
+                let mut wanted = request("body", "Missing", 400, "normal");
+                wanted["families"] = families.clone();
+                let mut c = candidate();
+                let before = c.clone();
+                let (report, files) = apply(&mut c, &json!([wanted]), &f.library).unwrap();
+                assert_eq!(c, before, "{generic}");
+                assert!(files.is_empty(), "{generic}");
+                assert_eq!(report["fontMappings"][0]["status"], "retained-fallback");
+                assert_eq!(report["fontMappings"][0]["requested"]["families"], families);
+                assert_eq!(report["differences"][0]["code"], "FONT_FACE_UNAVAILABLE");
+            }
+        }
+    }
+
+    #[test]
+    fn stack_requires_exact_weight_and_real_slant_without_library_wide_fallback() {
+        let f = Fixture::new();
+        let regular = "Resume One Font Fixture";
+        let italic = "Resume One Italic Font Fixture";
+        f.write(json!([
+            f.entry("regular.ttf", REGULAR, regular, 400, "normal"),
+            f.entry("italic.ttf", ITALIC, italic, 400, "italic")
+        ]));
+        for (first, second, style, bytes) in [
+            (regular, italic, "italic", ITALIC),
+            (italic, regular, "normal", REGULAR),
+        ] {
+            let mut wanted = request("body", first, 400, style);
+            wanted["families"] = json!([first, second]);
+            let mut c = candidate();
+            let (report, files) = apply(&mut c, &json!([wanted]), &f.library).unwrap();
+            assert_eq!(report["fontMappings"][0]["selectedFamily"], second);
+            assert_eq!(c["typography"]["body"]["fontStyle"], style);
+            assert!(files.iter().any(|(_, actual)| actual == bytes));
+            assert!(report["differences"].as_array().unwrap().iter().any(|d| {
+                d["code"] == "FONT_STACK_FALLBACK" && d["skippedFamilies"] == json!([first])
+            }));
+        }
+        for (family, weight, style, families, code) in [
+            (
+                regular,
+                600,
+                "normal",
+                json!([regular, italic]),
+                "FONT_FACE_UNAVAILABLE",
+            ),
+            (
+                regular,
+                450,
+                "normal",
+                json!([regular, italic]),
+                "FONT_WEIGHT_UNREPRESENTABLE",
+            ),
+            (
+                "Missing",
+                400,
+                "normal",
+                json!(["Missing", "Also Missing"]),
+                "FONT_FACE_UNAVAILABLE",
+            ),
+        ] {
+            let mut wanted = request("body", family, weight, style);
+            wanted["families"] = families;
+            let mut c = candidate();
+            let before = c.clone();
+            let (report, files) = apply(&mut c, &json!([wanted]), &f.library).unwrap();
+            assert_eq!(c, before);
+            assert!(files.is_empty());
+            assert_eq!(report["differences"][0]["code"], code);
+            assert_eq!(report["fontMappings"][0]["equivalent"], false);
+        }
+    }
+
+    #[test]
+    fn explicit_source_alias_is_preserved_for_legacy_and_stack_requests() {
+        let f = Fixture::new();
+        let alias = "Licensed CSS Family";
+        let actual = "Resume One Font Fixture";
+        let mut entry = f.entry("renamed.ttf", REGULAR, alias, 400, "normal");
+        entry["fontFamily"] = json!(actual);
+        f.write(json!([entry]));
+        for stack in [false, true] {
+            let mut wanted = request("body", if stack { "Missing" } else { alias }, 400, "normal");
+            if stack {
+                wanted["families"] = json!(["Missing", alias]);
+            }
+            let (report, files) = apply(&mut candidate(), &json!([wanted]), &f.library).unwrap();
+            assert!(files.iter().any(|(_, bytes)| bytes == REGULAR));
+            let mapping = &report["fontMappings"][0];
+            assert_eq!(mapping["selectedFamily"], alias);
+            assert_eq!(mapping["metadataVerified"], true);
+            assert_eq!(mapping["equivalent"], false);
+            assert_eq!(mapping["requested"].get("families").is_some(), stack);
+            assert!(report["differences"].as_array().unwrap().iter().any(|d| {
+                d["code"] == "FONT_EXPLICIT_SOURCE_ALIAS"
+                    && d["sourceFamily"] == alias
+                    && d["fontFamily"] == actual
+            }));
+            assert_eq!(
+                report["differences"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|d| { d["code"] == "FONT_STACK_FALLBACK" }),
+                stack
+            );
+        }
+    }
+
+    #[test]
+    fn malformed_or_oversized_stacks_are_rejected_transactionally() {
+        let f = Fixture::new();
+        f.write(json!([]));
+        for families in [
+            Value::Null,
+            json!("Family"),
+            json!({"family":"Family"}),
+            json!([]),
+            json!(vec!["Family"; 17]),
+            json!([false]),
+            json!([400]),
+            json!([null]),
+            json!([{}]),
+            json!([[]]),
+            json!([""]),
+            json!(["  "]),
+            json!(["Bad\nFamily"]),
+            json!(["Bad\u{202e}Family"]),
+            json!(["a".repeat(257)]),
+            json!(["é".repeat(129)]),
+            // Validate the entire list, including unreachable suffixes.
+            json!(["sans-serif", false]),
+        ] {
+            let mut wanted = request("body", "Family", 400, "normal");
+            wanted["families"] = families;
+            let mut c = candidate();
+            let before = c.clone();
+            let error = apply(&mut c, &json!([wanted]), &f.library).unwrap_err();
+            assert!(error.starts_with("FONT_REQUEST_INVALID"), "{error}");
+            assert_eq!(c, before);
+        }
+    }
+
+    #[test]
+    fn stack_accepts_sixteen_bounded_families() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        f.write(json!([f.entry(
+            "regular.ttf",
+            REGULAR,
+            family,
+            400,
+            "normal"
+        )]));
+        let mut families = vec!["a".repeat(256)];
+        families.extend((0..14).map(|n| format!("Missing {n}")));
+        families.push(family.into());
+        let mut wanted = request("body", &families[0], 400, "normal");
+        wanted["families"] = json!(families);
+        let (report, _) = apply(&mut candidate(), &json!([wanted]), &f.library).unwrap();
+        assert_eq!(report["fontMappings"][0]["selectedFamily"], family);
+    }
+
+    #[test]
+    fn stack_fallback_respects_existing_four_asset_limit() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        f.write(json!([f.entry(
+            "regular.ttf",
+            REGULAR,
+            family,
+            400,
+            "normal"
+        )]));
+        let mut c = candidate();
+        c["assets"] = json!({"fonts":(0..4).map(|n| json!({
+            "id":format!("existing-{n}"),"path":format!("existing-{n}.ttf"),
+            "sha256":"0".repeat(64),"license":"OFL-1.1"
+        })).collect::<Vec<_>>()});
+        let before = c.clone();
+        let mut wanted = request("body", "Missing", 400, "normal");
+        wanted["families"] = json!(["Missing", family]);
+        let (report, files) = apply(&mut c, &json!([wanted]), &f.library).unwrap();
+        assert_eq!(c, before);
+        assert!(files.is_empty());
+        assert_eq!(report["differences"][0]["code"], "FONT_ASSET_LIMIT");
+        assert_eq!(report["fontMappings"][0]["status"], "retained-fallback");
     }
 
     #[test]

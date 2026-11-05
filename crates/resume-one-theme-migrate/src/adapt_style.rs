@@ -38,6 +38,7 @@ struct Declaration {
     role: &'static str,
     section: Option<&'static str>,
     sidebar: bool,
+    container: bool,
     property: String,
     value: String,
     // Importance, semantic relevance, simple-selector specificity, source order.
@@ -98,7 +99,7 @@ fn section(s: &str) -> Option<&'static str> {
     .find_map(|(needle, id)| s.contains(needle).then_some(id))
 }
 
-fn role(s: &str) -> Option<&'static str> {
+fn bare_role(s: &str) -> Option<&'static str> {
     let n = normalized(s);
     let n = n.strip_prefix("styled").unwrap_or(&n);
     if matches!(
@@ -209,6 +210,122 @@ fn role(s: &str) -> Option<&'static str> {
         return Some("section");
     }
     None
+}
+
+fn role(s: &str) -> Option<&'static str> {
+    if let Some(role) = bare_role(s) {
+        return Some(role);
+    }
+    // A bounded prefix strip supports CSS namespaces such as .pro-name or
+    // .resume-label without treating every word ending in "name" as identity.
+    for (at, _) in s.match_indices(['-', '_']).take(8) {
+        if let Some(role) = bare_role(&s[at + 1..]) {
+            return Some(role);
+        }
+    }
+    None
+}
+
+fn container_role(s: &str) -> bool {
+    let n = normalized(s);
+    matches!(
+        n.strip_prefix("styled").unwrap_or(&n),
+        "html"
+            | "body"
+            | "root"
+            | "layout"
+            | "resume"
+            | "resumecontainer"
+            | "container"
+            | "wrapper"
+            | "page"
+            | "main"
+            | "maincontent"
+            | "content"
+            | "maincolumn"
+    )
+}
+
+fn container_selectors(css: &Value) -> BTreeSet<String> {
+    let mut properties = BTreeMap::<String, BTreeSet<&str>>::new();
+    for declaration in css["declarations"].as_array().into_iter().flatten() {
+        let Some(scopes) = declaration["scope"].as_array().filter(|s| s.len() == 1) else {
+            continue;
+        };
+        let Some(selector) = scopes[0].as_str() else {
+            continue;
+        };
+        if !selector.starts_with(['.', '#'])
+            || selector[1..].contains(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+            || role(&selector[1..]).is_some()
+        {
+            continue;
+        }
+        if let Some(property) = declaration["property"].as_str() {
+            properties
+                .entry(selector.into())
+                .or_default()
+                .insert(property);
+        }
+    }
+    properties
+        .into_iter()
+        .filter_map(|(selector, properties)| {
+            (properties.contains("font-family")
+                && properties.contains("font-size")
+                && (properties.contains("max-width") || properties.contains("width"))
+                && properties.iter().any(|p| p.starts_with("padding")))
+            .then_some(selector)
+        })
+        .collect()
+}
+
+fn side_column_selectors(css: &Value) -> BTreeSet<String> {
+    let mut candidates = BTreeMap::<String, BTreeMap<String, (bool, String)>>::new();
+    for d in css["declarations"].as_array().into_iter().flatten() {
+        let Some(scope) = d["scope"].as_array().filter(|s| s.len() == 1) else {
+            continue;
+        };
+        let Some(selector) = scope[0].as_str() else {
+            continue;
+        };
+        let Some(value) = css_value(d) else { continue };
+        let Some(property) = d["property"].as_str() else {
+            continue;
+        };
+        for selector in selector.split(',').map(str::trim) {
+            if !selector.starts_with(['.', '#'])
+                || selector[1..]
+                    .contains(|c: char| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+            {
+                continue;
+            }
+            let entry = candidates.entry(selector.into()).or_default();
+            let important = d["important"] == true;
+            if entry
+                .get(property)
+                .is_none_or(|(old, _)| important || !*old)
+            {
+                entry.insert(property.into(), (important, value.clone()));
+            }
+        }
+    }
+    candidates
+        .into_iter()
+        .filter_map(|(s, values)| {
+            let area = values
+                .get("grid-area")
+                .is_some_and(|(_, v)| matches!(v.as_str(), "left" | "right" | "sidebar"));
+            let width = values
+                .get("width")
+                .or_else(|| values.get("flex-basis"))
+                .or_else(|| values.get("min-width"))
+                .and_then(|(_, v)| v.strip_suffix('%'))
+                .and_then(number)
+                .is_some_and(|n| (20.0..=40.0).contains(&n));
+            (area && width).then_some(s)
+        })
+        .collect()
 }
 
 /// Only simple static selector chains are projected. Pseudo classes/elements,
@@ -374,6 +491,8 @@ fn collect_css(
     declarations: &mut Vec<Declaration>,
     audit: &mut Audit,
 ) -> Result<(), String> {
+    let containers = container_selectors(css);
+    let side_columns = side_column_selectors(css);
     let partial = css["syntaxValid"] != true;
     if partial {
         audit.difference(
@@ -473,8 +592,13 @@ fn collect_css(
         };
         for selector in selectors {
             let full = scope.join(" ");
+            let inferred_container = containers.contains(selector);
             let matched = if page_rule {
                 Some(("page", 0))
+            } else if inferred_container {
+                Some(("body", 10))
+            } else if side_columns.contains(selector) {
+                Some(("sidebar", 100))
             } else if scope.is_empty() || selector == "&" {
                 component
                     .and_then(role)
@@ -491,6 +615,42 @@ fn collect_css(
                 );
                 continue;
             };
+            let last = selector.split_whitespace().last().unwrap_or(selector);
+            let ancestor_header = scope.iter().any(|s| {
+                s.split([' ', '>', '.', '#']).any(|token| {
+                    matches!(
+                        normalized(token).as_str(),
+                        "header" | "masthead" | "resumeheader"
+                    )
+                })
+            });
+            if last == "h2" && ancestor_header {
+                role = "label";
+            }
+            let module_ancestor = scope
+                .iter()
+                .flat_map(|s| s.split([' ', '>', '.', '#']))
+                .any(|token| {
+                    matches!(normalized(token).as_str(), "section" | "list")
+                        || MODULES[1..].contains(&normalized(token).as_str())
+                });
+            let in_side_column = scope
+                .iter()
+                .any(|s| s.split([' ', '>']).any(|s| side_columns.contains(s)));
+            if matches!(last, "h1" | "h2")
+                && (module_ancestor || in_side_column)
+                && !ancestor_header
+            {
+                role = "sectionTitle";
+            }
+            if role == "header" && module_ancestor {
+                role = "item";
+            }
+            if let Some(level) = css["resumeOneModuleHeadingTag"].as_str() {
+                if last == level && !ancestor_header {
+                    role = "sectionTitle";
+                }
+            }
             // Check every ancestor too: e.g. :hover h1 and @media were not made unconditional.
             if !page_rule
                 && scope
@@ -506,7 +666,11 @@ fn collect_css(
                 continue;
             }
             let label = format!("{} {}", component.unwrap_or(""), full);
-            let sidebar = normalized(&label).contains("sidebar") || role == "sidebar";
+            let sidebar =
+                normalized(&label).contains("sidebar") || role == "sidebar" || in_side_column;
+            if side_columns.contains(selector) {
+                audit.evidence("side-column-inferred", &json!(selector), &source, "单一容器同时声明侧栏网格区名与 20–40% 列宽；仅凭 left/right 名称或对齐不推断整页侧栏");
+            }
             let section = section(&label);
             if section.is_some() && role == "name" && normalized(selector) != "h1" {
                 role = "itemTitle";
@@ -519,10 +683,25 @@ fn collect_css(
                 20
             };
             audit.matched.insert(role.to_owned());
+            let container = page_rule
+                || inferred_container
+                || if scope.is_empty() || selector == "&" {
+                    component.is_some_and(container_role)
+                } else {
+                    selector
+                        .split([' ', '>', '.', '#'])
+                        .filter(|s| !s.is_empty())
+                        .last()
+                        .is_some_and(container_role)
+                };
+            if inferred_container {
+                audit.evidence("document-container-inferred", &json!(selector), &source, "单一选择器同时声明字体、字号、宽度与页面内距，推断为文档容器；未把子段落内距当成纸面边距");
+            }
             let mut decl = Declaration {
                 role,
                 section,
                 sidebar,
+                container,
                 property: property.to_ascii_lowercase(),
                 value: value_resolved.clone(),
                 rank: (d["important"] == true, relevance, specificity, audit.seen),
@@ -829,6 +1008,12 @@ fn choose(
 ) -> BTreeMap<(String, String), Declaration> {
     let mut selected = BTreeMap::<(String, String), Declaration>::new();
     for d in declarations {
+        if d.role == "body" && d.container {
+            let key = ("document".to_owned(), d.property.clone());
+            if selected.get(&key).is_none_or(|old| d.rank >= old.rank) {
+                selected.insert(key, d.clone());
+            }
+        }
         let key = (d.role.to_owned(), d.property.clone());
         if let Some(old) = selected.get(&key) {
             if old.value != d.value {
@@ -868,13 +1053,16 @@ fn text_styles(
             .unwrap_or(10.0);
         if own("font-size").is_none()
             && matches!(role, "label" | "summary")
-            && let Some(d) = selected.get(&("body".into(), "font-size".into()))
+            && let Some(d) = selected.get(&("document".into(), "font-size".into()))
         {
-            write(
+            bounded(
                 theme,
                 audit,
                 &size_path,
-                json!(body_pt),
+                length_pt(&d.value, 12.0, 12.0),
+                7.0,
+                42.0,
+                old_size,
                 d,
                 "从 Layout 正文字号推断摘要/副标题的字号继承",
             );
@@ -906,7 +1094,8 @@ fn text_styles(
             "color",
         ] {
             let inherited = own(property).is_none() && role != "body";
-            let Some(d) = own(property).or_else(|| selected.get(&("body".into(), property.into())))
+            let Some(d) =
+                own(property).or_else(|| selected.get(&("document".into(), property.into())))
             else {
                 continue;
             };
@@ -1296,7 +1485,7 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
             _ => (),
         }
         if let Some((kind, edge)) = d.property.split_once('-')
-            && (kind == "padding" && matches!(d.role, "body" | "main" | "page")
+            && (kind == "padding" && matches!(d.role, "body" | "main" | "page") && d.container
                 || kind == "margin" && d.role == "page")
             && let Some(side) = match edge {
                 "top" | "right" | "bottom" | "left" => Some(edge),
@@ -1446,7 +1635,22 @@ fn composition(
         );
     }
     let grid = get("body", "grid-template-columns");
-    let sidebar_decl = declarations.iter().find(|d| d.role == "sidebar");
+    let sidebar_decl = declarations.iter().find(|d| {
+        d.role == "sidebar"
+            && (normalized(d.source["component"].as_str().unwrap_or("")).contains("sidebar")
+                || d.source["declaration"]["scope"]
+                    .as_array()
+                    .is_some_and(|scopes| {
+                        scopes.iter().any(|s| {
+                            s.as_str()
+                                .is_some_and(|s| normalized(s).contains("sidebar"))
+                        })
+                    })
+                || matches!(
+                    d.property.as_str(),
+                    "width" | "flex-basis" | "background" | "background-color" | "grid-area"
+                ))
+    });
     let sidebar =
         sidebar_decl.is_some() || grid.is_some_and(|d| d.value.split_whitespace().count() == 2);
     if !sidebar {
@@ -1458,11 +1662,15 @@ fn composition(
         .is_some_and(|s| normalized(s).contains("right"));
     if get("sidebar", "float").is_some_and(|d| d.value == "right")
         || get("sidebar", "order").is_some_and(|d| number(&d.value).is_some_and(|n| n > 0.0))
+        || get("sidebar", "grid-area").is_some_and(|d| d.value == "right")
     {
         right = true;
     }
     let mut width = None;
-    if let Some(d) = get("sidebar", "width") {
+    if let Some(d) = get("sidebar", "width")
+        .or_else(|| get("sidebar", "flex-basis"))
+        .or_else(|| get("sidebar", "min-width"))
+    {
         width = d.value.strip_suffix('%').and_then(number);
         if width.is_none() {
             audit.difference(
@@ -1693,7 +1901,7 @@ fn font_requests(
     for role in ROLES {
         let Some(d) = selected
             .get(&(role.into(), "font-family".into()))
-            .or_else(|| selected.get(&("body".into(), "font-family".into())))
+            .or_else(|| selected.get(&("document".into(), "font-family".into())))
         else {
             continue;
         };
@@ -1743,7 +1951,7 @@ fn font_requests(
             );
             continue;
         }
-        let request = json!({"role":role,"family":family,"weight":theme["typography"][role]["weight"],
+        let request = json!({"role":role,"family":family,"families":families,"weight":theme["typography"][role]["weight"],
             "fontStyle":theme["typography"][role]["fontStyle"].as_str().unwrap_or("normal")});
         audit.evidence("fontRequests",&request,&d.source,"原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback");
         requests.push(request);
@@ -1821,7 +2029,7 @@ fn readable_colors(theme: &mut Value, audit: &mut Audit) {
     }
 }
 
-fn static_section_title(text: &str) -> Option<&'static str> {
+pub(crate) fn static_section_title(text: &str) -> Option<&'static str> {
     match normalized(text).as_str() {
         "work"
         | "experience"
@@ -1831,16 +2039,21 @@ fn static_section_title(text: &str) -> Option<&'static str> {
         | "employmenthistory"
         | "career" => Some("work"),
         "education" | "academicbackground" | "academicqualifications" => Some("education"),
-        "volunteer" | "volunteering" | "volunteerexperience" | "volunteeringexperience" => {
-            Some("volunteer")
-        }
+        "volunteer"
+        | "volunteering"
+        | "volunteerexperience"
+        | "volunteeringexperience"
+        | "serviceleadership"
+        | "serviceandleadership" => Some("volunteer"),
         "skills" | "technicalskills" | "coreskills" | "competencies" => Some("skills"),
-        "projects" | "selectedprojects" | "personalprojects" => Some("projects"),
+        "projects" | "selectedprojects" | "personalprojects" | "researchprojects" => {
+            Some("projects")
+        }
         "awards" | "honors" | "awardshonors" | "awardsandhonors" => Some("awards"),
         "certificates" | "certifications" => Some("certificates"),
         "publications" | "selectedpublications" => Some("publications"),
         "languages" => Some("languages"),
-        "interests" | "hobbies" => Some("interests"),
+        "interests" | "hobbies" | "researchinterests" => Some("interests"),
         "references" => Some("references"),
         _ => None,
     }
@@ -2202,12 +2415,46 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
             );
         }
     }
-    audit.evidence("role-projection-policy",&json!({"roles":audit.matched,"rootSizePt":12,"pxToPt":0.75,"media":"unconditional-only"}),&Value::Null,"组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证");
+    audit.evidence("role-projection-policy",&json!({"roles":audit.matched,"rootSizePt":12,"pxToPt":0.75,"media":if report["printProfile"]["profile"]=="print" {"unconditional-and-positive-print-projection"}else{"unconditional-only"}}),&Value::Null,"组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证");
     let selected = choose(&declarations, &mut audit);
     text_styles(&mut theme, &selected, &mut audit);
     apply_structure(&mut theme, &declarations, &mut audit);
     composition(&mut theme, &declarations, &selected, &mut audit);
     source_layout(&mut theme, files, &mut audit);
+    if let Some(order) = report["markupHints"]["moduleOrder"]
+        .as_array()
+        .filter(|o| o.len() >= 2)
+    {
+        put(&mut theme, "/composition/moduleOrder", json!(order));
+        audit.evidence(
+            "/composition/moduleOrder",
+            &json!(order),
+            &report["markupHints"],
+            "完整源码中的实际字面模块标题顺序；没有从文件名字典序推断模块顺序",
+        );
+        let mut titled = BTreeSet::new();
+        for heading in report["markupHints"]["literalHeadings"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter(|h| h["file"] == report["markupHints"]["orderSource"])
+        {
+            let (Some(id), Some(title)) = (heading["module"].as_str(), heading["title"].as_str())
+            else {
+                continue;
+            };
+            if MODULES[1..].contains(&id) && title.chars().count() <= 80 && titled.insert(id) {
+                let path = format!("/sections/{id}/title");
+                put(&mut theme, &path, json!(title));
+                audit.evidence(
+                    &path,
+                    &json!(title),
+                    heading,
+                    "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+                );
+            }
+        }
+    }
     readable_colors(&mut theme, &mut audit);
     let font_requests = font_requests(&theme, &selected, &mut audit);
     renderer_font_fallbacks(&mut theme, &mut audit);

@@ -87,9 +87,12 @@ fn decode_inner(raw: &str) -> Option<String> {
     Some(cooked)
 }
 
-fn literal_parts(node: tree_sitter::Node<'_>, source: &str) -> Vec<String> {
+fn literal_parts(node: tree_sitter::Node<'_>, source: &str) -> Vec<(String, usize)> {
     if node.kind() != "template_string" {
-        return decode(&source[node.byte_range()]).into_iter().collect();
+        return decode(&source[node.byte_range()])
+            .map(|text| (text, node.start_byte() + 1))
+            .into_iter()
+            .collect();
     }
     let mut parts = Vec::new();
     let mut start = node.start_byte() + 1;
@@ -99,13 +102,13 @@ fn literal_parts(node: tree_sitter::Node<'_>, source: &str) -> Vec<String> {
         let child = node.named_child(index).unwrap();
         if child.kind() == "template_substitution" {
             if let Some(part) = decode_inner(&source[start..child.start_byte()]) {
-                parts.push(part);
+                parts.push((part, start));
             }
             start = child.end_byte();
         }
     }
     if let Some(part) = decode_inner(&source[start..node.end_byte() - 1]) {
-        parts.push(part);
+        parts.push((part, start));
     }
     parts
 }
@@ -154,6 +157,7 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
         ));
     }
     let mut records = Vec::new();
+    let mut headings = crate::markup_hints::Headings::default();
     let mut utilities = Vec::new();
     let utility_package = snapshot
         .files
@@ -172,6 +176,15 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
     let mut additions = Vec::new();
     let mut total = 0;
     for file in &snapshot.files {
+        if matches!(
+            file.relative_path.rsplit('.').next(),
+            Some("html" | "hbs" | "mustache" | "template")
+        ) && let Some(text) = file.text()
+        {
+            headings
+                .literal(text, &file.relative_path, 0, false)
+                .map_err(|e| AppError::new(3, "ADAPT_MARKUP", e))?;
+        }
         if !matches!(
             file.relative_path.rsplit('.').next(),
             Some("js" | "jsx" | "mjs" | "cjs")
@@ -197,6 +210,9 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
                     "单个 JS 文件节点过多",
                 ));
             }
+            headings
+                .jsx(node, source, &file.relative_path)
+                .map_err(|e| AppError::new(3, "ADAPT_MARKUP", e))?;
             if utility_package
                 && let Some((css, record)) =
                     crate::utility_style::project(node, source, &file.relative_path)
@@ -219,7 +235,10 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
             if matches!(node.kind(), "string" | "template_string") {
                 let raw = &source[node.byte_range()];
                 if raw.len() <= 1024 * 1024 {
-                    for decoded in literal_parts(node, source) {
+                    for (decoded, origin) in literal_parts(node, source) {
+                        headings
+                            .literal(&decoded, &file.relative_path, origin, true)
+                            .map_err(|e| AppError::new(3, "ADAPT_MARKUP", e))?;
                         for css in candidates(&decoded) {
                             if !seen.insert(crate::sha256(css.as_bytes())) {
                                 continue;
@@ -257,6 +276,7 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
         .as_array_mut()
         .expect("inspection syntax evidence")
         .extend(additions);
+    headings.apply(report);
     report["embeddedStyles"] = json!({"literalStyles":records,"executedSourceCode":false,"limitation":"仅恢复真实 JS 字符串或无动态插值的 style 区域作为数据；未证明加载顺序、最终使用或原模板等价"});
     report["utilityStyles"] = json!({"packageDeclaresTwindOrTailwind":utility_package,"projections":utilities,"configurationVerified":false,"equivalent":false});
     Ok(())
@@ -298,7 +318,7 @@ mod tests {
         let mut styles = Vec::new();
         while let Some(node) = pending.pop() {
             if node.kind() == "template_string" {
-                for part in literal_parts(node, source) {
+                for (part, _) in literal_parts(node, source) {
                     styles.extend(candidates(&part));
                 }
             }
@@ -320,7 +340,7 @@ mod tests {
         assert!(
             literal_parts(template, source)
                 .iter()
-                .flat_map(|part| candidates(part))
+                .flat_map(|(part, _)| candidates(part))
                 .next()
                 .is_none()
         );

@@ -121,6 +121,12 @@ fn bare_role(s: &str) -> Option<&'static str> {
     }
     if matches!(
         n,
+        "cardheader" | "entryheader" | "itemheader" | "sectionheader"
+    ) {
+        return Some("item");
+    }
+    if matches!(
+        n,
         "sidebar" | "leftsidebar" | "rightsidebar" | "aside" | "sidecolumn"
     ) {
         return Some("sidebar");
@@ -178,6 +184,11 @@ fn bare_role(s: &str) -> Option<&'static str> {
         || [
             "itemtitle",
             "entrytitle",
+            "cardtitle",
+            "cardname",
+            "entryname",
+            "itemname",
+            "sectionsubtitle",
             "worktitle",
             "projecttitle",
             "projectname",

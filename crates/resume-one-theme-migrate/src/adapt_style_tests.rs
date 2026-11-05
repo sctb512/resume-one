@@ -272,6 +272,18 @@ fn namespaced_selectors_keep_identity_label_and_real_document_font() {
 }
 
 #[test]
+fn card_and_entry_roles_never_become_identity_through_namespace_stripping() {
+    let (theme, _) = from_css(
+        "h1{font-size:28pt;} .header{text-align:center;} .card-title{font-size:0.6rem;color:#0077CC;} .card-header{display:flex;flex-direction:row;} .section-subtitle{font-size:10pt;} .entry-name{font-size:9pt;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["typography"]["name"]["sizePt"], 28.0);
+    assert_ne!(theme["typography"]["name"]["color"], "#0077CC");
+    assert_eq!(theme["composition"]["header"], "centered");
+    assert_eq!(theme["typography"]["itemTitle"]["sizePt"], 9.0);
+}
+
+#[test]
 fn section_label_aside_never_creates_persistent_resume_sidebar() {
     let (theme, _) = from_css(
         "body{font-size:12pt;} #content aside{text-align:right;padding-right:30px;} #header h2{font-size:18pt;}",

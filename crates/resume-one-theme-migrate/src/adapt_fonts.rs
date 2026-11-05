@@ -43,6 +43,7 @@ struct Entry {
     sha256: String,
     license: String,
     license_path: PathBuf,
+    notice: Option<String>,
 }
 
 struct Verified {
@@ -368,6 +369,25 @@ fn library_entries(data: &[u8]) -> Result<Vec<Entry>, String> {
         if !fonts::valid_family(&font_family) {
             return Err(fail("FONT_FAMILY_INVALID", &font_family));
         }
+        let notice = value
+            .get("notice")
+            .map(|v| {
+                v.as_str()
+                    .filter(|s| {
+                        s.len() <= 16384
+                            && !s
+                                .chars()
+                                .any(|c| c.is_control() && !matches!(c, '\n' | '\r' | '\t'))
+                    })
+                    .map(str::to_owned)
+                    .ok_or_else(|| {
+                        fail(
+                            "FONT_NOTICE_INVALID",
+                            "notice must be bounded plain UTF-8 text, at most 16384 bytes",
+                        )
+                    })
+            })
+            .transpose()?;
         entries.push(Entry {
             key,
             font_family,
@@ -375,6 +395,7 @@ fn library_entries(data: &[u8]) -> Result<Vec<Entry>, String> {
             sha256: sha256.to_ascii_lowercase(),
             license: license.into(),
             license_path,
+            notice,
         });
     }
     Ok(entries)
@@ -747,9 +768,10 @@ pub(crate) fn apply(
         .map_err(candidate_error)?;
     snapshot.verify()?;
     *candidate = next;
+    let notices=selected.iter().filter_map(|(index,(id,_))|entries[*index].notice.as_ref().map(|text|json!({"assetId":id,"sourceFamily":entries[*index].key.family,"fontFamily":entries[*index].font_family,"sha256":entries[*index].sha256,"text":text,"declarationVerified":false}))).collect::<Vec<_>>();
     Ok((
         json!({"fontMappings":mappings,"differences":differences,
-        "libraryEntries":entries.len(),"coreLoadThemeRequired":true,"layoutValidationRequired":true,
+        "libraryEntries":entries.len(),"notices":notices,"coreLoadThemeRequired":true,"layoutValidationRequired":true,
         "validation":"SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
         "licensePolicy":"declared license and original bytes copied; not a legal clearance"}),
         files,
@@ -848,6 +870,45 @@ mod tests {
         .unwrap();
         let loaded = resume_one_core::load_theme(&f.root, Path::new("test.theme.json")).unwrap();
         assert!(resume_one_core::layout::check_theme(&loaded).is_ok());
+    }
+
+    #[test]
+    fn explicit_font_notices_are_preserved_once_and_invalid_text_is_transactional() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        let mut e = f.entry("regular.ttf", REGULAR, family, 400, "normal");
+        e["notice"] =
+            json!("Original SHA-256: declared source hash\nNamed derivative; unchanged metrics.\n");
+        f.write(json!([e.clone()]));
+        let mut c = candidate();
+        let (report, _) = apply(
+            &mut c,
+            &json!([
+                request("body", family, 400, "normal"),
+                request("name", family, 400, "normal")
+            ]),
+            &f.library,
+        )
+        .unwrap();
+        assert_eq!(report["notices"].as_array().unwrap().len(), 1);
+        assert_eq!(report["notices"][0]["text"], e["notice"]);
+        assert_eq!(report["notices"][0]["declarationVerified"], false);
+        for invalid in [json!(42), json!("x".repeat(16385)), json!("bad\0text")] {
+            e["notice"] = invalid;
+            f.write(json!([e.clone()]));
+            let mut c = candidate();
+            let before = c.clone();
+            assert!(
+                apply(
+                    &mut c,
+                    &json!([request("body", family, 400, "normal")]),
+                    &f.library
+                )
+                .unwrap_err()
+                .starts_with("FONT_NOTICE_INVALID")
+            );
+            assert_eq!(c, before);
+        }
     }
 
     #[test]

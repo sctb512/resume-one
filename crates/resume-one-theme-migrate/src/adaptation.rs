@@ -94,6 +94,40 @@ struct Plan {
     files: Vec<(String, Vec<u8>)>,
 }
 
+fn public_url(value: &str) -> Option<String> {
+    let value = value.trim().strip_prefix("git+").unwrap_or(value.trim());
+    (value.len() <= 2048
+        && (value.starts_with("https://") || value.starts_with("http://"))
+        && !value.chars().any(|c| c.is_whitespace() || c.is_control()))
+    .then(|| value.to_owned())
+}
+
+fn author_name(package: &Value) -> Option<String> {
+    let author = &package["authorDeclaration"];
+    let name = author
+        .as_str()
+        .map(|s| s.split('<').next().unwrap_or(""))
+        .or_else(|| author["name"].as_str())?;
+    let name = name.split_whitespace().collect::<Vec<_>>().join(" ");
+    if name.is_empty() || name.chars().count() > 100 || name.chars().any(char::is_control) {
+        return None;
+    }
+    if let Some(url) = author["url"].as_str().and_then(public_url) {
+        let full = format!("{name} ({url})");
+        if full.chars().count() <= 100 {
+            return Some(full);
+        }
+    }
+    Some(name)
+}
+
+fn repository_url(package: &Value) -> Option<String> {
+    let repo = &package["repositoryDeclaration"];
+    repo.as_str()
+        .or_else(|| repo["url"].as_str())
+        .and_then(public_url)
+}
+
 fn plan(
     source: &Path,
     slug: Option<&str>,
@@ -143,6 +177,9 @@ fn plan(
     // Never use module omission as a shortcut to matching the source picture.
     manifest["modules"] = json!(MODULES);
     let mut provenance = json!({"migratedBy":"resume-one-theme-migrate --adapt","fidelity":"adapted","upstreamLicense":license});
+    if let Some(author) = author_name(&report["package"]) {
+        provenance["upstreamAuthor"] = json!(author);
+    }
     if let Some(url) = url {
         provenance["upstreamUrl"] = json!(url);
     }
@@ -435,7 +472,7 @@ pub(crate) fn batch(cli: &Cli) -> Result<Value, AppError> {
                 false,
             )
             .map_err(|e| AppError::new(5, e.code, e.message))?;
-            let notice = format!(
+            let mut notice = format!(
                 "{} — Resume One best-effort declarative adaptation\nSource: {}\nRevision: {}\nLicense declaration: {}\nNo upstream endorsement. License declaration is not legal clearance.\nNo source code executed; resume JSON not modified.\nNot pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.\n",
                 planned.manifest["name"].as_str().unwrap_or(id),
                 item["upstreamUrl"].as_str().unwrap_or("not supplied"),
@@ -444,6 +481,24 @@ pub(crate) fn batch(cli: &Cli) -> Result<Value, AppError> {
                     .as_str()
                     .unwrap_or("NOASSERTION")
             );
+            if let Some(author) = planned.manifest["provenance"]["upstreamAuthor"].as_str() {
+                notice.push_str(&format!("Upstream author declaration: {author}\n"));
+            }
+            if let Some(url) = repository_url(&planned.report["sourcePackage"]) {
+                notice.push_str(&format!("Original project declaration: {url}\n"));
+            }
+            for font in planned.report["fonts"]["notices"]
+                .as_array()
+                .into_iter()
+                .flatten()
+            {
+                notice.push_str(&format!(
+                    "\nFont {} ({}):\n{}\n",
+                    font["assetId"].as_str().unwrap_or(""),
+                    font["sha256"].as_str().unwrap_or(""),
+                    font["text"].as_str().unwrap_or("")
+                ));
+            }
             resume_one_core::export::write_export_unnamed(
                 &directory.join("NOTICE.txt"),
                 notice.as_bytes(),

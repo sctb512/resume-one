@@ -23,7 +23,7 @@ fn source(root: &Path) {
     fs::create_dir(root).unwrap();
     fs::write(
         root.join("package.json"),
-        r#"{"name":"jsonresume-theme-example","version":"1.0.0","license":"MIT"}"#,
+        r#"{"name":"jsonresume-theme-example","version":"1.0.0","license":"MIT","author":{"name":"Example Author","url":"https://example.com/author"},"repository":{"type":"git","url":"git+https://example.com/original-project"}}"#,
     )
     .unwrap();
     fs::write(root.join("Resume.jsx"),"import styled from 'styled-components'; const Layout=styled.main`font-size:12pt;line-height:1.5;background:#ffffff;color:#223344;`; const Name=styled.h1`font-size:28pt;color:#224466;`; export default ({resume})=><Layout><Name>{resume.basics.name}</Name></Layout>;").unwrap();
@@ -450,11 +450,18 @@ fn batch_writes_complete_packages_and_rejects_duplicates_before_writing() {
     let dir = out.join("community-example");
     assert!(dir.join("theme.json").is_file());
     assert!(dir.join("NOTICE.txt").is_file());
+    let notice = fs::read_to_string(dir.join("NOTICE.txt")).unwrap();
+    assert!(notice.contains("Example Author (https://example.com/author)"));
+    assert!(notice.contains("Original project declaration: https://example.com/original-project"));
     assert!(dir.join("MIGRATION.json").is_file());
     assert!(!dir.join(".candidate.theme.json").exists());
     let loaded =
         resume_one_core::load_theme(&out, Path::new("community-example/theme.json")).unwrap();
     assert_eq!(loaded.id, "community-example");
+    assert_eq!(
+        loaded.normalized["provenance"]["upstreamAuthor"],
+        "Example Author (https://example.com/author)"
+    );
     let meta: Value =
         serde_json::from_slice(&fs::read(dir.join("MIGRATION.json")).unwrap()).unwrap();
     assert_eq!(meta["exactMigrationComplete"], false);

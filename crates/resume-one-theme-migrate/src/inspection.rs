@@ -423,7 +423,7 @@ pub(crate) fn inspect_templates(root: &Path, entries: &[String]) -> Result<Value
     }
     let result = json!({"inspectionVersion":1,"source":root,"sourceSnapshot":snapshot.report(),
         "parsers":{"javascript":"tree-sitter-javascript@0.25.0","javascriptPatch":"resume-one-jsx-ampersand-v1","css":"tree-sitter-css@0.25.0","engine":"tree-sitter@0.25.10"},
-        "package":{"name":package["name"],"version":package["version"],"licenseDeclaration":package["license"]},
+        "package":{"name":package["name"],"version":package["version"],"licenseDeclaration":package["license"],"authorDeclaration":package["author"],"repositoryDeclaration":package["repository"]},
         "statistics":{"sourceFiles":snapshot.files.len(),"syntaxFiles":files.len(),"styledComponents":styles,"cssDeclarations":declarations,"jsxExpressions":expressions},
         "cssProperties":properties,"externalImports":external,"licenseFiles":license_files,"syntaxEvidence":files,"templatePrograms":templates,
         "migrationComplete":false,"visualVerified":false,"licenseVerified":false,"executedSourceCode":false,"sourceModified":false,"blockers":blockers});

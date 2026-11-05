@@ -509,6 +509,20 @@ fn family_requests_preserve_quoted_comma_and_skip_generic_families() {
     assert_eq!(report["fontRequests"], json!([]));
 }
 
+#[test]
+fn logical_section_rules_retain_separator_and_vertical_rhythm() {
+    let (theme, report) = from_css(
+        ".pro-section-title{border-block-end:0.5pt solid #B8B8B2;} .pro-section{margin-block-start:6mm;}",
+    );
+    valid(&theme);
+    assert_eq!(theme["sections"]["work"]["heading"], "line");
+    assert_eq!(theme["colors"]["border"], "#B8B8B2");
+    assert!((theme["page"]["sectionGapMm"].as_f64().unwrap() - 6.0).abs() < 1e-6);
+    assert!(has(&report, "BORDER_GEOMETRY_APPROXIMATED"));
+    let (theme, _) = from_css(".section-title{border-inline-start:2px solid #334455;}");
+    assert_eq!(theme["sections"]["work"]["heading"], "accent-line");
+}
+
 /// Optional local corpus validation. Reads package text through the existing
 /// parser only; no package entry points, build scripts or third-party code run.
 #[test]

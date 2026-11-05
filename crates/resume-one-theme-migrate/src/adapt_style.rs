@@ -1351,6 +1351,9 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
             | "border-top"
             | "border-color"
             | "border-bottom-color"
+            | "border-block-end"
+            | "border-block-start"
+            | "border-inline-start"
                 if matches!(d.role, "sectionTitle" | "header" | "item") =>
             {
                 handled = true;
@@ -1371,7 +1374,7 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
                 } else if d.role == "sectionTitle" {
                     let heading = if none {
                         "plain"
-                    } else if d.property == "border-left" {
+                    } else if matches!(d.property.as_str(), "border-left" | "border-inline-start") {
                         "accent-line"
                     } else {
                         "line"
@@ -1383,13 +1386,18 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
                     for path in section_paths(d, "items") {
                         proposals.push((
                             path.clone(),
-                            json!(if d.property == "border-left"
-                                && ["work", "volunteer", "education", "projects"]
-                                    .iter()
-                                    .any(|id| path == format!("/sections/{id}/items"))
+                            json!(if matches!(
+                                d.property.as_str(),
+                                "border-left" | "border-inline-start"
+                            ) && ["work", "volunteer", "education", "projects"]
+                                .iter()
+                                .any(|id| path == format!("/sections/{id}/items"))
                             {
                                 "timeline"
-                            } else if d.property == "border-left" {
+                            } else if matches!(
+                                d.property.as_str(),
+                                "border-left" | "border-inline-start"
+                            ) {
                                 "stack"
                             } else {
                                 "cards"
@@ -1522,7 +1530,11 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
                 "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
             ));
         }
-        if d.property == "margin-bottom" && d.role == "section" {
+        if matches!(
+            d.property.as_str(),
+            "margin-bottom" | "margin-top" | "margin-block-start" | "margin-block-end"
+        ) && d.role == "section"
+        {
             handled = true;
             if d.section.is_some() {
                 audit.difference("MODULE_MARGIN_NOT_GLOBALIZED", &d.source, "单一模块的 margin 不提升为所有模块的间距，避免 publication 等局部规则压缩整个文档");
@@ -1547,7 +1559,7 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
             proposals.push((
                 "/page/sectionGapMm".into(),
                 json!(val),
-                "模块下边距近似统一模块间距；未模拟 margin collapse",
+                "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
             ));
         }
         let text_property = [

@@ -23,7 +23,14 @@ impl Headings {
         kind: &str,
         decoded_origin: Option<usize>,
     ) -> Result<(), String> {
-        let title = title.trim().replace("&amp;", "&");
+        let title = title
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+            .replace("&amp;", "&");
+        if title.chars().any(char::is_control) {
+            return Ok(());
+        }
         let Some(id) = module(&title) else {
             return Ok(());
         };
@@ -323,6 +330,35 @@ mod tests {
         assert_eq!(
             r["markupHints"]["literalHeadings"][1]["title"],
             "Service & Leadership"
+        );
+    }
+
+    #[test]
+    fn literal_html_heading_whitespace_collapses_without_invalid_control_characters() {
+        let mut h = Headings::default();
+        h.literal(
+            "<h3>Work\t\n Experience</h3><h3>\n Education\r\n </h3><h3>Skills\0</h3>",
+            "page.html",
+            0,
+            false,
+        )
+        .unwrap();
+        let mut r = json!({"syntaxEvidence":[]});
+        h.apply(&mut r);
+        assert_eq!(
+            r["markupHints"]["literalHeadings"][0]["title"],
+            "Work Experience"
+        );
+        assert_eq!(
+            r["markupHints"]["moduleOrder"],
+            json!(["work", "education"])
+        );
+        assert_eq!(
+            r["markupHints"]["literalHeadings"]
+                .as_array()
+                .unwrap()
+                .len(),
+            2
         );
     }
 }

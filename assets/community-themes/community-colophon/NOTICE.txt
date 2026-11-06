@@ -5,3 +5,5 @@ License declaration: MIT
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+Upstream author declaration: David Nelson (https://github.com/dmnelson)
+Original project declaration: https://github.com/dmnelson/jsonresume-theme-colophon.git

@@ -37,7 +37,9 @@
   "sourcePackage": {
     "name": "jsonresume-theme-community-garden",
     "version": "0.1.11",
-    "licenseDeclaration": null
+    "licenseDeclaration": null,
+    "authorDeclaration": null,
+    "repositoryDeclaration": null
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -99,7 +101,7 @@
       "syntaxFiles": 11,
       "cssFiles": 9,
       "styledComponents": 34,
-      "declarationsSeen": 254,
+      "declarationsSeen": 256,
       "matchedRoles": [
         "body",
         "header",
@@ -113,54 +115,110 @@
         "sideDate",
         "summary"
       ],
-      "evidenceRecords": 96
+      "evidenceRecords": 105
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 600,
         "fontStyle": "italic"
       },
       {
         "role": "summary",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 500,
         "fontStyle": "italic"
       },
       {
         "role": "sectionTitle",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 600,
         "fontStyle": "normal"
       },
       {
         "role": "sideDate",
         "family": "Quicksand",
+        "families": [
+          "Quicksand",
+          "Nunito",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "italic"
       }
@@ -275,7 +333,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -1852,29 +1910,46 @@
       },
       {
         "target": "/page/marginsMm/bottom",
-        "value": 13.229166666666666,
+        "value": 7.9375,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "50px 45px",
+              "text": "30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 50px 45px;",
+              "text": "padding: 30px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 245,
-              "endByte": 264,
-              "line": 15,
-              "column": 3,
+              "startByte": 458,
+              "endByte": 472,
+              "line": 24,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -1884,29 +1959,46 @@
       },
       {
         "target": "/page/marginsMm/left",
-        "value": 11.90625,
+        "value": 7.9375,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "50px 45px",
+              "text": "30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 50px 45px;",
+              "text": "padding: 30px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 245,
-              "endByte": 264,
-              "line": 15,
-              "column": 3,
+              "startByte": 458,
+              "endByte": 472,
+              "line": 24,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -1916,29 +2008,46 @@
       },
       {
         "target": "/page/marginsMm/right",
-        "value": 11.90625,
+        "value": 7.9375,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "50px 45px",
+              "text": "30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 50px 45px;",
+              "text": "padding: 30px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 245,
-              "endByte": 264,
-              "line": 15,
-              "column": 3,
+              "startByte": 458,
+              "endByte": 472,
+              "line": 24,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -1948,29 +2057,46 @@
       },
       {
         "target": "/page/marginsMm/top",
-        "value": 13.229166666666666,
+        "value": 7.9375,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "50px 45px",
+              "text": "30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 50px 45px;",
+              "text": "padding: 30px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 245,
-              "endByte": 264,
-              "line": 15,
-              "column": 3,
+              "startByte": 458,
+              "endByte": 472,
+              "line": 24,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -2007,7 +2133,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "模块下边距近似统一模块间距；未模拟 margin collapse",
+        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
         "equivalent": false
       },
       {
@@ -3013,10 +3139,268 @@
         "equivalent": false
       },
       {
+        "target": "/composition/moduleOrder",
+        "value": [
+          "work",
+          "education",
+          "skills",
+          "projects",
+          "publications",
+          "languages",
+          "interests",
+          "references"
+        ],
+        "source": {
+          "literalHeadings": [
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Professional Experience",
+              "module": "work",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 8305,
+              "endByte": 8365
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Education",
+              "module": "education",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 9254,
+              "endByte": 9300
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Skills",
+              "module": "skills",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 10022,
+              "endByte": 10065
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Projects",
+              "module": "projects",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 10688,
+              "endByte": 10733
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Publications",
+              "module": "publications",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 12898,
+              "endByte": 12947
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Languages",
+              "module": "languages",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 13859,
+              "endByte": 13905
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "Interests",
+              "module": "interests",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 14286,
+              "endByte": 14332
+            },
+            {
+              "file": "src/Resume.jsx",
+              "tag": "MainSectionTitle",
+              "title": "References",
+              "module": "references",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 15001,
+              "endByte": 15048
+            }
+          ],
+          "moduleHeadingTag": null,
+          "moduleOrder": [
+            "work",
+            "education",
+            "skills",
+            "projects",
+            "publications",
+            "languages",
+            "interests",
+            "references"
+          ],
+          "orderSource": "src/Resume.jsx",
+          "bindingVerified": false,
+          "equivalent": false,
+          "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+        },
+        "classification": "adapted",
+        "reason": "完整源码中的实际字面模块标题顺序；没有从文件名字典序推断模块顺序",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/work/title",
+        "value": "Professional Experience",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Professional Experience",
+          "module": "work",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 8305,
+          "endByte": 8365
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/education/title",
+        "value": "Education",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Education",
+          "module": "education",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 9254,
+          "endByte": 9300
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/skills/title",
+        "value": "Skills",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Skills",
+          "module": "skills",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 10022,
+          "endByte": 10065
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/projects/title",
+        "value": "Projects",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Projects",
+          "module": "projects",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 10688,
+          "endByte": 10733
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/publications/title",
+        "value": "Publications",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Publications",
+          "module": "publications",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 12898,
+          "endByte": 12947
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/languages/title",
+        "value": "Languages",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Languages",
+          "module": "languages",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 13859,
+          "endByte": 13905
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/interests/title",
+        "value": "Interests",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "Interests",
+          "module": "interests",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 14286,
+          "endByte": 14332
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/references/title",
+        "value": "References",
+        "source": {
+          "file": "src/Resume.jsx",
+          "tag": "MainSectionTitle",
+          "title": "References",
+          "module": "references",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 15001,
+          "endByte": 15048
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
         "target": "fontRequests",
         "value": {
           "role": "body",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3054,6 +3438,13 @@
         "value": {
           "role": "name",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3091,6 +3482,13 @@
         "value": {
           "role": "label",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 600,
           "fontStyle": "italic"
         },
@@ -3128,6 +3526,13 @@
         "value": {
           "role": "summary",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 500,
           "fontStyle": "italic"
         },
@@ -3165,6 +3570,13 @@
         "value": {
           "role": "sectionTitle",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3202,6 +3614,13 @@
         "value": {
           "role": "itemTitle",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3239,6 +3658,13 @@
         "value": {
           "role": "meta",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 600,
           "fontStyle": "normal"
         },
@@ -3276,6 +3702,13 @@
         "value": {
           "role": "sideDate",
           "family": "Quicksand",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "italic"
         },
@@ -5742,6 +6175,52 @@
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
         "source": {
+          "file": "src/Resume.jsx#literal-203.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 30px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx#literal-203.css",
+              "startByte": 254,
+              "endByte": 268,
+              "line": 13,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
           "file": "src/Resume.jsx#literal-2001.css",
           "component": null,
           "declaration": {
@@ -7435,6 +7914,466 @@
         "source": {
           "previous": {
             "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
             "component": "SummarySection",
             "declaration": {
               "property": "margin-bottom",
@@ -8496,22 +9435,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "50px 45px",
+                "text": "30px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 50px 45px;",
+                "text": "padding: 30px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -8548,22 +9504,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "50px 45px",
+                "text": "30px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 50px 45px;",
+                "text": "padding: 30px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -10851,22 +11824,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "50px 45px",
+                "text": "30px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 50px 45px;",
+                "text": "padding: 30px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -10903,22 +11893,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "50px 45px",
+                "text": "30px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 50px 45px;",
+                "text": "padding: 30px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -11301,6 +12308,302 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/top",
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/right",
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/bottom",
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/left",
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "50px 45px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 50px 45px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 245,
+                "endByte": 264,
+                "line": 15,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Layout",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "30px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 30px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 458,
+                "endByte": 472,
+                "line": 24,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 8,
+                "projectedDeclarationIndex": 9,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -13392,7 +14695,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "WorkHighlights",
@@ -13420,66 +14723,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "50px 45px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 50px 45px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "WorkHighlights",
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "8px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 8px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 3670,
-                "endByte": 3688,
-                "line": 197,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -15075,7 +16319,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx#literal-3478.css",
           "component": null,
@@ -15103,66 +16347,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "50px 45px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 50px 45px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 245,
-                "endByte": 264,
-                "line": 15,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx#literal-3478.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "8px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 8px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/Resume.jsx#literal-3478.css",
-                "startByte": 191,
-                "endByte": 209,
-                "line": 12,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "MODULE_ORDER_INFERRED",
@@ -15460,7 +16645,7 @@
       {
         "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
         "source": {
-          "requestedMm": 13.229166666666666,
+          "requestedMm": 7.9375,
           "chosenMm": 13.97
         },
         "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
@@ -15481,14 +16666,27 @@
           "role": "body",
           "family": "Quicksand",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Nunito",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15497,14 +16695,27 @@
           "role": "name",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Nunito",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15513,14 +16724,27 @@
           "role": "sectionTitle",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Nunito",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15529,14 +16753,27 @@
           "role": "itemTitle",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Nunito",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15545,7 +16782,14 @@
           "role": "label",
           "family": "Quicksand",
           "weight": 600,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -15561,7 +16805,14 @@
           "role": "summary",
           "family": "Quicksand",
           "weight": 500,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -15577,7 +16828,14 @@
           "role": "sideDate",
           "family": "Quicksand",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -15593,80 +16851,225 @@
           "role": "meta",
           "family": "Quicksand",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-2",
+        "selectedFamily": "Nunito",
         "applied": {
-          "family": "cjk-serif",
+          "family": "asset:font-2",
           "weight": 600,
           "fontStyle": "normal"
         },
+        "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       }
     ],
     "differences": [
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "body",
           "family": "Quicksand",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Nunito",
+        "skippedFamilies": [
+          "Quicksand"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W400",
+        "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "body",
+          "family": "Quicksand",
+          "weight": 400,
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "name",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Nunito",
+        "skippedFamilies": [
+          "Quicksand"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W700",
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "name",
+          "family": "Quicksand",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "sectionTitle",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Nunito",
+        "skippedFamilies": [
+          "Quicksand"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W700",
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "sectionTitle",
+          "family": "Quicksand",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "itemTitle",
           "family": "Quicksand",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
+        "selectedFamily": "Nunito",
+        "skippedFamilies": [
+          "Quicksand"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W700",
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "itemTitle",
+          "family": "Quicksand",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
@@ -15675,14 +17078,21 @@
           "role": "label",
           "family": "Quicksand",
           "weight": 600,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -15691,14 +17101,21 @@
           "role": "summary",
           "family": "Quicksand",
           "weight": 500,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -15707,34 +17124,100 @@
           "role": "sideDate",
           "family": "Quicksand",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "meta",
           "family": "Quicksand",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
+        "selectedFamily": "Nunito",
+        "skippedFamilies": [
+          "Quicksand"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W600",
+        "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "meta",
+          "family": "Quicksand",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Quicksand",
+            "Nunito",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-2",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [
+      {
+        "assetId": "font-0",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W400",
+        "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060",
+        "text": "Source font family: Nunito\nExplicit internal family: Resume One Californian Nunito W400\nInput and copied output SHA-256: d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060\nPreserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):\nCalifornian Warm - Resume One declarative adaptation\n\nAcceptance status: BLOCKED. This package does not meet the user's near-100%\nfidelity requirement and must not be registered or counted as a completed\nmigration. Render success and the disclosures below do not satisfy that gate.\nThe current renderer/spec cannot reproduce the primary rounded gradient\nheader, original card surfaces, nested skill cards, or all independent text\nroles/colors. Newly supported roles and the CW09 font correction below do\nnot constitute complete fidelity or export acceptance.\n\nOriginal project: JSON Resume contributors, jsonresume-theme-californian-warm\nOriginal package version: 0.2.10\nOriginal source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-californian-warm\nProject: https://github.com/jsonresume/jsonresume.org\nGallery: https://jsonresume.org/themes\nPinned revision: 542cd5315fc9995fca3c401d0c818767530bb6bd\nCopyright (c) 2014-2026 JSON Resume contributors\nTheme license: MIT; full original root license is reproduced in LICENSE.txt.\nThe theme subdirectory has no separate license or named author; attribution\nuses the repository copyright, without inventing an individual author.\nOriginal root license: https://github.com/jsonresume/jsonresume.org/blob/542cd5315fc9995fca3c401d0c818767530bb6bd/LICENSE\nLICENSE.txt SHA-256: 577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097\nAdaptation by Resume One contributors. Original authors do not endorse it.\n\nThis package was manually mapped from the actual pinned index.jsx,\nsrc/Resume.jsx and package.json, not promoted from the low-confidence static\ncandidate. It contains non-executable v2 JSON, licensed static fonts and\nnotices. No upstream React, JavaScript, CSS or template code is executed.\nSource file SHA-256 values:\nindex.jsx: 01783ef33275fb7c2764512a01ce1e281c2899d35d85941747d10200efea585c\nsrc/Resume.jsx: 23ea50d114928d7d0a112d612a0b50ce5e2e3a0b5055f30fafdde5d32076ea08\npackage.json: c9419db32f1fc1a4eb17f2101e872d0fa7a07a3bfae421c6b82660b4e6324e46\n\nPreserved design\nThe primary structure is a spacious, left-aligned single column: identity\nand summary in the header, ruled section headings, individual cards for\nwork/education/projects/volunteer and simpler information modules, skill\nkeyword chips and language chips. The first-choice family is still Nunito,\nincluding all four requested upright weights 400/600/700/800, instantiated\nand renamed into independent Resume One Californian Nunito W400/W600/W700/\nW800 families; see FONTS.txt and OFL.txt for the full source/rename lineage.\nAt 96 CSS px/in, the original 15px body, 48px name, 28px section title,\n22px item title and 14px metadata map to 11.25/36/21/16.5/10.5pt. The body\nline-height 1.8 and name line-height 1.2 are retained. Original 60px/50px\nscreen padding and 50px section gaps map to 15.875/13.229mm and 13.229mm.\nCream #FFF8F1, orange #EA580C, amber #D97706, brown #4D3319, dark amber\n#92400E, pale orange #FED7AA and pale cream #FEF5E7 remain explicit tokens.\nThe newly supported independent label role uses the source 20px/600\n(15pt/600), summary uses 16px/400 (12pt/400), and sideDate uses 14px/600\n(10.5pt/600), all with the source inherited line-height 1.8. sideDate only\nstyles left/right standalone dates; inline dates still use meta. Original\nname tracking -0.5px/48px is -1/96em (-0.375pt at 36pt); section-title\ntracking -0.3px/28px is -3/280em (-0.225pt at 21pt). Both now use supported\ntrackingEm. textTransform remains none, preserving original text case.\n\nSource-literal role color update (2026-10-30; exports pending)\nThe complete pinned src/Resume.jsx was reviewed again, including every\nstyled declaration and all module call sites. Five role foregrounds now\nuse typography.<role>.color rather than contrast-adjusted semantic tokens:\n- name #D97706: Name, line 42; identity in the header only (line 285).\n- sectionTitle #EA580C: StyledSectionTitle, line 96; the same component is\n  used for every original module heading, with no regional variant.\n- label #92400E: Tagline, line 49; basics.label only (line 286).\n- summary #4D3319: Summary, line 58; basics.summary only (line 287).\n- sideDate #92400E: ItemDate, line 142; work, education, projects and\n  volunteer standalone dates use this same component. Inline auxiliary\n  dates still use meta and are not covered by this literal.\nThese are exact CSS foreground declarations, not sampled or blended\napproximations. The new explicit-color contract preserves them without\nautomatic contrast rewriting. This resolves the name/body and label/accent\nforeground coupling and prevents section-title/summary/date foreground\ndarkening; it does not restore their missing surfaces or alpha treatment.\nTagline opacity 0.9 (line 52) and ItemDate opacity 0.8 (line 143) remain\nunrepresented, so their final composited appearance is still not matched.\nNo flattened opacity color was invented for the absent gradient or pill.\n\nbody, itemTitle and meta intentionally have no explicit color: body spans\nItemDescription / HighlightsList li #4D3319 (lines 168/182) and SimpleCard p\n#78350F (line 254), while Layout inherits #3D2A1F (line 20). itemTitle spans\nItemTitle / SimpleCard h4 #D97706 (lines 134/247) and SkillCategory h4\n#EA580C (line 209). meta spans contact links #D97706 (line 73), subtitles\n#78350F (line 153), locations #A16207 with opacity 0.9 (lines 159/162),\nand small-card auxiliary text #78350F (line 254). A single global literal\nwould incorrectly erase these differences, even in a single-column theme.\nThose roles retain the existing semantic colors; independent module/field\ncolors, link/chip colors and opacity remain renderer/spec blockers.\n\nFollow-up CLI validation and PDF/DOCX exports used the role-color-capable\nrenderer and this exact manifest. The English all-module fixture generated\nthree PDF pages and three LibreOffice-rendered DOCX pages; the short Chinese\nfixture generated one page in each format. All eight page images were\ninspected. A later short-Chinese DOCX check explicitly splits missing-glyph\nspans into real upright Noto Sans SC runs, avoiding reader-synthesized CJK\nbold. These export checks do not certify the original theme's appearance.\nArtifacts: target/community-californian-warm-qa/role-color-20261030/.\nSource evidence and before/after manifest hashes are recorded in\ntarget/community-californian-warm-qa/role-color-source-20261030.json.\nAcceptance remains BLOCKED; no registry, font or license file is changed.\n\nEnumerated differences and renderer limits\n1. The original gradient header (#FEF5E7 to #FEF0DC), 40px inner padding,\n   20px rounded corners and amber web shadow are unavailable. The header\n   stays a full-width, unboxed semantic header. No unsupported decorations\n   or arbitrary CSS are emitted. The pale cream canvas uses the gradient's\n   first endpoint, without claiming a gradient rendering.\n2. Summary remains associated with the header, but the renderer places\n   contacts before the summary; upstream puts summary before contacts.\n   Its original 16px/400 size and the separate 20px/600 tagline are now\n   declared through summary and label respectively. The white translucent\n   inset, 20px padding, 12px radius and 4px amber left border remain\n   unavailable, as do the tagline's opacity and independent margins. Its\n   declared foreground is now exactly #92400E; alpha composition is not.\n3. Source work/education/project/volunteer cards are white, borderless,\n   padded 30px, radius 16px and softly shadowed. Simple cards use 24px,\n   radius 14px. Supported cards use a thin rectangular border, 8pt inner\n   horizontal padding and the renderer's readable, lightly tinted paper.\n   Web shadows, radii, individual padding, 40px item gaps, hover transforms\n   and transitions are unavailable and omitted. Large type, generous line\n   height and section gaps retain the spacious humanist hierarchy.\n4. Skills cannot combine an outer card and nested chips in one module.\n   Keyword chips are retained; the source category's padded shadowed card\n   is omitted. Language names use chips, with fluency retained as separate\n   semantic text rather than combined inside each chip. Chip gradients\n   (#FEF3C7 to #FDE68A), 12px radius, 10px/18px padding and hover effects\n   become the renderer's flat, bounded text backgrounds. Interest cards\n   and reference cards remain distinct from the chip modules.\n5. Right-side dates for work/education/projects/volunteer retain their\n   position and independent source 14px/600 sideDate role, but lose the\n   #FEF3C7 pill, 20px radius and source opacity. Auxiliary dates in simple\n   cards remain inline and use meta, not sideDate. A long date may wrap\n   under its title to preserve content; no white-space:nowrap is imposed.\n6. Exact name, section-title, label, summary and standalone-date foreground\n   declarations are now independent, as documented above. Body, itemTitle\n   and meta remain globally shared across source elements with different\n   colors and therefore deliberately keep the old semantic-color behavior.\n   The common body ink #4D3319 still cannot express SimpleCard p #78350F\n   or inherited #3D2A1F; a global itemTitle literal cannot distinguish\n   amber #D97706 titles from orange #EA580C skill categories. Auxiliary\n   text still cannot separate subtitle #78350F, location #A16207 and\n   contact-link #D97706. The omitted role colors may still be contrast\n   adjusted by the renderer, unlike the five explicit role literals.\n7. Section rules use the original pale orange #FED7AA, but their supported\n   0.6pt thickness differs from the source 3px (2.25pt) border and fixed\n   12px padding. Contact links use inline text with semantic separators,\n   without the original amber backgrounds, rounded 8px contact boxes,\n   per-link 8px/16px padding or 20px flex gaps. Star-shaped highlight\n   markers become standard semantic bullets.\n8. Source negative letter spacing (-0.5px name, -0.3px section title) now\n   maps to the exact em ratios above. DOCX rounds character spacing to\n   1/20pt; it cannot exactly store -0.375pt or -0.225pt, so final Word\n   spacing remains a separate check. Italic roles are unsupported and\n   not emitted; this source requests upright fonts only.\n   Separate organization/subtitle, skill-title and small-card font roles\n   still share supported roles. Their original 18px title and\n   14px small-card body sizes cannot be configured independently.\n9. The upstream component fixes module order in React. The manifest offers\n   modules in that order, but the renderer preserves existing Resume JSON\n   order and its semantic item labels/field mappings. Additional standard\n   content stays visible, including fields upstream conditionals omit;\n   no content is added to the theme or removed from the resume.\n10. The web page's 820px maximum width and special white print background\n    with 40px/30px padding become explicit A4 pagination and stable screen\n    cream paper. Both pagination flags remain enabled. Earlier CLI stress\n    evidence exposed CW10: an oversized first card could leave the section\n    heading alone on a page. The main agent has since implemented shared\n    oversized-card pagination changes; those historical outputs do not\n    establish the current behavior. This font/role update performs no new\n    pagination export and makes no new pagination acceptance claim.\n    The renderer's page footer is application controlled. Letter QA uses\n    a separate theme copy; the package defaults to A4.\n11. Nunito has no CJK glyphs; Chinese uses the application's explicit Noto\n    fallback rather than the web operating-system fallback chain. The\n    variable source was initially instantiated at fixed weights. CW09\n    now renames each approved static face to its own family W400/W600/\n    W700/W800. Only name metadata and the required head checksum adjustment\n    change; all outline, metric, shaping and permission tables remain\n    byte-identical. Original copyright, full OFL, fsType=0 and real weights\n    400/600/700/800 are preserved. This removes the candidate's shared\n    family/bold-slot collision by giving each face a distinct family key.\n    Actual DOCX slot embedding, weight selection and Word reflow are still\n    the main agent's checks; this update claims no new DOCX/PDF results or\n    pixel equivalence. No local or system font installation is performed.\n\nFollow-up font identity audit (2026-10-30): all four final static faces were\nchecked across every name-table platform/encoding/language record. nameID\n18 and 25 are absent; existing WWS names 21/22 already match the independent\naliases and subfamilies. The helper now remaps existing optional compatible\nfull names and variation PostScript prefixes if present. A separate QA\nregeneration reproduced all four current fonts byte-for-byte, so their\nasset SHA-256 values and family names remain unchanged. Copyright/license\nstrings, full OFL, outlines, metrics, actual weights and fsType are preserved.\nThis metadata check does not change the draft or acceptance status.\n\nThis is an adaptation with explicit approximations, not a pixel-identical\nport or a claim of full native GUI, Word, packaging or release acceptance.\nThose checks remain with the main task. No remote images, private resumes,\nruntime font requests or Resume JSON style extensions are used.\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-2",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W600",
+        "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b",
+        "text": "Source font family: Nunito\nExplicit internal family: Resume One Californian Nunito W600\nInput and copied output SHA-256: 62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b\nPreserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):\nCalifornian Warm - Resume One declarative adaptation\n\nAcceptance status: BLOCKED. This package does not meet the user's near-100%\nfidelity requirement and must not be registered or counted as a completed\nmigration. Render success and the disclosures below do not satisfy that gate.\nThe current renderer/spec cannot reproduce the primary rounded gradient\nheader, original card surfaces, nested skill cards, or all independent text\nroles/colors. Newly supported roles and the CW09 font correction below do\nnot constitute complete fidelity or export acceptance.\n\nOriginal project: JSON Resume contributors, jsonresume-theme-californian-warm\nOriginal package version: 0.2.10\nOriginal source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-californian-warm\nProject: https://github.com/jsonresume/jsonresume.org\nGallery: https://jsonresume.org/themes\nPinned revision: 542cd5315fc9995fca3c401d0c818767530bb6bd\nCopyright (c) 2014-2026 JSON Resume contributors\nTheme license: MIT; full original root license is reproduced in LICENSE.txt.\nThe theme subdirectory has no separate license or named author; attribution\nuses the repository copyright, without inventing an individual author.\nOriginal root license: https://github.com/jsonresume/jsonresume.org/blob/542cd5315fc9995fca3c401d0c818767530bb6bd/LICENSE\nLICENSE.txt SHA-256: 577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097\nAdaptation by Resume One contributors. Original authors do not endorse it.\n\nThis package was manually mapped from the actual pinned index.jsx,\nsrc/Resume.jsx and package.json, not promoted from the low-confidence static\ncandidate. It contains non-executable v2 JSON, licensed static fonts and\nnotices. No upstream React, JavaScript, CSS or template code is executed.\nSource file SHA-256 values:\nindex.jsx: 01783ef33275fb7c2764512a01ce1e281c2899d35d85941747d10200efea585c\nsrc/Resume.jsx: 23ea50d114928d7d0a112d612a0b50ce5e2e3a0b5055f30fafdde5d32076ea08\npackage.json: c9419db32f1fc1a4eb17f2101e872d0fa7a07a3bfae421c6b82660b4e6324e46\n\nPreserved design\nThe primary structure is a spacious, left-aligned single column: identity\nand summary in the header, ruled section headings, individual cards for\nwork/education/projects/volunteer and simpler information modules, skill\nkeyword chips and language chips. The first-choice family is still Nunito,\nincluding all four requested upright weights 400/600/700/800, instantiated\nand renamed into independent Resume One Californian Nunito W400/W600/W700/\nW800 families; see FONTS.txt and OFL.txt for the full source/rename lineage.\nAt 96 CSS px/in, the original 15px body, 48px name, 28px section title,\n22px item title and 14px metadata map to 11.25/36/21/16.5/10.5pt. The body\nline-height 1.8 and name line-height 1.2 are retained. Original 60px/50px\nscreen padding and 50px section gaps map to 15.875/13.229mm and 13.229mm.\nCream #FFF8F1, orange #EA580C, amber #D97706, brown #4D3319, dark amber\n#92400E, pale orange #FED7AA and pale cream #FEF5E7 remain explicit tokens.\nThe newly supported independent label role uses the source 20px/600\n(15pt/600), summary uses 16px/400 (12pt/400), and sideDate uses 14px/600\n(10.5pt/600), all with the source inherited line-height 1.8. sideDate only\nstyles left/right standalone dates; inline dates still use meta. Original\nname tracking -0.5px/48px is -1/96em (-0.375pt at 36pt); section-title\ntracking -0.3px/28px is -3/280em (-0.225pt at 21pt). Both now use supported\ntrackingEm. textTransform remains none, preserving original text case.\n\nSource-literal role color update (2026-10-30; exports pending)\nThe complete pinned src/Resume.jsx was reviewed again, including every\nstyled declaration and all module call sites. Five role foregrounds now\nuse typography.<role>.color rather than contrast-adjusted semantic tokens:\n- name #D97706: Name, line 42; identity in the header only (line 285).\n- sectionTitle #EA580C: StyledSectionTitle, line 96; the same component is\n  used for every original module heading, with no regional variant.\n- label #92400E: Tagline, line 49; basics.label only (line 286).\n- summary #4D3319: Summary, line 58; basics.summary only (line 287).\n- sideDate #92400E: ItemDate, line 142; work, education, projects and\n  volunteer standalone dates use this same component. Inline auxiliary\n  dates still use meta and are not covered by this literal.\nThese are exact CSS foreground declarations, not sampled or blended\napproximations. The new explicit-color contract preserves them without\nautomatic contrast rewriting. This resolves the name/body and label/accent\nforeground coupling and prevents section-title/summary/date foreground\ndarkening; it does not restore their missing surfaces or alpha treatment.\nTagline opacity 0.9 (line 52) and ItemDate opacity 0.8 (line 143) remain\nunrepresented, so their final composited appearance is still not matched.\nNo flattened opacity color was invented for the absent gradient or pill.\n\nbody, itemTitle and meta intentionally have no explicit color: body spans\nItemDescription / HighlightsList li #4D3319 (lines 168/182) and SimpleCard p\n#78350F (line 254), while Layout inherits #3D2A1F (line 20). itemTitle spans\nItemTitle / SimpleCard h4 #D97706 (lines 134/247) and SkillCategory h4\n#EA580C (line 209). meta spans contact links #D97706 (line 73), subtitles\n#78350F (line 153), locations #A16207 with opacity 0.9 (lines 159/162),\nand small-card auxiliary text #78350F (line 254). A single global literal\nwould incorrectly erase these differences, even in a single-column theme.\nThose roles retain the existing semantic colors; independent module/field\ncolors, link/chip colors and opacity remain renderer/spec blockers.\n\nFollow-up CLI validation and PDF/DOCX exports used the role-color-capable\nrenderer and this exact manifest. The English all-module fixture generated\nthree PDF pages and three LibreOffice-rendered DOCX pages; the short Chinese\nfixture generated one page in each format. All eight page images were\ninspected. A later short-Chinese DOCX check explicitly splits missing-glyph\nspans into real upright Noto Sans SC runs, avoiding reader-synthesized CJK\nbold. These export checks do not certify the original theme's appearance.\nArtifacts: target/community-californian-warm-qa/role-color-20261030/.\nSource evidence and before/after manifest hashes are recorded in\ntarget/community-californian-warm-qa/role-color-source-20261030.json.\nAcceptance remains BLOCKED; no registry, font or license file is changed.\n\nEnumerated differences and renderer limits\n1. The original gradient header (#FEF5E7 to #FEF0DC), 40px inner padding,\n   20px rounded corners and amber web shadow are unavailable. The header\n   stays a full-width, unboxed semantic header. No unsupported decorations\n   or arbitrary CSS are emitted. The pale cream canvas uses the gradient's\n   first endpoint, without claiming a gradient rendering.\n2. Summary remains associated with the header, but the renderer places\n   contacts before the summary; upstream puts summary before contacts.\n   Its original 16px/400 size and the separate 20px/600 tagline are now\n   declared through summary and label respectively. The white translucent\n   inset, 20px padding, 12px radius and 4px amber left border remain\n   unavailable, as do the tagline's opacity and independent margins. Its\n   declared foreground is now exactly #92400E; alpha composition is not.\n3. Source work/education/project/volunteer cards are white, borderless,\n   padded 30px, radius 16px and softly shadowed. Simple cards use 24px,\n   radius 14px. Supported cards use a thin rectangular border, 8pt inner\n   horizontal padding and the renderer's readable, lightly tinted paper.\n   Web shadows, radii, individual padding, 40px item gaps, hover transforms\n   and transitions are unavailable and omitted. Large type, generous line\n   height and section gaps retain the spacious humanist hierarchy.\n4. Skills cannot combine an outer card and nested chips in one module.\n   Keyword chips are retained; the source category's padded shadowed card\n   is omitted. Language names use chips, with fluency retained as separate\n   semantic text rather than combined inside each chip. Chip gradients\n   (#FEF3C7 to #FDE68A), 12px radius, 10px/18px padding and hover effects\n   become the renderer's flat, bounded text backgrounds. Interest cards\n   and reference cards remain distinct from the chip modules.\n5. Right-side dates for work/education/projects/volunteer retain their\n   position and independent source 14px/600 sideDate role, but lose the\n   #FEF3C7 pill, 20px radius and source opacity. Auxiliary dates in simple\n   cards remain inline and use meta, not sideDate. A long date may wrap\n   under its title to preserve content; no white-space:nowrap is imposed.\n6. Exact name, section-title, label, summary and standalone-date foreground\n   declarations are now independent, as documented above. Body, itemTitle\n   and meta remain globally shared across source elements with different\n   colors and therefore deliberately keep the old semantic-color behavior.\n   The common body ink #4D3319 still cannot express SimpleCard p #78350F\n   or inherited #3D2A1F; a global itemTitle literal cannot distinguish\n   amber #D97706 titles from orange #EA580C skill categories. Auxiliary\n   text still cannot separate subtitle #78350F, location #A16207 and\n   contact-link #D97706. The omitted role colors may still be contrast\n   adjusted by the renderer, unlike the five explicit role literals.\n7. Section rules use the original pale orange #FED7AA, but their supported\n   0.6pt thickness differs from the source 3px (2.25pt) border and fixed\n   12px padding. Contact links use inline text with semantic separators,\n   without the original amber backgrounds, rounded 8px contact boxes,\n   per-link 8px/16px padding or 20px flex gaps. Star-shaped highlight\n   markers become standard semantic bullets.\n8. Source negative letter spacing (-0.5px name, -0.3px section title) now\n   maps to the exact em ratios above. DOCX rounds character spacing to\n   1/20pt; it cannot exactly store -0.375pt or -0.225pt, so final Word\n   spacing remains a separate check. Italic roles are unsupported and\n   not emitted; this source requests upright fonts only.\n   Separate organization/subtitle, skill-title and small-card font roles\n   still share supported roles. Their original 18px title and\n   14px small-card body sizes cannot be configured independently.\n9. The upstream component fixes module order in React. The manifest offers\n   modules in that order, but the renderer preserves existing Resume JSON\n   order and its semantic item labels/field mappings. Additional standard\n   content stays visible, including fields upstream conditionals omit;\n   no content is added to the theme or removed from the resume.\n10. The web page's 820px maximum width and special white print background\n    with 40px/30px padding become explicit A4 pagination and stable screen\n    cream paper. Both pagination flags remain enabled. Earlier CLI stress\n    evidence exposed CW10: an oversized first card could leave the section\n    heading alone on a page. The main agent has since implemented shared\n    oversized-card pagination changes; those historical outputs do not\n    establish the current behavior. This font/role update performs no new\n    pagination export and makes no new pagination acceptance claim.\n    The renderer's page footer is application controlled. Letter QA uses\n    a separate theme copy; the package defaults to A4.\n11. Nunito has no CJK glyphs; Chinese uses the application's explicit Noto\n    fallback rather than the web operating-system fallback chain. The\n    variable source was initially instantiated at fixed weights. CW09\n    now renames each approved static face to its own family W400/W600/\n    W700/W800. Only name metadata and the required head checksum adjustment\n    change; all outline, metric, shaping and permission tables remain\n    byte-identical. Original copyright, full OFL, fsType=0 and real weights\n    400/600/700/800 are preserved. This removes the candidate's shared\n    family/bold-slot collision by giving each face a distinct family key.\n    Actual DOCX slot embedding, weight selection and Word reflow are still\n    the main agent's checks; this update claims no new DOCX/PDF results or\n    pixel equivalence. No local or system font installation is performed.\n\nFollow-up font identity audit (2026-10-30): all four final static faces were\nchecked across every name-table platform/encoding/language record. nameID\n18 and 25 are absent; existing WWS names 21/22 already match the independent\naliases and subfamilies. The helper now remaps existing optional compatible\nfull names and variation PostScript prefixes if present. A separate QA\nregeneration reproduced all four current fonts byte-for-byte, so their\nasset SHA-256 values and family names remain unchanged. Copyright/license\nstrings, full OFL, outlines, metrics, actual weights and fsType are preserved.\nThis metadata check does not change the draft or acceptance status.\n\nThis is an adaptation with explicit approximations, not a pixel-identical\nport or a claim of full native GUI, Word, packaging or release acceptance.\nThose checks remain with the main task. No remote images, private resumes,\nruntime font requests or Resume JSON style extensions are used.\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-1",
+        "sourceFamily": "Nunito",
+        "fontFamily": "Resume One Californian Nunito W700",
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "text": "Source font family: Nunito\nExplicit internal family: Resume One Californian Nunito W700\nInput and copied output SHA-256: 992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139\nPreserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):\nCalifornian Warm - Resume One declarative adaptation\n\nAcceptance status: BLOCKED. This package does not meet the user's near-100%\nfidelity requirement and must not be registered or counted as a completed\nmigration. Render success and the disclosures below do not satisfy that gate.\nThe current renderer/spec cannot reproduce the primary rounded gradient\nheader, original card surfaces, nested skill cards, or all independent text\nroles/colors. Newly supported roles and the CW09 font correction below do\nnot constitute complete fidelity or export acceptance.\n\nOriginal project: JSON Resume contributors, jsonresume-theme-californian-warm\nOriginal package version: 0.2.10\nOriginal source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-californian-warm\nProject: https://github.com/jsonresume/jsonresume.org\nGallery: https://jsonresume.org/themes\nPinned revision: 542cd5315fc9995fca3c401d0c818767530bb6bd\nCopyright (c) 2014-2026 JSON Resume contributors\nTheme license: MIT; full original root license is reproduced in LICENSE.txt.\nThe theme subdirectory has no separate license or named author; attribution\nuses the repository copyright, without inventing an individual author.\nOriginal root license: https://github.com/jsonresume/jsonresume.org/blob/542cd5315fc9995fca3c401d0c818767530bb6bd/LICENSE\nLICENSE.txt SHA-256: 577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097\nAdaptation by Resume One contributors. Original authors do not endorse it.\n\nThis package was manually mapped from the actual pinned index.jsx,\nsrc/Resume.jsx and package.json, not promoted from the low-confidence static\ncandidate. It contains non-executable v2 JSON, licensed static fonts and\nnotices. No upstream React, JavaScript, CSS or template code is executed.\nSource file SHA-256 values:\nindex.jsx: 01783ef33275fb7c2764512a01ce1e281c2899d35d85941747d10200efea585c\nsrc/Resume.jsx: 23ea50d114928d7d0a112d612a0b50ce5e2e3a0b5055f30fafdde5d32076ea08\npackage.json: c9419db32f1fc1a4eb17f2101e872d0fa7a07a3bfae421c6b82660b4e6324e46\n\nPreserved design\nThe primary structure is a spacious, left-aligned single column: identity\nand summary in the header, ruled section headings, individual cards for\nwork/education/projects/volunteer and simpler information modules, skill\nkeyword chips and language chips. The first-choice family is still Nunito,\nincluding all four requested upright weights 400/600/700/800, instantiated\nand renamed into independent Resume One Californian Nunito W400/W600/W700/\nW800 families; see FONTS.txt and OFL.txt for the full source/rename lineage.\nAt 96 CSS px/in, the original 15px body, 48px name, 28px section title,\n22px item title and 14px metadata map to 11.25/36/21/16.5/10.5pt. The body\nline-height 1.8 and name line-height 1.2 are retained. Original 60px/50px\nscreen padding and 50px section gaps map to 15.875/13.229mm and 13.229mm.\nCream #FFF8F1, orange #EA580C, amber #D97706, brown #4D3319, dark amber\n#92400E, pale orange #FED7AA and pale cream #FEF5E7 remain explicit tokens.\nThe newly supported independent label role uses the source 20px/600\n(15pt/600), summary uses 16px/400 (12pt/400), and sideDate uses 14px/600\n(10.5pt/600), all with the source inherited line-height 1.8. sideDate only\nstyles left/right standalone dates; inline dates still use meta. Original\nname tracking -0.5px/48px is -1/96em (-0.375pt at 36pt); section-title\ntracking -0.3px/28px is -3/280em (-0.225pt at 21pt). Both now use supported\ntrackingEm. textTransform remains none, preserving original text case.\n\nSource-literal role color update (2026-10-30; exports pending)\nThe complete pinned src/Resume.jsx was reviewed again, including every\nstyled declaration and all module call sites. Five role foregrounds now\nuse typography.<role>.color rather than contrast-adjusted semantic tokens:\n- name #D97706: Name, line 42; identity in the header only (line 285).\n- sectionTitle #EA580C: StyledSectionTitle, line 96; the same component is\n  used for every original module heading, with no regional variant.\n- label #92400E: Tagline, line 49; basics.label only (line 286).\n- summary #4D3319: Summary, line 58; basics.summary only (line 287).\n- sideDate #92400E: ItemDate, line 142; work, education, projects and\n  volunteer standalone dates use this same component. Inline auxiliary\n  dates still use meta and are not covered by this literal.\nThese are exact CSS foreground declarations, not sampled or blended\napproximations. The new explicit-color contract preserves them without\nautomatic contrast rewriting. This resolves the name/body and label/accent\nforeground coupling and prevents section-title/summary/date foreground\ndarkening; it does not restore their missing surfaces or alpha treatment.\nTagline opacity 0.9 (line 52) and ItemDate opacity 0.8 (line 143) remain\nunrepresented, so their final composited appearance is still not matched.\nNo flattened opacity color was invented for the absent gradient or pill.\n\nbody, itemTitle and meta intentionally have no explicit color: body spans\nItemDescription / HighlightsList li #4D3319 (lines 168/182) and SimpleCard p\n#78350F (line 254), while Layout inherits #3D2A1F (line 20). itemTitle spans\nItemTitle / SimpleCard h4 #D97706 (lines 134/247) and SkillCategory h4\n#EA580C (line 209). meta spans contact links #D97706 (line 73), subtitles\n#78350F (line 153), locations #A16207 with opacity 0.9 (lines 159/162),\nand small-card auxiliary text #78350F (line 254). A single global literal\nwould incorrectly erase these differences, even in a single-column theme.\nThose roles retain the existing semantic colors; independent module/field\ncolors, link/chip colors and opacity remain renderer/spec blockers.\n\nFollow-up CLI validation and PDF/DOCX exports used the role-color-capable\nrenderer and this exact manifest. The English all-module fixture generated\nthree PDF pages and three LibreOffice-rendered DOCX pages; the short Chinese\nfixture generated one page in each format. All eight page images were\ninspected. A later short-Chinese DOCX check explicitly splits missing-glyph\nspans into real upright Noto Sans SC runs, avoiding reader-synthesized CJK\nbold. These export checks do not certify the original theme's appearance.\nArtifacts: target/community-californian-warm-qa/role-color-20261030/.\nSource evidence and before/after manifest hashes are recorded in\ntarget/community-californian-warm-qa/role-color-source-20261030.json.\nAcceptance remains BLOCKED; no registry, font or license file is changed.\n\nEnumerated differences and renderer limits\n1. The original gradient header (#FEF5E7 to #FEF0DC), 40px inner padding,\n   20px rounded corners and amber web shadow are unavailable. The header\n   stays a full-width, unboxed semantic header. No unsupported decorations\n   or arbitrary CSS are emitted. The pale cream canvas uses the gradient's\n   first endpoint, without claiming a gradient rendering.\n2. Summary remains associated with the header, but the renderer places\n   contacts before the summary; upstream puts summary before contacts.\n   Its original 16px/400 size and the separate 20px/600 tagline are now\n   declared through summary and label respectively. The white translucent\n   inset, 20px padding, 12px radius and 4px amber left border remain\n   unavailable, as do the tagline's opacity and independent margins. Its\n   declared foreground is now exactly #92400E; alpha composition is not.\n3. Source work/education/project/volunteer cards are white, borderless,\n   padded 30px, radius 16px and softly shadowed. Simple cards use 24px,\n   radius 14px. Supported cards use a thin rectangular border, 8pt inner\n   horizontal padding and the renderer's readable, lightly tinted paper.\n   Web shadows, radii, individual padding, 40px item gaps, hover transforms\n   and transitions are unavailable and omitted. Large type, generous line\n   height and section gaps retain the spacious humanist hierarchy.\n4. Skills cannot combine an outer card and nested chips in one module.\n   Keyword chips are retained; the source category's padded shadowed card\n   is omitted. Language names use chips, with fluency retained as separate\n   semantic text rather than combined inside each chip. Chip gradients\n   (#FEF3C7 to #FDE68A), 12px radius, 10px/18px padding and hover effects\n   become the renderer's flat, bounded text backgrounds. Interest cards\n   and reference cards remain distinct from the chip modules.\n5. Right-side dates for work/education/projects/volunteer retain their\n   position and independent source 14px/600 sideDate role, but lose the\n   #FEF3C7 pill, 20px radius and source opacity. Auxiliary dates in simple\n   cards remain inline and use meta, not sideDate. A long date may wrap\n   under its title to preserve content; no white-space:nowrap is imposed.\n6. Exact name, section-title, label, summary and standalone-date foreground\n   declarations are now independent, as documented above. Body, itemTitle\n   and meta remain globally shared across source elements with different\n   colors and therefore deliberately keep the old semantic-color behavior.\n   The common body ink #4D3319 still cannot express SimpleCard p #78350F\n   or inherited #3D2A1F; a global itemTitle literal cannot distinguish\n   amber #D97706 titles from orange #EA580C skill categories. Auxiliary\n   text still cannot separate subtitle #78350F, location #A16207 and\n   contact-link #D97706. The omitted role colors may still be contrast\n   adjusted by the renderer, unlike the five explicit role literals.\n7. Section rules use the original pale orange #FED7AA, but their supported\n   0.6pt thickness differs from the source 3px (2.25pt) border and fixed\n   12px padding. Contact links use inline text with semantic separators,\n   without the original amber backgrounds, rounded 8px contact boxes,\n   per-link 8px/16px padding or 20px flex gaps. Star-shaped highlight\n   markers become standard semantic bullets.\n8. Source negative letter spacing (-0.5px name, -0.3px section title) now\n   maps to the exact em ratios above. DOCX rounds character spacing to\n   1/20pt; it cannot exactly store -0.375pt or -0.225pt, so final Word\n   spacing remains a separate check. Italic roles are unsupported and\n   not emitted; this source requests upright fonts only.\n   Separate organization/subtitle, skill-title and small-card font roles\n   still share supported roles. Their original 18px title and\n   14px small-card body sizes cannot be configured independently.\n9. The upstream component fixes module order in React. The manifest offers\n   modules in that order, but the renderer preserves existing Resume JSON\n   order and its semantic item labels/field mappings. Additional standard\n   content stays visible, including fields upstream conditionals omit;\n   no content is added to the theme or removed from the resume.\n10. The web page's 820px maximum width and special white print background\n    with 40px/30px padding become explicit A4 pagination and stable screen\n    cream paper. Both pagination flags remain enabled. Earlier CLI stress\n    evidence exposed CW10: an oversized first card could leave the section\n    heading alone on a page. The main agent has since implemented shared\n    oversized-card pagination changes; those historical outputs do not\n    establish the current behavior. This font/role update performs no new\n    pagination export and makes no new pagination acceptance claim.\n    The renderer's page footer is application controlled. Letter QA uses\n    a separate theme copy; the package defaults to A4.\n11. Nunito has no CJK glyphs; Chinese uses the application's explicit Noto\n    fallback rather than the web operating-system fallback chain. The\n    variable source was initially instantiated at fixed weights. CW09\n    now renames each approved static face to its own family W400/W600/\n    W700/W800. Only name metadata and the required head checksum adjustment\n    change; all outline, metric, shaping and permission tables remain\n    byte-identical. Original copyright, full OFL, fsType=0 and real weights\n    400/600/700/800 are preserved. This removes the candidate's shared\n    family/bold-slot collision by giving each face a distinct family key.\n    Actual DOCX slot embedding, weight selection and Word reflow are still\n    the main agent's checks; this update claims no new DOCX/PDF results or\n    pixel equivalence. No local or system font installation is performed.\n\nFollow-up font identity audit (2026-10-30): all four final static faces were\nchecked across every name-table platform/encoding/language record. nameID\n18 and 25 are absent; existing WWS names 21/22 already match the independent\naliases and subfamilies. The helper now remaps existing optional compatible\nfull names and variation PostScript prefixes if present. A separate QA\nregeneration reproduced all four current fonts byte-for-byte, so their\nasset SHA-256 values and family names remain unchanged. Copyright/license\nstrings, full OFL, outlines, metrics, actual weights and fsType are preserved.\nThis metadata check does not change the draft or acceptance status.\n\nThis is an adaptation with explicit approximations, not a pixel-identical\nport or a claim of full native GUI, Word, packaging or release acceptance.\nThose checks remain with the main task. No remote images, private resumes,\nruntime font requests or Resume JSON style extensions are used.\n",
+        "declarationVerified": false
+      }
+    ],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -15853,8 +17336,218 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Professional Experience",
+        "module": "work",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 8305,
+        "endByte": 8365
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Education",
+        "module": "education",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 9254,
+        "endByte": 9300
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Skills",
+        "module": "skills",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 10022,
+        "endByte": 10065
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Projects",
+        "module": "projects",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 10688,
+        "endByte": 10733
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 12898,
+        "endByte": 12947
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 13859,
+        "endByte": 13905
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 14286,
+        "endByte": 14332
+      },
+      {
+        "file": "src/Resume.jsx",
+        "tag": "MainSectionTitle",
+        "title": "References",
+        "module": "references",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 15001,
+        "endByte": 15048
+      }
+    ],
+    "moduleHeadingTag": null,
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ],
+    "orderSource": "src/Resume.jsx",
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 43,
+      "affectedCssBlocks": 2,
+      "originalDeclarations": 254,
+      "projectedDeclarations": 2,
+      "positiveMediaDeclarations": 2,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 256,
+      "skipped": {},
+      "evidenceRecords": 2,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [
+      {
+        "file": "src/Resume.jsx",
+        "component": "Layout",
+        "cssPath": "/syntaxEvidence/1/styledComponents/0/css",
+        "span": {
+          "file": "src/Resume.jsx",
+          "startByte": 458,
+          "endByte": 472,
+          "line": 24,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 8,
+          "projectedDeclarationIndex": 9,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/Resume.jsx#literal-203.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/2/styles",
+        "span": {
+          "file": "src/Resume.jsx#literal-203.css",
+          "startByte": 254,
+          "endByte": 268,
+          "line": 13,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 8,
+          "projectedDeclarationIndex": 9,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      }
+    ],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/community-garden.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -15863,37 +17556,10 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
-        "pages": 4,
-        "textLines": 67,
-        "sections": [
-          "awards",
-          "basics",
-          "certificates",
-          "education",
-          "interests",
-          "languages",
-          "projects",
-          "publications",
-          "references",
-          "skills",
-          "volunteer",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14925239,
-        "docxBytes": 18051303
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
-        "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
-        "schemaValid": true,
-        "pages": 4,
+        "pages": 3,
         "textLines": 65,
         "sections": [
           "awards",
@@ -15913,15 +17579,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14926858,
-        "docxBytes": 18050820
+        "pdfBytes": 15110467,
+        "docxBytes": 18278439
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
-        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
-        "pages": 8,
-        "textLines": 164,
+        "pages": 3,
+        "textLines": 90,
         "sections": [
           "awards",
           "basics",
@@ -15940,11 +17606,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14931930,
-        "docxBytes": 18051442
+        "pdfBytes": 15111667,
+        "docxBytes": 18278377
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -15958,12 +17624,39 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918818,
-        "docxBytes": 18048076
+        "pdfBytes": 6361644,
+        "docxBytes": 18275058
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "schemaValid": true,
+        "pages": 8,
+        "textLines": 210,
+        "sections": [
+          "awards",
+          "basics",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 15117842,
+        "docxBytes": 18280672
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "05e4775b09a65db27b4e3352cbd033cdd4178d3a1f078adeeef7f15d6771c004"
+  "candidateSha256": "a443835facaab469a6e7e556a06a97f6ecb00227e42020c143ccad8a34d26106"
 }

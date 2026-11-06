@@ -1,76 +1,126 @@
 {
   "formatVersion": 2,
   "id": "community-rickosborne",
-  "name": "Rick Osborne",
-  "description": "轻衬线双栏 · 独立联系方式 · 灰阶标签",
+  "name": "Rickosborne",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
   "version": "1.0.0",
   "license": "CC-BY-NC-SA-4.0",
-  "layout": "minimal",
+  "layout": "classic",
   "colors": {
-    "accent": "#666666",
-    "seal": "#224488",
+    "accent": "#444444",
+    "seal": "#334155",
     "paper": "#FFFFFF",
-    "canvas": "#E6E6E6",
-    "ink": "#222222",
+    "canvas": "#F5F3EE",
+    "ink": "#444444",
     "muted": "#666666",
-    "border": "#EEEEEE",
-    "sidebar": "#FFFFFF"
+    "border": "#CBD5E1"
   },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": {
-    "size": "A4",
-    "marginsMm": {"top": 14, "right": 14, "bottom": 14, "left": 14},
-    "sectionGapMm": 3.5,
-    "avoidSplitItems": true,
-    "keepHeadingWithFirstItem": true
-  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
   "typography": {
-    "body": {"family": "asset:light", "sizePt": 8.75, "weight": 200, "lineHeight": 1.3},
-    "name": {"family": "asset:light", "sizePt": 17.5, "weight": 200, "lineHeight": 1.6},
-    "sectionTitle": {"family": "asset:regular", "sizePt": 8.75, "weight": 400, "lineHeight": 1.6},
-    "itemTitle": {"family": "asset:regular", "sizePt": 8.75, "weight": 400, "lineHeight": 1.3},
-    "meta": {"family": "asset:light", "sizePt": 8.75, "weight": 200, "lineHeight": 1.3}
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 8.75,
+      "weight": 400,
+      "lineHeight": 1.2,
+      "fontStyle": "normal",
+      "color": "#444444"
+    },
+    "name": {
+      "family": "cjk-serif",
+      "sizePt": 17.5,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "color": "#222222",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#444444"
+    },
+    "summary": {
+      "family": "cjk-sans",
+      "sizePt": 8.75,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "color": "#222222"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 8.75,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "textTransform": "uppercase",
+      "color": "#444444"
+    },
+    "itemTitle": {
+      "family": "cjk-sans",
+      "sizePt": 8.75,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "color": "#222222"
+    },
+    "meta": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "trackingEm": -0.05,
+      "color": "#666666"
+    },
+    "sideDate": {
+      "family": "cjk-sans",
+      "sizePt": 8.5,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "color": "#222222"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "avoidSplitItems": false
   },
   "composition": {
     "preset": "sidebar-right",
-    "sidebarWidthPct": 32,
-    "gapMm": 6,
-    "header": "stacked",
-    "contact": "stacked",
+    "sidebarWidthPct": 30.0,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "interests": "sidebar",
+      "certificates": "sidebar"
+    },
+    "contactRegion": "sidebar",
     "headerRegion": "main",
     "summaryRegion": "main",
-    "contactRegion": "sidebar",
-    "sidebarTypographyScale": 0.9,
-    "placements": {
-      "languages": "sidebar", "certificates": "sidebar", "publications": "sidebar",
-      "awards": "sidebar", "projects": "sidebar", "skills": "sidebar", "interests": "sidebar"
-    }
+    "sidebarTypographyScale": 0.8999999999999999
   },
-  "sections": {
-    "work": {"items": "compact"},
-    "volunteer": {"items": "compact"},
-    "education": {"items": "compact"},
-    "references": {"items": "compact"},
-    "awards": {"items": "compact"},
-    "certificates": {"items": "compact"},
-    "publications": {"items": "compact"},
-    "projects": {"items": "compact"},
-    "skills": {"items": "chips"},
-    "interests": {"items": "chips"},
-    "languages": {"items": "compact"}
-  },
-  "assets": {
-    "fonts": [
-      {"id": "light", "path": "normal-200.ttf", "sha256": "b534b9bc17eb14f941c073323371ef2d068858275f2160d7268f43cbbfcd00e1", "license": "Apache-2.0"},
-      {"id": "regular", "path": "normal-400.ttf", "sha256": "c5519b8e805f3fff1a0912723021bd217f894b2adcf89357303a36de1526124a", "license": "Apache-2.0"}
-    ]
-  },
+  "sections": {},
   "provenance": {
-    "upstreamUrl": "https://github.com/rickosborne/jsonresume-theme-rickosborne",
-    "upstreamRevision": "2022.09.16-T1450",
-    "upstreamAuthor": "Rick Osborne (https://rickosborne.org)",
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
     "upstreamLicense": "CC-BY-NC-SA-4.0",
-    "migratedBy": "Resume One contributors",
-    "fidelity": "adapted"
+    "upstreamAuthor": "Rick Osborne (https://rickosborne.org)",
+    "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-rickosborne/v/2022.9.16-T1450",
+    "upstreamRevision": "2022.9.16-T1450"
   }
 }

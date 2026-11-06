@@ -40,10 +40,10 @@
     },
     "name": {
       "family": "cjk-serif",
-      "sizePt": 26.0,
+      "sizePt": 42.0,
       "weight": 600,
       "lineHeight": 1.0,
-      "trackingEm": 0.0,
+      "trackingEm": -0.03571428571428571,
       "textTransform": "uppercase",
       "fontStyle": "normal"
     },
@@ -51,7 +51,7 @@
       "family": "cjk-sans",
       "sizePt": 18.0,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": 0.020833333333333332,
       "fontStyle": "normal"
     },
@@ -67,7 +67,7 @@
       "family": "cjk-serif",
       "sizePt": 10.5,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": 0.14285714285714285,
       "textTransform": "uppercase",
       "color": "#0F766E",
@@ -77,7 +77,7 @@
       "family": "cjk-serif",
       "sizePt": 15.0,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": -0.025,
       "textTransform": "uppercase",
       "color": "#111827",
@@ -87,14 +87,14 @@
       "family": "cjk-sans",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "color": "#4B5563"
     },
     "sideDate": {
       "family": "cjk-sans",
       "sizePt": 10.5,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": 0.07142857142857142,
       "textTransform": "uppercase",
       "color": "#6B7280"
@@ -102,49 +102,73 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
+      "top": 20.06,
       "right": 16.0,
       "bottom": 16.0,
-      "left": 6.35
+      "left": 16.0
     },
     "sectionGapMm": 15.875
   },
   "composition": {
-    "preset": "single-column"
+    "preset": "single-column",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "education",
+      "projects",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ]
   },
   "sections": {
     "awards": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Awards"
     },
     "certificates": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Certificates"
     },
     "education": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Education"
     },
     "interests": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Interests"
     },
     "languages": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Languages"
     },
     "projects": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Projects"
     },
     "publications": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Publications"
     },
     "references": {
-      "heading": "line"
+      "heading": "line",
+      "title": "References"
     },
     "skills": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Skills"
     },
     "volunteer": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Volunteer"
     },
     "work": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Experience"
     }
   },
   "provenance": {

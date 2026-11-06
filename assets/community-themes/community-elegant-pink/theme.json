@@ -13,7 +13,7 @@
     "canvas": "#F5F3EE",
     "ink": "#1F2937",
     "muted": "#374151",
-    "border": "#F3F4F6"
+    "border": "#E5E7EB"
   },
   "modules": [
     "basics",
@@ -31,81 +31,82 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 11.0,
       "weight": 400,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
+      "fontStyle": "italic",
       "color": "#1F2937"
     },
     "name": {
-      "family": "cjk-serif",
-      "sizePt": 42.0,
-      "weight": 600,
+      "family": "asset:font-1",
+      "sizePt": 36.0,
+      "weight": 800,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
-      "trackingEm": -0.017857142857142856
+      "trackingEm": -0.020833333333333332,
+      "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "asset:font-3",
       "sizePt": 16.5,
-      "weight": 600,
+      "weight": 500,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
-      "trackingEm": 0.013636363636363636
+      "trackingEm": 0.013636363636363636,
+      "fontStyle": "normal"
     },
     "summary": {
       "family": "cjk-sans",
       "sizePt": 13.5,
       "weight": 400,
       "lineHeight": 1.8,
-      "fontStyle": "normal",
-      "color": "#374151"
+      "color": "#374151",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 19.5,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
       "trackingEm": 0.038461538461538464,
       "textTransform": "uppercase",
-      "color": "#9F1239"
+      "color": "#9F1239",
+      "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 13.5,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
       "trackingEm": 0.027777777777777776,
       "textTransform": "uppercase",
-      "color": "#9F1239"
+      "color": "#9F1239",
+      "fontStyle": "normal"
     },
     "meta": {
       "family": "cjk-serif",
       "sizePt": 12.0,
       "weight": 600,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
-      "color": "#374151"
+      "color": "#374151",
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-serif",
+      "family": "asset:font-3",
       "sizePt": 10.5,
-      "weight": 600,
+      "weight": 500,
       "lineHeight": 1.6,
-      "fontStyle": "normal",
-      "color": "#6B7280"
+      "color": "#6B7280",
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 20.06,
-      "right": 15.875,
-      "bottom": 21.166666666666668,
-      "left": 5.291666666666667
-    }
+      "top": 17.62,
+      "right": 10.583333333333334,
+      "bottom": 10.583333333333334,
+      "left": 10.583333333333334
+    },
+    "size": "A4"
   },
   "composition": {
     "preset": "single-column",
@@ -119,24 +120,44 @@
     ]
   },
   "sections": {
+    "awards": {
+      "items": "cards"
+    },
+    "certificates": {
+      "items": "cards",
+      "title": "Certifications"
+    },
+    "education": {
+      "items": "cards",
+      "title": "Education"
+    },
+    "interests": {
+      "items": "cards",
+      "title": "Interests"
+    },
+    "languages": {
+      "items": "cards",
+      "title": "Languages"
+    },
+    "projects": {
+      "items": "cards"
+    },
+    "publications": {
+      "items": "cards",
+      "title": "Publications"
+    },
+    "references": {
+      "items": "cards"
+    },
+    "skills": {
+      "items": "cards"
+    },
+    "volunteer": {
+      "items": "cards"
+    },
     "work": {
       "items": "cards",
       "title": "Professional Experience"
-    },
-    "education": {
-      "title": "Education"
-    },
-    "certificates": {
-      "title": "Certifications"
-    },
-    "publications": {
-      "title": "Publications"
-    },
-    "languages": {
-      "title": "Languages"
-    },
-    "interests": {
-      "title": "Interests"
     }
   },
   "provenance": {
@@ -145,5 +166,33 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-elegant-pink",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "00dcdacf443a9b2addc7f091aa4d4ab95ba44b20dacaedcc0db624d9da1a1ea4",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

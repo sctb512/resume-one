@@ -1,309 +1,90 @@
-Executive Slate - Resume One declarative adaptation candidate
-
-STATUS: NOT ACCEPTED FOR HIGH-FIDELITY RELEASE. A loadable manifest and a
-disclosure of differences do not establish near-100% visual fidelity.
-The renderer/spec gaps below are blocking, not accepted exceptions.
-Native GUI acceptance, integration and release registration are separate
-work owned by the main task. This package makes no claim of full acceptance.
-2026-10-30 revision: independent internal families for all three static
-faces, explicit label/summary/sideDate roles, and supported tracking/case.
-This corrects font identity collisions; it is not native Word acceptance.
-
-SOURCE, AUTHORSHIP AND PERMISSIONS
-Original package: jsonresume-theme-executive-slate, version 1.1.9.
-Original author attribution: JSON Resume contributors, from the collection
-copyright notice. The package does not name a separate individual author.
+Executive Slate — Resume One best-effort declarative adaptation
 Source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-executive-slate
-Pinned revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
-Inspected cached files: package.json, src/Resume.jsx, src/index.jsx.
-The package declares MIT and supplies no package-local license file. The
-full collection-root MIT license at that revision is retained in LICENSE.txt:
-https://github.com/jsonresume/jsonresume.org/blob/542cd5315fc9995fca3c401d0c818767530bb6bd/LICENSE
-Adapted by Resume One contributors; no upstream endorsement is implied.
+Revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
 
-Only static source inspection was used. No upstream JavaScript, JSX, CSS,
-build scripts or remote images were executed or loaded. Rendering uses
-declarative v2 JSON and local static fonts. The source resume is not modified.
+Font font-0 (3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f):
+Source font family: Merriweather
+Explicit internal family: Resume One Academic Serif W700
+Input and copied output SHA-256: 3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f
+Preserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):
+Academic CV Lite - Resume One declarative adaptation
 
-PRESERVED STRUCTURE AND MEASURABLE VALUES
-The identity, contact information, skills, education and languages occupy a
-dark LEFT sidebar. The summary starts the main column; work, projects,
-volunteering, awards, certificates, publications, interests and references
-are also in main. Contacts stack. Work/volunteer dates align to the right.
-The sidebar uses the exact upstream PRINT solid slate #475569; the screen
-gradient is not reproduced. Main paper is #FFFFFF, ink #334155, headings
-#475569 and date metadata #6B7280, all from Resume.jsx. Border #94A3B8 is
-the upstream short rule accent, reused as the available single border token.
-The application canvas #F1F5F9 is an adaptation choice, not an upstream value.
-Main summary/body 15px maps to 11.25pt, main section titles 24px to 18pt,
-main work/project titles 20px to 15pt, and dates 14px to 10.5pt. Body line
-height 1.8 and name line height 1.2 match explicit source values. Name size
-33.75pt before sidebar scale 0.8 yields the source's 36px / 27pt name.
-Label now uses the actual 500 face at 14.0625pt before sidebar scale 0.8,
-yielding the original 15px / 11.25pt. Its +0.5px tracking is 1/30 em.
-Summary uses the 400 face at the source's 15px / 11.25pt and 1.8 line height.
-Side dates use their own 500 face at 14px / 10.5pt, independently of metadata.
-Name tracking is -0.5px / 36px = -1/72 em, yielding -0.375pt after scaling.
-Main section tracking is +1.5px / 24px = 1/16 em. Label and section headings
-are uppercase presentation only; no resume JSON or module text is rewritten.
-Declared asset weights are the actual static weights. The application
-continues to use its explicit CJK fallback for unavailable glyphs. Native
-Word's style matching / synthetic styling has not been accepted by this task.
+Original author: JSON Resume contributors
+Original source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-academic-cv-lite
+Source revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+Theme package version: 0.2.9
+Theme license: MIT (LICENSE.txt). No package-specific license file was supplied; the collection-root MIT license applies to this package.
+Adapted by Resume One contributors. No endorsement by the original authors.
 
-SOURCE-LITERAL ROLE COLOR UPDATE 2026-10-30 (EXPORTS CHECKED; FIDELITY BLOCKED)
-The complete pinned src/Resume.jsx, including all component declarations
-and actual sidebar/main call sites, was reviewed again. Only roles with a
-single source color in every region where this manifest uses them receive
-typography.<role>.color:
-- name #FFFFFF: Name's explicit CSS white (line 58), used only for the
-  sidebar identity (line 310). This is exact white, not a readable-color mix.
-- label #CBD5E1: Label (line 66), sidebar basics.label only (line 311).
-- summary #475569: Summary (line 92), main basics.summary only (line 364).
-- sideDate #6B7280: DateText (line 170), main work/volunteer right-side
-  dates only (lines 376-381 and 428-433). Sidebar education dates remain
-  inline meta, not sideDate (lines 337-343); they are not recolored here.
-Under the new explicit-color contract these exact foregrounds are not
-automatically contrast rewritten. This resolves the sidebar identity and
-label foreground approximation and the main summary's old #334155 mismatch;
-it also pins main standalone dates to their source foreground. It does not
-resolve any background, typography, regional geometry or spacing blocker.
+This package contains only declarative JSON, static font data and license notices. The application and migration tool do not execute original React/CSS; separate, isolated reference QA renders the pinned upstream implementation with public synthetic data and local pinned fonts. No remote image or font requests occur while rendering this adaptation. Resume JSON remains untouched. This is an adaptation, not a pixel-identical rendering. Native GUI and Microsoft Word acceptance are separate checks.
 
-No literal is set on body, meta, sectionTitle or itemTitle. Main paragraphs
-use #4B5563 (lines 177/189), while sidebar content uses #E2E8F0 / #CBD5E1
-(lines 259/284). Main headings are #475569 (line 112), sidebar headings
-white (line 100). Main Position / Institution are #1F2937 (lines 157/207),
-but sidebar skill/language and institution titles are white (264/278).
-Main metadata includes Company #2F4F4F, Degree #4B5563 and dates #6B7280
-(163/213/219); sidebar contacts use #E2E8F0 (77/80), education #CBD5E1
-(284). One global literal cannot reproduce either role's two regional
-variants and could make the dark sidebar text invisible. The omitted
-roles deliberately keep existing regional readable semantic colors;
-their exact source colors remain blocked on region/field-specific roles.
+Preservation and exact differences
+The name retains its 0.5px tracking and section headings retain uppercase plus 1px tracking. Independent roles preserve the 14pt/400 real italic label and 12pt/1.6 summary. Work/volunteer positions, italic companies, education institutions/degrees, award/certificate titles and italic awarding bodies now use separate, independently styled header rows. Shared prose uses the source 11pt/1.5 role. Publication mixed inline styles and hanging indents, gray award rails, finer field/context colors and spacing, and fixed-width skill labels are not reproduced. Shared-role colors are preserved as described below. The header bottom rule uses a 0.7pt stroke instead of 0.75pt; section rules use the renderer's 1.2pt stroke instead of 1.5pt. The source prioritizes education and publications; Resume One retains the input module order. Print margins combine the source 0.75in page margin and 30px layout padding. Original Merriweather normal 400/700 and italic 400 outlines and metrics are preserved at the recorded static axes. These visible differences block high-fidelity acceptance; successful export or this notice is not a passing result.
 
-The role-color-capable CLI validated and exported this exact manifest.
-The English all-module fixture generated three PDF pages and two
-LibreOffice-rendered DOCX pages; the short Chinese fixture generated one
-page in each format. All seven page images were inspected. A later Chinese
-DOCX check explicitly uses real upright Noto Sans SC for missing-glyph
-spans instead of inheriting synthetic bold from the Latin face. The narrow
-PDF name splits Alex Morgan across a word boundary; DOCX lane height,
-wrapping and pagination also differ visibly. These are not accepted as
-source fidelity. Artifacts: target/community-executive-qa/role-color-20261030/.
-Source evidence and before/after manifest hashes are in
-target/community-executive-qa/role-color-source-20261030.json. The draft is
-still not accepted or registered; all font and full-license bytes are intact.
+The source display titles Professional Experience, Service & Leadership, Awards & Honors, Research Projects and Research Interests are now retained. Other modules use standard labels. Module IDs, field semantics and input order remain unchanged. Optional portraits, web hover styles and source-specific metadata overrides are not reproduced. Explicit role colors retain original RGB values; semantic palette fallbacks and application chrome still receive readability correction. Chinese and unsupported glyphs use the application's explicit Noto fallback. Source CSS pixel sizes are converted at 0.75pt per px. Editable DOCX reflows independently and is not visually certified by this package.
 
-BLOCKING DIFFERENCES AND ORIGINAL EVIDENCE
-1. Per-region geometry / full-bleed sidebar:
-   Layout declares grid-template-columns: 320px 1fr and max-width: 1100px;
-   Sidebar padding is 60px 40px; MainContent padding is 60px 50px, changing
-   to 40px in print. The v2 renderer supplies percentage columns, uniform
-   page margins and fixed 6pt sidebar insets, not independent region padding
-   or a page-edge sidebar. This candidate uses 32%, 9mm gap, top/bottom
-   15.875mm and left/right 10.5833mm. These are not geometrically equivalent.
-2. Independent regional and semantic typography:
-   SidebarSectionTitle is 16px while StyledSectionTitle is 24px; sidebar
-   text is 14px, sidebar contact/degree 13px, sidebar education title 14px.
-   Source Name is 36px, Position 20px, Institution 18px, Company 17px/600,
-   Label 15px/500, SidebarSkill strong 13px/600. V2 now has eight shared roles
-   plus one sidebar scale, so these independent sizes/weights/families
-   cannot all be matched. Scale 0.8 produces sidebar body 9pt, heading
-   14.4pt, item title 12pt and metadata 8.4pt; the corresponding source
-   sizes are 10.5pt, 12pt, 10.5pt and 9.75pt. The identity name is 27pt.
-   V2 also uses one item title size across work, education, awards, skills
-   and languages; sidebar skill names are therefore serif, unlike source.
-   V2 company, position, institution and degree mappings cannot be chosen
-   independently by this manifest. No source data is rewritten to fake them.
-   Label, summary and side-date font/size are now independent and no longer
-   blocked by the old body/meta role coupling. Contact/degree/category roles
-   and per-region section-heading typography remain coupled.
-3. Remaining regional tracking mismatch:
-   Label and both section-title styles now use supported uppercase, and
-   the explicit name, label and main-heading tracking matches source values.
-   SidebarSectionTitle requires +1px at 16px (1/16 em); this candidate's
-   shared 18pt heading scaled by 0.8 is 14.4pt / 19.2px with 0.9pt / 1.2px
-   tracking. There is still no separate sidebar heading size/tracking role,
-   so the source's 12pt heading / 0.75pt tracking cannot both be matched.
-   No unsupported italic style or arbitrary CSS is declared.
-4. Rules, colors and background treatment:
-   StyledSectionTitle has a 3px #475569 bottom rule plus a 60px-wide
-   #94a3b8 ::after segment. SidebarSectionTitle uses 2px white at 30%
-   opacity, and Label uses 2px white at 20% opacity. V2 exposes only uniform
-   0.6pt/1.2pt section rules and a global header separator; it cannot draw
-   the short second-color segment or separate label/title rule opacities.
-   The screen sidebar is a #475569 -> #334155 vertical gradient; v2 is solid.
-   Main Position/Institution use #1f2937, Company #2f4f4f and paragraphs
-   #4b5563; source sidebar text uses white/#e2e8f0/#cbd5e1. Exact name,
-   label, main summary and standalone-date foreground declarations are now
-   independent and pinned as listed above. Body, meta, sectionTitle and
-   itemTitle still lack separate regional/field colors, so their semantic
-   and automatic readable sidebar colors are retained. Exact matching of
-   those source colors, rule alpha and the screen gradient remains blocked.
-5. Independent spacing and line heights:
-   Header bottom margin is 50px; Label bottom margin and padding are 30px;
-   main titles have 50px top / 30px bottom / 12px bottom padding; sidebar
-   titles have 40px top / 20px bottom / 10px bottom padding. WorkItem uses
-   40px bottom spacing; EducationItem 28px; sidebar items 20px. WorkHeader
-   has a 20px gap and 12px bottom margin; summary bottom margin is 30px.
-   Highlights have 24px indent, 6px item padding and 10px vertical margins;
-   WorkSummary uses 14px paragraph margins. V2 exposes one sectionGapMm
-   (here 10.5833mm / 40px), fixed stack gaps and shared line heights. It
-   cannot express these per-region/per-module/per-element values. The
-   candidate's title leading (1.3) and date leading (1.5) are adaptation
-   choices, not separately declared source values.
-   Label's line height also remains inherited from this candidate's body
-   role (1.8); the source label itself has no explicit line-height value.
-6. Heading text, module order and field presentation:
-   Source fixes sidebar order skills -> education -> languages and main
-   order work -> projects -> volunteer -> awards -> certificates ->
-   publications -> interests -> references. V2 preserves input JSON order
-   within each region and provides localized standard headings, so it cannot
-   force source labels such as Professional Experience / Notable Projects /
-   Awards & Recognition or reorder existing data. Source uses comma-joined
-   skills and "studyType in area" education, while v2 uses shared semantics.
-   Source omits some standard fields (for example education courses/score,
-   skills level and project dates/URL); v2 preserves and displays supported
-   nonempty data. No data is dropped to resemble the source.
-7. Screen behavior / print pagination:
-   Source collapses the two columns below 900px, stacks work headers below
-   640px, adds a layout shadow and hover link behavior, and has no v2 PDF
-   page-number semantics. V2 uses fixed A4/Letter pages, independent column
-   pagination, protected headings/items and its standard page footer.
-   Responsive breakpoints, shadow, hover behavior and exact upstream print
-   pagination are not represented. SkillsGrid / SkillCategory declarations
-   are unused by the original Resume component and are not recreated.
-8. Latin wrapping observed in the current supplied CLI:
-   The synthetic name "Alex Morgan" wraps as "Alex Morga" / "n" at the
-   candidate's sidebar width. "Business Transformation" also splits inside
-   its final word. The source's normal browser text wrapping would prefer
-   word boundaries. This is a rendering blocker, not accepted typography.
-   Evidence: target/community-executive-qa/en-independent-families-1.png.
-   The current supplied CLI binary SHA-256 is
-   63fd5d59daf98fe93ad041cc4904107654564acf5ce8d00a747823e4f23156ce;
-   later shared-code changes require separate integration and rerendering.
+Font provenance
+Google Fonts repository revision: 9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0
+Static faces instantiated at the recorded axes using fontTools; other axes use their source defaults. Glyphs are not subsetted. The intermediate faces have been renamed again to distinct primary families Resume One Academic Serif W400 and W700, omitting the reserved font name Merriweather from modified family/full/PostScript names. The original copyright and complete license, including the reserved-name declaration, remain unchanged. All non-name/head tables remain byte-identical to the intermediate static faces, including outlines, positioning, metrics and embedding flags. Independent identities prevent separate static weights competing for DOCX font slots. This metadata change is not Word or high-fidelity certification.
 
-SOURCE LINE REFERENCES
-All line numbers refer to cached src/Resume.jsx at the pinned upstream
-revision, not mutable shared application code:
-- Layout/padding/gradient/print: lines 10-47.
-- Identity/contact/summary: lines 50-94.
-- Regional headings, tracking and two-color underline: lines 96-129.
-- Work layout, company/date typography and spacing: lines 131-193.
-- Secondary main entries: lines 195-220.
-- Sidebar typography and spacing: lines 256-287.
-- Actual sidebar module order: lines 306-360.
-- Separate position/company fields and main labels/order: lines 363-517.
-The unpinned Google Fonts request is src/index.jsx line 7.
-
-FONT ORIGINS AND MODIFICATIONS
-The original src/index.jsx requests Google Fonts Merriweather 400/700 and
-Inter 500/600/700 via an unpinned CSS URL. MainContent declares Inter with
-system fallbacks, and normal text has no explicit weight. This candidate
-uses explicit static Inter 400 for normal text and 500 for metadata; the
-source's font-server weight matching / inherited sidebar family cannot be
-proved identical without executing it. Its unpinned font URL also supplies
-no immutable original font-file revision. These are fidelity limits.
-
-Merriweather bold (OFL-1.1): the first migration copied the already prepared
-community-academic-cv-lite/merriweather-700.ttf byte-for-byte. This revision
-derives an independently named face from that exact parent; the parent
-remains unchanged outside this package. The original reserved font name
-does not occur in any of this derivative's primary family, full name or
-PostScript identities. Full OFL-merriweather.txt remains byte-identical.
-Original Google Fonts file:
-https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+merriweather 400: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
 Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
-Static axes: opsz=18, wdth=100, wght=700.
-Parent static SHA-256: b1a927f4d54535d979b345491de086a160d78d4b5ab50cc6fd9a250f5215f009
-New primary family / name IDs 1 and 16: Resume One Executive Serif W700
-New subfamily / name IDs 2 and 17: Bold
-New full name / name ID 4: Resume One Executive Serif W700 Bold
-New PostScript name / name ID 6: ResumeOneExecutiveSerifW700-Bold
-Packaged SHA-256: 112820f4542dac809820a128576d6ca8df592ed24e25648fba80fb936234e2f5
-No Merriweather 400 role is needed in this component, so no unused copy is
-included. The reserved original font name is retained in the copyright
-notice, not used as the modified font's primary internal family name.
-Full license source:
-https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 400}
+Intermediate SHA-256: 53c239415e5b5fe39fb7b0fb26beba383919612c8bd4b2c2e14bc838a0c6aa29
+Output family: Resume One Academic Serif W400
+Output SHA-256: b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
 
-Inter (OFL-1.1), designed by Rasmus Andersson / The Inter Project Authors:
-https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/inter/Inter%5Bopsz%2Cwght%5D.ttf
-Original SHA-256: 29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031
-Instanced with fontTools at opsz=14 and wght=400 or 500. All variable axes
-are pinned and fvar removed; glyph outlines are not substituted or subset.
-First-stage family was "Resume One Executive Inter Static". This revision
-uses a separate primary/typographic family for each actual static weight:
-- 400: Resume One Executive Sans W400
-  Name IDs 2/17: Regular; name ID 4: Resume One Executive Sans W400 Regular
-  PostScript name: ResumeOneExecutiveSansW400-Regular
-  Parent SHA-256: 006ab4a6d792c9a030af5c73e14c2936595e2d02441ff41f161a7e8fafbe735e
-  Packaged SHA-256: 7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a
-- 500: Resume One Executive Sans W500
-  Name IDs 2/17: Regular; name ID 4: Resume One Executive Sans W500 Regular
-  PostScript name: ResumeOneExecutiveSansW500-Regular
-  Parent SHA-256: 167f753c0d59f25e91a3bbdf72042f97143e57d12ff6e07a6286a74b4c5dd33a
-  Packaged SHA-256: 6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41
-"Regular" describes the base style within the independent W500 family;
-its actual OS/2.usWeightClass remains 500, never substituted with 400.
-Neither original font name is used in the new primary font identities.
-Copyright and license name records remain unchanged. These independent
-families prevent 400/500 from competing for one DOCX regular slot and
-isolate GPUI family caches; no fonts are installed globally.
-Full license retained as OFL-inter.txt:
-https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/inter/OFL.txt
-All packaged font faces permit embedding (OS/2 fsType=0). Missing CJK
-glyphs use the application's explicit CJK fallback, not a claimed original
-Latin typeface. Both font licenses remain independent of the MIT theme.
+merriweather 700: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 700}
+Intermediate SHA-256: b1a927f4d54535d979b345491de086a160d78d4b5ab50cc6fd9a250f5215f009
+Output family: Resume One Academic Serif W700
+Output SHA-256: 3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f
 
-NAME-ONLY RENAME INVARIANTS AND REMAINING WORD BOUNDARY
-The fontTools conversion reads the exact parent bytes above, with every
-variable axis already pinned. Only the name table and head.checkSumAdjustment
-change. All other raw tables are byte-identical, including outlines, glyph
-mapping/order, hinting, kerning, advances, bearings, vertical metrics, STAT,
-OS/2.usWeightClass and OS/2.fsType. The remaining head bytes, including
-macStyle and timestamps, are unchanged. Full SFNT and per-table checksums
-were recomputed and verified. Name IDs 1/2/3/4/6/16/17 are present and
-consistent in Unicode, Windows US English and Macintosh records, with
-separate unique IDs and legal ASCII PostScript names. New family names
-remain within 31 ASCII characters. Retained PostScript prefix ID 25 also
-uses the new derivative identity. Copyright, licensing and all nonidentity
-name records are unchanged; original author/font attribution is retained
-for provenance rather than as the derivative's primary name.
-The 700 parent's existing Bold name versus fsSelection=192/macStyle=0
-style-link flag discrepancy is deliberately unchanged by this name-only
-conversion. Native Word must still verify selection, bold handling,
-editability, actual embedded faces and save/reopen behavior. The main
-agent owns embedding acceptance; this task does not claim it passed.
+True italic label update (2026-10-30): Merriweather Italic from the same fixed
+Google Fonts revision above, original SHA-256
+f68a8f4989258679e4fbaf50aa42400132b5373c2d9d2514ba82ef6e85947a0b.
+Static axes: wght=400, wdth=100, opsz=18; no glyph subsetting or synthetic slant.
+Intermediate static SHA-256:
+0c119f4ba9f9c9aeeb56f0d0ffaecfdd69765c0545002d39490df8a08af170bd
+Renamed primary family: Resume One Academic Serif W400 Italic.
+Final merriweather-italic-400.ttf SHA-256:
+f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8
+Only naming metadata and checksum adjustment differ from the static intermediate;
+all other SFNT tables and copyright/license records are unchanged. Full OFL and
+reserved-name declaration remain in OFL-merriweather.txt. Chinese missing from
+this face uses the explicit upright Noto fallback, not synthesized italic.
 
-OPTIONAL IDENTITY RECORD RECHECK 2026-10-30
-Every platform/encoding/language record in the three FINAL packaged fonts
-was rechecked for compatible full name ID 18, WWS IDs 21/22, and variations
-PostScript prefix ID 25. IDs 18, 21 and 22 are absent in all three faces;
-there is no legacy optional selection identity to rewrite. ID 25 already
-uses ResumeOneExecutiveSansW400, ResumeOneExecutiveSansW500, or
-ResumeOneExecutiveSerifW700 respectively, consistently in every record.
-No original font name remains in any identity record. The pre-rename QA
-parent faces retain their original naming as provenance and are not the
-packaged fonts. No Jost face belongs to this package.
-This follow-up changed no font bytes, family identities, manifest or final
-font SHA-256 values listed above. Copyright/license/trademark records and
-all nonidentity records were compared against the exact parents again;
-all other font tables and every SFNT/table checksum also passed. A fresh
-read-only audit is saved under
-target/community-executive-qa/name-identity-recheck-20261030/audit.json.
+Shared-role color update (2026-10-30): source Name, StyledSectionTitle and
+entry titles retain #111827; Label, Summary and shared prose retain #1f2937.
+Exact role colors do not recolor application chrome or alter resume JSON.
+Work/volunteer/education range dates now use the inner DateRange component's
+actual 10pt/#666666; award/certificate raw dates retain 11pt/#6b7280.
+Company and institution/degree context colors are now independently specified.
+Contact and publication fragments, exact line boxes and CSS margin collapsing,
+source ordering and pagination still require further work;
+this change does not certify spacing or full fidelity. The public all-module
+fixture currently produces four PDF pages versus three reference pages, while
+LibreOffice reflows the editable DOCX to three; neither is Word acceptance.
 
-VALIDATION BOUNDARY
-Historical pre-role-color 2026-10-30 checks loaded that manifest through the CLI's v2
-validator, verified font hashes/static weights/full raw-table invariants,
-and exported Chinese (2 pages) and English all-module (3 pages) A4 PDFs.
-All five new page PNGs were inspected at their original 1400px maximum
-dimension. Uppercase label/section presentation and independent roles
-are visible; the English name/skill word wrapping above still fails visual
-QA. No clipping, missing input text or overlapping rules were observed.
-The 2026-10-29 checks and prior PDF/PNG files remain a historical snapshot,
-documented in target/community-executive-qa/validation-20261029.json; they
-are not evidence for the updated manifest or its independently named faces.
-These checks establish only candidate integrity, not upstream equivalence. No
-upstream runtime comparison or native GUI / Word acceptance was performed
-by this migration task. The numbered blockers must be addressed in shared
-renderer/spec work before near-100% fidelity can be claimed.
+Range-date update (2026-10-30): work, volunteer and education explicitly select
+the bounded short-en date format, e.g. Sep 2021 - Jun 2025, matching the pinned
+source's default DateRange for standard date-only input. The shared helper
+does not implement all Intl/timestamp behavior or change content validation.
+Raw award/certificate dates and plain-text/Markdown periods remain untouched.
+The inner 10pt glyph style does not yet reproduce the outer 11pt CSS strut.
+
+Inherited line-height and project/reference update (2026-10-31): Name and
+SectionTitle retain the source's inherited 1.6 line-height, not the previous
+1.2/1.3 approximations. Project and reference names use independent 13pt/1.6
+header rows. Projects no longer append range dates/other metadata omitted by
+the source's Research Projects block; all source data and TXT/Markdown output
+remain unchanged. No claim of matching flow-box baselines, spacing, pagination
+or high-fidelity acceptance follows from these role-level corrections.
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+

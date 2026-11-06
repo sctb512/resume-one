@@ -42,17 +42,17 @@
       "family": "cjk-serif",
       "sizePt": 11.399999999999999,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.6,
       "trackingEm": 0.01,
       "color": "#4B5563",
       "fontStyle": "normal"
     },
     "label": {
       "family": "cjk-sans",
-      "sizePt": 10.8,
+      "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.7,
-      "color": "#374151"
+      "lineHeight": 1.6,
+      "color": "#1F1F1F"
     },
     "summary": {
       "family": "cjk-sans",
@@ -65,7 +65,7 @@
       "family": "cjk-serif",
       "sizePt": 13.200000000000001,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.6,
       "trackingEm": -0.01,
       "textTransform": "uppercase",
       "color": "#1F1F1F",
@@ -75,7 +75,7 @@
       "family": "cjk-serif",
       "sizePt": 12.0,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.6,
       "color": "#1F1F1F",
       "fontStyle": "normal"
     },
@@ -83,29 +83,29 @@
       "family": "cjk-sans",
       "sizePt": 10.2,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.6,
       "color": "#6B7280"
     },
     "sideDate": {
       "family": "cjk-sans",
       "sizePt": 9.600000000000001,
       "weight": 400,
-      "lineHeight": 1.7
+      "lineHeight": 1.6
     }
   },
   "page": {
     "marginsMm": {
-      "top": 12.7,
-      "right": 8.466666666666665,
-      "bottom": 12.7,
-      "left": 8.466666666666665
+      "top": 8.36,
+      "right": 4.2333333333333325,
+      "bottom": 4.2333333333333325,
+      "left": 4.2333333333333325
     }
   },
   "composition": {
     "preset": "sidebar-left",
     "contact": "stacked",
     "sidebarWidthPct": 35.0,
-    "gapMm": 12.7,
+    "gapMm": 8.466666666666665,
     "placements": {
       "skills": "sidebar",
       "languages": "sidebar",
@@ -114,41 +114,61 @@
     },
     "contactRegion": "sidebar",
     "headerRegion": "main",
-    "summaryRegion": "main"
+    "summaryRegion": "main",
+    "moduleOrder": [
+      "work",
+      "education",
+      "projects",
+      "interests",
+      "volunteer",
+      "awards",
+      "certificates",
+      "publications",
+      "references"
+    ]
   },
   "sections": {
     "awards": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Awards"
     },
     "certificates": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Certificates"
     },
     "education": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Education"
     },
     "interests": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Interests"
     },
     "languages": {
       "heading": "line"
     },
     "projects": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Projects"
     },
     "publications": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Publications"
     },
     "references": {
-      "heading": "line"
+      "heading": "line",
+      "title": "References"
     },
     "skills": {
       "heading": "line"
     },
     "volunteer": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Volunteer"
     },
     "work": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Experience"
     }
   },
   "provenance": {

@@ -9,7 +9,7 @@
   "colors": {
     "accent": "#B45309",
     "seal": "#334155",
-    "paper": "#FEFBF5",
+    "paper": "#FFFFFF",
     "canvas": "#F5F3EE",
     "ink": "#4F3D31",
     "muted": "#B45309",
@@ -42,7 +42,7 @@
       "family": "asset:font-1",
       "sizePt": 28.5,
       "weight": 700,
-      "lineHeight": 1.75,
+      "lineHeight": 1.7,
       "trackingEm": 0.020000000000000004,
       "color": "#92400E",
       "fontStyle": "normal"
@@ -51,7 +51,7 @@
       "family": "asset:font-2",
       "sizePt": 10.5,
       "weight": 600,
-      "lineHeight": 1.75,
+      "lineHeight": 1.7,
       "trackingEm": 0.28,
       "textTransform": "uppercase",
       "color": "#B45309",
@@ -69,7 +69,7 @@
       "family": "asset:font-1",
       "sizePt": 11.25,
       "weight": 700,
-      "lineHeight": 1.75,
+      "lineHeight": 1.7,
       "trackingEm": 0.28,
       "textTransform": "uppercase",
       "color": "#B45309",
@@ -79,7 +79,7 @@
       "family": "asset:font-2",
       "sizePt": 13.5,
       "weight": 600,
-      "lineHeight": 1.75,
+      "lineHeight": 1.7,
       "trackingEm": 0.01,
       "color": "#4A3326",
       "fontStyle": "normal"
@@ -88,7 +88,7 @@
       "family": "asset:font-2",
       "sizePt": 9.0,
       "weight": 600,
-      "lineHeight": 1.75,
+      "lineHeight": 1.7,
       "trackingEm": 0.12000000000000001,
       "textTransform": "uppercase",
       "color": "#B45309",
@@ -98,17 +98,17 @@
       "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.75,
-      "color": "#4F3D31",
+      "lineHeight": 1.7,
+      "color": "#3F2F25",
       "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 16.93333333333333,
-      "right": 19.049999999999997,
-      "bottom": 16.93333333333333,
-      "left": 19.049999999999997
+      "top": 14.58,
+      "right": 12.7,
+      "bottom": 10.583333333333334,
+      "left": 12.7
     },
     "sectionGapMm": 9.524999999999999
   },

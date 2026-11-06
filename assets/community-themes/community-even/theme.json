@@ -31,7 +31,7 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.5,
@@ -39,7 +39,7 @@
       "color": "#111827"
     },
     "name": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 26.0,
       "weight": 400,
       "lineHeight": 1.2,
@@ -47,7 +47,7 @@
       "color": "#111827"
     },
     "label": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.5,
@@ -55,7 +55,7 @@
       "color": "#111827"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.5,
@@ -63,28 +63,29 @@
       "color": "#111827"
     },
     "sectionTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 13.0,
       "weight": 400,
       "lineHeight": 1.2,
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.6,
       "weight": 400,
-      "lineHeight": 1.2,
-      "fontStyle": "normal"
+      "lineHeight": 1.5,
+      "fontStyle": "normal",
+      "color": "#111827"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.5,
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.5,
@@ -94,22 +95,80 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
     }
   },
   "composition": {
     "preset": "single-column",
-    "header": "centered"
+    "header": "centered",
+    "moduleOrder": [
+      "awards",
+      "certificates",
+      "education",
+      "interests",
+      "languages",
+      "projects",
+      "publications",
+      "references",
+      "skills",
+      "volunteer",
+      "work"
+    ]
   },
-  "sections": {},
+  "sections": {
+    "awards": {
+      "title": "Awards"
+    },
+    "certificates": {
+      "title": "Certificates"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "interests": {
+      "title": "Interests"
+    },
+    "languages": {
+      "title": "Languages"
+    },
+    "projects": {
+      "title": "Projects"
+    },
+    "publications": {
+      "title": "Publications"
+    },
+    "references": {
+      "title": "References"
+    },
+    "skills": {
+      "title": "Skills"
+    },
+    "volunteer": {
+      "title": "Volunteer"
+    },
+    "work": {
+      "title": "Work"
+    }
+  },
   "provenance": {
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Rafael Bardini",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-even/v/0.27.0",
     "upstreamRevision": "0.27.0"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

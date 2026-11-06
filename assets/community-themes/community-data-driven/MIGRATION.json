@@ -37,7 +37,9 @@
   "sourcePackage": {
     "name": "jsonresume-theme-data-driven",
     "version": "0.2.9",
-    "licenseDeclaration": null
+    "licenseDeclaration": null,
+    "authorDeclaration": null,
+    "repositoryDeclaration": null
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -98,7 +100,7 @@
       "syntaxFiles": 10,
       "cssFiles": 8,
       "styledComponents": 19,
-      "declarationsSeen": 185,
+      "declarationsSeen": 193,
       "matchedRoles": [
         "body",
         "header",
@@ -111,54 +113,110 @@
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 123
+      "evidenceRecords": 133
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 600,
         "fontStyle": "normal"
       },
       {
         "role": "summary",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sectionTitle",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 500,
         "fontStyle": "normal"
       },
       {
         "role": "sideDate",
         "family": "DM Sans",
+        "families": [
+          "DM Sans",
+          "Inter",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       }
@@ -1558,7 +1616,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -1797,8 +1855,8 @@
         "target": "/typography/name/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -1810,13 +1868,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2023,8 +2083,8 @@
         "target": "/typography/label/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -2036,13 +2096,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2347,8 +2409,8 @@
         "target": "/typography/sectionTitle/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -2360,13 +2422,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2573,8 +2637,8 @@
         "target": "/typography/itemTitle/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -2586,13 +2650,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2735,8 +2801,8 @@
         "target": "/typography/meta/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -2748,13 +2814,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2833,8 +2901,8 @@
         "target": "/typography/sideDate/lineHeight",
         "value": 1.5,
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
@@ -2846,13 +2914,15 @@
               "text": "line-height: 1.5;",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3071,
-              "endByte": 3088,
-              "line": 160,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 474,
+              "endByte": 491,
+              "line": 21,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2863,28 +2933,30 @@
       },
       {
         "target": "/typography/sideDate/color",
-        "value": "#475569",
+        "value": "#0F172A",
         "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "Description",
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
           "declaration": {
             "property": "color",
             "value": {
-              "text": "var(--resume-color-secondary)",
+              "text": "var(--resume-color-primary)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color: var(--resume-color-secondary);",
+              "text": "color: var(--resume-color-primary);",
               "truncated": false
             },
-            "scope": [],
+            "scope": [
+              "body"
+            ],
             "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 3031,
-              "endByte": 3068,
-              "line": 159,
-              "column": 3,
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 496,
+              "endByte": 531,
+              "line": 22,
+              "column": 5,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -3088,30 +3160,96 @@
         "equivalent": false
       },
       {
+        "target": "/page/avoidSplitItems",
+        "value": true,
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "Item",
+          "declaration": {
+            "property": "page-break-inside",
+            "value": {
+              "text": "avoid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "page-break-inside: avoid;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 2305,
+              "endByte": 2330,
+              "line": 119,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 2,
+              "projectedDeclarationIndex": 3,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "条目断页偏好投影到全局页面策略",
+        "equivalent": false
+      },
+      {
         "target": "/page/marginsMm/bottom",
-        "value": 8.466666666666665,
+        "value": 4.2333333333333325,
         "source": {
           "file": "src/ui/Resume.jsx",
           "component": "Container",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "32px 40px",
+              "text": "16px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 32px 40px;",
+              "text": "padding: 16px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/ui/Resume.jsx",
-              "startByte": 877,
-              "endByte": 896,
-              "line": 40,
-              "column": 3,
+              "startByte": 919,
+              "endByte": 933,
+              "line": 43,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 3,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -3121,29 +3259,46 @@
       },
       {
         "target": "/page/marginsMm/left",
-        "value": 10.583333333333334,
+        "value": 4.2333333333333325,
         "source": {
           "file": "src/ui/Resume.jsx",
           "component": "Container",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "32px 40px",
+              "text": "16px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 32px 40px;",
+              "text": "padding: 16px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/ui/Resume.jsx",
-              "startByte": 877,
-              "endByte": 896,
-              "line": 40,
-              "column": 3,
+              "startByte": 919,
+              "endByte": 933,
+              "line": 43,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 3,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -3153,29 +3308,46 @@
       },
       {
         "target": "/page/marginsMm/right",
-        "value": 10.583333333333334,
+        "value": 4.2333333333333325,
         "source": {
           "file": "src/ui/Resume.jsx",
           "component": "Container",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "32px 40px",
+              "text": "16px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 32px 40px;",
+              "text": "padding: 16px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/ui/Resume.jsx",
-              "startByte": 877,
-              "endByte": 896,
-              "line": 40,
-              "column": 3,
+              "startByte": 919,
+              "endByte": 933,
+              "line": 43,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 3,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -3185,29 +3357,46 @@
       },
       {
         "target": "/page/marginsMm/top",
-        "value": 8.466666666666665,
+        "value": 4.2333333333333325,
         "source": {
           "file": "src/ui/Resume.jsx",
           "component": "Container",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "32px 40px",
+              "text": "16px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 32px 40px;",
+              "text": "padding: 16px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/ui/Resume.jsx",
-              "startByte": 877,
-              "endByte": 896,
-              "line": 40,
-              "column": 3,
+              "startByte": 919,
+              "endByte": 933,
+              "line": 43,
+              "column": 5,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 3,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -3244,7 +3433,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "模块下边距近似统一模块间距；未模拟 margin collapse",
+        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
         "equivalent": false
       },
       {
@@ -3898,6 +4087,257 @@
         "equivalent": false
       },
       {
+        "target": "/composition/moduleOrder",
+        "value": [
+          "work",
+          "education",
+          "skills",
+          "certificates",
+          "publications",
+          "languages",
+          "interests",
+          "references"
+        ],
+        "source": {
+          "literalHeadings": [
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Professional Experience",
+              "module": "work",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 6996,
+              "endByte": 7048
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Education",
+              "module": "education",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 8619,
+              "endByte": 8657
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Technical Skills",
+              "module": "skills",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 10242,
+              "endByte": 10287
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Certifications",
+              "module": "certificates",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 15315,
+              "endByte": 15358
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Publications",
+              "module": "publications",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 15946,
+              "endByte": 15987
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Languages",
+              "module": "languages",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 16814,
+              "endByte": 16852
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "Interests",
+              "module": "interests",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 17240,
+              "endByte": 17278
+            },
+            {
+              "file": "src/ui/Resume.jsx",
+              "tag": "SectionTitle",
+              "title": "References",
+              "module": "references",
+              "kind": "jsx-literal",
+              "equivalent": false,
+              "startByte": 17872,
+              "endByte": 17911
+            }
+          ],
+          "moduleHeadingTag": null,
+          "moduleOrder": [
+            "work",
+            "education",
+            "skills",
+            "certificates",
+            "publications",
+            "languages",
+            "interests",
+            "references"
+          ],
+          "orderSource": "src/ui/Resume.jsx",
+          "bindingVerified": false,
+          "equivalent": false,
+          "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+        },
+        "classification": "adapted",
+        "reason": "完整源码中的实际字面模块标题顺序；没有从文件名字典序推断模块顺序",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/work/title",
+        "value": "Professional Experience",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Professional Experience",
+          "module": "work",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 6996,
+          "endByte": 7048
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/education/title",
+        "value": "Education",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Education",
+          "module": "education",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 8619,
+          "endByte": 8657
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/skills/title",
+        "value": "Technical Skills",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Technical Skills",
+          "module": "skills",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 10242,
+          "endByte": 10287
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/certificates/title",
+        "value": "Certifications",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Certifications",
+          "module": "certificates",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 15315,
+          "endByte": 15358
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/publications/title",
+        "value": "Publications",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Publications",
+          "module": "publications",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 15946,
+          "endByte": 15987
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/languages/title",
+        "value": "Languages",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Languages",
+          "module": "languages",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 16814,
+          "endByte": 16852
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/interests/title",
+        "value": "Interests",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "Interests",
+          "module": "interests",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 17240,
+          "endByte": 17278
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/references/title",
+        "value": "References",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "tag": "SectionTitle",
+          "title": "References",
+          "module": "references",
+          "kind": "jsx-literal",
+          "equivalent": false,
+          "startByte": 17872,
+          "endByte": 17911
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
         "target": "/typography/label/color",
         "value": null,
         "source": {
@@ -3912,6 +4352,13 @@
         "value": {
           "role": "body",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3951,6 +4398,13 @@
         "value": {
           "role": "name",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3990,6 +4444,13 @@
         "value": {
           "role": "label",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 600,
           "fontStyle": "normal"
         },
@@ -4029,6 +4490,13 @@
         "value": {
           "role": "summary",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -4068,6 +4536,13 @@
         "value": {
           "role": "sectionTitle",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -4107,6 +4582,13 @@
         "value": {
           "role": "itemTitle",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -4146,6 +4628,13 @@
         "value": {
           "role": "meta",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 500,
           "fontStyle": "normal"
         },
@@ -4185,6 +4674,13 @@
         "value": {
           "role": "sideDate",
           "family": "DM Sans",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -4748,122 +5244,6 @@
           }
         },
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "ItemHeader",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 2372,
-              "endByte": 2386,
-              "line": 124,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "ItemHeader",
-          "declaration": {
-            "property": "justify-content",
-            "value": {
-              "text": "space-between",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "justify-content: space-between;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 2389,
-              "endByte": 2420,
-              "line": 125,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "ItemHeader",
-          "declaration": {
-            "property": "align-items",
-            "value": {
-              "text": "baseline",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "align-items: baseline;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 2423,
-              "endByte": 2445,
-              "line": 126,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Resume.jsx",
-          "component": "ItemHeader",
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "3px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: 3px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Resume.jsx",
-              "startByte": 2448,
-              "endByte": 2467,
-              "line": 127,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "CONDITIONAL_RULE_UNSUPPORTED",
@@ -6239,6 +6619,52 @@
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
         "source": {
+          "file": "src/ui/Resume.jsx#literal-835.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "16px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 16px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-835.css",
+              "startByte": 83,
+              "endByte": 97,
+              "line": 7,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 3,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
           "file": "src/ui/Resume.jsx#literal-1496.css",
           "component": null,
           "declaration": {
@@ -6535,6 +6961,52 @@
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
         "source": {
+          "file": "src/ui/Resume.jsx#literal-1866.css",
+          "component": null,
+          "declaration": {
+            "property": "page-break-inside",
+            "value": {
+              "text": "avoid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "page-break-inside: avoid;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-1866.css",
+              "startByte": 46,
+              "endByte": 71,
+              "line": 5,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 1,
+              "projectedDeclarationIndex": 2,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
           "file": "src/ui/Resume.jsx#literal-2239.css",
           "component": null,
           "declaration": {
@@ -6620,6 +7092,52 @@
           }
         },
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "src/ui/Resume.jsx#literal-2239.css",
+          "component": null,
+          "declaration": {
+            "property": "page-break-inside",
+            "value": {
+              "text": "avoid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "page-break-inside: avoid;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-2239.css",
+              "startByte": 65,
+              "endByte": 90,
+              "line": 6,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 2,
+              "projectedDeclarationIndex": 3,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
@@ -7412,11 +7930,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -7495,11 +8031,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -7578,11 +8132,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -7661,11 +8233,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -7714,6 +8304,547 @@
                 "startByte": 877,
                 "endByte": 896,
                 "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Item",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 2243,
+                "endByte": 2263,
+                "line": 115,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "ItemHeader",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "3px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 3px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 2448,
+                "endByte": 2467,
+                "line": 127,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "ItemHeader",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "3px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 3px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 2448,
+                "endByte": 2467,
+                "line": 127,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -8464,22 +9595,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -8516,22 +9664,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -8796,22 +9961,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -8848,22 +10030,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -8879,22 +10078,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -8931,22 +10147,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -8962,22 +10195,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -9014,22 +10264,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -9045,22 +10312,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -9097,22 +10381,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -9128,22 +10429,579 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -9180,22 +11038,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -9658,6 +11533,202 @@
         "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
       },
       {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "GlobalStyle",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 781,
+              "endByte": 792,
+              "line": 32,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "GlobalStyle",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 781,
+              "endByte": 792,
+              "line": 32,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "GlobalStyle",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 781,
+              "endByte": 792,
+              "line": 32,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "GlobalStyle",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 781,
+              "endByte": 792,
+              "line": 32,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/ui/Resume.jsx",
@@ -9825,11 +11896,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -9884,11 +11973,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -9943,11 +12050,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -10002,11 +12127,29 @@
               ],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 730,
-                "endByte": 741,
-                "line": 27,
-                "column": 5,
+                "startByte": 781,
+                "endByte": 792,
+                "line": 32,
+                "column": 7,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -10032,6 +12175,302 @@
                 "line": 40,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/top",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/right",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/bottom",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/left",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "32px 40px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 32px 40px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 877,
+                "endByte": 896,
+                "line": 40,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -10476,6 +12915,122 @@
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/ui/Resume.jsx",
+          "component": "ItemHeader",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 2372,
+              "endByte": 2386,
+              "line": 124,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "ItemHeader",
+          "declaration": {
+            "property": "justify-content",
+            "value": {
+              "text": "space-between",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "justify-content: space-between;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 2389,
+              "endByte": 2420,
+              "line": 125,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "ItemHeader",
+          "declaration": {
+            "property": "align-items",
+            "value": {
+              "text": "baseline",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "align-items: baseline;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 2423,
+              "endByte": 2445,
+              "line": 126,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Resume.jsx",
+          "component": "ItemHeader",
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "3px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: 3px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 2448,
+              "endByte": 2467,
+              "line": 127,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Resume.jsx",
           "component": "ItemSubtitle",
           "declaration": {
             "property": "margin-bottom",
@@ -10737,63 +13292,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/ui/Resume.jsx",
-            "component": "Container",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "32px 40px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 32px 40px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/ui/Resume.jsx",
-            "component": "Highlights",
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "12px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 12px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/ui/Resume.jsx",
-                "startByte": 3217,
-                "endByte": 3236,
-                "line": 170,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
+          "file": "src/ui/Resume.jsx",
+          "component": "Highlights",
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 12px;",
+              "truncated": false
+            },
+            "scope": [
+              "li"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx",
+              "startByte": 3217,
+              "endByte": 3236,
+              "line": 170,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -10926,22 +13453,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -11016,22 +13560,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -11106,22 +13667,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -11196,22 +13774,39 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "32px 40px",
+                "text": "16px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 32px 40px;",
+                "text": "padding: 16px;",
                 "truncated": false
               },
               "scope": [],
               "span": {
                 "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           },
@@ -11239,6 +13834,578 @@
                 "line": 24,
                 "column": 5,
                 "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 627,
+              "endByte": 638,
+              "line": 29,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/top",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 627,
+              "endByte": 638,
+              "line": 29,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/right",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 627,
+              "endByte": 638,
+              "line": 29,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/bottom",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-153.css",
+              "startByte": 627,
+              "endByte": 638,
+              "line": 29,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 16,
+              "projectedDeclarationIndex": 17,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/left",
+          "previous": {
+            "file": "src/ui/Resume.jsx",
+            "component": "Container",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Resume.jsx",
+                "startByte": 919,
+                "endByte": 933,
+                "line": 43,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 3,
+                "projectedDeclarationIndex": 5,
+                "originalScope": [
+                  "@media print"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Resume.jsx#literal-153.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "src/ui/Resume.jsx#literal-153.css",
+                "startByte": 627,
+                "endByte": 638,
+                "line": 29,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 16,
+                "projectedDeclarationIndex": 17,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -11277,63 +14444,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/ui/Resume.jsx",
-            "component": "Container",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "32px 40px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 32px 40px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/ui/Resume.jsx",
-                "startByte": 877,
-                "endByte": 896,
-                "line": 40,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/ui/Resume.jsx#literal-3140.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "12px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 12px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/ui/Resume.jsx#literal-3140.css",
-                "startByte": 76,
-                "endByte": 95,
-                "line": 7,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
+          "file": "src/ui/Resume.jsx#literal-3140.css",
+          "component": null,
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 12px;",
+              "truncated": false
+            },
+            "scope": [
+              "li"
+            ],
+            "span": {
+              "file": "src/ui/Resume.jsx#literal-3140.css",
+              "startByte": 76,
+              "endByte": 95,
+              "line": 7,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -11632,7 +14771,7 @@
       {
         "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
         "source": {
-          "requestedMm": 8.466666666666665,
+          "requestedMm": 4.2333333333333325,
           "chosenMm": 11.53
         },
         "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
@@ -11653,14 +14792,27 @@
           "role": "body",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11669,14 +14821,27 @@
           "role": "name",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11685,14 +14850,27 @@
           "role": "sectionTitle",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11701,14 +14879,27 @@
           "role": "itemTitle",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11717,14 +14908,27 @@
           "role": "label",
           "family": "DM Sans",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-2",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
+          "family": "asset:font-2",
           "weight": 600,
           "fontStyle": "normal"
         },
+        "sha256": "47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11733,14 +14937,27 @@
           "role": "summary",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11749,14 +14966,27 @@
           "role": "sideDate",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -11765,148 +14995,459 @@
           "role": "meta",
           "family": "DM Sans",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-3",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-3",
+          "weight": 500,
           "fontStyle": "normal"
         },
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       }
     ],
     "differences": [
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "body",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "body",
+          "family": "DM Sans",
+          "weight": 400,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "name",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "name",
+          "family": "DM Sans",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "sectionTitle",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "sectionTitle",
+          "family": "DM Sans",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "itemTitle",
           "family": "DM Sans",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "itemTitle",
+          "family": "DM Sans",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "label",
           "family": "DM Sans",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W600",
+        "sha256": "47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "label",
+          "family": "DM Sans",
+          "weight": 600,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-2",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "summary",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "summary",
+          "family": "DM Sans",
+          "weight": 400,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "sideDate",
           "family": "DM Sans",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "sideDate",
+          "family": "DM Sans",
+          "weight": 400,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_STACK_FALLBACK",
         "source": {
           "role": "meta",
           "family": "DM Sans",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
+        "selectedFamily": "Inter",
+        "skippedFamilies": [
+          "DM Sans"
+        ],
+        "message": "A concrete family from the supplied CSS stack was selected instead of the primary family, with the exact requested weight/slant. This does not establish equivalence to the original primary family.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W500",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "meta",
+          "family": "DM Sans",
+          "weight": 500,
+          "fontStyle": "normal",
+          "families": [
+            "DM Sans",
+            "Inter",
+            "Helvetica Neue",
+            "Arial",
+            "sans-serif"
+          ]
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-3",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [
+      {
+        "assetId": "font-0",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "text": "Source family: Inter; real weight/slant: 400/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Regular.ttf\nOriginal and static-input SHA-256: 40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82\nNamed family: Resume One IS W400\nFinal named output SHA-256: becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-3",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W500",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "text": "Source family: Inter; real weight/slant: 500/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Medium.ttf\nOriginal and static-input SHA-256: 97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872\nNamed family: Resume One IS W500\nFinal named output SHA-256: b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-2",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W600",
+        "sha256": "47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45",
+        "text": "Source family: Inter; real weight/slant: 600/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-SemiBold.ttf\nOriginal and static-input SHA-256: 78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3\nNamed family: Resume One IS W600\nFinal named output SHA-256: 47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-1",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "text": "Source family: Inter; real weight/slant: 700/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Bold.ttf\nOriginal and static-input SHA-256: 288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f\nNamed family: Resume One IS W700\nFinal named output SHA-256: 7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      }
+    ],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -12015,8 +15556,408 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Professional Experience",
+        "module": "work",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 6996,
+        "endByte": 7048
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Education",
+        "module": "education",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 8619,
+        "endByte": 8657
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Technical Skills",
+        "module": "skills",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 10242,
+        "endByte": 10287
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Certifications",
+        "module": "certificates",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 15315,
+        "endByte": 15358
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 15946,
+        "endByte": 15987
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 16814,
+        "endByte": 16852
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 17240,
+        "endByte": 17278
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "tag": "SectionTitle",
+        "title": "References",
+        "module": "references",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 17872,
+        "endByte": 17911
+      }
+    ],
+    "moduleHeadingTag": null,
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "certificates",
+      "publications",
+      "languages",
+      "interests",
+      "references"
+    ],
+    "orderSource": "src/ui/Resume.jsx",
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 27,
+      "affectedCssBlocks": 8,
+      "originalDeclarations": 185,
+      "projectedDeclarations": 8,
+      "positiveMediaDeclarations": 8,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 193,
+      "skipped": {
+        "unsupportedMediaCondition": 6
+      },
+      "evidenceRecords": 8,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [
+      {
+        "file": "src/ui/Resume.jsx",
+        "component": "GlobalStyle",
+        "cssPath": "/syntaxEvidence/1/styledComponents/0/css",
+        "span": {
+          "file": "src/ui/Resume.jsx",
+          "startByte": 781,
+          "endByte": 792,
+          "line": 32,
+          "column": 7,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 16,
+          "projectedDeclarationIndex": 17,
+          "originalScope": [
+            "@media print",
+            "body"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "component": "Container",
+        "cssPath": "/syntaxEvidence/1/styledComponents/1/css",
+        "span": {
+          "file": "src/ui/Resume.jsx",
+          "startByte": 919,
+          "endByte": 933,
+          "line": 43,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 3,
+          "projectedDeclarationIndex": 5,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "component": "Section",
+        "cssPath": "/syntaxEvidence/1/styledComponents/7/css",
+        "span": {
+          "file": "src/ui/Resume.jsx",
+          "startByte": 1913,
+          "endByte": 1938,
+          "line": 99,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "page-break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 1,
+          "projectedDeclarationIndex": 2,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "component": "Item",
+        "cssPath": "/syntaxEvidence/1/styledComponents/9/css",
+        "span": {
+          "file": "src/ui/Resume.jsx",
+          "startByte": 2305,
+          "endByte": 2330,
+          "line": 119,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "page-break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 2,
+          "projectedDeclarationIndex": 3,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx#literal-153.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/2/styles",
+        "span": {
+          "file": "src/ui/Resume.jsx#literal-153.css",
+          "startByte": 627,
+          "endByte": 638,
+          "line": 29,
+          "column": 7,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 16,
+          "projectedDeclarationIndex": 17,
+          "originalScope": [
+            "@media print",
+            "body"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx#literal-835.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/3/styles",
+        "span": {
+          "file": "src/ui/Resume.jsx#literal-835.css",
+          "startByte": 83,
+          "endByte": 97,
+          "line": 7,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 3,
+          "projectedDeclarationIndex": 5,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx#literal-1866.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/5/styles",
+        "span": {
+          "file": "src/ui/Resume.jsx#literal-1866.css",
+          "startByte": 46,
+          "endByte": 71,
+          "line": 5,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "page-break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 1,
+          "projectedDeclarationIndex": 2,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/ui/Resume.jsx#literal-2239.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/6/styles",
+        "span": {
+          "file": "src/ui/Resume.jsx#literal-2239.css",
+          "startByte": 65,
+          "endByte": 90,
+          "line": 6,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "page-break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 2,
+          "projectedDeclarationIndex": 3,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      }
+    ],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/data-driven.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -12025,7 +15966,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -12048,15 +15989,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14922566,
-        "docxBytes": 18050526
+        "pdfBytes": 7119785,
+        "docxBytes": 19072967
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
-        "textLines": 61,
+        "textLines": 88,
         "sections": [
           "awards",
           "basics",
@@ -12075,38 +16016,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923901,
-        "docxBytes": 18050055
+        "pdfBytes": 6915557,
+        "docxBytes": 19072830
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
-        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
-        "schemaValid": true,
-        "pages": 3,
-        "textLines": 117,
-        "sections": [
-          "awards",
-          "basics",
-          "certificates",
-          "education",
-          "interests",
-          "languages",
-          "projects",
-          "publications",
-          "references",
-          "skills",
-          "volunteer",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14925721,
-        "docxBytes": 18050601
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -12120,12 +16034,39 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918709,
-        "docxBytes": 18047922
+        "pdfBytes": 6505726,
+        "docxBytes": 19070271
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "schemaValid": true,
+        "pages": 3,
+        "textLines": 244,
+        "sections": [
+          "awards",
+          "basics",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 6917706,
+        "docxBytes": 19074835
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "8832c5f4ef2dd340f34b9922e1a6af54bad883d2408ccc53aca194638a9c9a70"
+  "candidateSha256": "17606db1f39d259b725004a29d503495a8ec605f18ae51e691b660d061be8114"
 }

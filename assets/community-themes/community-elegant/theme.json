@@ -148,6 +148,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Mudassir Ali",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-elegant/v/1.16.1",
     "upstreamRevision": "1.16.1"
   }

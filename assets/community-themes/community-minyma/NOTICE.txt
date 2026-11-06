@@ -5,3 +5,5 @@ License declaration: ISC
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+Upstream author declaration: godraadam
+Original project declaration: https://github.com/godraadam/jsonresume-theme-minyma.git

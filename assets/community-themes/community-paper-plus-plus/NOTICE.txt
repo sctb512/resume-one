@@ -5,3 +5,38 @@ License declaration: MIT
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+Upstream author declaration: Johan Lindell
+Original project declaration: https://github.com/lindell/jsonresume-theme-paper
+
+Font font-2 (e685957032af8decad1335a78939eb3de46c71cbe8102e312536242193c95157):
+Source family: Open Sans; real weight/slant: 300/normal
+Source repository: https://github.com/googlefonts/opensans/tree/8e14d71005add3120ad40627c1a55b7ba869737c
+Original static input: OpenSans-Light.ttf
+Original and static-input SHA-256: 3472097ec4d9e57228cbfad3c9911e53923664d3df86568d0b05d674399e034e
+Named family: Resume One OS W300
+Final named output SHA-256: e685957032af8decad1335a78939eb3de46c71cbe8102e312536242193c95157
+Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+
+
+Font font-0 (ce5a6c70e053127273912b4fb67b52729b485e5e1d4c63f7d9ae0e4f3229e1ff):
+Source family: Open Sans; real weight/slant: 400/normal
+Source repository: https://github.com/googlefonts/opensans/tree/8e14d71005add3120ad40627c1a55b7ba869737c
+Original static input: OpenSans-Regular.ttf
+Original and static-input SHA-256: c53aceea2dcf5b4098099c0c4d0a061d17e178a049317b42a422b1a9f7f8eb59
+Named family: Resume One OS W400
+Final named output SHA-256: ce5a6c70e053127273912b4fb67b52729b485e5e1d4c63f7d9ae0e4f3229e1ff
+Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+
+
+Font font-1 (3765bec93c164c4f2001cd5bd967af174f8cf2c52e89249bd07f3376b63f0de9):
+Source family: Open Sans; real weight/slant: 600/normal
+Source repository: https://github.com/googlefonts/opensans/tree/8e14d71005add3120ad40627c1a55b7ba869737c
+Original static input: OpenSans-SemiBold.ttf
+Original and static-input SHA-256: 4a413711684a9dd564ef0f1c10cb62b5d9f7eb6df2cff962f5341a6ecd5f64ae
+Named family: Resume One OS W600
+Final named output SHA-256: 3765bec93c164c4f2001cd5bd967af174f8cf2c52e89249bd07f3376b63f0de9
+Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+

@@ -32,9 +32,9 @@
   "typography": {
     "body": {
       "family": "cjk-sans",
-      "sizePt": 10.8,
+      "sizePt": 9.600000000000001,
       "weight": 400,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0,
       "color": "#3E6D8E"
     },
@@ -44,31 +44,31 @@
       "weight": 400,
       "lineHeight": 1.0,
       "trackingEm": 0.0,
-      "color": "#3E6D8E",
+      "color": "#40484F",
       "fontStyle": "normal"
     },
     "label": {
       "family": "cjk-sans",
       "sizePt": 17.64,
       "weight": 400,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0,
       "color": "#202931",
       "fontStyle": "normal"
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 10.8,
+      "sizePt": 9.600000000000001,
       "weight": 400,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0,
-      "color": "#3E6D8E"
+      "color": "#40484F"
     },
     "sectionTitle": {
       "family": "cjk-serif",
       "sizePt": 10.8,
       "weight": 600,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0,
       "textTransform": "uppercase",
       "fontStyle": "normal"
@@ -77,14 +77,14 @@
       "family": "cjk-sans",
       "sizePt": 15.24,
       "weight": 400,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0
     },
     "meta": {
       "family": "cjk-serif",
       "sizePt": 8.5,
       "weight": 600,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0,
       "fontStyle": "normal"
     },
@@ -92,32 +92,21 @@
       "family": "cjk-sans",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.0,
+      "lineHeight": 1.25,
       "trackingEm": 0.0
     }
   },
   "page": {
     "marginsMm": {
       "top": 16.75,
-      "right": 6.35,
-      "bottom": 6.35,
-      "left": 6.35
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
     },
     "sectionGapMm": 4.0
   },
   "composition": {
-    "preset": "sidebar-left",
-    "sidebarWidthPct": 30.0,
-    "placements": {
-      "skills": "sidebar",
-      "languages": "sidebar",
-      "interests": "sidebar",
-      "certificates": "sidebar"
-    },
-    "contactRegion": "sidebar",
-    "headerRegion": "main",
-    "summaryRegion": "main",
-    "sidebarTypographyScale": 1.0
+    "preset": "single-column"
   },
   "sections": {
     "awards": {

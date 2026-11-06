@@ -43,31 +43,25 @@
       "sizePt": 18.0,
       "weight": 600,
       "lineHeight": 1.4,
-      "color": "#666666",
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 10.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "color": "#666666",
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "summary": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 10.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "color": "#666666",
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "sectionTitle": {
       "family": "cjk-serif",
       "sizePt": 15.0,
       "weight": 600,
       "lineHeight": 1.4,
-      "color": "#666666",
       "fontStyle": "normal"
     },
     "itemTitle": {
@@ -75,24 +69,19 @@
       "sizePt": 10.6,
       "weight": 600,
       "lineHeight": 1.4,
-      "color": "#666666",
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "color": "#666666",
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "sideDate": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "color": "#666666",
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     }
   },
   "page": {

@@ -11,7 +11,7 @@
     "seal": "#334155",
     "paper": "#FFFFFF",
     "canvas": "#F5F3EE",
-    "ink": "#1C1917",
+    "ink": "#57534E",
     "muted": "#57534E",
     "border": "#E7E5E4"
   },
@@ -32,23 +32,23 @@
   "typography": {
     "body": {
       "family": "asset:font-0",
-      "sizePt": 12.0,
+      "sizePt": 10.5,
       "weight": 400,
-      "lineHeight": 1.6,
-      "color": "#1C1917",
+      "lineHeight": 1.7,
+      "color": "#57534E",
       "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 27.0,
-      "weight": 600,
+      "weight": 800,
       "lineHeight": 1.1,
       "trackingEm": -0.04,
       "color": "#1C1917",
       "fontStyle": "normal"
     },
     "label": {
-      "family": "asset:font-1",
+      "family": "asset:font-3",
       "sizePt": 13.5,
       "weight": 500,
       "lineHeight": 1.6,
@@ -64,9 +64,9 @@
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 8.25,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
       "trackingEm": 0.1,
       "textTransform": "uppercase",
@@ -74,9 +74,9 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 12.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
       "color": "#1C1917",
       "fontStyle": "normal"
@@ -100,11 +100,12 @@
   },
   "page": {
     "marginsMm": {
-      "top": 13.97,
-      "right": 4.2333333333333325,
-      "bottom": 8.466666666666665,
-      "left": 4.2333333333333325
-    }
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "avoidSplitItems": true
   },
   "composition": {
     "preset": "single-column"
@@ -148,6 +149,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Roland Sharp",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-claude",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   },
@@ -156,13 +158,25 @@
       {
         "id": "font-0",
         "path": "font-0.ttf",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1"
       },
       {
         "id": "font-1",
         "path": "font-1.ttf",
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "sha256": "e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
         "license": "OFL-1.1"
       }
     ]

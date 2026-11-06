@@ -1,67 +1,219 @@
 {
   "formatVersion": 2,
   "id": "community-writers-portfolio",
-  "name": "Writer's Portfolio",
-  "description": "文学衬线 · 常规字重刊头 · 暖纸细线；高保真验收尚有阻塞",
+  "name": "Writers Portfolio",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
   "version": "1.0.0",
   "license": "MIT",
   "layout": "classic",
   "colors": {
     "accent": "#2F2F2F",
-    "seal": "#2F2F2F",
-    "paper": "#FEFDFB",
-    "canvas": "#FEFDFB",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
     "ink": "#2F2F2F",
     "muted": "#5A5A5A",
     "border": "#D4D0C8"
   },
   "modules": [
-    "basics", "work", "publications", "skills", "education", "projects",
-    "volunteer", "awards", "certificates", "languages", "interests", "references"
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
   ],
-  "page": {
-    "size": "A4",
-    "marginsMm": { "top": 29.63, "right": 26.99, "bottom": 29.63, "left": 26.99 },
-    "sectionGapMm": 11.90625,
-    "avoidSplitItems": true,
-    "keepHeadingWithFirstItem": true
-  },
   "typography": {
-    "body": { "family": "asset:merriweather-400", "sizePt": 12.75, "weight": 400, "lineHeight": 1.75, "color": "#3A3A3A" },
-    "name": { "family": "asset:merriweather-400", "sizePt": 28.5, "weight": 400, "lineHeight": 1.75, "trackingEm": 0.013157894736842105, "color": "#2F2F2F" },
-    "label": { "family": "asset:merriweather-italic-300", "sizePt": 12, "weight": 300, "fontStyle": "italic", "lineHeight": 1.75, "trackingEm": 0.01875, "color": "#5A5A5A" },
-    "summary": { "family": "asset:merriweather-400", "sizePt": 13.5, "weight": 400, "lineHeight": 1.8, "color": "#3A3A3A" },
-    "sectionTitle": { "family": "asset:merriweather-400", "sizePt": 16.5, "weight": 400, "lineHeight": 1.75, "trackingEm": 0.045454545454545456, "color": "#2F2F2F" },
-    "itemTitle": { "family": "asset:merriweather-700", "sizePt": 14.25, "weight": 700, "lineHeight": 1.75, "color": "#2F2F2F" },
-    "meta": { "family": "asset:merriweather-400", "sizePt": 11.25, "weight": 400, "lineHeight": 1.75 }
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 12.75,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "color": "#2F2F2F",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "asset:font-0",
+      "sizePt": 28.5,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "trackingEm": 0.013157894736842105,
+      "color": "#2F2F2F",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-2",
+      "sizePt": 12.0,
+      "weight": 300,
+      "lineHeight": 1.75,
+      "fontStyle": "italic",
+      "trackingEm": 0.01875,
+      "color": "#5A5A5A"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 13.5,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#3A3A3A",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "asset:font-0",
+      "sizePt": 16.5,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "trackingEm": 0.045454545454545456,
+      "color": "#2F2F2F",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "asset:font-1",
+      "sizePt": 13.5,
+      "weight": 700,
+      "lineHeight": 1.75,
+      "trackingEm": 0.05555555555555555,
+      "textTransform": "uppercase",
+      "color": "#2F2F2F",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-3",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "fontStyle": "italic",
+      "color": "#5A5A5A"
+    },
+    "sideDate": {
+      "family": "asset:font-0",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.75,
+      "fontStyle": "normal"
+    }
   },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
+  "page": {
+    "marginsMm": {
+      "top": 14.67,
+      "right": 7.9375,
+      "bottom": 10.583333333333334,
+      "left": 7.9375
+    },
+    "avoidSplitItems": true,
+    "sectionGapMm": 11.90625,
+    "size": "A4"
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "moduleOrder": [
+      "work",
+      "publications",
+      "education",
+      "projects",
+      "volunteer",
+      "certificates",
+      "languages",
+      "interests",
+      "references"
+    ]
+  },
   "sections": {
-    "work": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "publications": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "skills": { "heading": "line", "headingAlign": "center", "items": "stack" },
-    "education": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "projects": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "volunteer": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "awards": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "certificates": { "heading": "line", "headingAlign": "center", "items": "stack", "date": "inline" },
-    "languages": { "heading": "line", "headingAlign": "center", "items": "compact" },
-    "interests": { "heading": "line", "headingAlign": "center", "items": "compact" },
-    "references": { "heading": "line", "headingAlign": "center", "items": "stack" }
+    "awards": {
+      "heading": "line",
+      "headingAlign": "center"
+    },
+    "certificates": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "headingAlign": "center",
+      "items": "stack"
+    },
+    "volunteer": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Volunteer"
+    },
+    "work": {
+      "heading": "line",
+      "headingAlign": "center",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-writers-portfolio",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   },
   "assets": {
     "fonts": [
-      { "id": "merriweather-400", "path": "merriweather-400.ttf", "sha256": "62eac98e200ad81044b83cd376b725aa443106370c303f799a051df4f89c1252", "license": "OFL-1.1" },
-      { "id": "merriweather-700", "path": "merriweather-700.ttf", "sha256": "93601b02270395570763ae3e37f8a2bdb860865359e86672b4f86cf21aa9e263", "license": "OFL-1.1" },
-      { "id": "merriweather-italic-300", "path": "merriweather-italic-300.ttf", "sha256": "2dbc10c0c2e5bfd1681b072234a92579f98cfe8bd828e12ba29b940ce3879923", "license": "OFL-1.1" }
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "2dbc10c0c2e5bfd1681b072234a92579f98cfe8bd828e12ba29b940ce3879923",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8",
+        "license": "OFL-1.1"
+      }
     ]
-  },
-  "provenance": {
-    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-writers-portfolio",
-    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
-    "upstreamAuthor": "JSON Resume contributors",
-    "upstreamLicense": "MIT",
-    "migratedBy": "Resume One contributors",
-    "fidelity": "adapted"
   }
 }

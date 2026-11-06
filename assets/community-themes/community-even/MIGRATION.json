@@ -79,7 +79,12 @@
   "sourcePackage": {
     "name": "jsonresume-theme-even",
     "version": "0.27.0",
-    "licenseDeclaration": "MIT"
+    "licenseDeclaration": "MIT",
+    "authorDeclaration": "Rafael Bardini",
+    "repositoryDeclaration": {
+      "type": "git",
+      "url": "git+https://github.com/rbardini/jsonresume-theme-even.git"
+    }
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -167,54 +172,86 @@
         "section",
         "sectionTitle"
       ],
-      "evidenceRecords": 114
+      "evidenceRecords": 121
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "summary",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sectionTitle",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sideDate",
         "family": "Lato",
+        "families": [
+          "Lato",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       }
@@ -1787,7 +1824,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -2619,23 +2656,23 @@
           "declaration": {
             "property": "font-size",
             "value": {
-              "text": "var(--scale4)",
+              "text": "var(--scale3)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size:var(--scale4)",
+              "text": "font-size:var(--scale3);",
               "truncated": false
             },
             "scope": [
-              "h2"
+              "h3"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1854,
-              "endByte": 1877,
+              "startByte": 1910,
+              "endByte": 1934,
               "line": 1,
-              "column": 1855,
+              "column": 1911,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2798,14 +2835,14 @@
               "truncated": false
             },
             "scope": [
-              "h2"
+              "h3"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1825,
-              "endByte": 1854,
+              "startByte": 1881,
+              "endByte": 1910,
               "line": 1,
-              "column": 1826,
+              "column": 1882,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -2889,31 +2926,31 @@
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
           "declaration": {
-            "property": "font-weight",
+            "property": "font",
             "value": {
-              "text": "400",
+              "text": "1em/1.5 Lato,sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-weight:400",
+              "text": "font:1em/1.5 Lato,sans-serif;",
               "truncated": false
             },
             "scope": [
-              "h1,h2,h3,h5"
+              "body"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1754,
-              "endByte": 1769,
+              "startByte": 1442,
+              "endByte": 1471,
               "line": 1,
-              "column": 1755,
+              "column": 1443,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "classification": "adapted",
-        "reason": "将静态声明映射到 v2 文字角色",
+        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
         "equivalent": false
       },
       {
@@ -2952,70 +2989,70 @@
       },
       {
         "target": "/typography/itemTitle/lineHeight",
-        "value": 1.2,
+        "value": 1.5,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
           "declaration": {
-            "property": "line-height",
+            "property": "font",
             "value": {
-              "text": "1.2",
+              "text": "1em/1.5 Lato,sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height:1.2",
+              "text": "font:1em/1.5 Lato,sans-serif;",
               "truncated": false
             },
             "scope": [
-              "h1,h2,h3"
+              "body"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1779,
-              "endByte": 1794,
+              "startByte": 1442,
+              "endByte": 1471,
               "line": 1,
-              "column": 1780,
+              "column": 1443,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "classification": "adapted",
-        "reason": "将静态声明映射到 v2 文字角色",
+        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
         "equivalent": false
       },
       {
         "target": "/typography/itemTitle/color",
-        "value": "#6B7280",
+        "value": "#111827",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
           "declaration": {
             "property": "color",
             "value": {
-              "text": "var(--color-secondary)",
+              "text": "var(--color-primary)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color:var(--color-secondary);",
+              "text": "color:var(--color-primary);",
               "truncated": false
             },
             "scope": [
-              "h3"
+              "body"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1881,
-              "endByte": 1910,
+              "startByte": 1187,
+              "endByte": 1214,
               "line": 1,
-              "column": 1882,
+              "column": 1188,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "classification": "adapted",
-        "reason": "将静态声明映射到 v2 文字角色",
+        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
         "equivalent": false
       },
       {
@@ -3376,14 +3413,14 @@
               "truncated": false
             },
             "scope": [
-              "h2"
+              "h3"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1825,
-              "endByte": 1854,
+              "startByte": 1881,
+              "endByte": 1910,
               "line": 1,
-              "column": 1826,
+              "column": 1882,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -3529,139 +3566,649 @@
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/bottom",
-        "value": 16.0,
+        "target": "/composition/moduleOrder",
+        "value": [
+          "awards",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
         "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": ".2em .6em",
-              "truncated": false
+          "literalHeadings": [
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Awards",
+              "module": "awards",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 5883,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
             },
-            "important": false,
-            "raw": {
-              "text": "padding:.2em .6em",
-              "truncated": false
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Certificates",
+              "module": "certificates",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 6595,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
             },
-            "scope": [
-              ".tag-list>li"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 2909,
-              "endByte": 2926,
-              "line": 1,
-              "column": 2910,
-              "columnUnit": "utf8-bytes"
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Education",
+              "module": "education",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 7383,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Interests",
+              "module": "interests",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 9548,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Languages",
+              "module": "languages",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10057,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Projects",
+              "module": "projects",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10566,
+              "decodedStartByte": 39,
+              "decodedEndByte": 56,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Publications",
+              "module": "publications",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 11754,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "References",
+              "module": "references",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 12361,
+              "decodedStartByte": 41,
+              "decodedEndByte": 60,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Skills",
+              "module": "skills",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 12818,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Volunteer",
+              "module": "volunteer",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 13321,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.cjs",
+              "tag": "h3",
+              "title": "Work",
+              "module": "work",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 14305,
+              "decodedStartByte": 35,
+              "decodedEndByte": 48,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Awards",
+              "module": "awards",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 5496,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Certificates",
+              "module": "certificates",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 6290,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Education",
+              "module": "education",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 7219,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Interests",
+              "module": "interests",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 9502,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Languages",
+              "module": "languages",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10044,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Projects",
+              "module": "projects",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10626,
+              "decodedStartByte": 39,
+              "decodedEndByte": 56,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Publications",
+              "module": "publications",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 11865,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "References",
+              "module": "references",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 12517,
+              "decodedStartByte": 41,
+              "decodedEndByte": 60,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Skills",
+              "module": "skills",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 13006,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Volunteer",
+              "module": "volunteer",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 13542,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.js",
+              "tag": "h3",
+              "title": "Work",
+              "module": "work",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 14637,
+              "decodedStartByte": 35,
+              "decodedEndByte": 48,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Awards",
+              "module": "awards",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 6201,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Certificates",
+              "module": "certificates",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 6913,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Education",
+              "module": "education",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 7701,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Interests",
+              "module": "interests",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 9866,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Languages",
+              "module": "languages",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10375,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Projects",
+              "module": "projects",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 10884,
+              "decodedStartByte": 39,
+              "decodedEndByte": 56,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Publications",
+              "module": "publications",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 12072,
+              "decodedStartByte": 43,
+              "decodedEndByte": 64,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "References",
+              "module": "references",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 12679,
+              "decodedStartByte": 41,
+              "decodedEndByte": 60,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Skills",
+              "module": "skills",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 13136,
+              "decodedStartByte": 37,
+              "decodedEndByte": 52,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Volunteer",
+              "module": "volunteer",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 13639,
+              "decodedStartByte": 40,
+              "decodedEndByte": 58,
+              "sourceOffsetMappingVerified": false
+            },
+            {
+              "file": "dist/index.umd.cjs",
+              "tag": "h3",
+              "title": "Work",
+              "module": "work",
+              "kind": "decoded-html-literal",
+              "equivalent": false,
+              "literalFragmentSourceStartByte": 14623,
+              "decodedStartByte": 35,
+              "decodedEndByte": 48,
+              "sourceOffsetMappingVerified": false
             }
-          }
+          ],
+          "moduleHeadingTag": "h3",
+          "moduleOrder": [
+            "awards",
+            "certificates",
+            "education",
+            "interests",
+            "languages",
+            "projects",
+            "publications",
+            "references",
+            "skills",
+            "volunteer",
+            "work"
+          ],
+          "orderSource": "dist/index.cjs",
+          "bindingVerified": false,
+          "equivalent": false,
+          "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "完整源码中的实际字面模块标题顺序；没有从文件名字典序推断模块顺序",
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/left",
-        "value": 16.0,
+        "target": "/sections/awards/title",
+        "value": "Awards",
         "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": ".2em .6em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding:.2em .6em",
-              "truncated": false
-            },
-            "scope": [
-              ".tag-list>li"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 2909,
-              "endByte": 2926,
-              "line": 1,
-              "column": 2910,
-              "columnUnit": "utf8-bytes"
-            }
-          }
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Awards",
+          "module": "awards",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 5883,
+          "decodedStartByte": 37,
+          "decodedEndByte": 52,
+          "sourceOffsetMappingVerified": false
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/right",
-        "value": 16.0,
+        "target": "/sections/certificates/title",
+        "value": "Certificates",
         "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": ".2em .6em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding:.2em .6em",
-              "truncated": false
-            },
-            "scope": [
-              ".tag-list>li"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 2909,
-              "endByte": 2926,
-              "line": 1,
-              "column": 2910,
-              "columnUnit": "utf8-bytes"
-            }
-          }
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Certificates",
+          "module": "certificates",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 6595,
+          "decodedStartByte": 43,
+          "decodedEndByte": 64,
+          "sourceOffsetMappingVerified": false
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/top",
-        "value": 16.0,
+        "target": "/sections/education/title",
+        "value": "Education",
         "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": ".2em .6em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding:.2em .6em",
-              "truncated": false
-            },
-            "scope": [
-              ".tag-list>li"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 2909,
-              "endByte": 2926,
-              "line": 1,
-              "column": 2910,
-              "columnUnit": "utf8-bytes"
-            }
-          }
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Education",
+          "module": "education",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 7383,
+          "decodedStartByte": 40,
+          "decodedEndByte": 58,
+          "sourceOffsetMappingVerified": false
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/interests/title",
+        "value": "Interests",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Interests",
+          "module": "interests",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 9548,
+          "decodedStartByte": 40,
+          "decodedEndByte": 58,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/languages/title",
+        "value": "Languages",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Languages",
+          "module": "languages",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 10057,
+          "decodedStartByte": 40,
+          "decodedEndByte": 58,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/projects/title",
+        "value": "Projects",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Projects",
+          "module": "projects",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 10566,
+          "decodedStartByte": 39,
+          "decodedEndByte": 56,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/publications/title",
+        "value": "Publications",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Publications",
+          "module": "publications",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 11754,
+          "decodedStartByte": 43,
+          "decodedEndByte": 64,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/references/title",
+        "value": "References",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "References",
+          "module": "references",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 12361,
+          "decodedStartByte": 41,
+          "decodedEndByte": 60,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/skills/title",
+        "value": "Skills",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Skills",
+          "module": "skills",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 12818,
+          "decodedStartByte": 37,
+          "decodedEndByte": 52,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/volunteer/title",
+        "value": "Volunteer",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Volunteer",
+          "module": "volunteer",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 13321,
+          "decodedStartByte": 40,
+          "decodedEndByte": 58,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
+        "equivalent": false
+      },
+      {
+        "target": "/sections/work/title",
+        "value": "Work",
+        "source": {
+          "file": "dist/index.cjs",
+          "tag": "h3",
+          "title": "Work",
+          "module": "work",
+          "kind": "decoded-html-literal",
+          "equivalent": false,
+          "literalFragmentSourceStartByte": 14305,
+          "decodedStartByte": 35,
+          "decodedEndByte": 48,
+          "sourceOffsetMappingVerified": false
+        },
+        "classification": "adapted",
+        "reason": "采用同一模块顺序来源中的完整字面标题，不执行模板表达式",
         "equivalent": false
       },
       {
@@ -3695,16 +4242,6 @@
         "equivalent": false
       },
       {
-        "target": "/typography/itemTitle/color",
-        "value": null,
-        "source": {
-          "original": "#6B7280"
-        },
-        "classification": "adapted",
-        "reason": "移除覆盖色，采用按区域解析的可读前景色",
-        "equivalent": false
-      },
-      {
         "target": "/typography/meta/color",
         "value": null,
         "source": {
@@ -3719,6 +4256,10 @@
         "value": {
           "role": "body",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3758,6 +4299,10 @@
         "value": {
           "role": "name",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3797,6 +4342,10 @@
         "value": {
           "role": "label",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3836,6 +4385,10 @@
         "value": {
           "role": "summary",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3875,6 +4428,10 @@
         "value": {
           "role": "sectionTitle",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3914,6 +4471,10 @@
         "value": {
           "role": "itemTitle",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3953,6 +4514,10 @@
         "value": {
           "role": "meta",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3992,6 +4557,10 @@
         "value": {
           "role": "sideDate",
           "family": "Lato",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -12990,6 +13559,33 @@
             "declaration": {
               "property": "font-size",
               "value": {
+                "text": "var(--scale4)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size:var(--scale4)",
+                "truncated": false
+              },
+              "scope": [
+                "h2"
+              ],
+              "span": {
+                "file": "dist/index.cjs#literal-1692.css",
+                "startByte": 1854,
+                "endByte": 1877,
+                "line": 1,
+                "column": 1855,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "dist/index.cjs#literal-1692.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
                 "text": "var(--scale3)",
                 "truncated": false
               },
@@ -13011,56 +13607,29 @@
               }
             }
           },
-          "next": {
-            "file": "dist/index.cjs#literal-1692.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "var(--scale2)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size:var(--scale2)",
-                "truncated": false
-              },
-              "scope": [
-                "h4"
-              ],
-              "span": {
-                "file": "dist/index.cjs#literal-1692.css",
-                "startByte": 1973,
-                "endByte": 1996,
-                "line": 1,
-                "column": 1974,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
           "selected": {
             "file": "dist/index.cjs#literal-1692.css",
             "component": null,
             "declaration": {
               "property": "font-size",
               "value": {
-                "text": "var(--scale2)",
+                "text": "var(--scale3)",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "font-size:var(--scale2)",
+                "text": "font-size:var(--scale3);",
                 "truncated": false
               },
               "scope": [
-                "h4"
+                "h3"
               ],
               "span": {
                 "file": "dist/index.cjs#literal-1692.css",
-                "startByte": 1973,
-                "endByte": 1996,
+                "startByte": 1910,
+                "endByte": 1934,
                 "line": 1,
-                "column": 1974,
+                "column": 1911,
                 "columnUnit": "utf8-bytes"
               }
             }
@@ -13318,23 +13887,23 @@
           "declaration": {
             "property": "font-size",
             "value": {
-              "text": "var(--scale4)",
+              "text": "var(--scale3)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size:var(--scale4)",
+              "text": "font-size:var(--scale3);",
               "truncated": false
             },
             "scope": [
-              "h2"
+              "h3"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1854,
-              "endByte": 1877,
+              "startByte": 1910,
+              "endByte": 1934,
               "line": 1,
-              "column": 1855,
+              "column": 1911,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -13992,7 +14561,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -14020,10 +14589,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -14051,10 +14620,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -14082,10 +14651,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -14113,7 +14682,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "COLOR_READABILITY_FALLBACK",
@@ -14149,17 +14718,6 @@
       {
         "code": "ROLE_COLOR_READABILITY_FALLBACK",
         "source": {
-          "target": "/typography/itemTitle/color",
-          "original": "#6B7280",
-          "backgrounds": [
-            "#F3F4F6"
-          ]
-        },
-        "message": "移除不可读的角色覆盖色，显式交由 v2 可读前景色按区域处理；区域专属颜色无法用全局角色精确表达"
-      },
-      {
-        "code": "ROLE_COLOR_READABILITY_FALLBACK",
-        "source": {
           "target": "/typography/meta/color",
           "original": "#6B7280",
           "backgrounds": [
@@ -14184,14 +14742,24 @@
           "role": "body",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14200,14 +14768,24 @@
           "role": "name",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14216,14 +14794,24 @@
           "role": "sectionTitle",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14232,14 +14820,24 @@
           "role": "itemTitle",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14248,14 +14846,24 @@
           "role": "label",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14264,14 +14872,24 @@
           "role": "summary",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14280,14 +14898,24 @@
           "role": "sideDate",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -14296,148 +14924,232 @@
           "role": "meta",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Lato",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       }
     ],
     "differences": [
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "body",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "name",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "sectionTitle",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "itemTitle",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "label",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "summary",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "sideDate",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "meta",
           "family": "Lato",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Lato",
+            "sans-serif"
+          ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [
+      {
+        "assetId": "font-0",
+        "sourceFamily": "Lato",
+        "fontFamily": "Resume One LS W400",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "text": "Source family: Lato; real weight/slant: 400/normal\nSource repository: https://github.com/google/fonts/tree/eb20e9cf19d97cf579fa3867d729d4222d6c59e1\nOriginal static input: Lato-Regular.ttf\nOriginal and static-input SHA-256: d636e4683231f931eda222d588e944d082bfd3bdba02f928bee461c0f185b251\nNamed family: Resume One LS W400\nFinal named output SHA-256: 36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      }
+    ],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -14476,8 +15188,476 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Awards",
+        "module": "awards",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 5883,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Certificates",
+        "module": "certificates",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 6595,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Education",
+        "module": "education",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 7383,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 9548,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10057,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Projects",
+        "module": "projects",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10566,
+        "decodedStartByte": 39,
+        "decodedEndByte": 56,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 11754,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "References",
+        "module": "references",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 12361,
+        "decodedStartByte": 41,
+        "decodedEndByte": 60,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Skills",
+        "module": "skills",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 12818,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Volunteer",
+        "module": "volunteer",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 13321,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.cjs",
+        "tag": "h3",
+        "title": "Work",
+        "module": "work",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 14305,
+        "decodedStartByte": 35,
+        "decodedEndByte": 48,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Awards",
+        "module": "awards",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 5496,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Certificates",
+        "module": "certificates",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 6290,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Education",
+        "module": "education",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 7219,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 9502,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10044,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Projects",
+        "module": "projects",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10626,
+        "decodedStartByte": 39,
+        "decodedEndByte": 56,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 11865,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "References",
+        "module": "references",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 12517,
+        "decodedStartByte": 41,
+        "decodedEndByte": 60,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Skills",
+        "module": "skills",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 13006,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Volunteer",
+        "module": "volunteer",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 13542,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.js",
+        "tag": "h3",
+        "title": "Work",
+        "module": "work",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 14637,
+        "decodedStartByte": 35,
+        "decodedEndByte": 48,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Awards",
+        "module": "awards",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 6201,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Certificates",
+        "module": "certificates",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 6913,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Education",
+        "module": "education",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 7701,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 9866,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10375,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Projects",
+        "module": "projects",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 10884,
+        "decodedStartByte": 39,
+        "decodedEndByte": 56,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 12072,
+        "decodedStartByte": 43,
+        "decodedEndByte": 64,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "References",
+        "module": "references",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 12679,
+        "decodedStartByte": 41,
+        "decodedEndByte": 60,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Skills",
+        "module": "skills",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 13136,
+        "decodedStartByte": 37,
+        "decodedEndByte": 52,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Volunteer",
+        "module": "volunteer",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 13639,
+        "decodedStartByte": 40,
+        "decodedEndByte": 58,
+        "sourceOffsetMappingVerified": false
+      },
+      {
+        "file": "dist/index.umd.cjs",
+        "tag": "h3",
+        "title": "Work",
+        "module": "work",
+        "kind": "decoded-html-literal",
+        "equivalent": false,
+        "literalFragmentSourceStartByte": 14623,
+        "decodedStartByte": 35,
+        "decodedEndByte": 48,
+        "sourceOffsetMappingVerified": false
+      }
+    ],
+    "moduleHeadingTag": "h3",
+    "moduleOrder": [
+      "awards",
+      "certificates",
+      "education",
+      "interests",
+      "languages",
+      "projects",
+      "publications",
+      "references",
+      "skills",
+      "volunteer",
+      "work"
+    ],
+    "orderSource": "dist/index.cjs",
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 1,
+      "affectedCssBlocks": 0,
+      "originalDeclarations": 128,
+      "projectedDeclarations": 0,
+      "positiveMediaDeclarations": 0,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 128,
+      "skipped": {
+        "invalidCssBlock": 128
+      },
+      "evidenceRecords": 0,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-migration-20261027/upstream/even/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/even.txt",
     "sha256": "a1436e5316bd543cf13606ac2a6b8e2c979e6b2284f9db4e4ec6ebace473e8b8",
     "verified": false
   },
@@ -14486,7 +15666,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -14509,15 +15689,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6303555,
-        "docxBytes": 18050315
+        "pdfBytes": 6649768,
+        "docxBytes": 18492789
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
-        "textLines": 62,
+        "textLines": 89,
         "sections": [
           "awards",
           "basics",
@@ -14536,38 +15716,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6305011,
-        "docxBytes": 18049856
+        "pdfBytes": 6650952,
+        "docxBytes": 18492627
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
-        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
-        "schemaValid": true,
-        "pages": 5,
-        "textLines": 160,
-        "sections": [
-          "awards",
-          "basics",
-          "certificates",
-          "education",
-          "interests",
-          "languages",
-          "projects",
-          "publications",
-          "references",
-          "skills",
-          "volunteer",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 6308185,
-        "docxBytes": 18050387
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -14581,12 +15734,39 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6300323,
-        "docxBytes": 18047861
+        "pdfBytes": 6646182,
+        "docxBytes": 18490334
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "schemaValid": true,
+        "pages": 5,
+        "textLines": 207,
+        "sections": [
+          "awards",
+          "basics",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 6654491,
+        "docxBytes": 18494496
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "414d1cdf88544ce9a4191c30dbdf890e63fa220d8de73cbfe902677b2cd0c887"
+  "candidateSha256": "2c2f80ba7c96b5ea427503aeb3d2c5cfa2a4096a3ece1c51f8b3cb8f319439bd"
 }

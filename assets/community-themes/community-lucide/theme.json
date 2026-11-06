@@ -47,30 +47,29 @@
     },
     "label": {
       "family": "cjk-sans",
-      "sizePt": 8.399999999999999,
+      "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.4,
-      "color": "#333333"
+      "lineHeight": 1.4
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 8.399999999999999,
+      "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.4,
-      "color": "#333333"
+      "lineHeight": 1.4
     },
     "sectionTitle": {
       "family": "cjk-serif",
-      "sizePt": 12.0,
+      "sizePt": 15.0,
       "weight": 600,
       "lineHeight": 1.4,
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-sans",
-      "sizePt": 10.6,
-      "weight": 400,
-      "lineHeight": 1.4
+      "family": "cjk-serif",
+      "sizePt": 7.199999999999999,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "meta": {
       "family": "cjk-sans",
@@ -97,6 +96,7 @@
   "composition": {
     "preset": "sidebar-left",
     "sidebarWidthPct": 30.0,
+    "gapMm": 1.7638888888888888,
     "placements": {
       "skills": "sidebar",
       "languages": "sidebar",
@@ -112,6 +112,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Clement Cauet",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-lucide/v/1.1.0",
     "upstreamRevision": "1.1.0"
   }

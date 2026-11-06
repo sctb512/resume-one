@@ -199,7 +199,9 @@
   "sourcePackage": {
     "name": "jsonresume-theme-tailwind",
     "version": "0.0.0",
-    "licenseDeclaration": "MIT"
+    "licenseDeclaration": "MIT",
+    "authorDeclaration": null,
+    "repositoryDeclaration": null
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -299,7 +301,7 @@
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 27
+      "evidenceRecords": 16
     },
     "fontRequests": [],
     "evidence": [
@@ -407,7 +409,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -579,38 +581,6 @@
         "equivalent": false
       },
       {
-        "target": "/typography/name/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
         "target": "/typography/label/sizePt",
         "value": 10.5,
         "source": {
@@ -676,70 +646,6 @@
         },
         "classification": "adapted",
         "reason": "将静态声明映射到 v2 文字角色",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/label/weight",
-        "value": 600,
-        "source": {
-          "file": "src/ui/SubTitle.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "600",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 600;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/SubTitle.jsx",
-              "startByte": 87,
-              "endByte": 104,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/label/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
         "equivalent": false
       },
       {
@@ -811,70 +717,6 @@
         "equivalent": false
       },
       {
-        "target": "/typography/summary/weight",
-        "value": 600,
-        "source": {
-          "file": "src/ui/SubTitle.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "600",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 600;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/SubTitle.jsx",
-              "startByte": 87,
-              "endByte": 104,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/summary/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
         "target": "/typography/sectionTitle/sizePt",
         "value": 15.0,
         "source": {
@@ -943,38 +785,6 @@
         "equivalent": false
       },
       {
-        "target": "/typography/sectionTitle/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
         "target": "/typography/itemTitle/weight",
         "value": 600,
         "source": {
@@ -1006,166 +816,6 @@
         },
         "classification": "adapted",
         "reason": "将静态声明映射到 v2 文字角色",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/itemTitle/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/meta/weight",
-        "value": 600,
-        "source": {
-          "file": "src/ui/SubTitle.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "600",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 600;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/SubTitle.jsx",
-              "startByte": 87,
-              "endByte": 104,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/meta/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/sideDate/weight",
-        "value": 600,
-        "source": {
-          "file": "src/ui/SubTitle.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "600",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 600;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/SubTitle.jsx",
-              "startByte": 87,
-              "endByte": 104,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/sideDate/color",
-        "value": "#666666",
-        "source": {
-          "file": "src/ui/Date.jsx",
-          "component": "Text",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#666666",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #666666;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Date.jsx",
-              "startByte": 87,
-              "endByte": 102,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
         "equivalent": false
       },
       {
@@ -1899,59 +1549,13 @@
             "family": "cjk-sans",
             "sizePt": 18.0,
             "weight": 700,
-            "lineHeight": 1.4,
-            "color": "#666666"
+            "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
             "sizePt": 18.0,
             "weight": 600,
             "lineHeight": 1.4,
-            "color": "#666666",
-            "fontStyle": "normal"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "label",
-          "requested": {
-            "family": "cjk-sans",
-            "sizePt": 10.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666"
-          },
-          "chosen": {
-            "family": "cjk-serif",
-            "sizePt": 10.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666",
-            "fontStyle": "normal"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "summary",
-          "requested": {
-            "family": "cjk-sans",
-            "sizePt": 10.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666"
-          },
-          "chosen": {
-            "family": "cjk-serif",
-            "sizePt": 10.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666",
             "fontStyle": "normal"
           }
         },
@@ -1965,15 +1569,13 @@
             "family": "cjk-sans",
             "sizePt": 15.0,
             "weight": 700,
-            "lineHeight": 1.4,
-            "color": "#666666"
+            "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
             "sizePt": 15.0,
             "weight": 600,
             "lineHeight": 1.4,
-            "color": "#666666",
             "fontStyle": "normal"
           }
         },
@@ -1987,59 +1589,13 @@
             "family": "cjk-sans",
             "sizePt": 10.6,
             "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666"
+            "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
             "sizePt": 10.6,
             "weight": 600,
             "lineHeight": 1.4,
-            "color": "#666666",
-            "fontStyle": "normal"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "meta",
-          "requested": {
-            "family": "cjk-sans",
-            "sizePt": 8.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666"
-          },
-          "chosen": {
-            "family": "cjk-serif",
-            "sizePt": 8.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666",
-            "fontStyle": "normal"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "sideDate",
-          "requested": {
-            "family": "cjk-sans",
-            "sizePt": 8.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666"
-          },
-          "chosen": {
-            "family": "cjk-serif",
-            "sizePt": 8.5,
-            "weight": 600,
-            "lineHeight": 1.4,
-            "color": "#666666",
             "fontStyle": "normal"
           }
         },
@@ -2056,7 +1612,8 @@
   "fonts": {
     "fontMappings": [],
     "differences": [],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -2481,8 +2038,176 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [
+      {
+        "file": "src/ui/Awards.jsx",
+        "tag": "h2",
+        "title": "Awards",
+        "module": "awards",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 198,
+        "endByte": 243
+      },
+      {
+        "file": "src/ui/Certificates.jsx",
+        "tag": "h2",
+        "title": "Certificates",
+        "module": "certificates",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 203,
+        "endByte": 254
+      },
+      {
+        "file": "src/ui/Education.jsx",
+        "tag": "h2",
+        "title": "Education",
+        "module": "education",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 207,
+        "endByte": 255
+      },
+      {
+        "file": "src/ui/Interests.jsx",
+        "tag": "h2",
+        "title": "Interests",
+        "module": "interests",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 184,
+        "endByte": 232
+      },
+      {
+        "file": "src/ui/Languages.jsx",
+        "tag": "h2",
+        "title": "Languages",
+        "module": "languages",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 184,
+        "endByte": 232
+      },
+      {
+        "file": "src/ui/Projects.jsx",
+        "tag": "h2",
+        "title": "Projects",
+        "module": "projects",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 235,
+        "endByte": 282
+      },
+      {
+        "file": "src/ui/Publications.jsx",
+        "tag": "h2",
+        "title": "Publications",
+        "module": "publications",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 216,
+        "endByte": 267
+      },
+      {
+        "file": "src/ui/References.jsx",
+        "tag": "h2",
+        "title": "References",
+        "module": "references",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 210,
+        "endByte": 259
+      },
+      {
+        "file": "src/ui/Skills.jsx",
+        "tag": "h2",
+        "title": "Skills",
+        "module": "skills",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 175,
+        "endByte": 220
+      },
+      {
+        "file": "src/ui/Volunteer.jsx",
+        "tag": "h2",
+        "title": "Volunteer",
+        "module": "volunteer",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 207,
+        "endByte": 255
+      },
+      {
+        "file": "src/ui/Work.jsx",
+        "tag": "h2",
+        "title": "Work Experience",
+        "module": "work",
+        "kind": "jsx-literal",
+        "equivalent": false,
+        "startByte": 192,
+        "endByte": 246
+      }
+    ],
+    "moduleHeadingTag": "h2",
+    "moduleOrder": null,
+    "orderSource": null,
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 26,
+      "affectedCssBlocks": 0,
+      "originalDeclarations": 45,
+      "projectedDeclarations": 0,
+      "positiveMediaDeclarations": 0,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 45,
+      "skipped": {},
+      "evidenceRecords": 0,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/tailwind.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -2491,7 +2216,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -2514,11 +2239,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14922601,
-        "docxBytes": 18050279
+        "pdfBytes": 14923036,
+        "docxBytes": 18050380
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
@@ -2541,11 +2266,29 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923922,
-        "docxBytes": 18049842
+        "pdfBytes": 14924668,
+        "docxBytes": 18049948
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
+        "schemaValid": true,
+        "pages": 1,
+        "textLines": 6,
+        "sections": [
+          "basics",
+          "education",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 14918566,
+        "docxBytes": 18047851
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 7,
@@ -2568,30 +2311,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14928906,
-        "docxBytes": 18050442
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
-        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
-        "schemaValid": true,
-        "pages": 1,
-        "textLines": 6,
-        "sections": [
-          "basics",
-          "education",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14918549,
-        "docxBytes": 18047833
+        "pdfBytes": 14929711,
+        "docxBytes": 18050556
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "6cb994aa039c4d93aa0c00c3071fe28c33775a3c5a6e14c62276289409a2a0cd"
+  "candidateSha256": "f2da8f974fa6bf57d5f51fb30142dcc65c28d4b917e4bfd6e5bac218ecc44232"
 }

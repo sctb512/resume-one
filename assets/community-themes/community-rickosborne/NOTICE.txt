@@ -1,64 +1,9 @@
-Rick Osborne — declarative adaptation for Resume One
-
-Original theme: jsonresume-theme-rickosborne
-Author: Rick Osborne, https://rickosborne.org
-Original project: https://github.com/rickosborne/jsonresume-theme-rickosborne
-Source package: https://www.npmjs.com/package/jsonresume-theme-rickosborne/v/2022.9.16-T1450
-Source package version: 2022.09.16-T1450
-
-The original theme and this declarative adaptation are licensed under
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
-(CC BY-NC-SA 4.0). Full legal text is in LICENSE.txt:
-https://creativecommons.org/licenses/by-nc-sa/4.0/
-Attribution, non-commercial use and share-alike conditions remain applicable.
-Bundling does not relicense this theme under the application's Apache license.
-No endorsement by the original author is implied.
-
-Changes by Resume One contributors, 2026:
-Executable Node.js/HTML/CSS was manually reconstructed as bounded declarative
-data. The light slab-serif print typography, gray palette, right contact lane,
-main identity/summary and compact sidebar keyword layout are retained.
-This is an adapted print composition, not a pixel-identical web port.
-
-Explicit differences from the original:
-- Name and role stack rather than sharing a baseline; the role uses body size.
-- Standard translated section labels replace original uppercase/custom labels.
-- Resume JSON module order is retained inside each lane, rather than imposing
-  the original default education-before-work order on the user's data.
-- Item heading/details are semantic, not independently styled inline fragments;
-  italic descriptions and special first-word italics are not reproduced.
-- Contact values are plain selectable text without decorative icons or labels.
-- Keyword chips use the renderer's bounded accessible tint and spacing, not
-  arbitrary CSS radius, ghostly background and print-specific em units.
-- No portrait, remote image/font request, custom CSS, or meta.rickosborne
-  overrides are executed. All source JSON extensions are preserved untouched.
-- A4 has explicit 14 mm margins; original browser print margins were variable.
-  Chinese text falls back explicitly to bundled Noto Sans SC. Word owns DOCX
-  wrapping/pagination; it can differ from the measured PDF and desktop preview.
-
-Font attribution (independent license):
-Copyright 2018 The Roboto Slab Project Authors
-(https://github.com/googlefonts/robotoslab)
-Roboto Slab is distributed under Apache License 2.0 (LICENSE-font.txt).
-Source: https://github.com/google/fonts/tree/369504809965ab8a0e467ad1f2d00ea07eefe1d0/apache/robotoslab
-Original variable file SHA-256:
-786ae192477447d33c6672c3055fba7cbfe45184c9a79e77a14f15716ca05b16
-FontTools instantiated full static wght=200/400 faces without subsetting or
-outline changes, renamed Resume One Rick Slab to distinguish modified files.
-Original embedded copyright and license metadata remain present.
-
-Per-face identity correction (2026-10-30): the two static faces now have
-independent primary families Resume One Rick Slab W200 and W400 so they do not
-compete for one DOCX embedRegular slot. Only naming metadata and the head
-checksum adjustment change; all other raw SFNT tables, including outlines,
-metrics, positioning and embedding flags, remain byte-identical to the
-intermediate faces. Original copyright, attribution and full Apache license
-remain unchanged. This is not native Word or high-fidelity certification.
-W200 intermediate SHA-256:
-71aa7456096fe5ac200f367629af19208e0df154c487b9e12a78dff3896fcc0e
-W200 final SHA-256:
-b534b9bc17eb14f941c073323371ef2d068858275f2160d7268f43cbbfcd00e1
-W400 intermediate SHA-256:
-5fd2a4a2eb345fbb33770dbdb8ca51920c5d882718430a8f97f262b9c2a22dbf
-W400 final SHA-256:
-c5519b8e805f3fff1a0912723021bd217f894b2adcf89357303a36de1526124a
+Rickosborne — Resume One best-effort declarative adaptation
+Source: https://www.npmjs.com/package/jsonresume-theme-rickosborne/v/2022.9.16-T1450
+Revision: 2022.9.16-T1450
+License declaration: CC-BY-NC-SA-4.0
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+Upstream author declaration: Rick Osborne (https://rickosborne.org)
+Original project declaration: https://github.com/rickosborne/jsonresume-theme-rickosborne

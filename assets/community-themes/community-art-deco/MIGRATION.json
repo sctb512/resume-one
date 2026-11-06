@@ -37,7 +37,9 @@
   "sourcePackage": {
     "name": "jsonresume-theme-art-deco",
     "version": "0.2.10",
-    "licenseDeclaration": null
+    "licenseDeclaration": null,
+    "authorDeclaration": null,
+    "repositoryDeclaration": null
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -126,54 +128,95 @@
         "section",
         "summary"
       ],
-      "evidenceRecords": 94
+      "evidenceRecords": 95
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "Cormorant Garamond",
+        "families": [
+          "Cormorant Garamond",
+          "Georgia",
+          "Times New Roman",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "Cinzel",
+        "families": [
+          "Cinzel",
+          "Cormorant Garamond",
+          "serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "Poiret One",
+        "families": [
+          "Poiret One",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "summary",
         "family": "Cormorant Garamond",
+        "families": [
+          "Cormorant Garamond",
+          "Georgia",
+          "Times New Roman",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "italic"
       },
       {
         "role": "sectionTitle",
         "family": "Cormorant Garamond",
+        "families": [
+          "Cormorant Garamond",
+          "Georgia",
+          "Times New Roman",
+          "serif"
+        ],
         "weight": 600,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "Cinzel",
+        "families": [
+          "Cinzel",
+          "serif"
+        ],
         "weight": 500,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "Poiret One",
+        "families": [
+          "Poiret One",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sideDate",
         "family": "Cormorant Garamond",
+        "families": [
+          "Cormorant Garamond",
+          "Georgia",
+          "Times New Roman",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       }
@@ -1106,7 +1149,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -1531,27 +1574,27 @@
       },
       {
         "target": "/typography/label/lineHeight",
-        "value": 1.6,
+        "value": 1.55,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Para",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.55",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.55;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5251,
-              "endByte": 5268,
-              "line": 242,
+              "startByte": 1190,
+              "endByte": 1208,
+              "line": 36,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -1851,27 +1894,27 @@
       },
       {
         "target": "/typography/sectionTitle/lineHeight",
-        "value": 1.6,
+        "value": 1.55,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Para",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.55",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.55;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5251,
-              "endByte": 5268,
-              "line": 242,
+              "startByte": 1190,
+              "endByte": 1208,
+              "line": 36,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2011,27 +2054,27 @@
       },
       {
         "target": "/typography/itemTitle/lineHeight",
-        "value": 1.6,
+        "value": 1.55,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Para",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.55",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.55;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5251,
-              "endByte": 5268,
-              "line": 242,
+              "startByte": 1190,
+              "endByte": 1208,
+              "line": 36,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2203,27 +2246,27 @@
       },
       {
         "target": "/typography/meta/lineHeight",
-        "value": 1.6,
+        "value": 1.55,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Para",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.55",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.55;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5251,
-              "endByte": 5268,
-              "line": 242,
+              "startByte": 1190,
+              "endByte": 1208,
+              "line": 36,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2363,27 +2406,27 @@
       },
       {
         "target": "/typography/sideDate/lineHeight",
-        "value": 1.6,
+        "value": 1.55,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Para",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.55",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.55;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5251,
-              "endByte": 5268,
-              "line": 242,
+              "startByte": 1190,
+              "endByte": 1208,
+              "line": 36,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2619,27 +2662,27 @@
       },
       {
         "target": "/page/marginsMm/bottom",
-        "value": 16.0,
+        "value": 12.7,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Body",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "0",
+              "text": "40px 46px 48px 46px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 0;",
+              "text": "padding: 40px 46px 48px 46px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5434,
-              "endByte": 5445,
-              "line": 252,
+              "startByte": 3636,
+              "endByte": 3665,
+              "line": 151,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2651,27 +2694,27 @@
       },
       {
         "target": "/page/marginsMm/left",
-        "value": 16.0,
+        "value": 12.170833333333333,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Body",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "0",
+              "text": "40px 46px 48px 46px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 0;",
+              "text": "padding: 40px 46px 48px 46px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5434,
-              "endByte": 5445,
-              "line": 252,
+              "startByte": 3636,
+              "endByte": 3665,
+              "line": 151,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2683,27 +2726,27 @@
       },
       {
         "target": "/page/marginsMm/right",
-        "value": 16.0,
+        "value": 12.170833333333333,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Body",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "0",
+              "text": "40px 46px 48px 46px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 0;",
+              "text": "padding: 40px 46px 48px 46px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5434,
-              "endByte": 5445,
-              "line": 252,
+              "startByte": 3636,
+              "endByte": 3665,
+              "line": 151,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2715,27 +2758,27 @@
       },
       {
         "target": "/page/marginsMm/top",
-        "value": 16.0,
+        "value": 10.583333333333334,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Body",
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "0",
+              "text": "40px 46px 48px 46px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 0;",
+              "text": "padding: 40px 46px 48px 46px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5434,
-              "endByte": 5445,
-              "line": 252,
+              "startByte": 3636,
+              "endByte": 3665,
+              "line": 151,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2743,6 +2786,38 @@
         },
         "classification": "adapted",
         "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "equivalent": false
+      },
+      {
+        "target": "/page/sectionGapMm",
+        "value": 10.054166666666667,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Block",
+          "declaration": {
+            "property": "margin-top",
+            "value": {
+              "text": "38px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-top: 38px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3880,
+              "endByte": 3897,
+              "line": 165,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
         "equivalent": false
       },
       {
@@ -3142,6 +3217,12 @@
         "value": {
           "role": "body",
           "family": "Cormorant Garamond",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3179,6 +3260,11 @@
         "value": {
           "role": "name",
           "family": "Cinzel",
+          "families": [
+            "Cinzel",
+            "Cormorant Garamond",
+            "serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3216,6 +3302,10 @@
         "value": {
           "role": "label",
           "family": "Poiret One",
+          "families": [
+            "Poiret One",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3253,6 +3343,12 @@
         "value": {
           "role": "summary",
           "family": "Cormorant Garamond",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "italic"
         },
@@ -3290,6 +3386,12 @@
         "value": {
           "role": "sectionTitle",
           "family": "Cormorant Garamond",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ],
           "weight": 600,
           "fontStyle": "normal"
         },
@@ -3327,6 +3429,10 @@
         "value": {
           "role": "itemTitle",
           "family": "Cinzel",
+          "families": [
+            "Cinzel",
+            "serif"
+          ],
           "weight": 500,
           "fontStyle": "normal"
         },
@@ -3364,6 +3470,10 @@
         "value": {
           "role": "meta",
           "family": "Poiret One",
+          "families": [
+            "Poiret One",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3401,6 +3511,12 @@
         "value": {
           "role": "sideDate",
           "family": "Cormorant Garamond",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -10683,35 +10799,6 @@
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Block",
-          "declaration": {
-            "property": "margin-top",
-            "value": {
-              "text": "38px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-top: 38px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3880,
-              "endByte": 3897,
-              "line": 165,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "CSS_PROPERTY_UNSUPPORTED",
-        "source": {
-          "file": "src/Resume.jsx",
           "component": "Heading",
           "declaration": {
             "property": "text-align",
@@ -11606,7 +11693,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -11632,67 +11719,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Body",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "40px 46px 48px 46px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 40px 46px 48px 46px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 3636,
-                "endByte": 3665,
-                "line": 151,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5434,
-                "endByte": 5445,
-                "line": 252,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -11718,67 +11748,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Body",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "40px 46px 48px 46px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 40px 46px 48px 46px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 3636,
-                "endByte": 3665,
-                "line": 151,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5434,
-                "endByte": 5445,
-                "line": 252,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -11804,67 +11777,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Body",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "40px 46px 48px 46px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 40px 46px 48px 46px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 3636,
-                "endByte": 3665,
-                "line": 151,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5434,
-                "endByte": 5445,
-                "line": 252,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -11890,64 +11806,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Body",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "40px 46px 48px 46px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 40px 46px 48px 46px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 3636,
-                "endByte": 3665,
-                "line": 151,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5434,
-                "endByte": 5445,
-                "line": 252,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12010,63 +11869,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5434,
-                "endByte": 5445,
-                "line": 252,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "22px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 22px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5501,
-                "endByte": 5520,
-                "line": 257,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
+          "file": "src/Resume.jsx",
+          "component": "Bullets",
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "22px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 22px;",
+              "truncated": false
+            },
+            "scope": [
+              "li"
+            ],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 5501,
+              "endByte": 5520,
+              "line": 257,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12857,7 +12688,7 @@
             "family": "cjk-serif",
             "sizePt": 12.75,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.29411764705882354,
             "textTransform": "uppercase"
           },
@@ -12865,7 +12696,7 @@
             "family": "cjk-sans",
             "sizePt": 12.75,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.29411764705882354,
             "textTransform": "uppercase",
             "fontStyle": "normal"
@@ -12904,7 +12735,7 @@
             "family": "cjk-serif",
             "sizePt": 15.0,
             "weight": 500,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.05,
             "textTransform": "uppercase",
             "color": "#0F1418"
@@ -12913,7 +12744,7 @@
             "family": "cjk-serif",
             "sizePt": 15.0,
             "weight": 600,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.05,
             "textTransform": "uppercase",
             "color": "#0F1418",
@@ -12930,7 +12761,7 @@
             "family": "cjk-serif",
             "sizePt": 9.0,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.16666666666666666,
             "textTransform": "uppercase"
           },
@@ -12938,7 +12769,7 @@
             "family": "cjk-sans",
             "sizePt": 9.0,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "trackingEm": 0.16666666666666666,
             "textTransform": "uppercase",
             "fontStyle": "normal"
@@ -12954,19 +12785,27 @@
             "family": "cjk-serif",
             "sizePt": 8.5,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "color": "#1C1A16"
           },
           "chosen": {
             "family": "cjk-sans",
             "sizePt": 8.5,
             "weight": 400,
-            "lineHeight": 1.6,
+            "lineHeight": 1.55,
             "color": "#1C1A16",
             "fontStyle": "normal"
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
+      },
+      {
+        "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
+        "source": {
+          "requestedMm": 10.583333333333334,
+          "chosenMm": 13.56
+        },
+        "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
       }
     ],
     "limitations": [
@@ -12984,7 +12823,13 @@
           "role": "body",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13000,7 +12845,12 @@
           "role": "name",
           "family": "Cinzel",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cinzel",
+            "Cormorant Garamond",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13016,7 +12866,13 @@
           "role": "sectionTitle",
           "family": "Cormorant Garamond",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13032,7 +12888,11 @@
           "role": "itemTitle",
           "family": "Cinzel",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cinzel",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13048,7 +12908,11 @@
           "role": "label",
           "family": "Poiret One",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Poiret One",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13064,7 +12928,13 @@
           "role": "summary",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13080,7 +12950,13 @@
           "role": "sideDate",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13096,7 +12972,11 @@
           "role": "meta",
           "family": "Poiret One",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Poiret One",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13114,14 +12994,20 @@
           "role": "body",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13130,14 +13016,19 @@
           "role": "name",
           "family": "Cinzel",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cinzel",
+            "Cormorant Garamond",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13146,14 +13037,20 @@
           "role": "sectionTitle",
           "family": "Cormorant Garamond",
           "weight": 600,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13162,14 +13059,18 @@
           "role": "itemTitle",
           "family": "Cinzel",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cinzel",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13178,14 +13079,18 @@
           "role": "label",
           "family": "Poiret One",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Poiret One",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13194,14 +13099,20 @@
           "role": "summary",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13210,14 +13121,20 @@
           "role": "sideDate",
           "family": "Cormorant Garamond",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Cormorant Garamond",
+            "Georgia",
+            "Times New Roman",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -13226,18 +13143,23 @@
           "role": "meta",
           "family": "Poiret One",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Poiret One",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -13296,8 +13218,67 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [],
+    "moduleHeadingTag": null,
+    "moduleOrder": null,
+    "orderSource": null,
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 30,
+      "affectedCssBlocks": 0,
+      "originalDeclarations": 194,
+      "projectedDeclarations": 0,
+      "positiveMediaDeclarations": 0,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 194,
+      "skipped": {
+        "invalidCssBlock": 1
+      },
+      "evidenceRecords": 0,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/art-deco.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -13306,11 +13287,11 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
-        "textLines": 70,
+        "textLines": 68,
         "sections": [
           "awards",
           "basics",
@@ -13329,15 +13310,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14925179,
-        "docxBytes": 18051193
+        "pdfBytes": 14925105,
+        "docxBytes": 18051195
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
-        "textLines": 66,
+        "textLines": 65,
         "sections": [
           "awards",
           "basics",
@@ -13356,38 +13337,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14926086,
-        "docxBytes": 18050861
+        "pdfBytes": 14926078,
+        "docxBytes": 18050835
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
-        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
-        "schemaValid": true,
-        "pages": 7,
-        "textLines": 165,
-        "sections": [
-          "awards",
-          "basics",
-          "certificates",
-          "education",
-          "interests",
-          "languages",
-          "projects",
-          "publications",
-          "references",
-          "skills",
-          "volunteer",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14931692,
-        "docxBytes": 18051760
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -13401,12 +13355,39 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918894,
-        "docxBytes": 18048072
+        "pdfBytes": 14918880,
+        "docxBytes": 18048083
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "schemaValid": true,
+        "pages": 7,
+        "textLines": 164,
+        "sections": [
+          "awards",
+          "basics",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 14931520,
+        "docxBytes": 18051732
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "1508ecef759197b1d242312f870a6ff6a7496953c15957c25adfd48750eae00a"
+  "candidateSha256": "a1554d50e11d424a5f437869e0ed0a5af615c3feec47568c5c0a082b1bd1c706"
 }

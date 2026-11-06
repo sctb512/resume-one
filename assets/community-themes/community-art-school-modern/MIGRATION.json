@@ -37,7 +37,9 @@
   "sourcePackage": {
     "name": "jsonresume-theme-art-school-modern",
     "version": "0.2.10",
-    "licenseDeclaration": "MIT"
+    "licenseDeclaration": "MIT",
+    "authorDeclaration": "JSON Resume Team",
+    "repositoryDeclaration": null
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -99,7 +101,7 @@
       "syntaxFiles": 9,
       "cssFiles": 7,
       "styledComponents": 36,
-      "declarationsSeen": 263,
+      "declarationsSeen": 265,
       "matchedRoles": [
         "body",
         "header",
@@ -111,54 +113,94 @@
         "section",
         "sectionTitle"
       ],
-      "evidenceRecords": 94
+      "evidenceRecords": 91
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "Fraunces",
+        "families": [
+          "Fraunces",
+          "Georgia",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "Archivo Black",
+        "families": [
+          "Archivo Black",
+          "Archivo",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "Fraunces",
+        "families": [
+          "Fraunces",
+          "Georgia",
+          "serif"
+        ],
         "weight": 400,
         "fontStyle": "italic"
       },
       {
         "role": "summary",
-        "family": "Fraunces",
+        "family": "Archivo",
+        "families": [
+          "Archivo",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sectionTitle",
         "family": "Archivo",
+        "families": [
+          "Archivo",
+          "sans-serif"
+        ],
         "weight": 800,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "Archivo",
+        "families": [
+          "Archivo",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "Fraunces",
+        "families": [
+          "Fraunces",
+          "Georgia",
+          "serif"
+        ],
         "weight": 600,
         "fontStyle": "italic"
       },
       {
         "role": "sideDate",
-        "family": "Fraunces",
+        "family": "Archivo",
+        "families": [
+          "Archivo",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       }
@@ -1111,7 +1153,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -1631,38 +1673,6 @@
         "equivalent": false
       },
       {
-        "target": "/typography/label/trackingEm",
-        "value": -0.015,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StatementText",
-          "declaration": {
-            "property": "letter-spacing",
-            "value": {
-              "text": "-0.015em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "letter-spacing: -0.015em;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3961,
-              "endByte": 3986,
-              "line": 187,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
         "target": "/typography/label/color",
         "value": "#111111",
         "source": {
@@ -1696,27 +1706,27 @@
       },
       {
         "target": "/typography/summary/sizePt",
-        "value": 10.875,
+        "value": 11.25,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "font-size",
             "value": {
-              "text": "14.5px",
+              "text": "15px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size: 14.5px;",
+              "text": "font-size: 15px;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5822,
-              "endByte": 5840,
-              "line": 291,
+              "startByte": 950,
+              "endByte": 966,
+              "line": 27,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -1728,27 +1738,27 @@
       },
       {
         "target": "/typography/summary/family",
-        "value": "cjk-serif",
+        "value": "cjk-sans",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -1760,59 +1770,27 @@
       },
       {
         "target": "/typography/summary/lineHeight",
-        "value": 1.62,
+        "value": 1.6,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.62",
+              "text": "1.6",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.62;",
+              "text": "line-height: 1.6;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5843,
-              "endByte": 5861,
-              "line": 292,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/summary/trackingEm",
-        "value": -0.015,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StatementText",
-          "declaration": {
-            "property": "letter-spacing",
-            "value": {
-              "text": "-0.015em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "letter-spacing: -0.015em;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3961,
-              "endByte": 3986,
-              "line": 187,
+              "startByte": 969,
+              "endByte": 986,
+              "line": 28,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -1824,27 +1802,27 @@
       },
       {
         "target": "/typography/summary/color",
-        "value": "#2A2722",
+        "value": "#111111",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "color",
             "value": {
-              "text": "#2a2722",
+              "text": "#111111",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color: #2a2722;",
+              "text": "color: #111111;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5864,
-              "endByte": 5879,
-              "line": 293,
+              "startByte": 860,
+              "endByte": 874,
+              "line": 25,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2176,27 +2154,27 @@
       },
       {
         "target": "/typography/itemTitle/lineHeight",
-        "value": 1.62,
+        "value": 1.6,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.62",
+              "text": "1.6",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.62;",
+              "text": "line-height: 1.6;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5843,
-              "endByte": 5861,
-              "line": 292,
+              "startByte": 969,
+              "endByte": 986,
+              "line": 28,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2432,27 +2410,27 @@
       },
       {
         "target": "/typography/meta/lineHeight",
-        "value": 1.62,
+        "value": 1.6,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.62",
+              "text": "1.6",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.62;",
+              "text": "line-height: 1.6;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5843,
-              "endByte": 5861,
-              "line": 292,
+              "startByte": 969,
+              "endByte": 986,
+              "line": 28,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2560,27 +2538,27 @@
       },
       {
         "target": "/typography/sideDate/family",
-        "value": "cjk-serif",
+        "value": "cjk-sans",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2592,59 +2570,27 @@
       },
       {
         "target": "/typography/sideDate/lineHeight",
-        "value": 1.62,
+        "value": 1.6,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.62",
+              "text": "1.6",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.62;",
+              "text": "line-height: 1.6;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5843,
-              "endByte": 5861,
-              "line": 292,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "从正文角色推断继承；没有计算 DOM 祖先及 UA 样式",
-        "equivalent": false
-      },
-      {
-        "target": "/typography/sideDate/trackingEm",
-        "value": -0.015,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StatementText",
-          "declaration": {
-            "property": "letter-spacing",
-            "value": {
-              "text": "-0.015em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "letter-spacing: -0.015em;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3961,
-              "endByte": 3986,
-              "line": 187,
+              "startByte": 969,
+              "endByte": 986,
+              "line": 28,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2656,27 +2602,27 @@
       },
       {
         "target": "/typography/sideDate/color",
-        "value": "#2A2722",
+        "value": "#111111",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "EntryText",
+          "component": "Page",
           "declaration": {
             "property": "color",
             "value": {
-              "text": "#2a2722",
+              "text": "#111111",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color: #2a2722;",
+              "text": "color: #111111;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5864,
-              "endByte": 5879,
-              "line": 293,
+              "startByte": 860,
+              "endByte": 874,
+              "line": 25,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2883,7 +2829,7 @@
         "value": 16.0,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Page",
           "declaration": {
             "property": "padding",
             "value": {
@@ -2898,9 +2844,9 @@
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5953,
-              "endByte": 5964,
-              "line": 299,
+              "startByte": 989,
+              "endByte": 1000,
+              "line": 29,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2915,7 +2861,7 @@
         "value": 16.0,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Page",
           "declaration": {
             "property": "padding",
             "value": {
@@ -2930,9 +2876,9 @@
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5953,
-              "endByte": 5964,
-              "line": 299,
+              "startByte": 989,
+              "endByte": 1000,
+              "line": 29,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2947,7 +2893,7 @@
         "value": 16.0,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Page",
           "declaration": {
             "property": "padding",
             "value": {
@@ -2962,9 +2908,9 @@
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5953,
-              "endByte": 5964,
-              "line": 299,
+              "startByte": 989,
+              "endByte": 1000,
+              "line": 29,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2979,7 +2925,7 @@
         "value": 16.0,
         "source": {
           "file": "src/Resume.jsx",
-          "component": "Bullets",
+          "component": "Page",
           "declaration": {
             "property": "padding",
             "value": {
@@ -2994,9 +2940,9 @@
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 5953,
-              "endByte": 5964,
-              "line": 299,
+              "startByte": 989,
+              "endByte": 1000,
+              "line": 29,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -3035,7 +2981,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "模块下边距近似统一模块间距；未模拟 margin collapse",
+        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
         "equivalent": false
       },
       {
@@ -3063,6 +3009,11 @@
         "value": {
           "role": "body",
           "family": "Fraunces",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3100,6 +3051,11 @@
         "value": {
           "role": "name",
           "family": "Archivo Black",
+          "families": [
+            "Archivo Black",
+            "Archivo",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -3137,6 +3093,11 @@
         "value": {
           "role": "label",
           "family": "Fraunces",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ],
           "weight": 400,
           "fontStyle": "italic"
         },
@@ -3173,30 +3134,36 @@
         "target": "fontRequests",
         "value": {
           "role": "summary",
-          "family": "Fraunces",
+          "family": "Archivo",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -3211,6 +3178,10 @@
         "value": {
           "role": "sectionTitle",
           "family": "Archivo",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ],
           "weight": 800,
           "fontStyle": "normal"
         },
@@ -3248,6 +3219,10 @@
         "value": {
           "role": "itemTitle",
           "family": "Archivo",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -3285,6 +3260,11 @@
         "value": {
           "role": "meta",
           "family": "Fraunces",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ],
           "weight": 600,
           "fontStyle": "italic"
         },
@@ -3321,30 +3301,36 @@
         "target": "fontRequests",
         "value": {
           "role": "sideDate",
-          "family": "Fraunces",
+          "family": "Archivo",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -3504,6 +3490,52 @@
           }
         },
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Frame",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "36px 32px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 36px 32px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1236,
+              "endByte": 1255,
+              "line": 44,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 4,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "CONDITIONAL_RULE_UNSUPPORTED",
@@ -6888,6 +6920,52 @@
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
       },
       {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "src/Resume.jsx#literal-1081.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "36px 32px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 36px 32px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx#literal-1081.css",
+              "startByte": 154,
+              "endByte": 173,
+              "line": 11,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 4,
+              "projectedDeclarationIndex": 5,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
         "code": "CSS_SYNTAX_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx#literal-1328.css",
@@ -9881,30 +9959,30 @@
         "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "原 font-family: 'Fraunces', Georgia, serif；显式采用 cjk-serif，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -10026,30 +10104,30 @@
         "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "src/Resume.jsx",
-          "component": "StatementText",
+          "component": "Page",
           "declaration": {
             "property": "font-family",
             "value": {
-              "text": "'Fraunces', Georgia, serif",
+              "text": "'Archivo', -apple-system, BlinkMacSystemFont, sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-family: 'Fraunces', Georgia, serif;",
+              "text": "font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;",
               "truncated": false
             },
             "scope": [],
             "span": {
               "file": "src/Resume.jsx",
-              "startByte": 3860,
-              "endByte": 3900,
-              "line": 184,
+              "startByte": 877,
+              "endByte": 947,
+              "line": 26,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "原 font-family: 'Fraunces', Georgia, serif；显式采用 cjk-serif，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "NUMERIC_VALUE_UNREPRESENTABLE",
@@ -10951,7 +11029,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "code": "COMPACT_SECTION_GAP_APPROXIMATED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Statement",
@@ -10977,7 +11055,7 @@
             }
           }
         },
-        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+        "message": "原零/极小外边距依赖未迁移的盒模型；共享基线排版采用 4mm 安全间距，避免模块标题覆盖上一模块"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -11007,6 +11085,63 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/sectionGapMm",
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "Statement",
+            "declaration": {
+              "property": "margin",
+              "value": {
+                "text": "0 0 24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin: 0 0 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3544,
+                "endByte": 3561,
+                "line": 167,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "Statement",
+            "declaration": {
+              "property": "margin",
+              "value": {
+                "text": "0 0 24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin: 0 0 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3544,
+                "endByte": 3561,
+                "line": 167,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12138,7 +12273,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -12164,10 +12299,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -12193,10 +12328,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -12222,10 +12357,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Bullets",
@@ -12251,7 +12386,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12314,63 +12449,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5953,
-                "endByte": 5964,
-                "line": 299,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 24px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 6056,
-                "endByte": 6075,
-                "line": 306,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
+          "file": "src/Resume.jsx",
+          "component": "Bullets",
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 24px;",
+              "truncated": false
+            },
+            "scope": [
+              "li"
+            ],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 6056,
+              "endByte": 6075,
+              "line": 306,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12404,63 +12511,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Bullets",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 5953,
-                "endByte": 5964,
-                "line": 299,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx#literal-5909.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-left",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-left: 24px;",
-                "truncated": false
-              },
-              "scope": [
-                "li"
-              ],
-              "span": {
-                "file": "src/Resume.jsx#literal-5909.css",
-                "startByte": 146,
-                "endByte": 165,
-                "line": 11,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              }
+          "file": "src/Resume.jsx#literal-5909.css",
+          "component": null,
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 24px;",
+              "truncated": false
+            },
+            "scope": [
+              "li"
+            ],
+            "span": {
+              "file": "src/Resume.jsx#literal-5909.css",
+              "startByte": 146,
+              "endByte": 165,
+              "line": 11,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "COLOR_READABILITY_FALLBACK",
@@ -12517,7 +12596,6 @@
             "weight": 400,
             "lineHeight": 1.2,
             "fontStyle": "italic",
-            "trackingEm": -0.015,
             "color": "#111111"
           },
           "chosen": {
@@ -12526,32 +12604,7 @@
             "weight": 400,
             "lineHeight": 1.2,
             "fontStyle": "normal",
-            "trackingEm": -0.015,
             "color": "#111111"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "summary",
-          "requested": {
-            "family": "cjk-serif",
-            "sizePt": 10.875,
-            "weight": 400,
-            "lineHeight": 1.62,
-            "trackingEm": -0.015,
-            "color": "#2A2722"
-          },
-          "chosen": {
-            "family": "cjk-sans",
-            "sizePt": 10.875,
-            "weight": 400,
-            "lineHeight": 1.62,
-            "trackingEm": -0.015,
-            "color": "#2A2722",
-            "fontStyle": "normal"
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
@@ -12590,7 +12643,7 @@
             "family": "cjk-sans",
             "sizePt": 15.75,
             "weight": 700,
-            "lineHeight": 1.62,
+            "lineHeight": 1.6,
             "trackingEm": -0.01,
             "textTransform": "uppercase",
             "color": "#111111"
@@ -12599,7 +12652,7 @@
             "family": "cjk-serif",
             "sizePt": 15.75,
             "weight": 600,
-            "lineHeight": 1.62,
+            "lineHeight": 1.6,
             "trackingEm": -0.01,
             "textTransform": "uppercase",
             "color": "#111111",
@@ -12616,7 +12669,7 @@
             "family": "cjk-serif",
             "sizePt": 12.75,
             "weight": 600,
-            "lineHeight": 1.62,
+            "lineHeight": 1.6,
             "fontStyle": "italic",
             "trackingEm": 0.16,
             "textTransform": "uppercase"
@@ -12625,34 +12678,10 @@
             "family": "cjk-serif",
             "sizePt": 12.75,
             "weight": 600,
-            "lineHeight": 1.62,
+            "lineHeight": 1.6,
             "fontStyle": "normal",
             "trackingEm": 0.16,
             "textTransform": "uppercase"
-          }
-        },
-        "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "RENDERER_REAL_FACE_FALLBACK",
-        "source": {
-          "role": "sideDate",
-          "requested": {
-            "family": "cjk-serif",
-            "sizePt": 8.5,
-            "weight": 400,
-            "lineHeight": 1.62,
-            "trackingEm": -0.015,
-            "color": "#2A2722"
-          },
-          "chosen": {
-            "family": "cjk-sans",
-            "sizePt": 8.5,
-            "weight": 400,
-            "lineHeight": 1.62,
-            "trackingEm": -0.015,
-            "color": "#2A2722",
-            "fontStyle": "normal"
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
@@ -12673,7 +12702,12 @@
           "role": "body",
           "family": "Fraunces",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12689,7 +12723,12 @@
           "role": "name",
           "family": "Archivo Black",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo Black",
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12705,7 +12744,11 @@
           "role": "sectionTitle",
           "family": "Archivo",
           "weight": 800,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12721,7 +12764,11 @@
           "role": "itemTitle",
           "family": "Archivo",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12737,7 +12784,12 @@
           "role": "label",
           "family": "Fraunces",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12751,9 +12803,15 @@
         "role": "summary",
         "requested": {
           "role": "summary",
-          "family": "Fraunces",
+          "family": "Archivo",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12767,9 +12825,15 @@
         "role": "sideDate",
         "requested": {
           "role": "sideDate",
-          "family": "Fraunces",
+          "family": "Archivo",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12785,7 +12849,12 @@
           "role": "meta",
           "family": "Fraunces",
           "weight": 600,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -12803,14 +12872,19 @@
           "role": "body",
           "family": "Fraunces",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -12819,14 +12893,19 @@
           "role": "name",
           "family": "Archivo Black",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo Black",
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -12835,14 +12914,18 @@
           "role": "sectionTitle",
           "family": "Archivo",
           "weight": 800,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -12851,14 +12934,18 @@
           "role": "itemTitle",
           "family": "Archivo",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -12867,46 +12954,63 @@
           "role": "label",
           "family": "Fraunces",
           "weight": 400,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
         "code": "FONT_FACE_UNAVAILABLE",
         "source": {
           "role": "summary",
-          "family": "Fraunces",
+          "family": "Archivo",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
         "code": "FONT_FACE_UNAVAILABLE",
         "source": {
           "role": "sideDate",
-          "family": "Fraunces",
+          "family": "Archivo",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Archivo",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "sans-serif"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
@@ -12915,18 +13019,24 @@
           "role": "meta",
           "family": "Fraunces",
           "weight": 600,
-          "fontStyle": "italic"
+          "fontStyle": "italic",
+          "families": [
+            "Fraunces",
+            "Georgia",
+            "serif"
+          ]
         },
         "retained": {
           "family": "cjk-serif",
           "weight": 600,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -13025,8 +13135,131 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [],
+    "moduleHeadingTag": null,
+    "moduleOrder": null,
+    "orderSource": null,
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 43,
+      "affectedCssBlocks": 2,
+      "originalDeclarations": 263,
+      "projectedDeclarations": 2,
+      "positiveMediaDeclarations": 2,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 265,
+      "skipped": {
+        "invalidCssBlock": 22,
+        "unsupportedMediaCondition": 19
+      },
+      "evidenceRecords": 2,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [
+      {
+        "file": "src/Resume.jsx",
+        "component": "Frame",
+        "cssPath": "/syntaxEvidence/1/styledComponents/1/css",
+        "span": {
+          "file": "src/Resume.jsx",
+          "startByte": 1236,
+          "endByte": 1255,
+          "line": 44,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 4,
+          "projectedDeclarationIndex": 5,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "src/Resume.jsx#literal-1081.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/2/styles",
+        "span": {
+          "file": "src/Resume.jsx#literal-1081.css",
+          "startByte": 154,
+          "endByte": 173,
+          "line": 11,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 4,
+          "projectedDeclarationIndex": 5,
+          "originalScope": [
+            "@media print"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      }
+    ],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/art-school-modern.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -13035,7 +13268,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -13058,11 +13291,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923902,
-        "docxBytes": 18050574
+        "pdfBytes": 14923889,
+        "docxBytes": 18050567
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
@@ -13085,11 +13318,29 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14924966,
-        "docxBytes": 18050060
+        "pdfBytes": 14924969,
+        "docxBytes": 18050061
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
+        "schemaValid": true,
+        "pages": 1,
+        "textLines": 6,
+        "sections": [
+          "basics",
+          "education",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 14918654,
+        "docxBytes": 18047902
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 6,
@@ -13112,30 +13363,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14929345,
-        "docxBytes": 18050653
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
-        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
-        "schemaValid": true,
-        "pages": 1,
-        "textLines": 6,
-        "sections": [
-          "basics",
-          "education",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14918644,
-        "docxBytes": 18047898
+        "pdfBytes": 14929336,
+        "docxBytes": 18050635
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "6d0e4b80054c772d8c67d740a7a7ae986f8bd696bc291eac3dd864babd1f609e"
+  "candidateSha256": "888e3bbae53247a7b20af732cf98ce5b7970d62b3b817504b1be22aa4aecc1b0"
 }

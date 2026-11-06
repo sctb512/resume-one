@@ -31,7 +31,12 @@
   "sourcePackage": {
     "name": "jsonresume-theme-claude",
     "version": "1.0.4",
-    "licenseDeclaration": "MIT"
+    "licenseDeclaration": "MIT",
+    "authorDeclaration": "Roland Sharp <rolandnsharp@gmail.com>",
+    "repositoryDeclaration": {
+      "type": "git",
+      "url": "https://github.com/rolandnsharp/jsonresume-theme-claude"
+    }
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -91,7 +96,7 @@
       "syntaxFiles": 2,
       "cssFiles": 1,
       "styledComponents": 0,
-      "declarationsSeen": 205,
+      "declarationsSeen": 217,
       "matchedRoles": [
         "body",
         "header",
@@ -105,54 +110,116 @@
         "sideDate",
         "summary"
       ],
-      "evidenceRecords": 160
+      "evidenceRecords": 161
     },
     "fontRequests": [
       {
         "role": "body",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "name",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 800,
         "fontStyle": "normal"
       },
       {
         "role": "label",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 500,
         "fontStyle": "normal"
       },
       {
         "role": "summary",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sectionTitle",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "itemTitle",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 700,
         "fontStyle": "normal"
       },
       {
         "role": "meta",
         "family": "Inter",
+        "families": [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       },
       {
         "role": "sideDate",
         "family": "JetBrains Mono",
+        "families": [
+          "JetBrains Mono",
+          "Fira Code",
+          "SF Mono",
+          "monospace"
+        ],
         "weight": 400,
         "fontStyle": "normal"
       }
@@ -3293,7 +3360,7 @@
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -3302,29 +3369,29 @@
       },
       {
         "target": "/typography/body/sizePt",
-        "value": 12.0,
+        "value": 10.5,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "font-size",
             "value": {
-              "text": "16px",
+              "text": "0.875rem",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size: 16px;",
+              "text": "font-size: 0.875rem;",
               "truncated": false
             },
             "scope": [
-              "html"
+              ".entry-body"
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1347,
-              "endByte": 1363,
-              "line": 46,
+              "startByte": 5131,
+              "endByte": 5151,
+              "line": 201,
               "column": 7,
               "columnUnit": "utf8-bytes"
             }
@@ -3370,29 +3437,29 @@
       },
       {
         "target": "/typography/body/lineHeight",
-        "value": 1.6,
+        "value": 1.7,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "line-height",
             "value": {
-              "text": "1.6",
+              "text": "1.7",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "line-height: 1.6;",
+              "text": "line-height: 1.7;",
               "truncated": false
             },
             "scope": [
-              "body"
+              ".entry-body"
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1577,
-              "endByte": 1594,
-              "line": 55,
+              "startByte": 5200,
+              "endByte": 5217,
+              "line": 203,
               "column": 7,
               "columnUnit": "utf8-bytes"
             }
@@ -3404,29 +3471,29 @@
       },
       {
         "target": "/typography/body/color",
-        "value": "#1C1917",
+        "value": "#57534E",
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "color",
             "value": {
-              "text": "var(--color-text)",
+              "text": "var(--color-text-secondary)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color: var(--color-text);",
+              "text": "color: var(--color-text-secondary);",
               "truncated": false
             },
             "scope": [
-              "body"
+              ".entry-body"
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1510,
-              "endByte": 1535,
-              "line": 53,
+              "startByte": 5158,
+              "endByte": 5193,
+              "line": 202,
               "column": 7,
               "columnUnit": "utf8-bytes"
             }
@@ -4696,29 +4763,29 @@
       },
       {
         "target": "/colors/ink",
-        "value": "#1C1917",
+        "value": "#57534E",
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "color",
             "value": {
-              "text": "var(--color-text)",
+              "text": "var(--color-text-secondary)",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "color: var(--color-text);",
+              "text": "color: var(--color-text-secondary);",
               "truncated": false
             },
             "scope": [
-              "body"
+              ".entry-body"
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1510,
-              "endByte": 1535,
-              "line": 53,
+              "startByte": 5158,
+              "endByte": 5193,
+              "line": 202,
               "column": 7,
               "columnUnit": "utf8-bytes"
             }
@@ -4831,20 +4898,72 @@
         "equivalent": false
       },
       {
+        "target": "/page/avoidSplitItems",
+        "value": true,
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "break-inside",
+            "value": {
+              "text": "avoid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "break-inside: avoid;",
+              "truncated": false
+            },
+            "scope": [
+              ".entry"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7992,
+              "endByte": 8012,
+              "line": 319,
+              "column": 16,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 198,
+              "projectedDeclarationIndex": 216,
+              "originalScope": [
+                "@media print",
+                ".entry"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "条目断页偏好投影到全局页面策略",
+        "equivalent": false
+      },
+      {
         "target": "/page/marginsMm/bottom",
-        "value": 8.466666666666665,
+        "value": 16.0,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "var(--spacing-xl) var(--spacing-md)",
+              "text": "0",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: var(--spacing-xl) var(--spacing-md);",
+              "text": "padding: 0;",
               "truncated": false
             },
             "scope": [
@@ -4852,11 +4971,29 @@
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1601,
-              "endByte": 1646,
-              "line": 56,
-              "column": 7,
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -4866,19 +5003,19 @@
       },
       {
         "target": "/page/marginsMm/left",
-        "value": 4.2333333333333325,
+        "value": 16.0,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "var(--spacing-xl) var(--spacing-md)",
+              "text": "0",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: var(--spacing-xl) var(--spacing-md);",
+              "text": "padding: 0;",
               "truncated": false
             },
             "scope": [
@@ -4886,11 +5023,29 @@
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1601,
-              "endByte": 1646,
-              "line": 56,
-              "column": 7,
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -4900,19 +5055,19 @@
       },
       {
         "target": "/page/marginsMm/right",
-        "value": 4.2333333333333325,
+        "value": 16.0,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "var(--spacing-xl) var(--spacing-md)",
+              "text": "0",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: var(--spacing-xl) var(--spacing-md);",
+              "text": "padding: 0;",
               "truncated": false
             },
             "scope": [
@@ -4920,11 +5075,29 @@
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1601,
-              "endByte": 1646,
-              "line": 56,
-              "column": 7,
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -4934,19 +5107,19 @@
       },
       {
         "target": "/page/marginsMm/top",
-        "value": 8.466666666666665,
+        "value": 16.0,
         "source": {
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
             "property": "padding",
             "value": {
-              "text": "var(--spacing-xl) var(--spacing-md)",
+              "text": "0",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: var(--spacing-xl) var(--spacing-md);",
+              "text": "padding: 0;",
               "truncated": false
             },
             "scope": [
@@ -4954,11 +5127,29 @@
             ],
             "span": {
               "file": "index.js#literal-3563.css",
-              "startByte": 1601,
-              "endByte": 1646,
-              "line": 56,
-              "column": 7,
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
               "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -5345,6 +5536,14 @@
         "value": {
           "role": "body",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -5384,6 +5583,14 @@
         "value": {
           "role": "name",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 800,
           "fontStyle": "normal"
         },
@@ -5423,6 +5630,14 @@
         "value": {
           "role": "label",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 500,
           "fontStyle": "normal"
         },
@@ -5462,6 +5677,14 @@
         "value": {
           "role": "summary",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -5501,6 +5724,14 @@
         "value": {
           "role": "sectionTitle",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -5540,6 +5771,14 @@
         "value": {
           "role": "itemTitle",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 700,
           "fontStyle": "normal"
         },
@@ -5579,6 +5818,14 @@
         "value": {
           "role": "meta",
           "family": "Inter",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -5618,6 +5865,12 @@
         "value": {
           "role": "sideDate",
           "family": "JetBrains Mono",
+          "families": [
+            "JetBrains Mono",
+            "Fira Code",
+            "SF Mono",
+            "monospace"
+          ],
           "weight": 400,
           "fontStyle": "normal"
         },
@@ -7892,316 +8145,6 @@
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4348,
-              "endByte": 4362,
-              "line": 166,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "justify-content",
-            "value": {
-              "text": "space-between",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "justify-content: space-between;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4369,
-              "endByte": 4400,
-              "line": 167,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "align-items",
-            "value": {
-              "text": "baseline",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "align-items: baseline;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4407,
-              "endByte": 4429,
-              "line": 168,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "flex-wrap",
-            "value": {
-              "text": "wrap",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "flex-wrap: wrap;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4436,
-              "endByte": 4452,
-              "line": 169,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "gap",
-            "value": {
-              "text": "var(--spacing-xs) var(--spacing-md)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "gap: var(--spacing-xs) var(--spacing-md);",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4459,
-              "endByte": 4500,
-              "line": 170,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "var(--spacing-xs)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: var(--spacing-xs);",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-header"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4507,
-              "endByte": 4540,
-              "line": 171,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "0.875rem",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 0.875rem;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-subtitle"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4839,
-              "endByte": 4859,
-              "line": 188,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "var(--color-accent)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: var(--color-accent);",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-subtitle"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4866,
-              "endByte": 4893,
-              "line": 189,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "500",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 500;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-subtitle"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4900,
-              "endByte": 4917,
-              "line": 190,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "var(--spacing-sm)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: var(--spacing-sm);",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-subtitle"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 4924,
-              "endByte": 4957,
-              "line": 191,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
             "property": "color",
             "value": {
               "text": "inherit",
@@ -8283,99 +8226,6 @@
               "endByte": 5103,
               "line": 198,
               "column": 31,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "0.875rem",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 0.875rem;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-body"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 5131,
-              "endByte": 5151,
-              "line": 201,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "var(--color-text-secondary)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: var(--color-text-secondary);",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-body"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 5158,
-              "endByte": 5193,
-              "line": 202,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "line-height",
-            "value": {
-              "text": "1.7",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "line-height: 1.7;",
-              "truncated": false
-            },
-            "scope": [
-              ".entry-body"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 5200,
-              "endByte": 5217,
-              "line": 203,
-              "column": 7,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -8902,130 +8752,6 @@
               "startByte": 6100,
               "endByte": 6123,
               "line": 242,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "var(--spacing-lg)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: var(--spacing-lg);",
-              "truncated": false
-            },
-            "scope": [
-              ".project-card"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 6157,
-              "endByte": 6184,
-              "line": 246,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "border",
-            "value": {
-              "text": "1px solid var(--color-border)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border: 1px solid var(--color-border);",
-              "truncated": false
-            },
-            "scope": [
-              ".project-card"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 6191,
-              "endByte": 6229,
-              "line": 247,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "border-radius",
-            "value": {
-              "text": "var(--radius-md)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border-radius: var(--radius-md);",
-              "truncated": false
-            },
-            "scope": [
-              ".project-card"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 6236,
-              "endByte": 6268,
-              "line": 248,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "index.js#literal-3563.css",
-          "component": null,
-          "declaration": {
-            "property": "background",
-            "value": {
-              "text": "var(--color-tag-bg)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "background: var(--color-tag-bg);",
-              "truncated": false
-            },
-            "scope": [
-              ".project-card"
-            ],
-            "span": {
-              "file": "index.js#literal-3563.css",
-              "startByte": 6275,
-              "endByte": 6307,
-              "line": 249,
               "column": 7,
               "columnUnit": "utf8-bytes"
             }
@@ -10292,6 +10018,300 @@
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
       },
       {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".header::before"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7741,
+              "endByte": 7767,
+              "line": 313,
+              "column": 25,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 193,
+              "projectedDeclarationIndex": 211,
+              "originalScope": [
+                "@media print",
+                ".header::before"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "-webkit-print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "-webkit-print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".header::before"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7768,
+              "endByte": 7802,
+              "line": 313,
+              "column": 52,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 194,
+              "projectedDeclarationIndex": 212,
+              "originalScope": [
+                "@media print",
+                ".header::before"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7859,
+              "endByte": 7885,
+              "line": 315,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 195,
+              "projectedDeclarationIndex": 213,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7859,
+              "endByte": 7885,
+              "line": 315,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 195,
+              "projectedDeclarationIndex": 213,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "-webkit-print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "-webkit-print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7894,
+              "endByte": 7928,
+              "line": 316,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 196,
+              "projectedDeclarationIndex": 214,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "-webkit-print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "-webkit-print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7894,
+              "endByte": 7928,
+              "line": 316,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 196,
+              "projectedDeclarationIndex": 214,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
         "code": "COLLAPSED_ROLE_CONFLICT",
         "source": {
           "previous": {
@@ -10648,6 +10668,528 @@
             "declaration": {
               "property": "margin-bottom",
               "value": {
+                "text": "var(--spacing-xl)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-xl);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4120,
+                "endByte": 4153,
+                "line": 162,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "var(--spacing-xs)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-xs);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-header"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4507,
+                "endByte": 4540,
+                "line": 171,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "var(--spacing-xs)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-xs);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-header"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4507,
+                "endByte": 4540,
+                "line": 171,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.125rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.125rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".header .label"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 2487,
+                "endByte": 2507,
+                "line": 94,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "0.875rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 0.875rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-subtitle"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4839,
+                "endByte": 4859,
+                "line": 188,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.125rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.125rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".header .label"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 2487,
+                "endByte": 2507,
+                "line": 94,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "var(--spacing-lg)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-lg);",
+                "truncated": false
+              },
+              "scope": [
+                ".header .label"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 2572,
+                "endByte": 2605,
+                "line": 97,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "var(--spacing-sm)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-sm);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-subtitle"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4924,
+                "endByte": 4957,
+                "line": 191,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "var(--spacing-lg)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: var(--spacing-lg);",
+                "truncated": false
+              },
+              "scope": [
+                ".header .label"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 2572,
+                "endByte": 2605,
+                "line": 97,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 16px;",
+                "truncated": false
+              },
+              "scope": [
+                "html"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1347,
+                "endByte": 1363,
+                "line": 46,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "0.875rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 0.875rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "0.875rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 0.875rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "var(--color-text)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: var(--color-text);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1510,
+                "endByte": 1535,
+                "line": 53,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "var(--color-text-secondary)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: var(--color-text-secondary);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5158,
+                "endByte": 5193,
+                "line": 202,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "var(--color-text-secondary)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: var(--color-text-secondary);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5158,
+                "endByte": 5193,
+                "line": 202,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "line-height",
+              "value": {
+                "text": "1.6",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "line-height: 1.6;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1577,
+                "endByte": 1594,
+                "line": 55,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "line-height",
+              "value": {
+                "text": "1.7",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "line-height: 1.7;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5200,
+                "endByte": 5217,
+                "line": 203,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "line-height",
+              "value": {
+                "text": "1.7",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "line-height: 1.7;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5200,
+                "endByte": 5217,
+                "line": 203,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
                 "text": "var(--spacing-sm)",
                 "truncated": false
               },
@@ -10806,6 +11348,93 @@
                 "endByte": 4589,
                 "line": 175,
                 "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding-bottom",
+              "value": {
+                "text": "var(--spacing-xl)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding-bottom: var(--spacing-xl);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4154,
+                "endByte": 4188,
+                "line": 162,
+                "column": 48,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-lg)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-lg);",
+                "truncated": false
+              },
+              "scope": [
+                ".project-card"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 6157,
+                "endByte": 6184,
+                "line": 246,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding-bottom",
+              "value": {
+                "text": "var(--spacing-xl)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding-bottom: var(--spacing-xl);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 4154,
+                "endByte": 4188,
+                "line": 162,
+                "column": 48,
                 "columnUnit": "utf8-bytes"
               }
             }
@@ -10996,22 +11625,22 @@
             "declaration": {
               "property": "font-size",
               "value": {
-                "text": "16px",
+                "text": "0.875rem",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "font-size: 16px;",
+                "text": "font-size: 0.875rem;",
                 "truncated": false
               },
               "scope": [
-                "html"
+                ".entry-body"
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 1347,
-                "endByte": 1363,
-                "line": 46,
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
               }
@@ -11050,22 +11679,22 @@
             "declaration": {
               "property": "font-size",
               "value": {
-                "text": "16px",
+                "text": "0.875rem",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "font-size: 16px;",
+                "text": "font-size: 0.875rem;",
                 "truncated": false
               },
               "scope": [
-                "html"
+                ".entry-body"
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 1347,
-                "endByte": 1363,
-                "line": 46,
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
               }
@@ -11081,24 +11710,24 @@
             "file": "index.js#literal-3563.css",
             "component": null,
             "declaration": {
-              "property": "color",
+              "property": "line-height",
               "value": {
-                "text": "var(--color-text)",
+                "text": "1.7",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "color: var(--color-text);",
+                "text": "line-height: 1.7;",
                 "truncated": false
               },
               "scope": [
-                "body"
+                ".entry-body"
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 1510,
-                "endByte": 1535,
-                "line": 53,
+                "startByte": 5200,
+                "endByte": 5217,
+                "line": 203,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
               }
@@ -11108,14 +11737,14 @@
             "file": "index.js#literal-3563.css",
             "component": null,
             "declaration": {
-              "property": "color",
+              "property": "line-height",
               "value": {
-                "text": "var(--color-text-secondary)",
+                "text": "1.6",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "color: var(--color-text-secondary);",
+                "text": "line-height: 1.6;",
                 "truncated": false
               },
               "scope": [
@@ -11123,9 +11752,9 @@
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 6647,
-                "endByte": 6682,
-                "line": 266,
+                "startByte": 6689,
+                "endByte": 6706,
+                "line": 267,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
               }
@@ -11135,14 +11764,152 @@
             "file": "index.js#literal-3563.css",
             "component": null,
             "declaration": {
-              "property": "color",
+              "property": "line-height",
               "value": {
-                "text": "var(--color-text)",
+                "text": "1.7",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "color: var(--color-text);",
+                "text": "line-height: 1.7;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5200,
+                "endByte": 5217,
+                "line": 203,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "0.875rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 0.875rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "13px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 13px;",
+                "truncated": false
+              },
+              "scope": [
+                "html"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7551,
+                "endByte": 7567,
+                "line": 306,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 187,
+                "projectedDeclarationIndex": 205,
+                "originalScope": [
+                  "@media print",
+                  "html"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "0.875rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 0.875rem;",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5131,
+                "endByte": 5151,
+                "line": 201,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
                 "truncated": false
               },
               "scope": [
@@ -11150,11 +11917,821 @@
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 1510,
-                "endByte": 1535,
-                "line": 53,
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "var(--color-surface)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: var(--color-surface);",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1723,
+                "endByte": 1756,
+                "line": 62,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "white",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: white;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7595,
+                "endByte": 7613,
+                "line": 307,
+                "column": 26,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 189,
+                "projectedDeclarationIndex": 207,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "var(--color-surface)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: var(--color-surface);",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1723,
+                "endByte": 1756,
+                "line": 62,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "1px solid var(--color-border)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: 1px solid var(--color-border);",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1802,
+                "endByte": 1840,
+                "line": 64,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "none",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: none;",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7643,
+                "endByte": 7656,
+                "line": 309,
+                "column": 9,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 190,
+                "projectedDeclarationIndex": 208,
+                "originalScope": [
+                  "@media print",
+                  ".container"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "none",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: none;",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7643,
+                "endByte": 7656,
+                "line": 309,
+                "column": 9,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 190,
+                "projectedDeclarationIndex": 208,
+                "originalScope": [
+                  "@media print",
+                  ".container"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "var(--radius-lg)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: var(--radius-lg);",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1763,
+                "endByte": 1795,
+                "line": 63,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7665,
+                "endByte": 7682,
+                "line": 310,
+                "column": 9,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 191,
+                "projectedDeclarationIndex": 209,
+                "originalScope": [
+                  "@media print",
+                  ".container"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".container"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7665,
+                "endByte": 7682,
+                "line": 310,
+                "column": 9,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 191,
+                "projectedDeclarationIndex": 209,
+                "originalScope": [
+                  "@media print",
+                  ".container"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -12716,6 +14293,192 @@
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4348,
+              "endByte": 4362,
+              "line": 166,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "justify-content",
+            "value": {
+              "text": "space-between",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "justify-content: space-between;",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4369,
+              "endByte": 4400,
+              "line": 167,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "align-items",
+            "value": {
+              "text": "baseline",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "align-items: baseline;",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4407,
+              "endByte": 4429,
+              "line": 168,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "flex-wrap",
+            "value": {
+              "text": "wrap",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "flex-wrap: wrap;",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4436,
+              "endByte": 4452,
+              "line": 169,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "gap",
+            "value": {
+              "text": "var(--spacing-xs) var(--spacing-md)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "gap: var(--spacing-xs) var(--spacing-md);",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4459,
+              "endByte": 4500,
+              "line": 170,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "var(--spacing-xs)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: var(--spacing-xs);",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-header"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4507,
+              "endByte": 4540,
+              "line": 171,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
             "property": "white-space",
             "value": {
               "text": "nowrap",
@@ -12740,6 +14503,98 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "var(--spacing-sm)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: var(--spacing-sm);",
+              "truncated": false
+            },
+            "scope": [
+              ".entry-subtitle"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 4924,
+              "endByte": 4957,
+              "line": 191,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/colors/ink",
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "var(--color-text)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: var(--color-text);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1510,
+                "endByte": 1535,
+                "line": 53,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "var(--color-text-secondary)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: var(--color-text-secondary);",
+                "truncated": false
+              },
+              "scope": [
+                ".entry-body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 5158,
+                "endByte": 5193,
+                "line": 202,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -12809,6 +14664,223 @@
           "file": "index.js#literal-3563.css",
           "component": null,
           "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "var(--spacing-lg)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: var(--spacing-lg);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6157,
+              "endByte": 6184,
+              "line": 246,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "var(--spacing-lg)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: var(--spacing-lg);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6157,
+              "endByte": 6184,
+              "line": 246,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "var(--spacing-lg)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: var(--spacing-lg);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6157,
+              "endByte": 6184,
+              "line": 246,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "var(--spacing-lg)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: var(--spacing-lg);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6157,
+              "endByte": 6184,
+              "line": 246,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "BORDER_GEOMETRY_APPROXIMATED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "border",
+            "value": {
+              "text": "1px solid var(--color-border)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border: 1px solid var(--color-border);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6191,
+              "endByte": 6229,
+              "line": 247,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "边框粗细、线型、精确位置及局部颜色未完整表达"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "border-radius",
+            "value": {
+              "text": "var(--radius-md)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border-radius: var(--radius-md);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6236,
+              "endByte": 6268,
+              "line": 248,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "background",
+            "value": {
+              "text": "var(--color-tag-bg)",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "background: var(--color-tag-bg);",
+              "truncated": false
+            },
+            "scope": [
+              ".project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 6275,
+              "endByte": 6307,
+              "line": 249,
+              "column": 7,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
             "property": "margin-bottom",
             "value": {
               "text": "var(--spacing-xs)",
@@ -12835,21 +14907,70 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
         "code": "TOKEN_CONFLICT",
         "source": {
-          "target": "/colors/ink",
+          "target": "/page/marginsMm/top",
           "previous": {
             "file": "index.js#literal-3563.css",
             "component": null,
             "declaration": {
-              "property": "color",
+              "property": "padding",
               "value": {
-                "text": "var(--color-text)",
+                "text": "var(--spacing-xl) var(--spacing-md)",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "color: var(--color-text);",
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
                 "truncated": false
               },
               "scope": [
@@ -12857,9 +14978,9 @@
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 1510,
-                "endByte": 1535,
-                "line": 53,
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
                 "column": 7,
                 "columnUnit": "utf8-bytes"
               }
@@ -12869,31 +14990,678 @@
             "file": "index.js#literal-3563.css",
             "component": null,
             "declaration": {
-              "property": "color",
+              "property": "padding",
               "value": {
-                "text": "var(--color-text-secondary)",
+                "text": "0",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "color: var(--color-text-secondary);",
+                "text": "padding: 0;",
                 "truncated": false
               },
               "scope": [
-                ".project-card p"
+                "body"
               ],
               "span": {
                 "file": "index.js#literal-3563.css",
-                "startByte": 6647,
-                "endByte": 6682,
-                "line": 266,
-                "column": 7,
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
                 "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
         },
         "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/right",
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/bottom",
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7583,
+              "endByte": 7594,
+              "line": 307,
+              "column": 14,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 188,
+              "projectedDeclarationIndex": 206,
+              "originalScope": [
+                "@media print",
+                "body"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+      },
+      {
+        "code": "TOKEN_CONFLICT",
+        "source": {
+          "target": "/page/marginsMm/left",
+          "previous": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--spacing-xl) var(--spacing-md)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--spacing-xl) var(--spacing-md);",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 1601,
+                "endByte": 1646,
+                "line": 56,
+                "column": 7,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "index.js#literal-3563.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "index.js#literal-3563.css",
+                "startByte": 7583,
+                "endByte": 7594,
+                "line": 307,
+                "column": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 188,
+                "projectedDeclarationIndex": 206,
+                "originalScope": [
+                  "@media print",
+                  "body"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "border",
+            "value": {
+              "text": "none",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border: none;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7643,
+              "endByte": 7656,
+              "line": 309,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 190,
+              "projectedDeclarationIndex": 208,
+              "originalScope": [
+                "@media print",
+                ".container"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "border-radius",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border-radius: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7665,
+              "endByte": 7682,
+              "line": 310,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 191,
+              "projectedDeclarationIndex": 209,
+              "originalScope": [
+                "@media print",
+                ".container"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "box-shadow",
+            "value": {
+              "text": "none",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "box-shadow: none;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7691,
+              "endByte": 7708,
+              "line": 311,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 192,
+              "projectedDeclarationIndex": 210,
+              "originalScope": [
+                "@media print",
+                ".container"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7859,
+              "endByte": 7885,
+              "line": 315,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 195,
+              "projectedDeclarationIndex": 213,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "index.js#literal-3563.css",
+          "component": null,
+          "declaration": {
+            "property": "-webkit-print-color-adjust",
+            "value": {
+              "text": "exact",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "-webkit-print-color-adjust: exact;",
+              "truncated": false
+            },
+            "scope": [
+              ".skill-tag, .reference, .project-card"
+            ],
+            "span": {
+              "file": "index.js#literal-3563.css",
+              "startByte": 7894,
+              "endByte": 7928,
+              "line": 316,
+              "column": 9,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 196,
+              "projectedDeclarationIndex": 214,
+              "originalScope": [
+                "@media print",
+                ".skill-tag, .reference, .project-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "RENDERER_REAL_FACE_FALLBACK",
@@ -12988,14 +15756,6 @@
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
-        "source": {
-          "requestedMm": 8.466666666666665,
-          "chosenMm": 13.97
-        },
-        "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
       }
     ],
     "limitations": [
@@ -13013,16 +15773,25 @@
           "role": "body",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "status": "exact-static-face",
         "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
           "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1",
         "licensePath": "font-license-0.txt",
         "metadataVerified": true,
@@ -13034,14 +15803,28 @@
           "role": "name",
           "family": "Inter",
           "weight": 800,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-1",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-1",
+          "weight": 800,
           "fontStyle": "normal"
         },
+        "sha256": "e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -13050,14 +15833,28 @@
           "role": "sectionTitle",
           "family": "Inter",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-2",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-2",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -13066,14 +15863,28 @@
           "role": "itemTitle",
           "family": "Inter",
           "weight": 700,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-2",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "cjk-serif",
-          "weight": 600,
+          "family": "asset:font-2",
+          "weight": 700,
           "fontStyle": "normal"
         },
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -13082,16 +15893,25 @@
           "role": "label",
           "family": "Inter",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "status": "exact-static-face",
-        "assetId": "font-1",
+        "assetId": "font-3",
+        "selectedFamily": "Inter",
         "applied": {
-          "family": "asset:font-1",
+          "family": "asset:font-3",
           "weight": 500,
           "fontStyle": "normal"
         },
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
         "license": "OFL-1.1",
         "licensePath": "font-license-0.txt",
         "metadataVerified": true,
@@ -13103,16 +15923,25 @@
           "role": "summary",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "status": "exact-static-face",
         "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
           "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1",
         "licensePath": "font-license-0.txt",
         "metadataVerified": true,
@@ -13124,7 +15953,13 @@
           "role": "sideDate",
           "family": "JetBrains Mono",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "JetBrains Mono",
+            "Fira Code",
+            "SF Mono",
+            "monospace"
+          ]
         },
         "status": "retained-fallback",
         "applied": {
@@ -13140,16 +15975,25 @@
           "role": "meta",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "status": "exact-static-face",
         "assetId": "font-0",
+        "selectedFamily": "Inter",
         "applied": {
           "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1",
         "licensePath": "font-license-0.txt",
         "metadataVerified": true,
@@ -13160,8 +16004,8 @@
       {
         "code": "FONT_EXPLICIT_SOURCE_ALIAS",
         "sourceFamily": "Inter",
-        "fontFamily": "Resume One Executive Sans W400",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
         "equivalent": false
       },
@@ -13171,65 +16015,109 @@
           "role": "body",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "assetId": "font-0",
-        "message": "Only the requested first static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
-        "equivalent": false
-      },
-      {
-        "code": "FONT_FACE_UNAVAILABLE",
-        "source": {
-          "role": "name",
-          "family": "Inter",
-          "weight": 800,
-          "fontStyle": "normal"
-        },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
-        "equivalent": false
-      },
-      {
-        "code": "FONT_FACE_UNAVAILABLE",
-        "source": {
-          "role": "sectionTitle",
-          "family": "Inter",
-          "weight": 700,
-          "fontStyle": "normal"
-        },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
-        "equivalent": false
-      },
-      {
-        "code": "FONT_FACE_UNAVAILABLE",
-        "source": {
-          "role": "itemTitle",
-          "family": "Inter",
-          "weight": 700,
-          "fontStyle": "normal"
-        },
-        "retained": {
-          "family": "cjk-serif",
-          "weight": 600,
-          "fontStyle": "normal"
-        },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
         "code": "FONT_EXPLICIT_SOURCE_ALIAS",
         "sourceFamily": "Inter",
-        "fontFamily": "Resume One Executive Sans W500",
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "fontFamily": "Resume One IS W800",
+        "sha256": "e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "name",
+          "family": "Inter",
+          "weight": 800,
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-1",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "sectionTitle",
+          "family": "Inter",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-2",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
+        "source": {
+          "role": "itemTitle",
+          "family": "Inter",
+          "weight": 700,
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
+        },
+        "assetId": "font-2",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W500",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
         "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
         "equivalent": false
       },
@@ -13239,17 +16127,25 @@
           "role": "label",
           "family": "Inter",
           "weight": 500,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
-        "assetId": "font-1",
-        "message": "Only the requested first static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "assetId": "font-3",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
         "code": "FONT_EXPLICIT_SOURCE_ALIAS",
         "sourceFamily": "Inter",
-        "fontFamily": "Resume One Executive Sans W400",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
         "equivalent": false
       },
@@ -13259,10 +16155,18 @@
           "role": "summary",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "assetId": "font-0",
-        "message": "Only the requested first static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
@@ -13271,21 +16175,27 @@
           "role": "sideDate",
           "family": "JetBrains Mono",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "JetBrains Mono",
+            "Fira Code",
+            "SF Mono",
+            "monospace"
+          ]
         },
         "retained": {
           "family": "cjk-sans",
           "weight": 400,
           "fontStyle": "normal"
         },
-        "message": "No exact first-family/weight/slant face was applied; existing candidate font retained.",
+        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
         "equivalent": false
       },
       {
         "code": "FONT_EXPLICIT_SOURCE_ALIAS",
         "sourceFamily": "Inter",
-        "fontFamily": "Resume One Executive Sans W400",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
         "equivalent": false
       },
@@ -13295,14 +16205,56 @@
           "role": "meta",
           "family": "Inter",
           "weight": 400,
-          "fontStyle": "normal"
+          "fontStyle": "normal",
+          "families": [
+            "Inter",
+            "-apple-system",
+            "BlinkMacSystemFont",
+            "Segoe UI",
+            "Roboto",
+            "sans-serif"
+          ]
         },
         "assetId": "font-0",
-        "message": "Only the requested first static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [
+      {
+        "assetId": "font-0",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W400",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "text": "Source family: Inter; real weight/slant: 400/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Regular.ttf\nOriginal and static-input SHA-256: 40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82\nNamed family: Resume One IS W400\nFinal named output SHA-256: becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-3",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W500",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "text": "Source family: Inter; real weight/slant: 500/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Medium.ttf\nOriginal and static-input SHA-256: 97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872\nNamed family: Resume One IS W500\nFinal named output SHA-256: b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-2",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W700",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "text": "Source family: Inter; real weight/slant: 700/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-Bold.ttf\nOriginal and static-input SHA-256: 288316099b1e0a47a4716d159098005eef7c0066921f34e3200393dbdb01947f\nNamed family: Resume One IS W700\nFinal named output SHA-256: 7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      },
+      {
+        "assetId": "font-1",
+        "sourceFamily": "Inter",
+        "fontFamily": "Resume One IS W800",
+        "sha256": "e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d",
+        "text": "Source family: Inter; real weight/slant: 800/normal\nSource repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3\nOriginal static input: Inter-ExtraBold.ttf\nOriginal and static-input SHA-256: e6756ad5690b77606aa62249a7b420d9902d45cae4b0048a24911fd4324b0a22\nNamed family: Resume One IS W800\nFinal named output SHA-256: e322528be897ced0175bb4e8affe95325afbdea25e14378594581118b86a5f0d\nName-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.\nOriginal license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42\n",
+        "declarationVerified": false
+      }
+    ],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -13341,8 +16293,452 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [],
+    "moduleHeadingTag": null,
+    "moduleOrder": null,
+    "orderSource": null,
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 1,
+      "affectedCssBlocks": 1,
+      "originalDeclarations": 205,
+      "projectedDeclarations": 12,
+      "positiveMediaDeclarations": 12,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 217,
+      "skipped": {
+        "unsupportedMediaCondition": 17
+      },
+      "evidenceRecords": 12,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7551,
+          "endByte": 7567,
+          "line": 306,
+          "column": 14,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "font-size",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 187,
+          "projectedDeclarationIndex": 205,
+          "originalScope": [
+            "@media print",
+            "html"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7583,
+          "endByte": 7594,
+          "line": 307,
+          "column": 14,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 188,
+          "projectedDeclarationIndex": 206,
+          "originalScope": [
+            "@media print",
+            "body"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7595,
+          "endByte": 7613,
+          "line": 307,
+          "column": 26,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "background",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 189,
+          "projectedDeclarationIndex": 207,
+          "originalScope": [
+            "@media print",
+            "body"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7643,
+          "endByte": 7656,
+          "line": 309,
+          "column": 9,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "border",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 190,
+          "projectedDeclarationIndex": 208,
+          "originalScope": [
+            "@media print",
+            ".container"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7665,
+          "endByte": 7682,
+          "line": 310,
+          "column": 9,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "border-radius",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 191,
+          "projectedDeclarationIndex": 209,
+          "originalScope": [
+            "@media print",
+            ".container"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7691,
+          "endByte": 7708,
+          "line": 311,
+          "column": 9,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "box-shadow",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 192,
+          "projectedDeclarationIndex": 210,
+          "originalScope": [
+            "@media print",
+            ".container"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7741,
+          "endByte": 7767,
+          "line": 313,
+          "column": 25,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "print-color-adjust",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 193,
+          "projectedDeclarationIndex": 211,
+          "originalScope": [
+            "@media print",
+            ".header::before"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7768,
+          "endByte": 7802,
+          "line": 313,
+          "column": 52,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "-webkit-print-color-adjust",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 194,
+          "projectedDeclarationIndex": 212,
+          "originalScope": [
+            "@media print",
+            ".header::before"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7859,
+          "endByte": 7885,
+          "line": 315,
+          "column": 9,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "print-color-adjust",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 195,
+          "projectedDeclarationIndex": 213,
+          "originalScope": [
+            "@media print",
+            ".skill-tag, .reference, .project-card"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7894,
+          "endByte": 7928,
+          "line": 316,
+          "column": 9,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "-webkit-print-color-adjust",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 196,
+          "projectedDeclarationIndex": 214,
+          "originalScope": [
+            "@media print",
+            ".skill-tag, .reference, .project-card"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7954,
+          "endByte": 7974,
+          "line": 318,
+          "column": 18,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 197,
+          "projectedDeclarationIndex": 215,
+          "originalScope": [
+            "@media print",
+            ".section"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "index.js#literal-3563.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "index.js#literal-3563.css",
+          "startByte": 7992,
+          "endByte": 8012,
+          "line": 319,
+          "column": 16,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "break-inside",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 198,
+          "projectedDeclarationIndex": 216,
+          "originalScope": [
+            "@media print",
+            ".entry"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      }
+    ],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/academic-upstream-baseline-20261030/upstream/LICENSE",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/claude.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
     "verified": false
   },
@@ -13351,7 +16747,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -13374,15 +16770,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 15258247,
-        "docxBytes": 18468581
+        "pdfBytes": 7121753,
+        "docxBytes": 19074475
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
-        "textLines": 69,
+        "textLines": 90,
         "sections": [
           "awards",
           "basics",
@@ -13401,38 +16797,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 15090731,
-        "docxBytes": 18468374
+        "pdfBytes": 6712797,
+        "docxBytes": 19074331
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
-        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
-        "schemaValid": true,
-        "pages": 7,
-        "textLines": 176,
-        "sections": [
-          "awards",
-          "basics",
-          "certificates",
-          "education",
-          "interests",
-          "languages",
-          "projects",
-          "publications",
-          "references",
-          "skills",
-          "volunteer",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 15095884,
-        "docxBytes": 18470247
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -13446,12 +16815,39 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918838,
-        "docxBytes": 18465536
+        "pdfBytes": 6711343,
+        "docxBytes": 19071431
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
+        "schemaValid": true,
+        "pages": 5,
+        "textLines": 207,
+        "sections": [
+          "awards",
+          "basics",
+          "certificates",
+          "education",
+          "interests",
+          "languages",
+          "projects",
+          "publications",
+          "references",
+          "skills",
+          "volunteer",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 6716149,
+        "docxBytes": 19076608
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "80d3e2227890d90da6f557e4215aa56f869b86b17c40d3f380c9c1723ceba97c"
+  "candidateSha256": "a38171e42e46802a32ecf7d4577a8aa5fa17c69e1d1f592a15fa89054b8e1bbe"
 }

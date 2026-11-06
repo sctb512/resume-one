@@ -5,3 +5,16 @@ License declaration: MIT
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+Upstream author declaration: Veerav Naidu
+Original project declaration: https://github.com/veeravn/jsonresume-theme-responsive.git
+
+Font font-0 (36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b):
+Source family: Lato; real weight/slant: 400/normal
+Source repository: https://github.com/google/fonts/tree/eb20e9cf19d97cf579fa3867d729d4222d6c59e1
+Original static input: Lato-Regular.ttf
+Original and static-input SHA-256: d636e4683231f931eda222d588e944d082bfd3bdba02f928bee461c0f185b251
+Named family: Resume One LS W400
+Final named output SHA-256: 36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b
+Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+

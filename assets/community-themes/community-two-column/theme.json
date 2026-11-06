@@ -37,17 +37,20 @@
       "lineHeight": 1.4
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 26.0,
-      "weight": 600,
+      "weight": 400,
       "lineHeight": 1.4,
-      "fontStyle": "normal"
+      "trackingEm": 0.030000000000000002,
+      "color": "#000000"
     },
     "label": {
       "family": "cjk-sans",
       "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "trackingEm": 0.05,
+      "color": "#000000"
     },
     "summary": {
       "family": "cjk-sans",
@@ -67,7 +70,8 @@
       "family": "cjk-sans",
       "sizePt": 10.6,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "color": "#000000"
     },
     "meta": {
       "family": "cjk-sans",
@@ -92,6 +96,7 @@
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true,
+    "sectionGapMm": 5.3975,
     "size": "A4"
   },
   "composition": {
@@ -102,6 +107,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Evan Kohilas",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-two-column/v/0.2.0",
     "upstreamRevision": "0.2.0"
   }

@@ -39,16 +39,16 @@
       "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 24.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.5,
       "trackingEm": -0.009375,
       "color": "#0F766E",
       "fontStyle": "normal"
     },
     "label": {
-      "family": "asset:font-1",
+      "family": "asset:font-3",
       "sizePt": 11.25,
       "weight": 500,
       "lineHeight": 1.5,
@@ -66,9 +66,9 @@
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 12.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.5,
       "trackingEm": 0.05000000000000001,
       "textTransform": "uppercase",
@@ -76,7 +76,7 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 11.25,
       "weight": 600,
       "lineHeight": 1.5,
@@ -86,7 +86,7 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "asset:font-1",
+      "family": "asset:font-3",
       "sizePt": 10.5,
       "weight": 500,
       "lineHeight": 1.5,
@@ -94,7 +94,7 @@
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "asset:font-1",
+      "family": "asset:font-3",
       "sizePt": 9.75,
       "weight": 500,
       "lineHeight": 1.5,
@@ -105,9 +105,9 @@
   "page": {
     "marginsMm": {
       "top": 12.75,
-      "right": 9.260416666666666,
-      "bottom": 10.583333333333334,
-      "left": 4.762499999999999
+      "right": 7.9375,
+      "bottom": 7.9375,
+      "left": 7.9375
     },
     "avoidSplitItems": true
   },
@@ -183,13 +183,25 @@
       {
         "id": "font-0",
         "path": "font-0.ttf",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1"
       },
       {
         "id": "font-1",
         "path": "font-1.ttf",
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
         "license": "OFL-1.1"
       }
     ]

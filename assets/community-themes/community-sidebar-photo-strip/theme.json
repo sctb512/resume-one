@@ -48,22 +48,22 @@
     },
     "label": {
       "family": "cjk-sans",
-      "sizePt": 10.5,
+      "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.7
+      "lineHeight": 1.4
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 10.5,
+      "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "color": "#111827"
     },
     "sectionTitle": {
       "family": "cjk-serif",
       "sizePt": 16.5,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": -0.013636363636363636,
       "textTransform": "uppercase",
       "fontStyle": "normal"
@@ -72,7 +72,7 @@
       "family": "cjk-serif",
       "sizePt": 12.0,
       "weight": 600,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "fontStyle": "normal"
     },
     "meta": {
@@ -86,16 +86,16 @@
       "family": "cjk-sans",
       "sizePt": 9.75,
       "weight": 400,
-      "lineHeight": 1.7,
+      "lineHeight": 1.4,
       "trackingEm": 0.015384615384615387
     }
   },
   "page": {
     "marginsMm": {
-      "top": 13.229166666666666,
-      "right": 15.875,
-      "bottom": 13.229166666666666,
-      "left": 5.291666666666667
+      "top": 10.92,
+      "right": 10.583333333333334,
+      "bottom": 10.583333333333334,
+      "left": 10.583333333333334
     },
     "sectionGapMm": 6.35
   },

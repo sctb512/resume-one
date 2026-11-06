@@ -43,23 +43,23 @@
       "sizePt": 33.0,
       "weight": 600,
       "lineHeight": 1.2,
-      "fontStyle": "normal",
-      "trackingEm": -0.011363636363636364
+      "trackingEm": -0.011363636363636364,
+      "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 13.5,
       "weight": 600,
       "lineHeight": 1.8,
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 13.200000000000001,
-      "weight": 600,
+      "weight": 400,
       "lineHeight": 1.9,
-      "fontStyle": "normal",
-      "color": "#555555"
+      "color": "#555555",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -73,11 +73,11 @@
       "sizePt": 15.0,
       "weight": 600,
       "lineHeight": 1.8,
-      "fontStyle": "normal",
-      "color": "#333333"
+      "color": "#333333",
+      "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 13.200000000000001,
       "weight": 600,
       "lineHeight": 1.8,
@@ -95,8 +95,8 @@
     "marginsMm": {
       "top": 16.4,
       "right": 10.583333333333334,
-      "bottom": 13.229166666666666,
-      "left": 6.35
+      "bottom": 10.583333333333334,
+      "left": 10.583333333333334
     },
     "sectionGapMm": 7.9375
   },
@@ -166,5 +166,21 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-creative-studio",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

@@ -95,7 +95,8 @@
       "right": 5.291666666666667,
       "bottom": 10.583333333333334,
       "left": 5.291666666666667
-    }
+    },
+    "avoidSplitItems": true
   },
   "composition": {
     "preset": "single-column",
@@ -116,37 +117,37 @@
   },
   "sections": {
     "work": {
-      "title": "work"
+      "title": "Work Experience"
     },
     "education": {
-      "title": "education"
+      "title": "Education"
     },
     "skills": {
-      "title": "skills"
+      "title": "Skills"
     },
     "projects": {
-      "title": "projects"
+      "title": "Projects"
     },
     "volunteer": {
-      "title": "volunteer"
+      "title": "Volunteer Experience"
     },
     "awards": {
-      "title": "awards"
+      "title": "Awards & Honors"
     },
     "publications": {
-      "title": "publications"
+      "title": "Publications"
     },
     "certificates": {
-      "title": "certificates"
+      "title": "Certificates"
     },
     "languages": {
-      "title": "languages"
+      "title": "Languages"
     },
     "interests": {
-      "title": "interests"
+      "title": "Interests"
     },
     "references": {
-      "title": "references"
+      "title": "References"
     }
   },
   "provenance": {

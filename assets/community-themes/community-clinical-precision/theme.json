@@ -57,7 +57,7 @@
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 10.5,
+      "sizePt": 10.875,
       "weight": 400,
       "lineHeight": 1.6,
       "color": "#26433D"
@@ -100,10 +100,10 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 14.58,
+      "right": 7.408333333333333,
+      "bottom": 8.466666666666665,
+      "left": 7.408333333333333
     },
     "sectionGapMm": 8.995833333333332
   },

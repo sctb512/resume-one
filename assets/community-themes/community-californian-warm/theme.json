@@ -2,70 +2,203 @@
   "formatVersion": 2,
   "id": "community-californian-warm",
   "name": "Californian Warm",
-  "description": "暖杏纸色 · Nunito 圆润人文排印 · 宽松单栏卡片与技能标签",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
   "version": "1.0.0",
   "license": "MIT",
-  "layout": "minimal",
+  "layout": "classic",
   "colors": {
-    "accent": "#EA580C",
-    "seal": "#D97706",
-    "paper": "#FFF8F1",
-    "canvas": "#FEF5E7",
+    "accent": "#000000",
+    "seal": "#334155",
+    "paper": "#FFFFFF",
+    "canvas": "#F5F3EE",
     "ink": "#4D3319",
-    "muted": "#92400E",
+    "muted": "#78350F",
     "border": "#FED7AA"
   },
-  "modules": ["basics", "work", "education", "skills", "projects", "awards", "certificates", "publications", "volunteer", "languages", "interests", "references"],
-  "page": {
-    "size": "A4",
-    "marginsMm": {"top": 15.875, "right": 13.229, "bottom": 15.875, "left": 13.229},
-    "sectionGapMm": 13.229,
-    "avoidSplitItems": true,
-    "keepHeadingWithFirstItem": true
-  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
   "typography": {
-    "body": {"family": "asset:regular", "sizePt": 11.25, "weight": 400, "lineHeight": 1.8},
-    "name": {"family": "asset:extrabold", "sizePt": 36, "weight": 800, "lineHeight": 1.2, "trackingEm": -0.010416666666666666, "textTransform": "none", "color": "#D97706"},
-    "sectionTitle": {"family": "asset:bold", "sizePt": 21, "weight": 700, "lineHeight": 1.8, "trackingEm": -0.010714285714285714, "textTransform": "none", "color": "#EA580C"},
-    "itemTitle": {"family": "asset:bold", "sizePt": 16.5, "weight": 700, "lineHeight": 1.8},
-    "label": {"family": "asset:semibold", "sizePt": 15, "weight": 600, "lineHeight": 1.8, "color": "#92400E"},
-    "summary": {"family": "asset:regular", "sizePt": 12, "weight": 400, "lineHeight": 1.8, "color": "#4D3319"},
-    "sideDate": {"family": "asset:semibold", "sizePt": 10.5, "weight": 600, "lineHeight": 1.8, "color": "#92400E"},
-    "meta": {"family": "asset:semibold", "sizePt": 10.5, "weight": 600, "lineHeight": 1.8}
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 11.25,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#4D3319",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "asset:font-1",
+      "sizePt": 36.0,
+      "weight": 800,
+      "lineHeight": 1.2,
+      "trackingEm": -0.010416666666666666,
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-3",
+      "sizePt": 15.0,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "color": "#92400E",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 12.0,
+      "weight": 400,
+      "lineHeight": 1.8,
+      "color": "#4D3319",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "asset:font-2",
+      "sizePt": 21.0,
+      "weight": 700,
+      "lineHeight": 1.8,
+      "trackingEm": -0.010714285714285713,
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "asset:font-2",
+      "sizePt": 16.5,
+      "weight": 700,
+      "lineHeight": 1.8,
+      "textTransform": "none",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-3",
+      "sizePt": 13.5,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "color": "#78350F",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "asset:font-3",
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.8,
+      "color": "#92400E",
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 17.62,
+      "right": 7.9375,
+      "bottom": 10.583333333333334,
+      "left": 7.9375
+    },
+    "sectionGapMm": 13.229166666666666
   },
   "composition": {
     "preset": "single-column",
-    "header": "stacked",
-    "contact": "inline",
-    "summaryRegion": "header"
+    "moduleOrder": [
+      "work",
+      "education",
+      "skills",
+      "projects",
+      "awards",
+      "certificates",
+      "publications",
+      "volunteer",
+      "languages",
+      "interests",
+      "references"
+    ]
   },
   "sections": {
-    "work": {"heading": "line", "items": "cards", "date": "right"},
-    "education": {"heading": "line", "items": "cards", "date": "right"},
-    "skills": {"heading": "line", "items": "chips"},
-    "projects": {"heading": "line", "items": "cards", "date": "right"},
-    "awards": {"heading": "line", "items": "cards", "date": "inline"},
-    "certificates": {"heading": "line", "items": "cards", "date": "inline"},
-    "publications": {"heading": "line", "items": "cards", "date": "inline"},
-    "volunteer": {"heading": "line", "items": "cards", "date": "right"},
-    "languages": {"heading": "line", "items": "chips"},
-    "interests": {"heading": "line", "items": "cards"},
-    "references": {"heading": "line", "items": "cards"}
+    "awards": {
+      "heading": "line",
+      "title": "Awards"
+    },
+    "certificates": {
+      "heading": "line",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "line",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line",
+      "title": "Projects"
+    },
+    "publications": {
+      "heading": "line",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "line",
+      "title": "Volunteer"
+    },
+    "work": {
+      "heading": "line",
+      "title": "Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-californian-warm",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   },
   "assets": {
     "fonts": [
-      {"id": "regular", "path": "normal-400.ttf", "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060", "license": "OFL-1.1"},
-      {"id": "semibold", "path": "normal-600.ttf", "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b", "license": "OFL-1.1"},
-      {"id": "bold", "path": "normal-700.ttf", "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139", "license": "OFL-1.1"},
-      {"id": "extrabold", "path": "normal-800.ttf", "sha256": "b3f61c99fd86112cd7be1869460671a90fa1fd825072aac0f06b45932fe64f98", "license": "OFL-1.1"}
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "d8804f9c1ba102d9aaa9241447884c1a675d553ad89dd896ec44cfd4c273f060",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "b3f61c99fd86112cd7be1869460671a90fa1fd825072aac0f06b45932fe64f98",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "992cccaf0a7d485e0729585e9cfcdbad2fb98e0d43ae270ed8f10657be1b2139",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "62fe556d1b28b2b65e21bf0a6a4663b69c8d6a360ac55e5291d94f7d5a72e87b",
+        "license": "OFL-1.1"
+      }
     ]
-  },
-  "provenance": {
-    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-californian-warm",
-    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
-    "upstreamAuthor": "JSON Resume contributors",
-    "upstreamLicense": "MIT",
-    "migratedBy": "Resume One contributors",
-    "fidelity": "adapted"
   }
 }

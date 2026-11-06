@@ -31,79 +31,79 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 11.399999999999999,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.5,
       "color": "#334960",
       "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 17.099999999999998,
-      "weight": 600,
-      "lineHeight": 1.5,
+      "weight": 700,
+      "lineHeight": 1.4,
       "trackingEm": -0.04385964912280702,
       "textTransform": "uppercase",
-      "color": "#334960",
+      "color": "#363636",
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 13.679999999999998,
-      "weight": 600,
-      "lineHeight": 1.5,
-      "color": "#334960",
+      "weight": 700,
+      "lineHeight": 1.4,
+      "color": "#363636",
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 11.399999999999999,
-      "weight": 600,
-      "lineHeight": 1.5,
-      "color": "#334960",
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#363636",
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 17.099999999999998,
-      "weight": 600,
-      "lineHeight": 1.5,
+      "weight": 700,
+      "lineHeight": 1.4,
       "textTransform": "uppercase",
       "color": "#227C74",
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 13.679999999999998,
-      "weight": 600,
-      "lineHeight": 1.5,
-      "color": "#334960",
+      "weight": 700,
+      "lineHeight": 1.4,
+      "color": "#363636",
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.5,
-      "color": "#334960",
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#363636",
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.5,
-      "color": "#334960",
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#363636",
       "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
     },
     "avoidSplitItems": true
   },
@@ -115,7 +115,24 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Jacrys",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-jacrys/v/1.0.4",
     "upstreamRevision": "1.0.4"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "11b2b8681ca11e2a26cbf8a35072eb61d1f43aa95b3e2ca0ac7503a1bf4bf461",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "ce5a6c70e053127273912b4fb67b52729b485e5e1d4c63f7d9ae0e4f3229e1ff",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

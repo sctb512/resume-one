@@ -31,18 +31,19 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.399999999999999,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#424242"
+      "color": "#424242",
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-sans",
-      "sizePt": 26.0,
-      "weight": 400,
+      "family": "asset:font-1",
+      "sizePt": 8.819999999999999,
+      "weight": 600,
       "lineHeight": 1.4,
-      "color": "#424242"
+      "fontStyle": "normal"
     },
     "label": {
       "family": "cjk-serif",
@@ -53,60 +54,109 @@
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
-      "sizePt": 8.399999999999999,
-      "weight": 400,
-      "lineHeight": 1.4,
-      "color": "#424242"
-    },
-    "sectionTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 13.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#424242"
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "asset:font-2",
+      "sizePt": 8.399999999999999,
+      "weight": 300,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-sans",
-      "sizePt": 8.399999999999999,
-      "weight": 400,
+      "family": "asset:font-1",
+      "sizePt": 10.6,
+      "weight": 600,
       "lineHeight": 1.4,
-      "color": "#424242",
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#424242"
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#424242"
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 13.64,
+      "top": 8.32,
       "right": 16,
       "bottom": 16,
-      "left": 16.0
+      "left": 16
     }
   },
   "composition": {
     "preset": "single-column",
-    "header": "centered"
+    "header": "centered",
+    "moduleOrder": [
+      "languages",
+      "work",
+      "education",
+      "awards",
+      "skills",
+      "interests"
+    ]
   },
-  "sections": {},
+  "sections": {
+    "languages": {
+      "title": "Languages"
+    },
+    "work": {
+      "title": "Work Experience"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "awards": {
+      "title": "Awards"
+    },
+    "skills": {
+      "title": "Skills"
+    },
+    "interests": {
+      "title": "Interests"
+    }
+  },
   "provenance": {
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Johan Lindell",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-paper-plus-plus/v/0.6.0",
     "upstreamRevision": "0.6.0"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "ce5a6c70e053127273912b4fb67b52729b485e5e1d4c63f7d9ae0e4f3229e1ff",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "3765bec93c164c4f2001cd5bd967af174f8cf2c52e89249bd07f3376b63f0de9",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "e685957032af8decad1335a78939eb3de46c71cbe8102e312536242193c95157",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

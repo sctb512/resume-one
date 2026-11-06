@@ -2,18 +2,18 @@
   "formatVersion": 2,
   "id": "community-executive-slate",
   "name": "Executive Slate",
-  "description": "深石板左栏 · Merriweather 衬线标题 · Inter 正文",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
   "version": "1.0.0",
   "license": "MIT",
   "layout": "classic",
   "colors": {
     "accent": "#475569",
-    "seal": "#475569",
+    "seal": "#334155",
     "paper": "#FFFFFF",
-    "canvas": "#F1F5F9",
-    "ink": "#334155",
-    "muted": "#6B7280",
-    "border": "#94A3B8",
+    "canvas": "#F5F3EE",
+    "ink": "#000000",
+    "muted": "#4B5563",
+    "border": "#475569",
     "sidebar": "#475569"
   },
   "modules": [
@@ -30,146 +30,157 @@
     "references",
     "projects"
   ],
-  "page": {
-    "size": "A4",
-    "marginsMm": {
-      "top": 15.875,
-      "right": 10.5833,
-      "bottom": 15.875,
-      "left": 10.5833
-    },
-    "sectionGapMm": 10.5833,
-    "avoidSplitItems": true,
-    "keepHeadingWithFirstItem": true
-  },
   "typography": {
     "body": {
-      "family": "asset:inter-400",
-      "sizePt": 11.25,
+      "family": "cjk-sans",
+      "sizePt": 9.75,
       "weight": 400,
-      "lineHeight": 1.8
+      "lineHeight": 1.6,
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "asset:merriweather-700",
-      "sizePt": 33.75,
+      "family": "asset:font-0",
+      "sizePt": 27.0,
       "weight": 700,
       "lineHeight": 1.2,
       "trackingEm": -0.013888888888888888,
-      "color": "#FFFFFF"
-    },
-    "sectionTitle": {
-      "family": "asset:merriweather-700",
-      "sizePt": 18,
-      "weight": 700,
-      "lineHeight": 1.3,
-      "trackingEm": 0.0625,
-      "textTransform": "uppercase"
-    },
-    "itemTitle": {
-      "family": "asset:merriweather-700",
-      "sizePt": 15,
-      "weight": 700,
-      "lineHeight": 1.3
+      "fontStyle": "normal"
     },
     "label": {
-      "family": "asset:inter-500",
-      "sizePt": 14.0625,
-      "weight": 500,
-      "lineHeight": 1.8,
+      "family": "cjk-serif",
+      "sizePt": 11.25,
+      "weight": 600,
+      "lineHeight": 1.4,
       "trackingEm": 0.03333333333333333,
       "textTransform": "uppercase",
-      "color": "#CBD5E1"
+      "fontStyle": "normal"
     },
     "summary": {
-      "family": "asset:inter-400",
+      "family": "cjk-sans",
       "sizePt": 11.25,
       "weight": 400,
       "lineHeight": 1.8,
-      "trackingEm": 0,
-      "textTransform": "none",
-      "color": "#475569"
+      "color": "#475569",
+      "fontStyle": "normal"
     },
-    "sideDate": {
-      "family": "asset:inter-500",
-      "sizePt": 10.5,
-      "weight": 500,
-      "lineHeight": 1.5,
-      "trackingEm": 0,
-      "textTransform": "none",
-      "color": "#6B7280"
+    "sectionTitle": {
+      "family": "asset:font-0",
+      "sizePt": 18.0,
+      "weight": 700,
+      "lineHeight": 1.4,
+      "trackingEm": 0.0625,
+      "textTransform": "uppercase",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "asset:font-0",
+      "sizePt": 13.5,
+      "weight": 700,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "meta": {
-      "family": "asset:inter-500",
+      "family": "cjk-serif",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "cjk-serif",
       "sizePt": 10.5,
-      "weight": 500,
-      "lineHeight": 1.5
+      "weight": 600,
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
+    }
+  },
+  "page": {
+    "marginsMm": {
+      "top": 13.97,
+      "right": 10.583333333333334,
+      "bottom": 10.583333333333334,
+      "left": 10.583333333333334
     }
   },
   "composition": {
     "preset": "sidebar-left",
-    "sidebarWidthPct": 32,
-    "gapMm": 9,
-    "header": "stacked",
-    "contact": "stacked",
-    "headerRegion": "sidebar",
-    "summaryRegion": "main",
-    "contactRegion": "sidebar",
-    "sidebarTypographyScale": 0.8,
+    "sidebarWidthPct": 30.0,
     "placements": {
-      "skills": "sidebar",
       "education": "sidebar",
-      "languages": "sidebar",
-      "work": "main",
-      "projects": "main",
-      "volunteer": "main",
-      "awards": "main",
-      "certificates": "main",
-      "publications": "main",
-      "interests": "main",
-      "references": "main"
-    }
+      "skills": "sidebar",
+      "languages": "sidebar"
+    },
+    "headerRegion": "main",
+    "summaryRegion": "main",
+    "moduleOrder": [
+      "skills",
+      "education",
+      "languages",
+      "work",
+      "certificates",
+      "publications",
+      "interests",
+      "references"
+    ]
   },
   "sections": {
-    "work": { "heading": "accent-line", "items": "stack", "date": "right" },
-    "projects": { "heading": "accent-line", "items": "stack", "date": "inline" },
-    "volunteer": { "heading": "accent-line", "items": "stack", "date": "right" },
-    "awards": { "heading": "accent-line", "items": "stack", "date": "inline" },
-    "certificates": { "heading": "accent-line", "items": "stack", "date": "inline" },
-    "publications": { "heading": "accent-line", "items": "stack", "date": "inline" },
-    "skills": { "heading": "line", "items": "stack", "date": "inline" },
-    "education": { "heading": "line", "items": "stack", "date": "inline" },
-    "languages": { "heading": "line", "items": "stack", "date": "inline" },
-    "interests": { "heading": "accent-line", "items": "stack", "date": "inline" },
-    "references": { "heading": "accent-line", "items": "stack", "date": "inline" }
+    "awards": {
+      "heading": "line"
+    },
+    "certificates": {
+      "heading": "line",
+      "title": "Certificates"
+    },
+    "education": {
+      "heading": "line",
+      "title": "Education"
+    },
+    "interests": {
+      "heading": "line",
+      "title": "Interests"
+    },
+    "languages": {
+      "heading": "line",
+      "title": "Languages"
+    },
+    "projects": {
+      "heading": "line"
+    },
+    "publications": {
+      "heading": "line",
+      "title": "Publications"
+    },
+    "references": {
+      "heading": "line",
+      "title": "References"
+    },
+    "skills": {
+      "heading": "line",
+      "title": "Skills"
+    },
+    "volunteer": {
+      "heading": "line"
+    },
+    "work": {
+      "heading": "line",
+      "title": "Professional Experience"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-executive-slate",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   },
   "assets": {
     "fonts": [
       {
-        "id": "inter-400",
-        "path": "inter-400.ttf",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
-        "license": "OFL-1.1"
-      },
-      {
-        "id": "inter-500",
-        "path": "inter-500.ttf",
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
-        "license": "OFL-1.1"
-      },
-      {
-        "id": "merriweather-700",
-        "path": "merriweather-700.ttf",
-        "sha256": "112820f4542dac809820a128576d6ca8df592ed24e25648fba80fb936234e2f5",
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f",
         "license": "OFL-1.1"
       }
     ]
-  },
-  "provenance": {
-    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-executive-slate",
-    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
-    "upstreamAuthor": "JSON Resume contributors",
-    "upstreamLicense": "MIT",
-    "migratedBy": "Resume One contributors",
-    "fidelity": "adapted"
   }
 }

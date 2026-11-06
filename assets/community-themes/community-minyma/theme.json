@@ -88,13 +88,53 @@
     }
   },
   "composition": {
-    "preset": "single-column"
+    "preset": "single-column",
+    "moduleOrder": [
+      "skills",
+      "work",
+      "education",
+      "projects",
+      "languages",
+      "interests",
+      "awards",
+      "certificates",
+      "publications"
+    ]
   },
-  "sections": {},
+  "sections": {
+    "skills": {
+      "title": "Skills"
+    },
+    "work": {
+      "title": "Work"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "projects": {
+      "title": "Projects"
+    },
+    "languages": {
+      "title": "Languages"
+    },
+    "interests": {
+      "title": "Interests"
+    },
+    "awards": {
+      "title": "Awards"
+    },
+    "certificates": {
+      "title": "Certificates"
+    },
+    "publications": {
+      "title": "Publications"
+    }
+  },
   "provenance": {
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "ISC",
+    "upstreamAuthor": "godraadam",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-minyma/v/0.0.5",
     "upstreamRevision": "0.0.5"
   }

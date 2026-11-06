@@ -91,10 +91,10 @@
   },
   "page": {
     "marginsMm": {
-      "top": 12.7,
-      "right": 8.466666666666665,
-      "bottom": 12.7,
-      "left": 6.35
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
     },
     "sectionGapMm": 10.583333333333334
   },

@@ -31,12 +31,14 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
-      "sizePt": 8.25,
+      "family": "asset:font-0",
+      "sizePt": 9.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "trackingEm": 0.02727272727272727,
-      "color": "#39424B"
+      "trackingEm": 0.024999999999999998,
+      "textTransform": "none",
+      "color": "#39424B",
+      "fontStyle": "normal"
     },
     "name": {
       "family": "cjk-serif",
@@ -49,76 +51,139 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-sans",
-      "sizePt": 8.25,
+      "family": "asset:font-0",
+      "sizePt": 10.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "trackingEm": 0.02727272727272727,
-      "color": "#39424B"
+      "trackingEm": 0.0225,
+      "color": "#39424B",
+      "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
-      "sizePt": 8.25,
+      "family": "asset:font-0",
+      "sizePt": 10.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "trackingEm": 0.02727272727272727,
-      "color": "#39424B"
+      "trackingEm": 0.0225,
+      "color": "#39424B",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-sans",
-      "sizePt": 12.0,
-      "weight": 400,
+      "family": "asset:font-1",
+      "sizePt": 10.5,
+      "weight": 300,
       "lineHeight": 1.4,
-      "trackingEm": 0.03125,
+      "trackingEm": 0.028571428571428574,
       "textTransform": "none",
       "color": "#39424B",
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 9.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
-      "trackingEm": 0.03333333333333334,
+      "trackingEm": 0.024999999999999998,
       "textTransform": "none",
       "color": "#39424B",
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.4,
       "trackingEm": 0.026470588235294114,
-      "color": "#39424B"
+      "color": "#39424B",
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.4,
       "trackingEm": 0.026470588235294114,
-      "color": "#39424B"
+      "color": "#39424B",
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
       "top": 15.19,
-      "right": 5.820833333333333,
+      "right": 16.0,
       "bottom": 7.9375,
-      "left": 8.995833333333332
+      "left": 16.0
     },
+    "avoidSplitItems": true,
     "size": "A4"
   },
   "composition": {
-    "preset": "single-column"
+    "preset": "single-column",
+    "moduleOrder": [
+      "languages",
+      "interests",
+      "work",
+      "education",
+      "volunteer",
+      "awards",
+      "publications",
+      "references"
+    ]
   },
-  "sections": {},
+  "sections": {
+    "languages": {
+      "title": "Languages"
+    },
+    "interests": {
+      "title": "Interests"
+    },
+    "work": {
+      "title": "Experience"
+    },
+    "education": {
+      "title": "Education"
+    },
+    "volunteer": {
+      "title": "Volunteer"
+    },
+    "awards": {
+      "title": "Awards"
+    },
+    "publications": {
+      "title": "Publications"
+    },
+    "references": {
+      "title": "References"
+    }
+  },
   "provenance": {
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Alessandro Biondi",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-macchiato/v/1.1.0",
     "upstreamRevision": "1.1.0"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "efddcabda17eb2c76bed8e7b9681e61b20730ddfeafe059d68290aec5172b80e",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "468ce84052a9b302696d100a7b708973360679183d9ff22ef8a46bc67252f08e",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

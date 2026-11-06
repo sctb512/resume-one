@@ -44,7 +44,7 @@
       "lineHeight": 1.2727272727272727,
       "trackingEm": -0.011363636363636364,
       "textTransform": "uppercase",
-      "color": "#2A2A2A",
+      "color": "#1A1A1A",
       "fontStyle": "normal"
     },
     "label": {
@@ -104,10 +104,10 @@
   },
   "page": {
     "marginsMm": {
-      "top": 21.166666666666668,
-      "right": 12.7,
-      "bottom": 21.166666666666668,
-      "left": 12.7
+      "top": 16.4,
+      "right": 8.466666666666665,
+      "bottom": 12.7,
+      "left": 8.466666666666665
     },
     "sectionGapMm": 16.93333333333333
   },

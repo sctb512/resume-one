@@ -45,18 +45,17 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 16.799999999999997,
-      "weight": 600,
+      "weight": 400,
       "lineHeight": 1.4,
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-serif",
-      "sizePt": 16.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "fontStyle": "normal"
+      "family": "cjk-sans",
+      "sizePt": 8.25,
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -66,33 +65,30 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 10.6,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     },
     "sideDate": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 8.5,
-      "weight": 600,
-      "lineHeight": 1.4,
-      "fontStyle": "normal"
+      "weight": 400,
+      "lineHeight": 1.4
     }
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
     },
     "sectionGapMm": 4.762499999999999
   },

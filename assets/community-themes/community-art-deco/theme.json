@@ -51,7 +51,7 @@
       "family": "cjk-sans",
       "sizePt": 12.75,
       "weight": 400,
-      "lineHeight": 1.6,
+      "lineHeight": 1.55,
       "trackingEm": 0.29411764705882354,
       "textTransform": "uppercase",
       "fontStyle": "normal"
@@ -68,14 +68,14 @@
       "family": "cjk-serif",
       "sizePt": 13.0,
       "weight": 600,
-      "lineHeight": 1.6,
+      "lineHeight": 1.55,
       "color": "#1C1A16"
     },
     "itemTitle": {
       "family": "cjk-serif",
       "sizePt": 15.0,
       "weight": 600,
-      "lineHeight": 1.6,
+      "lineHeight": 1.55,
       "trackingEm": 0.05,
       "textTransform": "uppercase",
       "color": "#0F1418",
@@ -85,7 +85,7 @@
       "family": "cjk-sans",
       "sizePt": 9.0,
       "weight": 400,
-      "lineHeight": 1.6,
+      "lineHeight": 1.55,
       "trackingEm": 0.16666666666666666,
       "textTransform": "uppercase",
       "fontStyle": "normal"
@@ -94,18 +94,19 @@
       "family": "cjk-sans",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.6,
+      "lineHeight": 1.55,
       "color": "#1C1A16",
       "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
-    }
+      "top": 13.56,
+      "right": 12.170833333333333,
+      "bottom": 12.7,
+      "left": 12.170833333333333
+    },
+    "sectionGapMm": 10.054166666666667
   },
   "composition": {
     "preset": "single-column",

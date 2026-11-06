@@ -2,60 +2,170 @@
   "formatVersion": 2,
   "id": "community-pro",
   "name": "Pro",
-  "description": "衬线排印 · 居中刊头 · 连续阅读栏",
+  "description": "静态迁移适配版；已支持的视觉规则尽量保留，差异见同目录 MIGRATION.json。",
   "version": "1.0.0",
   "license": "MIT",
   "layout": "classic",
   "colors": {
-    "accent": "#202020",
-    "seal": "#174EA6",
+    "accent": "#334155",
+    "seal": "#334155",
     "paper": "#FFFFFF",
-    "canvas": "#F4F4F2",
+    "canvas": "#F5F3EE",
     "ink": "#202020",
     "muted": "#4B4B4B",
     "border": "#B8B8B2"
   },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": {
-    "size": "A4",
-    "marginsMm": {"top": 16, "right": 18, "bottom": 16, "left": 18},
-    "sectionGapMm": 6,
-    "avoidSplitItems": true,
-    "keepHeadingWithFirstItem": true
-  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
   "typography": {
-    "body": {"family": "asset:regular", "sizePt": 11, "weight": 400, "lineHeight": 1.3},
-    "name": {"family": "asset:semibold", "sizePt": 25, "weight": 600, "lineHeight": 1.1},
-    "sectionTitle": {"family": "asset:semibold", "sizePt": 12, "weight": 600, "lineHeight": 1.2},
-    "itemTitle": {"family": "asset:semibold", "sizePt": 11, "weight": 600, "lineHeight": 1.25},
-    "meta": {"family": "asset:regular", "sizePt": 10.25, "weight": 400, "lineHeight": 1.25}
+    "body": {
+      "family": "asset:font-0",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "name": {
+      "family": "asset:font-1",
+      "sizePt": 25.0,
+      "weight": 600,
+      "lineHeight": 1.1,
+      "trackingEm": -0.005,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "label": {
+      "family": "asset:font-1",
+      "sizePt": 11.0,
+      "weight": 600,
+      "lineHeight": 1.25,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 11.0,
+      "weight": 400,
+      "lineHeight": 1.3,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "sectionTitle": {
+      "family": "asset:font-1",
+      "sizePt": 12.0,
+      "weight": 600,
+      "lineHeight": 1.2,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "itemTitle": {
+      "family": "asset:font-1",
+      "sizePt": 11.0,
+      "weight": 600,
+      "lineHeight": 1.25,
+      "color": "#202020",
+      "fontStyle": "normal"
+    },
+    "meta": {
+      "family": "asset:font-0",
+      "sizePt": 10.25,
+      "weight": 400,
+      "lineHeight": 1.25,
+      "color": "#4B4B4B",
+      "fontStyle": "normal"
+    },
+    "sideDate": {
+      "family": "asset:font-0",
+      "sizePt": 10.25,
+      "weight": 400,
+      "lineHeight": 1.25,
+      "color": "#4B4B4B",
+      "fontStyle": "normal"
+    }
   },
-  "composition": {"preset": "single-column", "header": "centered", "contact": "inline"},
+  "page": {
+    "marginsMm": {
+      "top": 16.0,
+      "right": 16.0,
+      "bottom": 16.0,
+      "left": 16.0
+    },
+    "keepHeadingWithFirstItem": true,
+    "sectionGapMm": 6.0
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered"
+  },
   "sections": {
-    "work": {"heading": "line", "date": "right"},
-    "volunteer": {"heading": "line", "date": "right"},
-    "education": {"heading": "line", "date": "right"},
-    "awards": {"heading": "line", "date": "right"},
-    "certificates": {"heading": "line", "date": "right"},
-    "publications": {"heading": "line", "date": "right"},
-    "skills": {"heading": "line"},
-    "languages": {"heading": "line"},
-    "interests": {"heading": "line"},
-    "references": {"heading": "line"},
-    "projects": {"heading": "line", "date": "right"}
+    "awards": {
+      "heading": "line"
+    },
+    "certificates": {
+      "heading": "line"
+    },
+    "education": {
+      "heading": "line"
+    },
+    "interests": {
+      "heading": "line"
+    },
+    "languages": {
+      "heading": "line"
+    },
+    "projects": {
+      "heading": "line"
+    },
+    "publications": {
+      "heading": "line"
+    },
+    "references": {
+      "heading": "line"
+    },
+    "skills": {
+      "heading": "line"
+    },
+    "volunteer": {
+      "heading": "line"
+    },
+    "work": {
+      "heading": "line"
+    }
+  },
+  "provenance": {
+    "migratedBy": "resume-one-theme-migrate --adapt",
+    "fidelity": "adapted",
+    "upstreamLicense": "MIT",
+    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-pro",
+    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   },
   "assets": {
     "fonts": [
-      {"id": "regular", "path": "normal-400.ttf", "sha256": "633281f68562fc0c9f8bc9078f5f8007aafaf8aeda48ecb2ca13c6d8817e20bd", "license": "OFL-1.1"},
-      {"id": "semibold", "path": "normal-600.ttf", "sha256": "85a19414a9a255ef8e8152a05edf7fb80acd5c5eb0e4f221ab62f84631e813e3", "license": "OFL-1.1"}
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "633281f68562fc0c9f8bc9078f5f8007aafaf8aeda48ecb2ca13c6d8817e20bd",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "85a19414a9a255ef8e8152a05edf7fb80acd5c5eb0e4f221ab62f84631e813e3",
+        "license": "OFL-1.1"
+      }
     ]
-  },
-  "provenance": {
-    "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-pro",
-    "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd",
-    "upstreamAuthor": "JSON Resume contributors",
-    "upstreamLicense": "MIT",
-    "migratedBy": "Resume One contributors",
-    "fidelity": "adapted"
   }
 }

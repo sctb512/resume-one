@@ -109,14 +109,25 @@
   },
   "composition": {
     "preset": "single-column",
-    "header": "centered"
+    "header": "centered",
+    "moduleOrder": [
+      "projects",
+      "volunteer",
+      "awards",
+      "publications",
+      "certificates",
+      "languages",
+      "references"
+    ]
   },
   "sections": {
     "awards": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Awards and Honors"
     },
     "certificates": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Certifications"
     },
     "education": {
       "heading": "line"
@@ -125,22 +136,27 @@
       "heading": "line"
     },
     "languages": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Languages"
     },
     "projects": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Projects"
     },
     "publications": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Publications"
     },
     "references": {
-      "heading": "line"
+      "heading": "line",
+      "title": "References"
     },
     "skills": {
       "heading": "line"
     },
     "volunteer": {
-      "heading": "line"
+      "heading": "line",
+      "title": "Volunteer Experience"
     },
     "work": {
       "heading": "line"

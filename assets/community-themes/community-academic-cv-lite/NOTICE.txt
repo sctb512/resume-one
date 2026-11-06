@@ -1,3 +1,16 @@
+Academic Cv Lite — Resume One best-effort declarative adaptation
+Source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-academic-cv-lite
+Revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+License declaration: MIT
+No upstream endorsement. License declaration is not legal clearance.
+No source code executed; resume JSON not modified.
+Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+
+Font font-2 (f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8):
+Source font family: Merriweather
+Explicit internal family: Resume One Academic Serif W400 Italic
+Input and copied output SHA-256: f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8
+Preserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):
 Academic CV Lite - Resume One declarative adaptation
 
 Original author: JSON Resume contributors
@@ -74,3 +87,170 @@ the source's Research Projects block; all source data and TXT/Markdown output
 remain unchanged. No claim of matching flow-box baselines, spacing, pagination
 or high-fidelity acceptance follows from these role-level corrections.
 License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+
+
+Font font-0 (b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08):
+Source font family: Merriweather
+Explicit internal family: Resume One Academic Serif W400
+Input and copied output SHA-256: b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08
+Preserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):
+Academic CV Lite - Resume One declarative adaptation
+
+Original author: JSON Resume contributors
+Original source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-academic-cv-lite
+Source revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+Theme package version: 0.2.9
+Theme license: MIT (LICENSE.txt). No package-specific license file was supplied; the collection-root MIT license applies to this package.
+Adapted by Resume One contributors. No endorsement by the original authors.
+
+This package contains only declarative JSON, static font data and license notices. The application and migration tool do not execute original React/CSS; separate, isolated reference QA renders the pinned upstream implementation with public synthetic data and local pinned fonts. No remote image or font requests occur while rendering this adaptation. Resume JSON remains untouched. This is an adaptation, not a pixel-identical rendering. Native GUI and Microsoft Word acceptance are separate checks.
+
+Preservation and exact differences
+The name retains its 0.5px tracking and section headings retain uppercase plus 1px tracking. Independent roles preserve the 14pt/400 real italic label and 12pt/1.6 summary. Work/volunteer positions, italic companies, education institutions/degrees, award/certificate titles and italic awarding bodies now use separate, independently styled header rows. Shared prose uses the source 11pt/1.5 role. Publication mixed inline styles and hanging indents, gray award rails, finer field/context colors and spacing, and fixed-width skill labels are not reproduced. Shared-role colors are preserved as described below. The header bottom rule uses a 0.7pt stroke instead of 0.75pt; section rules use the renderer's 1.2pt stroke instead of 1.5pt. The source prioritizes education and publications; Resume One retains the input module order. Print margins combine the source 0.75in page margin and 30px layout padding. Original Merriweather normal 400/700 and italic 400 outlines and metrics are preserved at the recorded static axes. These visible differences block high-fidelity acceptance; successful export or this notice is not a passing result.
+
+The source display titles Professional Experience, Service & Leadership, Awards & Honors, Research Projects and Research Interests are now retained. Other modules use standard labels. Module IDs, field semantics and input order remain unchanged. Optional portraits, web hover styles and source-specific metadata overrides are not reproduced. Explicit role colors retain original RGB values; semantic palette fallbacks and application chrome still receive readability correction. Chinese and unsupported glyphs use the application's explicit Noto fallback. Source CSS pixel sizes are converted at 0.75pt per px. Editable DOCX reflows independently and is not visually certified by this package.
+
+Font provenance
+Google Fonts repository revision: 9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0
+Static faces instantiated at the recorded axes using fontTools; other axes use their source defaults. Glyphs are not subsetted. The intermediate faces have been renamed again to distinct primary families Resume One Academic Serif W400 and W700, omitting the reserved font name Merriweather from modified family/full/PostScript names. The original copyright and complete license, including the reserved-name declaration, remain unchanged. All non-name/head tables remain byte-identical to the intermediate static faces, including outlines, positioning, metrics and embedding flags. Independent identities prevent separate static weights competing for DOCX font slots. This metadata change is not Word or high-fidelity certification.
+
+merriweather 400: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 400}
+Intermediate SHA-256: 53c239415e5b5fe39fb7b0fb26beba383919612c8bd4b2c2e14bc838a0c6aa29
+Output family: Resume One Academic Serif W400
+Output SHA-256: b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+
+merriweather 700: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 700}
+Intermediate SHA-256: b1a927f4d54535d979b345491de086a160d78d4b5ab50cc6fd9a250f5215f009
+Output family: Resume One Academic Serif W700
+Output SHA-256: 3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f
+
+True italic label update (2026-10-30): Merriweather Italic from the same fixed
+Google Fonts revision above, original SHA-256
+f68a8f4989258679e4fbaf50aa42400132b5373c2d9d2514ba82ef6e85947a0b.
+Static axes: wght=400, wdth=100, opsz=18; no glyph subsetting or synthetic slant.
+Intermediate static SHA-256:
+0c119f4ba9f9c9aeeb56f0d0ffaecfdd69765c0545002d39490df8a08af170bd
+Renamed primary family: Resume One Academic Serif W400 Italic.
+Final merriweather-italic-400.ttf SHA-256:
+f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8
+Only naming metadata and checksum adjustment differ from the static intermediate;
+all other SFNT tables and copyright/license records are unchanged. Full OFL and
+reserved-name declaration remain in OFL-merriweather.txt. Chinese missing from
+this face uses the explicit upright Noto fallback, not synthesized italic.
+
+Shared-role color update (2026-10-30): source Name, StyledSectionTitle and
+entry titles retain #111827; Label, Summary and shared prose retain #1f2937.
+Exact role colors do not recolor application chrome or alter resume JSON.
+Work/volunteer/education range dates now use the inner DateRange component's
+actual 10pt/#666666; award/certificate raw dates retain 11pt/#6b7280.
+Company and institution/degree context colors are now independently specified.
+Contact and publication fragments, exact line boxes and CSS margin collapsing,
+source ordering and pagination still require further work;
+this change does not certify spacing or full fidelity. The public all-module
+fixture currently produces four PDF pages versus three reference pages, while
+LibreOffice reflows the editable DOCX to three; neither is Word acceptance.
+
+Range-date update (2026-10-30): work, volunteer and education explicitly select
+the bounded short-en date format, e.g. Sep 2021 - Jun 2025, matching the pinned
+source's default DateRange for standard date-only input. The shared helper
+does not implement all Intl/timestamp behavior or change content validation.
+Raw award/certificate dates and plain-text/Markdown periods remain untouched.
+The inner 10pt glyph style does not yet reproduce the outer 11pt CSS strut.
+
+Inherited line-height and project/reference update (2026-10-31): Name and
+SectionTitle retain the source's inherited 1.6 line-height, not the previous
+1.2/1.3 approximations. Project and reference names use independent 13pt/1.6
+header rows. Projects no longer append range dates/other metadata omitted by
+the source's Research Projects block; all source data and TXT/Markdown output
+remain unchanged. No claim of matching flow-box baselines, spacing, pagination
+or high-fidelity acceptance follows from these role-level corrections.
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+
+
+Font font-1 (3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f):
+Source font family: Merriweather
+Explicit internal family: Resume One Academic Serif W700
+Input and copied output SHA-256: 3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f
+Preserved input attribution follows (retained from the previously accepted local font package; its wider theme adaptation is superseded):
+Academic CV Lite - Resume One declarative adaptation
+
+Original author: JSON Resume contributors
+Original source: https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-academic-cv-lite
+Source revision: 542cd5315fc9995fca3c401d0c818767530bb6bd
+Theme package version: 0.2.9
+Theme license: MIT (LICENSE.txt). No package-specific license file was supplied; the collection-root MIT license applies to this package.
+Adapted by Resume One contributors. No endorsement by the original authors.
+
+This package contains only declarative JSON, static font data and license notices. The application and migration tool do not execute original React/CSS; separate, isolated reference QA renders the pinned upstream implementation with public synthetic data and local pinned fonts. No remote image or font requests occur while rendering this adaptation. Resume JSON remains untouched. This is an adaptation, not a pixel-identical rendering. Native GUI and Microsoft Word acceptance are separate checks.
+
+Preservation and exact differences
+The name retains its 0.5px tracking and section headings retain uppercase plus 1px tracking. Independent roles preserve the 14pt/400 real italic label and 12pt/1.6 summary. Work/volunteer positions, italic companies, education institutions/degrees, award/certificate titles and italic awarding bodies now use separate, independently styled header rows. Shared prose uses the source 11pt/1.5 role. Publication mixed inline styles and hanging indents, gray award rails, finer field/context colors and spacing, and fixed-width skill labels are not reproduced. Shared-role colors are preserved as described below. The header bottom rule uses a 0.7pt stroke instead of 0.75pt; section rules use the renderer's 1.2pt stroke instead of 1.5pt. The source prioritizes education and publications; Resume One retains the input module order. Print margins combine the source 0.75in page margin and 30px layout padding. Original Merriweather normal 400/700 and italic 400 outlines and metrics are preserved at the recorded static axes. These visible differences block high-fidelity acceptance; successful export or this notice is not a passing result.
+
+The source display titles Professional Experience, Service & Leadership, Awards & Honors, Research Projects and Research Interests are now retained. Other modules use standard labels. Module IDs, field semantics and input order remain unchanged. Optional portraits, web hover styles and source-specific metadata overrides are not reproduced. Explicit role colors retain original RGB values; semantic palette fallbacks and application chrome still receive readability correction. Chinese and unsupported glyphs use the application's explicit Noto fallback. Source CSS pixel sizes are converted at 0.75pt per px. Editable DOCX reflows independently and is not visually certified by this package.
+
+Font provenance
+Google Fonts repository revision: 9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0
+Static faces instantiated at the recorded axes using fontTools; other axes use their source defaults. Glyphs are not subsetted. The intermediate faces have been renamed again to distinct primary families Resume One Academic Serif W400 and W700, omitting the reserved font name Merriweather from modified family/full/PostScript names. The original copyright and complete license, including the reserved-name declaration, remain unchanged. All non-name/head tables remain byte-identical to the intermediate static faces, including outlines, positioning, metrics and embedding flags. Independent identities prevent separate static weights competing for DOCX font slots. This metadata change is not Word or high-fidelity certification.
+
+merriweather 400: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 400}
+Intermediate SHA-256: 53c239415e5b5fe39fb7b0fb26beba383919612c8bd4b2c2e14bc838a0c6aa29
+Output family: Resume One Academic Serif W400
+Output SHA-256: b2224106979e73df827d72b6d2d9e4067a497b147077b78df0c2d9fe566e2e08
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+
+merriweather 700: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/Merriweather%5Bopsz%2Cwdth%2Cwght%5D.ttf
+Original SHA-256: d0ed0e359e396af7ad05e73dffd11a3a4c326ea0d0283c56bd9361cb2cc86a96
+Static axes: {"opsz": 18.0, "wdth": 100.0, "wght": 700}
+Intermediate SHA-256: b1a927f4d54535d979b345491de086a160d78d4b5ab50cc6fd9a250f5215f009
+Output family: Resume One Academic Serif W700
+Output SHA-256: 3f7c0ac9486268a85c0aa52d3a38ca962d68f426781246598692cc7d12f6e34f
+
+True italic label update (2026-10-30): Merriweather Italic from the same fixed
+Google Fonts revision above, original SHA-256
+f68a8f4989258679e4fbaf50aa42400132b5373c2d9d2514ba82ef6e85947a0b.
+Static axes: wght=400, wdth=100, opsz=18; no glyph subsetting or synthetic slant.
+Intermediate static SHA-256:
+0c119f4ba9f9c9aeeb56f0d0ffaecfdd69765c0545002d39490df8a08af170bd
+Renamed primary family: Resume One Academic Serif W400 Italic.
+Final merriweather-italic-400.ttf SHA-256:
+f9962428afcb3cf694799a815d8fa6913d8a567ebf24a3b54ce0b9520e9f18c8
+Only naming metadata and checksum adjustment differ from the static intermediate;
+all other SFNT tables and copyright/license records are unchanged. Full OFL and
+reserved-name declaration remain in OFL-merriweather.txt. Chinese missing from
+this face uses the explicit upright Noto fallback, not synthesized italic.
+
+Shared-role color update (2026-10-30): source Name, StyledSectionTitle and
+entry titles retain #111827; Label, Summary and shared prose retain #1f2937.
+Exact role colors do not recolor application chrome or alter resume JSON.
+Work/volunteer/education range dates now use the inner DateRange component's
+actual 10pt/#666666; award/certificate raw dates retain 11pt/#6b7280.
+Company and institution/degree context colors are now independently specified.
+Contact and publication fragments, exact line boxes and CSS margin collapsing,
+source ordering and pagination still require further work;
+this change does not certify spacing or full fidelity. The public all-module
+fixture currently produces four PDF pages versus three reference pages, while
+LibreOffice reflows the editable DOCX to three; neither is Word acceptance.
+
+Range-date update (2026-10-30): work, volunteer and education explicitly select
+the bounded short-en date format, e.g. Sep 2021 - Jun 2025, matching the pinned
+source's default DateRange for standard date-only input. The shared helper
+does not implement all Intl/timestamp behavior or change content validation.
+Raw award/certificate dates and plain-text/Markdown periods remain untouched.
+The inner 10pt glyph style does not yet reproduce the outer 11pt CSS strut.
+
+Inherited line-height and project/reference update (2026-10-31): Name and
+SectionTitle retain the source's inherited 1.6 line-height, not the previous
+1.2/1.3 approximations. Project and reference names use independent 13pt/1.6
+header rows. Projects no longer append range dates/other metadata omitted by
+the source's Research Projects block; all source data and TXT/Markdown output
+remain unchanged. No claim of matching flow-box baselines, spacing, pagination
+or high-fidelity acceptance follows from these role-level corrections.
+License: https://raw.githubusercontent.com/google/fonts/9862abc066c9b83bf84c3e8ed1fc2d8d48f9bbf0/ofl/merriweather/OFL.txt (OFL-merriweather.txt, retained in full).
+

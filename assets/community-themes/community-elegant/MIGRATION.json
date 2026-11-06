@@ -559,7 +559,12 @@
   "sourcePackage": {
     "name": "jsonresume-theme-elegant",
     "version": "1.16.1",
-    "licenseDeclaration": "MIT"
+    "licenseDeclaration": "MIT",
+    "authorDeclaration": "Mudassir Ali <mudassir.dev@gmail.com>",
+    "repositoryDeclaration": {
+      "type": "git",
+      "url": "https://github.com/mudassir0909/jsonresume-theme-elegant.git"
+    }
   },
   "executedSourceCode": false,
   "sourceModified": false,
@@ -897,12 +902,14 @@
       "syntaxFiles": 12,
       "cssFiles": 5,
       "styledComponents": 0,
-      "declarationsSeen": 617,
+      "declarationsSeen": 634,
       "matchedRoles": [
         "body",
         "item",
+        "label",
         "main",
         "name",
+        "section",
         "sidebar"
       ],
       "evidenceRecords": 59
@@ -1006,13 +1013,15 @@
           "roles": [
             "body",
             "item",
+            "label",
             "main",
             "name",
+            "section",
             "sidebar"
           ],
           "rootSizePt": 12,
           "pxToPt": 0.75,
-          "media": "unconditional-only"
+          "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
@@ -2624,24 +2633,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2658,24 +2667,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2692,24 +2701,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2726,24 +2735,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2760,24 +2769,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2794,24 +2803,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2828,24 +2837,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2862,24 +2871,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -2896,24 +2905,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -7857,68 +7866,6 @@
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
       },
       {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "10px 20px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 10px 20px;",
-              "truncated": false
-            },
-            "scope": [
-              ".background-card"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 6816,
-              "endByte": 6835,
-              "line": 374,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "5px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 5px;",
-              "truncated": false
-            },
-            "scope": [
-              ".card-wrapper"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 6856,
-              "endByte": 6869,
-              "line": 377,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
         "code": "CONDITIONAL_RULE_UNSUPPORTED",
         "source": {
           "file": "assets/css/theme.css",
@@ -8129,37 +8076,6 @@
               "startByte": 7227,
               "endByte": 7242,
               "line": 397,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "none",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: none;",
-              "truncated": false
-            },
-            "scope": [
-              ".background-details .detail .mobile-title"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 7291,
-              "endByte": 7305,
-              "line": 400,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -11128,37 +11044,6 @@
           }
         },
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "10px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 10px;",
-              "truncated": false
-            },
-            "scope": [
-              ".profile-card-wrapper .profile-card"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 11261,
-              "endByte": 11275,
-              "line": 580,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
@@ -17105,37 +16990,6 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "position",
-            "value": {
-              "text": "relative",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "position: relative;",
-              "truncated": false
-            },
-            "scope": [
-              ".card-skills"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 16716,
-              "endByte": 16735,
-              "line": 917,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
             "property": "border-radius",
             "value": {
               "text": "3px",
@@ -18419,6 +18273,692 @@
           }
         },
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "content",
+            "value": {
+              "text": "none !important",
+              "truncated": false
+            },
+            "important": true,
+            "raw": {
+              "text": "content: none !important;",
+              "truncated": false
+            },
+            "scope": [
+              "a[href]:after"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17632,
+              "endByte": 17657,
+              "line": 969,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 420,
+              "projectedDeclarationIndex": 437,
+              "originalScope": [
+                "@media print",
+                "a[href]:after"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "inline-block",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: inline-block;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-pic"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17729,
+              "endByte": 17751,
+              "line": 975,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 422,
+              "projectedDeclarationIndex": 439,
+              "originalScope": [
+                "@media print",
+                ".profile-pic"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "vertical-align",
+            "value": {
+              "text": "middle",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "vertical-align: middle;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-pic"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17756,
+              "endByte": 17779,
+              "line": 976,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 423,
+              "projectedDeclarationIndex": 440,
+              "originalScope": [
+                "@media print",
+                ".profile-pic"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "border-radius",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border-radius: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-pic img"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17809,
+              "endByte": 17826,
+              "line": 979,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 424,
+              "projectedDeclarationIndex": 441,
+              "originalScope": [
+                "@media print",
+                ".profile-pic img"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "position",
+            "value": {
+              "text": "relative",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "position: relative;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17971,
+              "endByte": 17990,
+              "line": 987,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 428,
+              "projectedDeclarationIndex": 445,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "float",
+            "value": {
+              "text": "left",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "float: left;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17995,
+              "endByte": 18007,
+              "line": 988,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 429,
+              "projectedDeclarationIndex": 446,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "width",
+            "value": {
+              "text": "25%",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "width: 25%;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18012,
+              "endByte": 18023,
+              "line": 989,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 430,
+              "projectedDeclarationIndex": 447,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "min-height",
+            "value": {
+              "text": "1px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "min-height: 1px;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18028,
+              "endByte": 18044,
+              "line": 990,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 431,
+              "projectedDeclarationIndex": 448,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "15px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 15px;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18049,
+              "endByte": 18068,
+              "line": 991,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 432,
+              "projectedDeclarationIndex": 449,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding-right",
+            "value": {
+              "text": "15px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-right: 15px;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18073,
+              "endByte": 18093,
+              "line": 992,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 433,
+              "projectedDeclarationIndex": 450,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".contact-details .detail"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18098,
+              "endByte": 18109,
+              "line": 993,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 434,
+              "projectedDeclarationIndex": 451,
+              "originalScope": [
+                "@media print",
+                ".contact-details .detail"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "none",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: none;",
+              "truncated": false
+            },
+            "scope": [
+              ".floating-nav,\n  .floating-nav-trigger"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18161,
+              "endByte": 18175,
+              "line": 997,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 435,
+              "projectedDeclarationIndex": 452,
+              "originalScope": [
+                "@media print",
+                ".floating-nav,\n  .floating-nav-trigger"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "none",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: none;",
+              "truncated": false
+            },
+            "scope": [
+              ".floating-nav,\n  .floating-nav-trigger"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18161,
+              "endByte": 18175,
+              "line": 997,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 435,
+              "projectedDeclarationIndex": 452,
+              "originalScope": [
+                "@media print",
+                ".floating-nav,\n  .floating-nav-trigger"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
+      },
+      {
+        "code": "SELECTOR_ROLE_UNRESOLVED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "page-break-before",
+            "value": {
+              "text": "always",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "page-break-before: always;",
+              "truncated": false
+            },
+            "scope": [
+              ".pagebreak"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 18199,
+              "endByte": 18225,
+              "line": 1000,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 436,
+              "projectedDeclarationIndex": 453,
+              "originalScope": [
+                "@media print",
+                ".pagebreak"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
@@ -25371,28 +25911,175 @@
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "5px",
+                "text": "10px 0",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 5px;",
+                "text": "padding: 10px 0;",
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6528,
+                "endByte": 6544,
+                "line": 354,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
             }
           },
           "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6528,
+                "endByte": 6544,
+                "line": 354,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
             "file": "assets/css/theme.css",
             "component": null,
             "declaration": {
@@ -25419,28 +26106,316 @@
               }
             }
           },
+          "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".info .sidebar"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 8407,
+                "endByte": 8421,
+                "line": 455,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
           "selected": {
             "file": "assets/css/theme.css",
             "component": null,
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "5px",
+                "text": "0 10px",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 5px;",
+                "text": "padding: 0 10px;",
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".info .content.has-sidebar"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 8100,
+                "endByte": 8116,
+                "line": 438,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0 10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".info .content.has-sidebar"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 8100,
+                "endByte": 8116,
+                "line": 438,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".info .sidebar"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 8407,
+                "endByte": 8421,
+                "line": 455,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0 10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".info .content.has-sidebar"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 8100,
+                "endByte": 8116,
+                "line": 438,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".profile-card-wrapper .profile-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 11261,
+                "endByte": 11275,
+                "line": 580,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".profile-card-wrapper .profile-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 11261,
+                "endByte": 11275,
+                "line": 580,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px 20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px 20px;",
+                "truncated": false
+              },
+              "scope": [
+                ".background-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6816,
+                "endByte": 6835,
+                "line": 374,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".profile-card-wrapper .profile-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 11261,
+                "endByte": 11275,
+                "line": 580,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "10px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 10px;",
+                "truncated": false
+              },
+              "scope": [
+                ".profile-card-wrapper .profile-card"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 11261,
+                "endByte": 11275,
+                "line": 580,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25467,40 +26442,40 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
             }
           },
           "next": {
-            "file": "assets/css/theme.css",
+            "file": "assets/icomoon/demo-files/demo.css",
             "component": null,
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "0 10px",
+                "text": "0",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 0 10px;",
+                "text": "padding: 0;",
                 "truncated": false
               },
               "scope": [
-                ".info .content.has-sidebar"
+                "body"
               ],
               "span": {
-                "file": "assets/css/theme.css",
-                "startByte": 8100,
-                "endByte": 8116,
-                "line": 438,
+                "file": "assets/icomoon/demo-files/demo.css",
+                "startByte": 9,
+                "endByte": 20,
+                "line": 2,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25521,13 +26496,13 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25554,40 +26529,40 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
             }
           },
           "next": {
-            "file": "assets/css/theme.css",
+            "file": "assets/icomoon/demo-files/demo.css",
             "component": null,
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "0 10px",
+                "text": "0",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 0 10px;",
+                "text": "padding: 0;",
                 "truncated": false
               },
               "scope": [
-                ".info .content.has-sidebar"
+                "body"
               ],
               "span": {
-                "file": "assets/css/theme.css",
-                "startByte": 8100,
-                "endByte": 8116,
-                "line": 438,
+                "file": "assets/icomoon/demo-files/demo.css",
+                "startByte": 9,
+                "endByte": 20,
+                "line": 2,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25608,13 +26583,13 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25641,40 +26616,40 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
             }
           },
           "next": {
-            "file": "assets/css/theme.css",
+            "file": "assets/icomoon/demo-files/demo.css",
             "component": null,
             "declaration": {
               "property": "padding",
               "value": {
-                "text": "0 10px",
+                "text": "0",
                 "truncated": false
               },
               "important": false,
               "raw": {
-                "text": "padding: 0 10px;",
+                "text": "padding: 0;",
                 "truncated": false
               },
               "scope": [
-                ".info .content.has-sidebar"
+                "body"
               ],
               "span": {
-                "file": "assets/css/theme.css",
-                "startByte": 8100,
-                "endByte": 8116,
-                "line": 438,
+                "file": "assets/icomoon/demo-files/demo.css",
+                "startByte": 9,
+                "endByte": 20,
+                "line": 2,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -25695,13 +26670,100 @@
                 "truncated": false
               },
               "scope": [
-                ".main"
+                ".card-wrapper"
               ],
               "span": {
                 "file": "assets/css/theme.css",
-                "startByte": 6409,
-                "endByte": 6422,
-                "line": 347,
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "5px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 5px;",
+                "truncated": false
+              },
+              "scope": [
+                ".card-wrapper"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "assets/icomoon/demo-files/demo.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                "body"
+              ],
+              "span": {
+                "file": "assets/icomoon/demo-files/demo.css",
+                "startByte": 9,
+                "endByte": 20,
+                "line": 2,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "assets/css/theme.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "5px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 5px;",
+                "truncated": false
+              },
+              "scope": [
+                ".card-wrapper"
+              ],
+              "span": {
+                "file": "assets/css/theme.css",
+                "startByte": 6856,
+                "endByte": 6869,
+                "line": 377,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -26895,30 +27957,278 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "width",
+            "property": "padding",
             "value": {
-              "text": "80%",
+              "text": "10px 20px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "width: 80%;",
+              "text": "padding: 10px 20px;",
               "truncated": false
             },
             "scope": [
-              ".info .content.has-sidebar"
+              ".background-card"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8045,
-              "endByte": 8056,
-              "line": 435,
+              "startByte": 6816,
+              "endByte": 6835,
+              "line": 374,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px 20px;",
+              "truncated": false
+            },
+            "scope": [
+              ".background-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6816,
+              "endByte": 6835,
+              "line": 374,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px 20px;",
+              "truncated": false
+            },
+            "scope": [
+              ".background-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6816,
+              "endByte": 6835,
+              "line": 374,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px 20px;",
+              "truncated": false
+            },
+            "scope": [
+              ".background-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6816,
+              "endByte": 6835,
+              "line": 374,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 5px;",
+              "truncated": false
+            },
+            "scope": [
+              ".card-wrapper"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6856,
+              "endByte": 6869,
+              "line": 377,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 5px;",
+              "truncated": false
+            },
+            "scope": [
+              ".card-wrapper"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6856,
+              "endByte": 6869,
+              "line": 377,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 5px;",
+              "truncated": false
+            },
+            "scope": [
+              ".card-wrapper"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6856,
+              "endByte": 6869,
+              "line": 377,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 5px;",
+              "truncated": false
+            },
+            "scope": [
+              ".card-wrapper"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 6856,
+              "endByte": 6869,
+              "line": 377,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "SOURCE_VISIBILITY_NOT_APPLIED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "none",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: none;",
+              "truncated": false
+            },
+            "scope": [
+              ".background-details .detail .mobile-title"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 7291,
+              "endByte": 7305,
+              "line": 400,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "不从模块列表删除任何内容；原模板隐藏的数据仍可显示"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -26957,14 +28267,14 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "float",
+            "property": "padding",
             "value": {
-              "text": "left",
+              "text": "0 10px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "float: left;",
+              "text": "padding: 0 10px;",
               "truncated": false
             },
             "scope": [
@@ -26972,9 +28282,9 @@
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8085,
-              "endByte": 8097,
-              "line": 437,
+              "startByte": 8100,
+              "endByte": 8116,
+              "line": 438,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -26983,7 +28293,7 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "assets/css/theme.css",
           "component": null,
@@ -27011,10 +28321,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "assets/css/theme.css",
           "component": null,
@@ -27042,10 +28352,10 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "assets/css/theme.css",
           "component": null,
@@ -27073,38 +28383,7 @@
             }
           }
         },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "assets/css/theme.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0 10px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0 10px;",
-              "truncated": false
-            },
-            "scope": [
-              ".info .content.has-sidebar"
-            ],
-            "span": {
-              "file": "assets/css/theme.css",
-              "startByte": 8100,
-              "endByte": 8116,
-              "line": 438,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -27349,6 +28628,357 @@
               "line": 550,
               "column": 3,
               "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-card-wrapper .profile-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 11261,
+              "endByte": 11275,
+              "line": 580,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-card-wrapper .profile-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 11261,
+              "endByte": 11275,
+              "line": 580,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-card-wrapper .profile-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 11261,
+              "endByte": 11275,
+              "line": 580,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "10px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 10px;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-card-wrapper .profile-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 11261,
+              "endByte": 11275,
+              "line": 580,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "position",
+            "value": {
+              "text": "relative",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "position: relative;",
+              "truncated": false
+            },
+            "scope": [
+              ".card-skills"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 16716,
+              "endByte": 16735,
+              "line": 917,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "text-align",
+            "value": {
+              "text": "center",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "text-align: center;",
+              "truncated": false
+            },
+            "scope": [
+              ".profile-card"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17684,
+              "endByte": 17703,
+              "line": 972,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 421,
+              "projectedDeclarationIndex": 438,
+              "originalScope": [
+                "@media print",
+                ".profile-card"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "inline-block",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: inline-block;",
+              "truncated": false
+            },
+            "scope": [
+              ".name-and-profession"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17860,
+              "endByte": 17882,
+              "line": 982,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 425,
+              "projectedDeclarationIndex": 442,
+              "originalScope": [
+                "@media print",
+                ".name-and-profession"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "vertical-align",
+            "value": {
+              "text": "middle",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "vertical-align: middle;",
+              "truncated": false
+            },
+            "scope": [
+              ".name-and-profession"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17887,
+              "endByte": 17910,
+              "line": 983,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 426,
+              "projectedDeclarationIndex": 443,
+              "originalScope": [
+                "@media print",
+                ".name-and-profession"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "assets/css/theme.css",
+          "component": null,
+          "declaration": {
+            "property": "margin-left",
+            "value": {
+              "text": "15px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-left: 15px;",
+              "truncated": false
+            },
+            "scope": [
+              ".name-and-profession"
+            ],
+            "span": {
+              "file": "assets/css/theme.css",
+              "startByte": 17915,
+              "endByte": 17933,
+              "line": 984,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 427,
+              "projectedDeclarationIndex": 444,
+              "originalScope": [
+                "@media print",
+                ".name-and-profession"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
             }
           }
         },
@@ -27792,24 +29422,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -27823,24 +29453,24 @@
           "file": "assets/css/theme.css",
           "component": null,
           "declaration": {
-            "property": "margin-left",
+            "property": "width",
             "value": {
               "text": "80%",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-left: 80%;",
+              "text": "width: 80%;",
               "truncated": false
             },
             "scope": [
-              ".info .sidebar"
+              ".info .content.has-sidebar"
             ],
             "span": {
               "file": "assets/css/theme.css",
-              "startByte": 8361,
-              "endByte": 8378,
-              "line": 453,
+              "startByte": 8045,
+              "endByte": 8056,
+              "line": 435,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -27881,7 +29511,8 @@
   "fonts": {
     "fontMappings": [],
     "differences": [],
-    "libraryEntries": 17,
+    "libraryEntries": 35,
+    "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -27930,8 +29561,614 @@
     "configurationVerified": false,
     "equivalent": false
   },
+  "markupHints": {
+    "literalHeadings": [],
+    "moduleHeadingTag": null,
+    "moduleOrder": null,
+    "orderSource": null,
+    "bindingVerified": false,
+    "equivalent": false,
+    "limitation": "只读实际 JSX 节点或字面 HTML；完整源码顺序和同级标题推断，不证明运行时分支或绑定"
+  },
+  "printProfile": {
+    "format": "resume-one-css-print-profile-v1",
+    "profile": "print",
+    "status": "inferred-needs-review",
+    "executedSourceCode": false,
+    "readSourceFiles": false,
+    "requestedNetworkResources": false,
+    "completeCssCascade": false,
+    "visualVerified": false,
+    "equivalent": false,
+    "crossFileOrderInferred": true,
+    "crossFileOrderVerified": false,
+    "sourceOrderPreservedWithinBlock": true,
+    "coverage": {
+      "cssBlocks": 5,
+      "affectedCssBlocks": 1,
+      "originalDeclarations": 617,
+      "projectedDeclarations": 17,
+      "positiveMediaDeclarations": 17,
+      "unconditionalReplays": 0,
+      "outputDeclarations": 634,
+      "skipped": {
+        "invalidCssBlock": 2,
+        "unsupportedAtRule": 15,
+        "unsupportedMediaCondition": 40
+      },
+      "evidenceRecords": 17,
+      "evidenceTruncated": false
+    },
+    "limits": {
+      "declarations": 48000,
+      "expansionFactor": 2,
+      "scopeDepth": 128,
+      "scopeBytes": 16384,
+      "mediaAlternatives": 32,
+      "evidenceRecords": 512
+    },
+    "policy": {
+      "media": "literal print/all, optional only; lists of those types and screen only",
+      "nesting": "every enclosing media must independently match; unsupported at-rules retained without projection",
+      "order": "originals retained; append eligible media and subsequent unconditional declarations in original AST order",
+      "crossFileOrder": "inspection file/block order is inferred; no import, runtime injection, or stylesheet load order is established"
+    },
+    "evidence": [
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17632,
+          "endByte": 17657,
+          "line": 969,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "content",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 420,
+          "projectedDeclarationIndex": 437,
+          "originalScope": [
+            "@media print",
+            "a[href]:after"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17684,
+          "endByte": 17703,
+          "line": 972,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "text-align",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 421,
+          "projectedDeclarationIndex": 438,
+          "originalScope": [
+            "@media print",
+            ".profile-card"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17729,
+          "endByte": 17751,
+          "line": 975,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "display",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 422,
+          "projectedDeclarationIndex": 439,
+          "originalScope": [
+            "@media print",
+            ".profile-pic"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17756,
+          "endByte": 17779,
+          "line": 976,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "vertical-align",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 423,
+          "projectedDeclarationIndex": 440,
+          "originalScope": [
+            "@media print",
+            ".profile-pic"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17809,
+          "endByte": 17826,
+          "line": 979,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "border-radius",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 424,
+          "projectedDeclarationIndex": 441,
+          "originalScope": [
+            "@media print",
+            ".profile-pic img"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17860,
+          "endByte": 17882,
+          "line": 982,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "display",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 425,
+          "projectedDeclarationIndex": 442,
+          "originalScope": [
+            "@media print",
+            ".name-and-profession"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17887,
+          "endByte": 17910,
+          "line": 983,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "vertical-align",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 426,
+          "projectedDeclarationIndex": 443,
+          "originalScope": [
+            "@media print",
+            ".name-and-profession"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17915,
+          "endByte": 17933,
+          "line": 984,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "margin-left",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 427,
+          "projectedDeclarationIndex": 444,
+          "originalScope": [
+            "@media print",
+            ".name-and-profession"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17971,
+          "endByte": 17990,
+          "line": 987,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "position",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 428,
+          "projectedDeclarationIndex": 445,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 17995,
+          "endByte": 18007,
+          "line": 988,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "float",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 429,
+          "projectedDeclarationIndex": 446,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18012,
+          "endByte": 18023,
+          "line": 989,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "width",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 430,
+          "projectedDeclarationIndex": 447,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18028,
+          "endByte": 18044,
+          "line": 990,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "min-height",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 431,
+          "projectedDeclarationIndex": 448,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18049,
+          "endByte": 18068,
+          "line": 991,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding-left",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 432,
+          "projectedDeclarationIndex": 449,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18073,
+          "endByte": 18093,
+          "line": 992,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding-right",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 433,
+          "projectedDeclarationIndex": 450,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18098,
+          "endByte": 18109,
+          "line": 993,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "padding",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 434,
+          "projectedDeclarationIndex": 451,
+          "originalScope": [
+            "@media print",
+            ".contact-details .detail"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18161,
+          "endByte": 18175,
+          "line": 997,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "display",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 435,
+          "projectedDeclarationIndex": 452,
+          "originalScope": [
+            "@media print",
+            ".floating-nav,\n  .floating-nav-trigger"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      },
+      {
+        "file": "assets/css/theme.css",
+        "component": null,
+        "cssPath": "/syntaxEvidence/1/styles",
+        "span": {
+          "file": "assets/css/theme.css",
+          "startByte": 18199,
+          "endByte": 18225,
+          "line": 1000,
+          "column": 5,
+          "columnUnit": "utf8-bytes"
+        },
+        "property": "page-break-before",
+        "projection": {
+          "format": "resume-one-css-print-profile-v1",
+          "profile": "print",
+          "kind": "positive-print-media",
+          "originalDeclarationIndex": 436,
+          "projectedDeclarationIndex": 453,
+          "originalScope": [
+            "@media print",
+            ".pagebreak"
+          ],
+          "removedMediaScopes": [
+            "@media print"
+          ],
+          "sourceSpanRetained": true,
+          "importantRetained": true,
+          "sourceOrderPreservedWithinBlock": true,
+          "equivalent": false
+        }
+      }
+    ],
+    "limitations": [
+      "Static print profile inference only; selectors, specificity, inheritance, DOM matching and complete CSS cascade remain unverified.",
+      "Feature queries, not queries, unknown conditions, supports, layers and keyframes are not projected.",
+      "Syntax evidence omits @keyframes wrappers; ambiguous from/to/numeric step scopes are conservatively rejected, including literal from/to selectors.",
+      "Root variables remain limited to the existing same-file :root/html policy; local variables are not promoted.",
+      "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
+    ]
+  },
   "licenseEvidence": {
-    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/reference-licenses/elegant.txt",
+    "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/elegant.txt",
     "sha256": "2350cdbbfc144ffec28a6fee262d7edf431bf3c37b4b76093eee056dc5a4c48f",
     "verified": false
   },
@@ -27940,7 +30177,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -27963,11 +30200,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923524,
+        "pdfBytes": 14923536,
         "docxBytes": 18051663
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
@@ -27990,11 +30227,29 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14924793,
+        "pdfBytes": 14924781,
         "docxBytes": 18051245
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
+        "schemaValid": true,
+        "pages": 1,
+        "textLines": 6,
+        "sections": [
+          "basics",
+          "education",
+          "work"
+        ],
+        "paperBoundsChecked": true,
+        "sourceUnchanged": true,
+        "pdfSerialized": true,
+        "docxSerialized": true,
+        "pdfBytes": 14918877,
+        "docxBytes": 18048457
+      },
+      {
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 6,
@@ -28017,30 +30272,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14929831,
+        "pdfBytes": 14929840,
         "docxBytes": 18052026
-      },
-      {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/community-adaptation-20261103/missing.json",
-        "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
-        "schemaValid": true,
-        "pages": 1,
-        "textLines": 6,
-        "sections": [
-          "basics",
-          "education",
-          "work"
-        ],
-        "paperBoundsChecked": true,
-        "sourceUnchanged": true,
-        "pdfSerialized": true,
-        "docxSerialized": true,
-        "pdfBytes": 14918880,
-        "docxBytes": 18048457
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "1a6626990ca871f0f0eb7902586592bcc749fe3608f0ae0e8cdd0efc3ba7102e"
+  "candidateSha256": "eaf185bfa435668bdf0f429998f23eb82bdafd61fbe5638ed359239ca4b3018d"
 }

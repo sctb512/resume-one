@@ -53,26 +53,22 @@
       "family": "cjk-serif",
       "sizePt": 10.5,
       "weight": 600,
-      "lineHeight": 1.5,
+      "lineHeight": 1.4,
       "trackingEm": 0.021428571428571425,
-      "textTransform": "uppercase",
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 10.125,
-      "weight": 600,
+      "weight": 400,
       "lineHeight": 1.6,
-      "trackingEm": 0.14814814814814814,
-      "textTransform": "uppercase",
-      "color": "#28333F",
-      "fontStyle": "normal"
+      "color": "#28333F"
     },
     "sectionTitle": {
       "family": "cjk-serif",
       "sizePt": 12.0,
       "weight": 600,
-      "lineHeight": 1.5,
+      "lineHeight": 1.4,
       "trackingEm": 0.09375,
       "textTransform": "uppercase",
       "color": "#1B3A5B",
@@ -82,39 +78,36 @@
       "family": "cjk-serif",
       "sizePt": 11.25,
       "weight": 600,
-      "lineHeight": 1.5,
+      "lineHeight": 1.4,
       "trackingEm": 0.053333333333333344,
       "textTransform": "uppercase",
       "color": "#16202B",
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "cjk-sans",
       "sizePt": 7.125,
-      "weight": 600,
-      "lineHeight": 1.5,
+      "weight": 400,
+      "lineHeight": 1.4,
       "trackingEm": 0.10526315789473684,
       "textTransform": "uppercase",
-      "color": "#5D6B78",
-      "fontStyle": "normal"
+      "color": "#5D6B78"
     },
     "sideDate": {
       "family": "cjk-serif",
       "sizePt": 8.25,
       "weight": 600,
-      "lineHeight": 1.5,
-      "trackingEm": 0.18181818181818182,
-      "textTransform": "uppercase",
+      "lineHeight": 1.4,
       "color": "#1B3A5B",
       "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 12.14,
+      "right": 7.408333333333333,
+      "bottom": 7.9375,
+      "left": 7.408333333333333
     },
     "sectionGapMm": 6.879166666666666
   },

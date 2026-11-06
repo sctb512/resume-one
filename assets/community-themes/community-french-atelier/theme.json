@@ -9,7 +9,7 @@
   "colors": {
     "accent": "#1A1A1A",
     "seal": "#334155",
-    "paper": "#FAFAFA",
+    "paper": "#FFFFFF",
     "canvas": "#F5F3EE",
     "ink": "#4A4A4A",
     "muted": "#3B0A45",
@@ -102,9 +102,9 @@
   "page": {
     "marginsMm": {
       "top": 20.06,
-      "right": 11.641666666666666,
-      "bottom": 14.816666666666666,
-      "left": 11.641666666666666
+      "right": 7.408333333333333,
+      "bottom": 9.524999999999999,
+      "left": 7.408333333333333
     },
     "sectionGapMm": 12.7
   },

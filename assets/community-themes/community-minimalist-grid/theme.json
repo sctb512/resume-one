@@ -31,17 +31,17 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 11.25,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.75,
       "color": "#374151",
       "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 27.0,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.75,
       "trackingEm": 0.05555555555555555,
       "textTransform": "uppercase",
@@ -49,7 +49,7 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "asset:font-1",
+      "family": "asset:font-2",
       "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.75,
@@ -59,15 +59,15 @@
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 11.25,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.75,
       "color": "#374151",
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "asset:font-0",
+      "family": "asset:font-1",
       "sizePt": 9.0,
       "weight": 500,
       "lineHeight": 1.75,
@@ -77,7 +77,7 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "asset:font-0",
+      "family": "asset:font-1",
       "sizePt": 9.0,
       "weight": 500,
       "lineHeight": 1.75,
@@ -87,7 +87,7 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "asset:font-1",
+      "family": "asset:font-2",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.75,
@@ -96,9 +96,9 @@
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.75,
       "color": "#374151",
       "fontStyle": "normal"
@@ -107,9 +107,9 @@
   "page": {
     "marginsMm": {
       "top": 14.05,
-      "right": 8.466666666666665,
-      "bottom": 12.7,
-      "left": 8.466666666666665
+      "right": 6.35,
+      "bottom": 6.35,
+      "left": 6.35
     },
     "sectionGapMm": 10.583333333333334
   },
@@ -176,13 +176,19 @@
       {
         "id": "font-0",
         "path": "font-0.ttf",
-        "sha256": "6a7e55866ac0c7c67a40f03cddc7505b11a5f1a8a9e2451a618dd192c6fffe41",
+        "sha256": "5e8f6d7a4aa60812a3a5d63d7ecabfb7865ea2ad4a68b4bc617f3b24dbbc93b8",
         "license": "OFL-1.1"
       },
       {
         "id": "font-1",
         "path": "font-1.ttf",
-        "sha256": "7518166936eee0d5754f79eb727022ba22c83aa59f87a9d4e6f32b776e71601a",
+        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
         "license": "OFL-1.1"
       }
     ]

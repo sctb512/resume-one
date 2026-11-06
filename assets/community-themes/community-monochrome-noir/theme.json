@@ -9,7 +9,7 @@
   "colors": {
     "accent": "#000000",
     "seal": "#334155",
-    "paper": "#F8F8F8",
+    "paper": "#FFFFFF",
     "canvas": "#F5F3EE",
     "ink": "#1A1A1A",
     "muted": "#1A1A1A",
@@ -107,10 +107,10 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 5.291666666666667
+      "top": 13.56,
+      "right": 7.9375,
+      "bottom": 10.583333333333334,
+      "left": 7.9375
     },
     "sectionGapMm": 13.229166666666666
   },
@@ -169,6 +169,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "JSON Resume Team",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-monochrome-noir",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   }

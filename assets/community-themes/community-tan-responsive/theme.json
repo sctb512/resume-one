@@ -31,10 +31,11 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.3999999999999997
+      "lineHeight": 1.3999999999999997,
+      "fontStyle": "normal"
     },
     "name": {
       "family": "cjk-serif",
@@ -45,16 +46,18 @@
       "color": "#CF8A05"
     },
     "label": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.3999999999999997
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.3999999999999997
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -64,22 +67,25 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.3999999999999997
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 400,
-      "lineHeight": 1.3999999999999997
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     }
   },
   "page": {
@@ -92,18 +98,7 @@
     "sectionGapMm": 4.0
   },
   "composition": {
-    "preset": "sidebar-left",
-    "sidebarWidthPct": 30.0,
-    "placements": {
-      "skills": "sidebar",
-      "languages": "sidebar",
-      "interests": "sidebar",
-      "certificates": "sidebar"
-    },
-    "contactRegion": "sidebar",
-    "headerRegion": "main",
-    "summaryRegion": "main",
-    "sidebarTypographyScale": 1.0
+    "preset": "single-column"
   },
   "sections": {
     "awards": {
@@ -144,7 +139,18 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "Veerav Naidu",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-tan-responsive/v/0.0.7",
     "upstreamRevision": "0.0.7"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "36eaf3e7f62a18134f38b5d60670d6e5b58a75e4bafb1fa83273ba4bc9155b8b",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

@@ -54,17 +54,14 @@
       "weight": 400,
       "lineHeight": 1.2,
       "fontStyle": "normal",
-      "trackingEm": -0.015,
       "color": "#111111"
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 10.875,
+      "sizePt": 11.25,
       "weight": 400,
-      "lineHeight": 1.62,
-      "trackingEm": -0.015,
-      "color": "#2A2722",
-      "fontStyle": "normal"
+      "lineHeight": 1.6,
+      "color": "#111111"
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -80,7 +77,7 @@
       "family": "cjk-serif",
       "sizePt": 15.75,
       "weight": 600,
-      "lineHeight": 1.62,
+      "lineHeight": 1.6,
       "trackingEm": -0.01,
       "textTransform": "uppercase",
       "color": "#111111",
@@ -90,7 +87,7 @@
       "family": "cjk-serif",
       "sizePt": 12.75,
       "weight": 600,
-      "lineHeight": 1.62,
+      "lineHeight": 1.6,
       "fontStyle": "normal",
       "trackingEm": 0.16,
       "textTransform": "uppercase"
@@ -99,10 +96,8 @@
       "family": "cjk-sans",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.62,
-      "trackingEm": -0.015,
-      "color": "#2A2722",
-      "fontStyle": "normal"
+      "lineHeight": 1.6,
+      "color": "#111111"
     }
   },
   "page": {
@@ -122,6 +117,7 @@
     "migratedBy": "resume-one-theme-migrate --adapt",
     "fidelity": "adapted",
     "upstreamLicense": "MIT",
+    "upstreamAuthor": "JSON Resume Team",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-art-school-modern",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
   }

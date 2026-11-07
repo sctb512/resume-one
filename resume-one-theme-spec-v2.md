@@ -43,7 +43,7 @@
 | `layout` | v1 兼容回退布局 | `classic/rules/minimal/modern` 四选一 |
 | `colors` | 文档视觉色 | 原有 `accent/seal/paper/canvas` 必需；可加 `ink/muted/border/sidebar`；应用外壳颜色由渲染器从这些 token 派生，主题不可直接改工具栏几何 |
 | `modules` | 右侧可新增模块 | 只允许 JSON Resume 的 12 个标准模块；不改变内容 Schema；已有但主题未列出的数据仍须保留并用保底排版显示 |
-| `page` | 纸张及分页约束 | A4/Letter、毫米边距、模块间距、防拆条目和标题跟随首项；同一语义布局供预览与 PDF 使用 |
+| `page` | 纸张及分页约束 | A4/Letter、毫米边距、首行定位、模块间距、防拆条目和标题跟随首项；同一语义布局供预览与 PDF 使用 |
 | `typography` | 正文、姓名、模块标题、条目标题、职业说明、摘要、独立左右日期、辅助文字 | 受限字体族、磅值、行高、字重、字距与大小写；无 CSS 字符串；CJK 与拉丁字体有明确回退 |
 | `composition` | 纸张区域与页眉 | 单栏、左右侧栏或分割页眉四种预设；侧栏宽度和间距受限；`placements` 只把标准模块放到主栏/侧栏，同一区域内保留 Resume JSON 的模块顺序 |
 | `sections` | 各模块的外观 | 标题、列表/时间线/卡片/标签及日期位置由有限枚举选择；空模块默认不渲染；字段意义和文字由应用统一解释 |
@@ -71,7 +71,7 @@
 | 省略项 | 解释 |
 |---|---|
 | `description`, `provenance` | 空描述、无迁移来源；不影响渲染 |
-| `page` | A4，四边 16 mm；模块间距 6 mm；条目不跨页；标题跟随首项 |
+| `page` | A4，四边 16 mm；`firstLinePosition: baseline`；模块间距 6 mm；条目不跨页；标题跟随首项 |
 | `typography` | 正文 `cjk-sans` 10 pt/400/1.4；姓名 `cjk-serif` 26 pt/600/1.2；模块标题 `cjk-serif` 13 pt/600/1.3；辅助文字 `cjk-sans` 8.5 pt/400/1.3；字距 0 |
 | `composition` | `single-column`、`stacked` 页眉、`inline` 联系方式；全部模块在主栏，顺序按 Resume JSON 顶层顺序 |
 | `sections` | 所有模块 `plain` 标题、`stack` 内容、`inline` 日期；缺失字段不渲染占位符 |
@@ -81,6 +81,16 @@
 `layout` 始终必填，供 v1 兼容排版回退；显式 `composition` 优先于它。显式字段只覆盖对应默认值，不影响未提及字段。预览、PDF 和 DOCX 使用同一规范化后的主题语义；DOCX 的分页仍允许与 PDF 不同。
 
 `provenance` 只做元数据，不在主题列表弹出提示：`native` 表示为本规范原创，`adapted` 表示按已注明来源改编，`inspired` 表示仅借鉴视觉方向。迁移版应写 `upstreamUrl/upstreamRevision/upstreamAuthor/upstreamLicense/migratedBy` 中可证实的信息；是否通过验收记录在迁移工具的发布报告中，不用 `fidelity` 冒充审核状态。
+
+### 纸张起点与首行定位
+
+`page.firstLinePosition` 是可选的有限枚举，仅允许 `baseline`（默认）与 `line-box`。省略或显式选择 `baseline` 时，首个普通文字流按旧方式把起点作为基线，既有原生主题的默认几何不变。`line-box` 把起点视为首个行框顶部；已有模块/条目前置间距仍生效，不意味着忽略这些间距。
+
+在 `line-box` 模式中，普通文字的基线距当前行框顶部为 `(lineHeight + ascent - descent) × sizePt / 2`。`lineHeight` 是无单位行高，`ascent/descent` 为实际 `FontKind` 字面的 em 度量，下降部使用正值。共享预览与 PDF 用每行的真实字号和行高计算基线，行框推进量等于行框高度。混排不同字号时，基线随当前行的字面改变。主栏、侧栏、分栏页头和续页各有独立的行框起点，装饰标题和并排日期以所占行框计量。
+
+`page.marginsMm` 仍只保存最终四边物理留白，范围各为 3–35mm，不是 CSS 或盒子表达式。独立迁移器可把受支持的 `@page` 边距与 html/body/单一文档容器内距组合成该最终值，再显式选择 `line-box`；组合、数值上下文及回退规则见[适配协议](./spec/theme-adaptation-v1.md)。应用加载主题时不重新执行 CSS 组合，不把参数写入 resume.json。
+
+DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不因 `line-box` 再添加 ascent 空白段落或重复偏移。Word/LibreOffice 自行决定字形定位、换行与分页；此字段保证起点语义，不证明 DOCX、PDF 或原网页逐像素相同，也不表示迁移已通过完整 CSS 或 100% 视觉认证。
 
 ### 条目标题字体
 

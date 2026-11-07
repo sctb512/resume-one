@@ -39,6 +39,11 @@
       "additionalProperties": false,
       "properties": {
         "size": { "enum": ["A4", "Letter"] },
+        "firstLinePosition": {
+          "description": "Position of the first line in each page or flow lane. baseline preserves legacy geometry; line-box treats the top margin as the top of a CSS line box using real font ascent/descent and the requested line height.",
+          "enum": ["baseline", "line-box"],
+          "default": "baseline"
+        },
         "marginsMm": {
           "type": "object",
           "additionalProperties": false,

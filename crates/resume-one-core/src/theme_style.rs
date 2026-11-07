@@ -100,6 +100,14 @@ pub struct MarginsMm {
     pub left: f32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FirstLinePosition {
+    /// Legacy themes position the first text baseline at the top margin.
+    Baseline,
+    /// The top margin is the top of the first CSS line box.
+    LineBox,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct PageStyle {
     pub width_mm: f32,
@@ -108,6 +116,7 @@ pub struct PageStyle {
     pub section_gap_mm: f32,
     pub avoid_split_items: bool,
     pub keep_heading_with_first_item: bool,
+    pub first_line_position: FirstLinePosition,
 }
 
 #[derive(Debug, Clone)]
@@ -549,6 +558,10 @@ impl ThemeStyle {
                     .get("keepHeadingWithFirstItem")
                     .and_then(Value::as_bool)
                     .unwrap_or(true),
+                first_line_position: match page["firstLinePosition"].as_str() {
+                    Some("line-box") => FirstLinePosition::LineBox,
+                    _ => FirstLinePosition::Baseline,
+                },
             },
             typography: Typography {
                 body,
@@ -699,6 +712,36 @@ impl ThemeStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn first_line_position_is_strict_opt_in_and_survives_lane_styles() {
+        let mut theme =
+            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        assert_eq!(
+            ThemeStyle::from_manifest(&theme).page.first_line_position,
+            FirstLinePosition::Baseline
+        );
+        for (value, expected) in [
+            ("baseline", FirstLinePosition::Baseline),
+            ("line-box", FirstLinePosition::LineBox),
+        ] {
+            theme.normalized["page"]["firstLinePosition"] = serde_json::json!(value);
+            let validated = crate::parse_theme(theme.normalized.to_string().as_bytes()).unwrap();
+            let style = ThemeStyle::from_manifest(&validated);
+            assert_eq!(style.page.first_line_position, expected);
+            for lane in [false, true] {
+                assert_eq!(style.column_style(lane).page.first_line_position, expected);
+            }
+        }
+        for invalid in [
+            serde_json::json!("auto"),
+            serde_json::json!(false),
+            serde_json::json!({"code":"run()"}),
+        ] {
+            theme.normalized["page"]["firstLinePosition"] = invalid;
+            assert!(crate::parse_theme(theme.normalized.to_string().as_bytes()).is_err());
+        }
+    }
 
     #[test]
     fn authored_display_title_is_preserved_in_both_languages_and_column_styles() {

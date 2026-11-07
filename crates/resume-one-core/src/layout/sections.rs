@@ -109,23 +109,27 @@ impl ItemFrame {
                 0
             },
             first_top: page.y,
-            first_ascent: crate::entry_header::rows(item, id, style)
-                .and_then(|rows| {
-                    rows.first().map(|row| {
-                        font_kind(row.style)
+            first_ascent: if page.line_boxes {
+                0.0
+            } else {
+                crate::entry_header::rows(item, id, style)
+                    .and_then(|rows| {
+                        rows.first().map(|row| {
+                            font_kind(row.style)
+                                .expect("checked font")
+                                .vertical_metrics()
+                                .0
+                                * row.style.size_pt
+                        })
+                    })
+                    .unwrap_or_else(|| {
+                        font_kind(&style.typography.item_title)
                             .expect("checked font")
                             .vertical_metrics()
                             .0
-                            * row.style.size_pt
+                            * style.typography.item_title.size_pt
                     })
-                })
-                .unwrap_or_else(|| {
-                    font_kind(&style.typography.item_title)
-                        .expect("checked font")
-                        .vertical_metrics()
-                        .0
-                        * style.typography.item_title.size_pt
-                }),
+            },
         }
     }
 
@@ -140,6 +144,8 @@ impl ItemFrame {
         for index in self.first_page..=last {
             let top = if index == self.first_page {
                 self.first_top + ascent + 2.0
+            } else if page.line_boxes {
+                page.height - page.top
             } else {
                 page.height - page.top + ascent + 2.0
             };

@@ -545,6 +545,11 @@ fn build_document(
             twips(page.height_mm * PT_PER_MM),
         )
         .page_margin(PageMargin {
+            // Word's editable paragraphs already start a line box at the page
+            // margin (also in independent table lanes). The opt-in shared
+            // renderer's line-box mode therefore needs no extra ascent spacer
+            // or margin adjustment here. Word still owns wrapping/pagination;
+            // it cannot promise the PDF engine's exact font raster metrics.
             top: twips(page.margins.top * PT_PER_MM) as i32,
             right: twips(page.margins.right * PT_PER_MM) as i32,
             bottom: twips(page.margins.bottom * PT_PER_MM) as i32,
@@ -996,6 +1001,67 @@ mod tests {
     use super::*;
     use crate::{resume::parse_resume, semantic::project};
     use docx_rs::BuildXML as _;
+
+    #[test]
+    fn line_box_preserves_editable_word_top_margin_without_double_ascent_offset() {
+        let source = br#"{"basics":{"name":"Identity","email":"contact@example.com","summary":"Summary"},"work":[{"name":"Company","summary":"Editable body"}],"skills":[{"name":"Tools","keywords":["Rust"]}]}"#;
+        let resume = parse_resume(source).unwrap();
+        let original = resume.value.clone();
+        let content = project(&resume);
+        for preset in [
+            "single-column",
+            "split-header",
+            "sidebar-left",
+            "sidebar-right",
+        ] {
+            let mut theme =
+                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
+                    .unwrap();
+            theme.normalized["page"]["marginsMm"]["top"] = serde_json::json!(26.99);
+            theme.normalized["composition"] = serde_json::json!({"preset":preset});
+            if preset == "split-header" {
+                theme.normalized["composition"]["header"] = serde_json::json!("split");
+            } else if preset.starts_with("sidebar-") {
+                theme.normalized["composition"]["headerRegion"] = serde_json::json!("main");
+                theme.normalized["composition"]["summaryRegion"] = serde_json::json!("sidebar");
+                theme.normalized["composition"]["placements"] =
+                    serde_json::json!({"skills":"sidebar"});
+            }
+            let baseline = ThemeStyle::from_manifest(&theme);
+            let before = build_document(&content, Language::En, &baseline)
+                .unwrap()
+                .document;
+            theme.normalized["page"]["firstLinePosition"] = serde_json::json!("line-box");
+            let theme = crate::parse_theme(theme.normalized.to_string().as_bytes()).unwrap();
+            check_theme(&theme).unwrap();
+            let line_box = ThemeStyle::from_manifest(&theme);
+            let after = build_document(&content, Language::En, &line_box)
+                .unwrap()
+                .document;
+            // Word already uses line-box tops. Extra blank paragraphs or a
+            // second font-ascent correction would change this native markup.
+            assert_eq!(before, after, "{preset}");
+            let xml = String::from_utf8(after).unwrap();
+            assert!(xml.contains(&format!("w:top=\"{}\"", twips(26.99 * PT_PER_MM))));
+            for value in [
+                "Identity",
+                "contact@example.com",
+                "Summary",
+                "Company",
+                "Editable body",
+                "Tools",
+                "Rust",
+            ] {
+                assert_eq!(xml.matches(value).count(), 1, "{preset}: {value}");
+            }
+            assert!(!xml.contains("<w:drawing>"));
+            if preset == "split-header" {
+                assert!(xml.contains("<w:tbl>"));
+            }
+        }
+        assert_eq!(resume.value, original);
+        assert_eq!(resume.source, source);
+    }
 
     #[test]
     fn empty_first_card_cannot_insert_a_spacer_that_breaks_heading_keep_chain() {

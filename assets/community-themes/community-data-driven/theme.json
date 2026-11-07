@@ -101,13 +101,14 @@
   },
   "page": {
     "marginsMm": {
-      "top": 11.53,
+      "top": 4.2333333333333325,
       "right": 4.2333333333333325,
       "bottom": 4.2333333333333325,
       "left": 4.2333333333333325
     },
     "avoidSplitItems": true,
-    "sectionGapMm": 6.35
+    "sectionGapMm": 6.35,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -177,25 +178,25 @@
       {
         "id": "font-0",
         "path": "font-0.ttf",
-        "sha256": "becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048",
+        "sha256": "7ceca4edcdaca0375cb73cd3875a848c790d22455c6ade58ce0297fbd8d78f77",
         "license": "OFL-1.1"
       },
       {
         "id": "font-1",
         "path": "font-1.ttf",
-        "sha256": "7ef06629d9600ada5ddcc3dfe405a2d496f01d872f25f90696c418545ed14d25",
+        "sha256": "3aa1ee1f1554d0c53be8c72e01491c75bf8d043d6c5ac66c099cd650064c1f5d",
         "license": "OFL-1.1"
       },
       {
         "id": "font-2",
         "path": "font-2.ttf",
-        "sha256": "47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45",
+        "sha256": "4a6c41ef978d8098fae1720e315ad5ef8ce136797ff4c713ea4de11523885065",
         "license": "OFL-1.1"
       },
       {
         "id": "font-3",
         "path": "font-3.ttf",
-        "sha256": "b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06",
+        "sha256": "8ae74776db7bdb9d248ed8afd4e2761d1b72374362ed666fd1af35a71d7ff269",
         "license": "OFL-1.1"
       }
     ]

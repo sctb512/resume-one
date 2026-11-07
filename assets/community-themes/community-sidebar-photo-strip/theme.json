@@ -32,13 +32,14 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.5,
       "weight": 400,
-      "lineHeight": 1.7
+      "lineHeight": 1.7,
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 19.5,
       "weight": 600,
       "lineHeight": 1.2,
@@ -47,20 +48,22 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-sans",
-      "sizePt": 10.0,
-      "weight": 400,
-      "lineHeight": 1.4
-    },
-    "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#111827"
+      "fontStyle": "normal"
+    },
+    "summary": {
+      "family": "asset:font-0",
+      "sizePt": 10.0,
+      "weight": 400,
+      "lineHeight": 1.4,
+      "color": "#111827",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 16.5,
       "weight": 600,
       "lineHeight": 1.4,
@@ -69,35 +72,37 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 12.0,
       "weight": 600,
       "lineHeight": 1.4,
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 10.5,
-      "weight": 600,
+      "weight": 500,
       "lineHeight": 1.5,
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.4,
-      "trackingEm": 0.015384615384615387
+      "trackingEm": 0.015384615384615387,
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 10.92,
-      "right": 10.583333333333334,
-      "bottom": 10.583333333333334,
-      "left": 10.583333333333334
+      "top": 23.28333333333333,
+      "right": 23.28333333333333,
+      "bottom": 23.28333333333333,
+      "left": 23.28333333333333
     },
-    "sectionGapMm": 6.35
+    "sectionGapMm": 6.35,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "sidebar-left",
@@ -175,5 +180,27 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-sidebar-photo-strip",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "7ceca4edcdaca0375cb73cd3875a848c790d22455c6ade58ce0297fbd8d78f77",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "4a6c41ef978d8098fae1720e315ad5ef8ce136797ff4c713ea4de11523885065",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "8ae74776db7bdb9d248ed8afd4e2761d1b72374362ed666fd1af35a71d7ff269",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

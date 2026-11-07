@@ -31,11 +31,12 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.875,
       "weight": 400,
       "lineHeight": 1.75,
-      "color": "#4A4A4A"
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
     },
     "name": {
       "family": "cjk-serif",
@@ -47,7 +48,7 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 9.75,
       "weight": 600,
       "lineHeight": 1.75,
@@ -57,11 +58,12 @@
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 11.25,
       "weight": 400,
       "lineHeight": 1.8,
-      "color": "#4A4A4A"
+      "color": "#4A4A4A",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -81,7 +83,7 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 12.0,
       "weight": 600,
       "lineHeight": 1.75,
@@ -89,7 +91,7 @@
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 9.0,
       "weight": 600,
       "lineHeight": 1.75,
@@ -101,12 +103,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 20.06,
+      "top": 9.524999999999999,
       "right": 7.408333333333333,
       "bottom": 9.524999999999999,
       "left": 7.408333333333333
     },
-    "sectionGapMm": 12.7
+    "sectionGapMm": 12.7,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -187,5 +190,21 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-french-atelier",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "cdbdffe6d5f62388ce966b4a70c3ee1b9bc15c4976441e9bf0747a0431b99941",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "6beea9a6b9ca1b271530a8d8b90590e15963fc104be04dbaaca02bfdd3cfd6f4",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

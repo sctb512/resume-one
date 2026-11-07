@@ -105,11 +105,12 @@
   },
   "page": {
     "marginsMm": {
-      "top": 17.74,
-      "right": 10.583333333333334,
-      "bottom": 10.583333333333334,
-      "left": 10.583333333333334
-    }
+      "top": 23.28333333333333,
+      "right": 23.28333333333333,
+      "bottom": 23.28333333333333,
+      "left": 23.28333333333333
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -146,13 +147,184 @@
       "title": "Volunteer"
     },
     "awards": {
-      "title": "Awards"
+      "title": "Awards",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "title"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.03125
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "awarder"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 10.5,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 9.75,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "certificates": {
-      "title": "Certificates"
+      "title": "Certificates",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.03125
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "issuer"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 10.5,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 9.75,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "publications": {
-      "title": "Publications"
+      "title": "Publications",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.03125
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "publisher"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 10.5,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "releaseDate"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 9.75,
+            "weight": 300,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "languages": {
       "title": "Languages"

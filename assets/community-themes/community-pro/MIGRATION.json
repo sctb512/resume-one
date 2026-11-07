@@ -190,7 +190,7 @@
         "sectionTitle",
         "sideDate"
       ],
-      "evidenceRecords": 287
+      "evidenceRecords": 348
     },
     "fontRequests": [
       {
@@ -290,6 +290,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -380,6 +394,756 @@
         "source": null,
         "classification": "adapted",
         "reason": "缺少静态证据的值采用候选/显式安全默认，不代表原模板样式",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-focus",
+          "value": "#174ea6",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-font-body",
+          "value": "'Source Serif 4', Georgia, 'Times New Roman', serif",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-contact-col",
+          "value": "1.1em",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-contact-row",
+          "value": "0.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-contact-summary",
+          "value": "4mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-entry",
+          "value": "4mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-list-item",
+          "value": "0.75mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-meta-narrative",
+          "value": "1.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-narrative-list",
+          "value": "1.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-paragraph",
+          "value": "2mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-row",
+          "value": "1.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-rule-content",
+          "value": "2.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-section",
+          "value": "6mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-summary-section",
+          "value": "5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-title-context",
+          "value": "0.5mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gap-title-rule",
+          "value": "1mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-gutter",
+          "value": "clamp(1rem, 4vw, 2rem)",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-label-gap",
+          "value": "3mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-label-track",
+          "value": "34mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-body",
+          "value": "1.3",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-contact",
+          "value": "1.25",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-context",
+          "value": "1.25",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-label",
+          "value": "1.25",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-meta",
+          "value": "1.25",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-name",
+          "value": "1.1",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-section",
+          "value": "1.2",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-lead-title",
+          "value": "1.25",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-list-inset",
+          "value": "1.15em",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-measure",
+          "value": "42rem",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-pad-bottom",
+          "value": "2.5rem",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-pad-top",
+          "value": "2rem",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-paper",
+          "value": "#ffffff",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-portrait",
+          "value": "22mm",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-rule",
+          "value": "0.5pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-rule-color",
+          "value": "#b8b8b2",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-body",
+          "value": "11pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-contact",
+          "value": "10.25pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-context",
+          "value": "10.5pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-label",
+          "value": "11pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-meta",
+          "value": "10.25pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-name",
+          "value": "25pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-section",
+          "value": "12pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-size-title",
+          "value": "11pt",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-text",
+          "value": "#202020",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--pro-text-secondary",
+          "value": "#4b4b4b",
+          "sources": [
+            "src/styles.js#literal-533.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/components.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/dates.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/fonts.generated.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/index.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/location.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/masthead.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/sections.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/settings.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/styles.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 45
+        },
+        "source": {
+          "file": "src/text.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
         "equivalent": false
       },
       {
@@ -9443,13 +10207,25 @@
             "sectionTitle",
             "sideDate"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 11.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -9498,7 +10274,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -9694,7 +10470,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -9988,7 +10764,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -10429,7 +11205,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -10674,7 +11450,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -10919,7 +11695,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -11115,7 +11891,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -11563,214 +12339,6 @@
         },
         "classification": "adapted",
         "reason": "标题断页偏好投影",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/bottom",
-        "value": 16.0,
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/left",
-        "value": 16.0,
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/right",
-        "value": 16.0,
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/top",
-        "value": 16.0,
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
         "equivalent": false
       },
       {
@@ -12362,6 +12930,830 @@
         "equivalent": false
       },
       {
+        "target": "/page/marginsMm/top",
+        "value": 16.0,
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 16.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "16mm 18mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 16mm 18mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9017,
+                    "endByte": 9035,
+                    "line": 400,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "unconditional-source-order-replay",
+                    "originalDeclarationIndex": 222,
+                    "projectedDeclarationIndex": 403,
+                    "originalScope": [
+                      "@page"
+                    ],
+                    "removedMediaScopes": [],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            },
+            {
+              "box": ".pro",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".pro"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9149,
+                    "endByte": 9160,
+                    "line": 411,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 226,
+                    "projectedDeclarationIndex": 407,
+                    "originalScope": [
+                      "@media print",
+                      ".pro"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 16.0
+        },
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/right",
+        "value": 18.000000000000004,
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "right",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 18.000000000000004,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "16mm 18mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 16mm 18mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9017,
+                    "endByte": 9035,
+                    "line": 400,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "unconditional-source-order-replay",
+                    "originalDeclarationIndex": 222,
+                    "projectedDeclarationIndex": 403,
+                    "originalScope": [
+                      "@page"
+                    ],
+                    "removedMediaScopes": [],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            },
+            {
+              "box": ".pro",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".pro"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9149,
+                    "endByte": 9160,
+                    "line": 411,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 226,
+                    "projectedDeclarationIndex": 407,
+                    "originalScope": [
+                      "@media print",
+                      ".pro"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 18.000000000000004
+        },
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/bottom",
+        "value": 16.0,
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 16.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "16mm 18mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 16mm 18mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9017,
+                    "endByte": 9035,
+                    "line": 400,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "unconditional-source-order-replay",
+                    "originalDeclarationIndex": 222,
+                    "projectedDeclarationIndex": 403,
+                    "originalScope": [
+                      "@page"
+                    ],
+                    "removedMediaScopes": [],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            },
+            {
+              "box": ".pro",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".pro"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9149,
+                    "endByte": 9160,
+                    "line": 411,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 226,
+                    "projectedDeclarationIndex": 407,
+                    "originalScope": [
+                      "@media print",
+                      ".pro"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 16.0
+        },
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/left",
+        "value": 18.000000000000004,
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "left",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 18.000000000000004,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "16mm 18mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 16mm 18mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9017,
+                    "endByte": 9035,
+                    "line": 400,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "unconditional-source-order-replay",
+                    "originalDeclarationIndex": 222,
+                    "projectedDeclarationIndex": 403,
+                    "originalScope": [
+                      "@page"
+                    ],
+                    "removedMediaScopes": [],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            },
+            {
+              "box": ".pro",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "src/styles.js#literal-533.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".pro"
+                  ],
+                  "span": {
+                    "file": "src/styles.js#literal-533.css",
+                    "startByte": 9149,
+                    "endByte": 9160,
+                    "line": 411,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 226,
+                    "projectedDeclarationIndex": 407,
+                    "originalScope": [
+                      "@media print",
+                      ".pro"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 18.000000000000004
+        },
+        "source": {
+          "file": "src/styles.js#literal-533.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".pro"
+            ],
+            "span": {
+              "file": "src/styles.js#literal-533.css",
+              "startByte": 9149,
+              "endByte": 9160,
+              "line": 411,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 226,
+              "projectedDeclarationIndex": 407,
+              "originalScope": [
+                "@media print",
+                ".pro"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
         "target": "fontRequests",
         "value": {
           "role": "body",
@@ -12839,6 +14231,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -23345,6 +24745,354 @@
             "file": "src/styles.js#literal-533.css",
             "component": null,
             "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
               "property": "max-width",
               "value": {
                 "text": "calc(var(--pro-measure) + 2 * var(--pro-gutter))",
@@ -23608,6 +25356,534 @@
                 "line": 212,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 96,
+                "projectedDeclarationIndex": 287,
+                "originalScope": [
+                  ".pro :where(h1, h2, h3, p, ul, blockquote)"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 96,
+                "projectedDeclarationIndex": 287,
+                "originalScope": [
+                  ".pro :where(h1, h2, h3, p, ul, blockquote)"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 96,
+                "projectedDeclarationIndex": 287,
+                "originalScope": [
+                  ".pro :where(h1, h2, h3, p, ul, blockquote)"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro :where(h1, h2, h3, p, ul, blockquote)"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 3243,
+                "endByte": 3254,
+                "line": 129,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 96,
+                "projectedDeclarationIndex": 287,
+                "originalScope": [
+                  ".pro :where(h1, h2, h3, p, ul, blockquote)"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
               }
             }
           }
@@ -23988,6 +26264,558 @@
                   ".pro-contacts li"
                 ],
                 "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 2839,
+                "endByte": 2907,
+                "line": 112,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "unconditional-source-order-replay",
+                "originalDeclarationIndex": 87,
+                "projectedDeclarationIndex": 278,
+                "originalScope": [
+                  ".pro"
+                ],
+                "removedMediaScopes": [],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "next": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
+                "sourceSpanRetained": true,
+                "importantRetained": true,
+                "sourceOrderPreservedWithinBlock": true,
+                "equivalent": false
+              }
+            }
+          },
+          "selected": {
+            "file": "src/styles.js#literal-533.css",
+            "component": null,
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 0;",
+                "truncated": false
+              },
+              "scope": [
+                ".pro"
+              ],
+              "span": {
+                "file": "src/styles.js#literal-533.css",
+                "startByte": 9149,
+                "endByte": 9160,
+                "line": 411,
+                "column": 5,
+                "columnUnit": "utf8-bytes"
+              },
+              "printProfileProjection": {
+                "format": "resume-one-css-print-profile-v1",
+                "profile": "print",
+                "kind": "positive-print-media",
+                "originalDeclarationIndex": 226,
+                "projectedDeclarationIndex": 407,
+                "originalScope": [
+                  "@media print",
+                  ".pro"
+                ],
+                "removedMediaScopes": [
+                  "@media print"
+                ],
                 "sourceSpanRetained": true,
                 "importantRetained": true,
                 "sourceOrderPreservedWithinBlock": true,
@@ -24638,37 +27466,6 @@
               "startByte": 2816,
               "endByte": 2836,
               "line": 111,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "CSS_PROPERTY_UNSUPPORTED",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 2839,
-              "endByte": 2907,
-              "line": 112,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -26534,52 +29331,6 @@
               "kind": "unconditional-source-order-replay",
               "originalDeclarationIndex": 86,
               "projectedDeclarationIndex": 277,
-              "originalScope": [
-                ".pro"
-              ],
-              "removedMediaScopes": [],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "CSS_PROPERTY_UNSUPPORTED",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: var(--pro-pad-top) var(--pro-gutter) var(--pro-pad-bottom);",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 2839,
-              "endByte": 2907,
-              "line": 112,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "unconditional-source-order-replay",
-              "originalDeclarationIndex": 87,
-              "projectedDeclarationIndex": 278,
               "originalScope": [
                 ".pro"
               ],
@@ -29001,390 +31752,6 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "src/styles.js#literal-533.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "16mm 18mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 16mm 18mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "src/styles.js#literal-533.css",
-                "startByte": 9017,
-                "endByte": 9035,
-                "line": 400,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "unconditional-source-order-replay",
-                "originalDeclarationIndex": 222,
-                "projectedDeclarationIndex": 403,
-                "originalScope": [
-                  "@page"
-                ],
-                "removedMediaScopes": [],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "src/styles.js#literal-533.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".pro"
-              ],
-              "span": {
-                "file": "src/styles.js#literal-533.css",
-                "startByte": 9149,
-                "endByte": 9160,
-                "line": 411,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 226,
-                "projectedDeclarationIndex": 407,
-                "originalScope": [
-                  "@media print",
-                  ".pro"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "src/styles.js#literal-533.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".pro"
-            ],
-            "span": {
-              "file": "src/styles.js#literal-533.css",
-              "startByte": 9149,
-              "endByte": 9160,
-              "line": 411,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 226,
-              "projectedDeclarationIndex": 407,
-              "originalScope": [
-                "@media print",
-                ".pro"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/styles.js#literal-533.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "16mm 18mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 16mm 18mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "src/styles.js#literal-533.css",
-                "startByte": 9017,
-                "endByte": 9035,
-                "line": 400,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "unconditional-source-order-replay",
-                "originalDeclarationIndex": 222,
-                "projectedDeclarationIndex": 403,
-                "originalScope": [
-                  "@page"
-                ],
-                "removedMediaScopes": [],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "src/styles.js#literal-533.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".pro"
-              ],
-              "span": {
-                "file": "src/styles.js#literal-533.css",
-                "startByte": 9149,
-                "endByte": 9160,
-                "line": 411,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 226,
-                "projectedDeclarationIndex": 407,
-                "originalScope": [
-                  "@media print",
-                  ".pro"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/styles.js#literal-533.css",
@@ -30211,7 +32578,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [
       {
         "assetId": "font-0",
@@ -35715,6 +38082,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/pro.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -35725,7 +38104,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -35748,11 +38127,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6534184,
-        "docxBytes": 18334224
+        "pdfBytes": 6534189,
+        "docxBytes": 18334227
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
@@ -35775,11 +38154,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6535579,
-        "docxBytes": 18334013
+        "pdfBytes": 6535578,
+        "docxBytes": 18334016
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -35793,15 +38172,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6418569,
-        "docxBytes": 18331665
+        "pdfBytes": 6418558,
+        "docxBytes": 18331670
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
-        "pages": 5,
-        "textLines": 207,
+        "pages": 4,
+        "textLines": 206,
         "sections": [
           "awards",
           "basics",
@@ -35820,12 +38199,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6539185,
-        "docxBytes": 18335761
+        "pdfBytes": 6538506,
+        "docxBytes": 18335767
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "4642c152ac96d4e48c476013817a471066667f47c8b73f1bf952c47acfdd355a"
+  "candidateSha256": "ec35c8e437d7810316da83260fb3bd4cbf797c0920296dcc46117f74c19344fd"
 }

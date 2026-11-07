@@ -101,12 +101,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 17.62,
-      "right": 10.583333333333334,
-      "bottom": 10.583333333333334,
-      "left": 10.583333333333334
+      "top": 23.28333333333333,
+      "right": 23.28333333333333,
+      "bottom": 23.28333333333333,
+      "left": 23.28333333333333
     },
-    "size": "A4"
+    "size": "A4",
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -121,15 +122,211 @@
   },
   "sections": {
     "awards": {
-      "items": "cards"
+      "items": "cards",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "title"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.75,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "awarder",
+              "prefix": "Awarded by "
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "certificates": {
       "items": "cards",
-      "title": "Certifications"
+      "title": "Certifications",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.75,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "issuer",
+              "prefix": "Issued by "
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "education": {
       "items": "cards",
-      "title": "Education"
+      "title": "Education",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "institution"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 13.5,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "studyType"
+            },
+            {
+              "field": "area",
+              "prefix": " in "
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "score",
+              "prefix": "GPA: "
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 10.5,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "interests": {
       "items": "cards",
@@ -140,11 +337,109 @@
       "title": "Languages"
     },
     "projects": {
-      "items": "cards"
+      "items": "cards",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 13.5,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "publications": {
       "items": "cards",
-      "title": "Publications"
+      "title": "Publications",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.75,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 6.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "publisher",
+              "prefix": "Published by "
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          },
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "releaseDate"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "references": {
       "items": "cards"
@@ -153,11 +448,125 @@
       "items": "cards"
     },
     "volunteer": {
-      "items": "cards"
+      "items": "cards",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 15.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "organization"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.75,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          }
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "work": {
       "items": "cards",
-      "title": "Professional Experience"
+      "title": "Professional Experience",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 15.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#9F1239"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.75,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#374151"
+          }
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-3",
+            "sizePt": 10.5,
+            "weight": 500,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     }
   },
   "provenance": {

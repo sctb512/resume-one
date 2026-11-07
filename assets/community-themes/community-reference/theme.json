@@ -11,7 +11,7 @@
     "seal": "#334155",
     "paper": "#FFFFFF",
     "canvas": "#F5F3EE",
-    "ink": "#000000",
+    "ink": "#1A1A1A",
     "muted": "#64748B",
     "border": "#CBD5E1"
   },
@@ -32,39 +32,39 @@
   "typography": {
     "body": {
       "family": "cjk-sans",
-      "sizePt": 11.0,
+      "sizePt": 8.25,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#000000"
+      "color": "#1A1A1A"
     },
     "name": {
       "family": "cjk-serif",
-      "sizePt": 28.0,
+      "sizePt": 27.0,
       "weight": 600,
       "lineHeight": 1.6,
-      "color": "#000000",
+      "color": "#1A1A1A",
       "fontStyle": "normal"
     },
     "label": {
       "family": "cjk-sans",
-      "sizePt": 16.0,
+      "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#333333"
+      "color": "#4A4A4A"
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 11.0,
+      "sizePt": 8.25,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#333333"
+      "color": "#4A4A4A"
     },
     "sectionTitle": {
       "family": "cjk-serif",
       "sizePt": 13.0,
       "weight": 600,
       "lineHeight": 1.6,
-      "color": "#000000",
+      "color": "#1A1A1A",
       "fontStyle": "normal"
     },
     "itemTitle": {
@@ -72,31 +72,32 @@
       "sizePt": 10.6,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#000000"
+      "color": "#1A1A1A"
     },
     "meta": {
       "family": "cjk-sans",
-      "sizePt": 11.0,
+      "sizePt": 8.25,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#000000"
+      "color": "#1A1A1A"
     },
     "sideDate": {
       "family": "cjk-sans",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.6,
-      "color": "#000000"
+      "color": "#1A1A1A"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 14.37,
+      "top": 10.583333333333334,
       "right": 5.291666666666667,
       "bottom": 10.583333333333334,
       "left": 5.291666666666667
     },
-    "avoidSplitItems": true
+    "avoidSplitItems": true,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

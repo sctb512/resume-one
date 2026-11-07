@@ -93,13 +93,14 @@
   },
   "page": {
     "marginsMm": {
-      "top": 20.06,
+      "top": 15.875,
       "right": 13.229166666666666,
       "bottom": 15.875,
       "left": 13.229166666666666
     },
     "sectionGapMm": 10.583333333333334,
-    "size": "A4"
+    "size": "A4",
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "sidebar-left",

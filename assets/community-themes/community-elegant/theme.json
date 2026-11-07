@@ -94,7 +94,8 @@
       "right": 16.0,
       "bottom": 16.0,
       "left": 16.0
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "sidebar-left",

@@ -136,7 +136,7 @@
         "name",
         "sectionTitle"
       ],
-      "evidenceRecords": 41
+      "evidenceRecords": 44
     },
     "fontRequests": [
       {
@@ -212,6 +212,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -316,18 +330,30 @@
             "name",
             "sectionTitle"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 13.0,
+          "documentSizePt": 13.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
         "target": "/typography/body/sizePt",
-        "value": 8.399999999999999,
+        "value": 9.1,
         "source": {
           "file": "css/style.css",
           "component": null,
@@ -356,7 +382,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -463,7 +489,7 @@
       },
       {
         "target": "/typography/name/sizePt",
-        "value": 8.819999999999999,
+        "value": 13.65,
         "source": {
           "file": "css/style.css",
           "component": null,
@@ -492,7 +518,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -531,7 +557,7 @@
       },
       {
         "target": "/typography/label/sizePt",
-        "value": 10.0,
+        "value": 9.1,
         "source": {
           "file": "css/style.css",
           "component": null,
@@ -560,7 +586,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -735,7 +761,7 @@
       },
       {
         "target": "/typography/sectionTitle/sizePt",
-        "value": 8.399999999999999,
+        "value": 13.0,
         "source": {
           "file": "css/style.css",
           "component": null,
@@ -764,7 +790,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1075,7 +1101,7 @@
       },
       {
         "target": "/page/marginsMm/top",
-        "value": 5.291666666666667,
+        "value": 29.809722222222224,
         "source": {
           "file": "css/style.css",
           "component": null,
@@ -1104,7 +1130,142 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": "html",
+              "kind": 1,
+              "valueMm": 11.465277777777779,
+              "source": {
+                "file": "css/style.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding-top",
+                  "value": {
+                    "text": "2.5em",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding-top:2.5em;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "body, html"
+                  ],
+                  "span": {
+                    "file": "css/style.css",
+                    "startByte": 15,
+                    "endByte": 33,
+                    "line": 2,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": "body",
+              "kind": 2,
+              "valueMm": 11.465277777777779,
+              "source": {
+                "file": "css/style.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding-top",
+                  "value": {
+                    "text": "2.5em",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding-top:2.5em;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "body, html"
+                  ],
+                  "span": {
+                    "file": "css/style.css",
+                    "startByte": 15,
+                    "endByte": 33,
+                    "line": 2,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": ".content",
+              "kind": 3,
+              "valueMm": 6.879166666666666,
+              "source": {
+                "file": "css/style.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding-top",
+                  "value": {
+                    "text": "1.5em",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding-top:1.5em;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".content"
+                  ],
+                  "span": {
+                    "file": "css/style.css",
+                    "startByte": 1784,
+                    "endByte": 1802,
+                    "line": 146,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 29.809722222222224
+        },
+        "source": {
+          "file": "css/style.css",
+          "component": null,
+          "declaration": {
+            "property": "padding-top",
+            "value": {
+              "text": "1.5em",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-top:1.5em;",
+              "truncated": false
+            },
+            "scope": [
+              ".content"
+            ],
+            "span": {
+              "file": "css/style.css",
+              "startByte": 1784,
+              "endByte": 1802,
+              "line": 146,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -1634,6 +1795,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -5722,93 +5891,6 @@
             "file": "css/print.css",
             "component": null,
             "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".big-text"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 1919,
-                "endByte": 1934,
-                "line": 144,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "2.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top:2.5em;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 15,
-                "endByte": 33,
-                "line": 2,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".big-text"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 1919,
-                "endByte": 1934,
-                "line": 144,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
               "property": "margin-top",
               "value": {
                 "text": "-1.6em",
@@ -5983,93 +6065,6 @@
             "file": "css/print.css",
             "component": null,
             "declaration": {
-              "property": "margin-top",
-              "value": {
-                "text": "-1.6em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin-top: -1.6em;",
-                "truncated": false
-              },
-              "scope": [
-                ".header-text"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 588,
-                "endByte": 607,
-                "line": 59,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin:0;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 36,
-                "endByte": 45,
-                "line": 3,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
-              "property": "margin-top",
-              "value": {
-                "text": "-1.6em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin-top: -1.6em;",
-                "truncated": false
-              },
-              "scope": [
-                ".header-text"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 588,
-                "endByte": 607,
-                "line": 59,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
               "property": "background-color",
               "value": {
                 "text": "white",
@@ -6142,93 +6137,6 @@
                 "startByte": 48,
                 "endByte": 73,
                 "line": 4,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size:0.5em;",
-                "truncated": false
-              },
-              "scope": [
-                ".content-cat p"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 822,
-                "endByte": 838,
-                "line": 78,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "13pt",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 13pt;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 76,
-                "endByte": 92,
-                "line": 5,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size:0.5em;",
-                "truncated": false
-              },
-              "scope": [
-                ".content-cat p"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 822,
-                "endByte": 838,
-                "line": 78,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -9606,37 +9514,6 @@
         "message": "原 font-family: \"Open Sans\"；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "css/style.css",
-          "component": null,
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "0.7em",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size:0.7em;",
-              "truncated": false
-            },
-            "scope": [
-              ".subtitle"
-            ],
-            "span": {
-              "file": "css/style.css",
-              "startByte": 1207,
-              "endByte": 1223,
-              "line": 106,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "/typography/label/sizePt 需要 7..=42，采用安全值 10；没有 clamp 来源数值"
-      },
-      {
         "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "css/style.css",
@@ -10100,67 +9977,6 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "css/print.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "1.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top: 1.5em;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/print.css",
-                "startByte": 43,
-                "endByte": 62,
-                "line": 4,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "2.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top:2.5em;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 15,
-                "endByte": 33,
-                "line": 2,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -11369,67 +11185,6 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "2.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top:2.5em;",
-                "truncated": false
-              },
-              "scope": [
-                "body, html"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 15,
-                "endByte": 33,
-                "line": 2,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "css/style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding-top",
-              "value": {
-                "text": "1.5em",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding-top:1.5em;",
-                "truncated": false
-              },
-              "scope": [
-                ".content"
-              ],
-              "span": {
-                "file": "css/style.css",
-                "startByte": 1784,
-                "endByte": 1802,
-                "line": 146,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "css/style.css",
@@ -12055,13 +11810,13 @@
           "role": "name",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 8.819999999999999,
+            "sizePt": 13.65,
             "weight": 600,
             "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
-            "sizePt": 8.819999999999999,
+            "sizePt": 13.65,
             "weight": 600,
             "lineHeight": 1.4,
             "fontStyle": "normal"
@@ -12075,14 +11830,14 @@
           "role": "label",
           "requested": {
             "family": "cjk-serif",
-            "sizePt": 10.0,
+            "sizePt": 9.1,
             "weight": 500,
             "lineHeight": 1.4,
             "color": "#424242"
           },
           "chosen": {
             "family": "cjk-serif",
-            "sizePt": 10.0,
+            "sizePt": 9.1,
             "weight": 600,
             "lineHeight": 1.4,
             "color": "#424242",
@@ -12097,13 +11852,13 @@
           "role": "sectionTitle",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 8.399999999999999,
+            "sizePt": 13.0,
             "weight": 300,
             "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-sans",
-            "sizePt": 8.399999999999999,
+            "sizePt": 13.0,
             "weight": 400,
             "lineHeight": 1.4,
             "fontStyle": "normal"
@@ -12130,14 +11885,6 @@
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
-        "source": {
-          "requestedMm": 5.291666666666667,
-          "chosenMm": 8.32
-        },
-        "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
       }
     ],
     "limitations": [
@@ -12526,7 +12273,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [
       {
         "assetId": "font-2",
@@ -12708,6 +12455,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/paper-plus-plus.txt",
     "sha256": "c5b97d672c6527fe47a2a37bdc28de81eab2082e47e559f38880d0f747accdf4",
@@ -12718,7 +12477,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -12741,11 +12500,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 15179885,
-        "docxBytes": 18354033
+        "pdfBytes": 15179882,
+        "docxBytes": 18354056
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
@@ -12768,11 +12527,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 15181029,
-        "docxBytes": 18353926
+        "pdfBytes": 15181052,
+        "docxBytes": 18353987
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -12786,15 +12545,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6471316,
-        "docxBytes": 18351473
+        "pdfBytes": 6471320,
+        "docxBytes": 18351471
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
-        "pages": 4,
-        "textLines": 207,
+        "pages": 5,
+        "textLines": 208,
         "sections": [
           "awards",
           "basics",
@@ -12813,12 +12572,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 15183875,
-        "docxBytes": 18355818
+        "pdfBytes": 15184918,
+        "docxBytes": 18355806
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "d8a655663925ce02b209002a9ea3cca3c6ea881809c57c40db48097b5d44c7ea"
+  "candidateSha256": "62c849d7cdde2df31672895dcda2a85c0248f0c168160d130b2dd09175cc4149"
 }

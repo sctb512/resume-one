@@ -32,7 +32,7 @@
   "typography": {
     "body": {
       "family": "asset:font-0",
-      "sizePt": 12.0,
+      "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.5,
       "fontStyle": "normal",
@@ -40,7 +40,7 @@
     },
     "name": {
       "family": "asset:font-0",
-      "sizePt": 26.0,
+      "sizePt": 32.04345703125,
       "weight": 400,
       "lineHeight": 1.2,
       "fontStyle": "normal",
@@ -48,7 +48,7 @@
     },
     "label": {
       "family": "asset:font-0",
-      "sizePt": 12.0,
+      "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.5,
       "fontStyle": "normal",
@@ -56,7 +56,7 @@
     },
     "summary": {
       "family": "asset:font-0",
-      "sizePt": 12.0,
+      "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.5,
       "fontStyle": "normal",
@@ -64,14 +64,14 @@
     },
     "sectionTitle": {
       "family": "asset:font-0",
-      "sizePt": 13.0,
+      "sizePt": 20.5078125,
       "weight": 400,
       "lineHeight": 1.2,
       "fontStyle": "normal"
     },
     "itemTitle": {
       "family": "asset:font-0",
-      "sizePt": 10.6,
+      "sizePt": 16.40625,
       "weight": 400,
       "lineHeight": 1.5,
       "fontStyle": "normal",
@@ -99,7 +99,8 @@
       "right": 16,
       "bottom": 16,
       "left": 16
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

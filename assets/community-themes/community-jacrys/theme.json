@@ -105,7 +105,8 @@
       "bottom": 16,
       "left": 16
     },
-    "avoidSplitItems": true
+    "avoidSplitItems": true,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column"

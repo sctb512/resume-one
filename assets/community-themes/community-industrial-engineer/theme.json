@@ -104,12 +104,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 12.14,
+      "top": 6.879166666666666,
       "right": 7.408333333333333,
       "bottom": 7.9375,
       "left": 7.408333333333333
     },
-    "sectionGapMm": 6.879166666666666
+    "sectionGapMm": 6.879166666666666,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

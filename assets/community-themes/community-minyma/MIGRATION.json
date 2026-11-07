@@ -151,7 +151,7 @@
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 83
+      "evidenceRecords": 85
     },
     "fontRequests": [
       {
@@ -235,6 +235,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -1697,13 +1711,25 @@
             "sectionTitle",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 12.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -1805,7 +1831,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2077,7 +2103,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2213,7 +2239,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -3202,6 +3228,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -13637,93 +13671,6 @@
         "message": "media/supports/layer/keyframes 等规则不合并到无条件样式；包含 print 在内的条件差异须审核"
       },
       {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "output.js#literal-13262.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.5",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height:1.5;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "output.js#literal-13262.css",
-                "startByte": 162,
-                "endByte": 178,
-                "line": 1,
-                "column": 163,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "output.js#literal-13262.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "inherit",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height:inherit",
-                "truncated": false
-              },
-              "scope": [
-                "body"
-              ],
-              "span": {
-                "file": "output.js#literal-13262.css",
-                "startByte": 322,
-                "endByte": 341,
-                "line": 1,
-                "column": 323,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "output.js#literal-13262.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "inherit",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height:inherit",
-                "truncated": false
-              },
-              "scope": [
-                "body"
-              ],
-              "span": {
-                "file": "output.js#literal-13262.css",
-                "startByte": 322,
-                "endByte": 341,
-                "line": 1,
-                "column": 323,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
         "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "output.js#literal-13262.css",
@@ -15357,12 +15304,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15377,12 +15330,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15397,12 +15356,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15417,12 +15382,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15437,12 +15408,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15457,12 +15434,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15477,12 +15460,18 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       },
       {
@@ -15497,18 +15486,32 @@
             "sans-serif"
           ]
         },
-        "status": "retained-fallback",
+        "status": "exact-static-face",
+        "assetId": "font-0",
+        "selectedFamily": "Roboto",
         "applied": {
-          "family": "cjk-sans",
+          "family": "asset:font-0",
           "weight": 400,
           "fontStyle": "normal"
         },
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0",
+        "licensePath": "font-license-0.txt",
+        "metadataVerified": true,
         "equivalent": false
       }
     ],
     "differences": [
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "body",
           "family": "Roboto",
@@ -15519,16 +15522,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "name",
           "family": "Roboto",
@@ -15539,16 +15546,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "sectionTitle",
           "family": "Roboto",
@@ -15559,16 +15570,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "itemTitle",
           "family": "Roboto",
@@ -15579,16 +15594,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "label",
           "family": "Roboto",
@@ -15599,16 +15618,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "summary",
           "family": "Roboto",
@@ -15619,16 +15642,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "sideDate",
           "family": "Roboto",
@@ -15639,16 +15666,20 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       },
       {
-        "code": "FONT_FACE_UNAVAILABLE",
+        "code": "FONT_EXPLICIT_SOURCE_ALIAS",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "message": "字体资料库显式指定了原 CSS 字族到已改名静态字面的对应关系；元数据和字重斜体已校验，但工具不据此声称字形来源等价。",
+        "equivalent": false
+      },
+      {
+        "code": "FONT_FALLBACK_DIFFERENCE",
         "source": {
           "role": "meta",
           "family": "Roboto",
@@ -15659,17 +15690,22 @@
             "sans-serif"
           ]
         },
-        "retained": {
-          "family": "cjk-sans",
-          "weight": 400,
-          "fontStyle": "normal"
-        },
-        "message": "No permitted exact family/weight/slant face was applied; existing candidate font retained.",
+        "assetId": "font-0",
+        "message": "Only the selected exact static face is mapped. Missing glyphs retain core fallback; the source CSS fallback stack and full glyph coverage are not reproduced or certified.",
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
-    "notices": [],
+    "libraryEntries": 55,
+    "notices": [
+      {
+        "assetId": "font-0",
+        "sourceFamily": "Roboto",
+        "fontFamily": "Resume One RB W400",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "text": "Source family: Roboto; actual static weight/slant: 400/normal\nOriginal source URL: https://raw.githubusercontent.com/googlefonts/roboto-2/38062f4b4a0be4346d07a928408da21602545e9e/src/hinted/Roboto-Regular.ttf\nPinned commit: 38062f4b4a0be4346d07a928408da21602545e9e\nOriginal version: Version 2.001047; 2015\nCopyright preserved: Copyright 2015 Google Inc. All Rights Reserved.\nOriginal and static-input SHA-256: 56a45233d29f11b4dfb86d248e921939d115778f87325e7ae8cc108383d6664d\nNamed family: Resume One RB W400\nFinal named output SHA-256: 884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da\nModified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.\nOriginal license: Apache-2.0; complete unchanged text retained separately, SHA-256: c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4.\nSource font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.\n",
+        "declarationVerified": false
+      }
+    ],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
     "validation": "SHA-256 and static family/weight/slant checked; final core::load_theme and layout validation required",
@@ -15976,6 +16012,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/minyma.txt",
     "sha256": "abad3175b27d2970c5667a4e80353b56841b84613c5a57e187d0fe77431e3d96",
@@ -15986,7 +16034,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -16009,15 +16057,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6303497,
-        "docxBytes": 18050324
+        "pdfBytes": 6566096,
+        "docxBytes": 18377426
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
-        "textLines": 62,
+        "textLines": 89,
         "sections": [
           "awards",
           "basics",
@@ -16036,11 +16084,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6304687,
-        "docxBytes": 18049875
+        "pdfBytes": 6567490,
+        "docxBytes": 18377374
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -16054,15 +16102,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6300300,
-        "docxBytes": 18047835
+        "pdfBytes": 6562789,
+        "docxBytes": 18374931
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 5,
-        "textLines": 160,
+        "textLines": 207,
         "sections": [
           "awards",
           "basics",
@@ -16081,12 +16129,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6307729,
-        "docxBytes": 18050450
+        "pdfBytes": 6570804,
+        "docxBytes": 18379277
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "02a2f8196525f02d2805103f9a4f96665e35e82e401463083850272e2547d873"
+  "candidateSha256": "f4b80e0e241ced2bc4b71188a3ab0ae07a5dfde707dfada0314ae4c3ce708f8c"
 }

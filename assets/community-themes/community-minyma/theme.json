@@ -31,52 +31,60 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 26.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 13.0,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 10.6,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
-      "lineHeight": 1.4
+      "lineHeight": 1.4,
+      "fontStyle": "normal"
     }
   },
   "page": {
@@ -85,7 +93,8 @@
       "right": 16,
       "bottom": 16,
       "left": 16
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -137,5 +146,15 @@
     "upstreamAuthor": "godraadam",
     "upstreamUrl": "https://www.npmjs.com/package/jsonresume-theme-minyma/v/0.0.5",
     "upstreamRevision": "0.0.5"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da",
+        "license": "Apache-2.0"
+      }
+    ]
   }
 }

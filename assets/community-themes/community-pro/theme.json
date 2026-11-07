@@ -99,12 +99,13 @@
   "page": {
     "marginsMm": {
       "top": 16.0,
-      "right": 16.0,
+      "right": 18.000000000000004,
       "bottom": 16.0,
-      "left": 16.0
+      "left": 18.000000000000004
     },
     "keepHeadingWithFirstItem": true,
-    "sectionGapMm": 6.0
+    "sectionGapMm": 6.0,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

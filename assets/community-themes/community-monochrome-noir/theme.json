@@ -40,9 +40,9 @@
       "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 26.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
       "trackingEm": 0.0,
       "textTransform": "uppercase",
@@ -50,13 +50,14 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-sans",
+      "family": "asset:font-1",
       "sizePt": 13.5,
       "weight": 400,
       "lineHeight": 1.6,
       "trackingEm": 0.027777777777777776,
       "textTransform": "uppercase",
-      "color": "#000000"
+      "color": "#000000",
+      "fontStyle": "normal"
     },
     "summary": {
       "family": "cjk-sans",
@@ -68,9 +69,9 @@
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 11.25,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
       "trackingEm": 0.1,
       "textTransform": "uppercase",
@@ -78,9 +79,9 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 13.5,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.6,
       "trackingEm": -0.016666666666666666,
       "textTransform": "uppercase",
@@ -88,31 +89,34 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-1",
       "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.6,
       "trackingEm": -0.012500000000000002,
-      "color": "#1A1A1A"
+      "color": "#1A1A1A",
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-1",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.6,
       "trackingEm": 0.038461538461538464,
       "textTransform": "uppercase",
-      "color": "#666666"
+      "color": "#666666",
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 13.56,
-      "right": 7.9375,
-      "bottom": 10.583333333333334,
-      "left": 7.9375
+      "top": 15.583333333333334,
+      "right": 12.9375,
+      "bottom": 15.583333333333334,
+      "left": 12.9375
     },
-    "sectionGapMm": 13.229166666666666
+    "sectionGapMm": 13.229166666666666,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -172,5 +176,21 @@
     "upstreamAuthor": "JSON Resume Team",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-monochrome-noir",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "588aa669182adf8b3cd8913a81bb190c520ff5bd794cd7f877ce4878176fa2e4",
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "e0ee12d515ca262e5595d7a691f36db073d1ddf23619ee75053e455f32a48f46",
+        "license": "Apache-2.0"
+      }
+    ]
   }
 }

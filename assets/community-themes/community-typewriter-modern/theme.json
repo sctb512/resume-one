@@ -35,10 +35,11 @@
       "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.8,
-      "color": "#333333"
+      "color": "#333333",
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 28.5,
       "weight": 600,
       "lineHeight": 1.8,
@@ -53,17 +54,19 @@
       "weight": 400,
       "lineHeight": 1.8,
       "trackingEm": 0.03125,
-      "color": "#666666"
+      "color": "#666666",
+      "fontStyle": "normal"
     },
     "summary": {
       "family": "cjk-sans",
       "sizePt": 11.25,
       "weight": 400,
       "lineHeight": 1.8,
-      "color": "#444444"
+      "color": "#444444",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 15.0,
       "weight": 600,
       "lineHeight": 1.8,
@@ -73,7 +76,7 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-0",
       "sizePt": 12.0,
       "weight": 600,
       "lineHeight": 1.8,
@@ -87,23 +90,26 @@
       "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.8,
-      "color": "#555555"
+      "color": "#555555",
+      "fontStyle": "normal"
     },
     "sideDate": {
       "family": "cjk-sans",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.8,
-      "color": "#666666"
+      "color": "#666666",
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 14.58,
-      "right": 10.583333333333334,
-      "bottom": 10.583333333333334,
-      "left": 10.583333333333334
-    }
+      "top": 23.28333333333333,
+      "right": 23.28333333333333,
+      "bottom": 23.28333333333333,
+      "left": 23.28333333333333
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -184,5 +190,15 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-typewriter-modern",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "6beea9a6b9ca1b271530a8d8b90590e15963fc104be04dbaaca02bfdd3cfd6f4",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

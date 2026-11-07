@@ -100,12 +100,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 25.4,
+      "right": 25.4,
+      "bottom": 25.4,
+      "left": 25.4
     },
-    "avoidSplitItems": true
+    "avoidSplitItems": true,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

@@ -5,3 +5,31 @@ License declaration: MIT
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+
+Font font-0 (e0ee12d515ca262e5595d7a691f36db073d1ddf23619ee75053e455f32a48f46):
+Source family: Roboto Condensed; actual static weight/slant: 400/normal
+Original source URL: https://raw.githubusercontent.com/googlefonts/roboto-2/38062f4b4a0be4346d07a928408da21602545e9e/src/hinted/RobotoCondensed-Regular.ttf
+Pinned commit: 38062f4b4a0be4346d07a928408da21602545e9e
+Original version: Version 2.001047; 2015
+Copyright preserved: Copyright 2015 Google Inc. All Rights Reserved.
+Original and static-input SHA-256: a9603db0f52e244064de480253ab7f48e6c21c22e24528207cab06d39abc7bb7
+Named family: Resume One RC W400
+Final named output SHA-256: e0ee12d515ca262e5595d7a691f36db073d1ddf23619ee75053e455f32a48f46
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: Apache-2.0; complete unchanged text retained separately, SHA-256: c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+
+
+Font font-1 (588aa669182adf8b3cd8913a81bb190c520ff5bd794cd7f877ce4878176fa2e4):
+Source family: Roboto Condensed; actual static weight/slant: 700/normal
+Original source URL: https://raw.githubusercontent.com/googlefonts/roboto-2/38062f4b4a0be4346d07a928408da21602545e9e/src/hinted/RobotoCondensed-Bold.ttf
+Pinned commit: 38062f4b4a0be4346d07a928408da21602545e9e
+Original version: Version 2.001047; 2015
+Copyright preserved: Copyright 2015 Google Inc. All Rights Reserved.
+Original and static-input SHA-256: 2d06877e39956ec96dbafb0d152644e8b2245d647e58c7bb7c91bb2b15defa93
+Named family: Resume One RC W700
+Final named output SHA-256: 588aa669182adf8b3cd8913a81bb190c520ff5bd794cd7f877ce4878176fa2e4
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: Apache-2.0; complete unchanged text retained separately, SHA-256: c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+

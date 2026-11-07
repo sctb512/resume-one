@@ -154,7 +154,7 @@
         "section",
         "sectionTitle"
       ],
-      "evidenceRecords": 163
+      "evidenceRecords": 184
     },
     "fontRequests": [
       {
@@ -271,6 +271,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -361,6 +375,225 @@
         "source": null,
         "classification": "adapted",
         "reason": "缺少静态证据的值采用候选/显式安全默认，不代表原模板样式",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--accent",
+          "value": "#722f21",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--accent-hover",
+          "value": "#98591d",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--background",
+          "value": "#ffffff",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--content-width",
+          "value": "53rem",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--focus",
+          "value": "#98591d",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--font-body",
+          "value": "\"Avenir Next\", Avenir, \"Segoe UI\", system-ui, -apple-system,\n    BlinkMacSystemFont, sans-serif",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--font-mono",
+          "value": "ui-monospace, \"SFMono-Regular\", Consolas, \"Liberation Mono\",\n    monospace",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--font-serif",
+          "value": "Baskerville, \"Iowan Old Style\", \"Palatino Linotype\", Palatino,\n    Georgia, serif",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--muted",
+          "value": "#575757",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--paper",
+          "value": "#f7f4ed",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--rule",
+          "value": "#bdbdbd",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--text",
+          "value": "#161616",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--text-soft",
+          "value": "#303030",
+          "sources": [
+            "style.css",
+            "dist/index.js#literal-30.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 13
+        },
+        "source": {
+          "file": "dist/index.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 13
+        },
+        "source": {
+          "file": "index.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
         "equivalent": false
       },
       {
@@ -4167,13 +4400,25 @@
             "section",
             "sectionTitle"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 10.0,
+          "documentSizePt": 10.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -4225,7 +4470,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -4397,7 +4642,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -4637,7 +4882,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -4999,7 +5244,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -5275,7 +5520,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -5533,7 +5778,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -6089,214 +6334,6 @@
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/bottom",
-        "value": 16.0,
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/left",
-        "value": 16.0,
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/right",
-        "value": 16.0,
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/top",
-        "value": 16.0,
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
         "target": "/page/sectionGapMm",
         "value": 5.115277777777777,
         "source": {
@@ -6346,6 +6383,770 @@
         },
         "classification": "adapted",
         "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/top",
+        "value": 10.0,
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 10.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "10mm 12mm 11mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 10mm 12mm 11mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6273,
+                    "endByte": 6296,
+                    "line": 399,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": ".page",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6765,
+                    "endByte": 6776,
+                    "line": 432,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 200,
+                    "projectedDeclarationIndex": 297,
+                    "originalScope": [
+                      "@media print",
+                      ".page"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 10.0
+        },
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/right",
+        "value": 12.0,
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "right",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 12.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "10mm 12mm 11mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 10mm 12mm 11mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6273,
+                    "endByte": 6296,
+                    "line": 399,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": ".page",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6765,
+                    "endByte": 6776,
+                    "line": 432,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 200,
+                    "projectedDeclarationIndex": 297,
+                    "originalScope": [
+                      "@media print",
+                      ".page"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 12.0
+        },
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/bottom",
+        "value": 11.0,
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 11.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "10mm 12mm 11mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 10mm 12mm 11mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6273,
+                    "endByte": 6296,
+                    "line": 399,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": ".page",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6765,
+                    "endByte": 6776,
+                    "line": 432,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 200,
+                    "projectedDeclarationIndex": 297,
+                    "originalScope": [
+                      "@media print",
+                      ".page"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 11.0
+        },
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/left",
+        "value": 12.0,
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "left",
+          "inputs": [
+            {
+              "box": "@page",
+              "kind": 0,
+              "valueMm": 12.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "margin",
+                  "value": {
+                    "text": "10mm 12mm 11mm",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "margin: 10mm 12mm 11mm;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    "@page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6273,
+                    "endByte": 6296,
+                    "line": 399,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            },
+            {
+              "box": ".page",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "dist/index.js#literal-30.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".page"
+                  ],
+                  "span": {
+                    "file": "dist/index.js#literal-30.css",
+                    "startByte": 6765,
+                    "endByte": 6776,
+                    "line": 432,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 200,
+                    "projectedDeclarationIndex": 297,
+                    "originalScope": [
+                      "@media print",
+                      ".page"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 12.0
+        },
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0;",
+              "truncated": false
+            },
+            "scope": [
+              ".page"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 6765,
+              "endByte": 6776,
+              "line": 432,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 200,
+              "projectedDeclarationIndex": 297,
+              "originalScope": [
+                "@media print",
+                ".page"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -6723,6 +7524,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -8056,37 +8865,6 @@
           }
         },
         "message": "未从普通 JS 模板字符串提取调色板或执行代码"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "style.css",
-          "component": null,
-          "declaration": {
-            "property": "color-scheme",
-            "value": {
-              "text": "light",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color-scheme: light;",
-              "truncated": false
-            },
-            "scope": [
-              ":root"
-            ],
-            "span": {
-              "file": "style.css",
-              "startByte": 10,
-              "endByte": 30,
-              "line": 2,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
@@ -16418,37 +17196,6 @@
               "importantRetained": true,
               "sourceOrderPreservedWithinBlock": true,
               "equivalent": false
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "color-scheme",
-            "value": {
-              "text": "light",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color-scheme: light;",
-              "truncated": false
-            },
-            "scope": [
-              ":root"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 10,
-              "endByte": 30,
-              "line": 2,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
             }
           }
         },
@@ -25405,267 +26152,6 @@
             "file": "style.css",
             "component": null,
             "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text);",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 632,
-                "endByte": 651,
-                "line": 27,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text-soft)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text-soft);",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3794,
-                "endByte": 3818,
-                "line": 235,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text-soft)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text-soft);",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3794,
-                "endByte": 3818,
-                "line": 235,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "16.5px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 16.5px;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 687,
-                "endByte": 705,
-                "line": 29,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.66",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.66;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 732,
-                "endByte": 750,
-                "line": 31,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
               "property": "margin",
               "value": {
                 "text": "0 auto",
@@ -26521,216 +27007,6 @@
                 "startByte": 2846,
                 "endByte": 2866,
                 "line": 167,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "10pt",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 10pt;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6522,
-                "endByte": 6538,
-                "line": 415,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 192,
-                "projectedDeclarationIndex": 289,
-                "originalScope": [
-                  "@media print",
-                  "html"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.52",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.52;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6543,
-                "endByte": 6561,
-                "line": 416,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 193,
-                "projectedDeclarationIndex": 290,
-                "originalScope": [
-                  "@media print",
-                  "html"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -32533,339 +32809,6 @@
             "file": "style.css",
             "component": null,
             "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text-soft)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text-soft);",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3794,
-                "endByte": 3818,
-                "line": 235,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text);",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 632,
-                "endByte": 651,
-                "line": 27,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "color",
-              "value": {
-                "text": "var(--text-soft)",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "color: var(--text-soft);",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 3794,
-                "endByte": 3818,
-                "line": 235,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "8.5pt",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 8.5pt;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 8104,
-                "endByte": 8121,
-                "line": 522,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 240,
-                "projectedDeclarationIndex": 337,
-                "originalScope": [
-                  "@media print",
-                  ".highlights"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "16.5px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 16.5px;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 687,
-                "endByte": 705,
-                "line": 29,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "8.5pt",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 8.5pt;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 8104,
-                "endByte": 8121,
-                "line": 522,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 240,
-                "projectedDeclarationIndex": 337,
-                "originalScope": [
-                  "@media print",
-                  ".highlights"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.46",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.46;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 8126,
-                "endByte": 8144,
-                "line": 523,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 241,
-                "projectedDeclarationIndex": 338,
-                "originalScope": [
-                  "@media print",
-                  ".highlights"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.66",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.66;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 732,
-                "endByte": 750,
-                "line": 31,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.46",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.46;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 8126,
-                "endByte": 8144,
-                "line": 523,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 241,
-                "projectedDeclarationIndex": 338,
-                "originalScope": [
-                  "@media print",
-                  ".highlights"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
               "property": "margin-top",
               "value": {
                 "text": "5pt",
@@ -37972,216 +37915,6 @@
                 "startByte": 2846,
                 "endByte": 2866,
                 "line": 167,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "10pt",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 10pt;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6522,
-                "endByte": 6538,
-                "line": 415,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 192,
-                "projectedDeclarationIndex": 289,
-                "originalScope": [
-                  "@media print",
-                  "html"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "selected": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "0.92rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 0.92rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 3821,
-                "endByte": 3840,
-                "line": 236,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.52",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.52;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6543,
-                "endByte": 6561,
-                "line": 416,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 193,
-                "projectedDeclarationIndex": 290,
-                "originalScope": [
-                  "@media print",
-                  "html"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "selected": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "line-height",
-              "value": {
-                "text": "1.58",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "line-height: 1.58;",
-                "truncated": false
-              },
-              "scope": [
-                ".highlights"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 3843,
-                "endByte": 3861,
-                "line": 237,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -44409,6 +44142,37 @@
           "file": "style.css",
           "component": null,
           "declaration": {
+            "property": "color-scheme",
+            "value": {
+              "text": "light",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "color-scheme: light;",
+              "truncated": false
+            },
+            "scope": [
+              ":root"
+            ],
+            "span": {
+              "file": "style.css",
+              "startByte": 10,
+              "endByte": 30,
+              "line": 2,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "style.css",
+          "component": null,
+          "declaration": {
             "property": "font-kerning",
             "value": {
               "text": "normal",
@@ -46325,250 +46089,6 @@
         "message": "单一模块的 margin 不提升为所有模块的间距，避免 publication 等局部规则压缩整个文档"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
         "code": "PAGE_SIZE_UNSUPPORTED",
         "source": {
           "file": "style.css",
@@ -46941,518 +46461,6 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "style.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "style.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "style.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "style.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -49503,6 +48511,37 @@
         "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "dist/index.js#literal-30.css",
+          "component": null,
+          "declaration": {
+            "property": "color-scheme",
+            "value": {
+              "text": "light",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "color-scheme: light;",
+              "truncated": false
+            },
+            "scope": [
+              ":root"
+            ],
+            "span": {
+              "file": "dist/index.js#literal-30.css",
+              "startByte": 10,
+              "endByte": 30,
+              "line": 2,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
         "code": "TOKEN_CONFLICT",
         "source": {
           "target": "/colors/ink",
@@ -49903,322 +48942,6 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "style.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "style.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -51977,250 +50700,6 @@
         "message": "单一模块的 margin 不提升为所有模块的间距，避免 publication 等局部规则压缩整个文档"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "margin",
-              "value": {
-                "text": "10mm 12mm 11mm",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "margin: 10mm 12mm 11mm;",
-                "truncated": false
-              },
-              "scope": [
-                "@page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6273,
-                "endByte": 6296,
-                "line": 399,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
         "code": "PAGE_SIZE_UNSUPPORTED",
         "source": {
           "file": "dist/index.js#literal-30.css",
@@ -52593,518 +51072,6 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "dist/index.js#literal-30.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0;",
-              "truncated": false
-            },
-            "scope": [
-              ".page"
-            ],
-            "span": {
-              "file": "dist/index.js#literal-30.css",
-              "startByte": 6765,
-              "endByte": 6776,
-              "line": 432,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 200,
-              "projectedDeclarationIndex": 297,
-              "originalScope": [
-                "@media print",
-                ".page"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "4.45rem 1.4rem 5.2rem",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 4.45rem 1.4rem 5.2rem;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 1560,
-                "endByte": 1591,
-                "line": 81,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.js#literal-30.css",
-            "component": null,
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "0",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 0;",
-                "truncated": false
-              },
-              "scope": [
-                ".page"
-              ],
-              "span": {
-                "file": "dist/index.js#literal-30.css",
-                "startByte": 6765,
-                "endByte": 6776,
-                "line": 432,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 200,
-                "projectedDeclarationIndex": 297,
-                "originalScope": [
-                  "@media print",
-                  ".page"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -55601,7 +53568,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
@@ -61909,6 +59876,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/colophon.txt",
     "sha256": "e498e69df24b15d8ff64c2094842d56e32692d0255df7b348bd55d4542adf59a",
@@ -61919,7 +59898,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 2,
@@ -61942,11 +59921,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14922529,
-        "docxBytes": 18050419
+        "pdfBytes": 14922527,
+        "docxBytes": 18050426
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
@@ -61969,11 +59948,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923475,
-        "docxBytes": 18049971
+        "pdfBytes": 14923478,
+        "docxBytes": 18049978
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -61987,15 +59966,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918735,
-        "docxBytes": 18047911
+        "pdfBytes": 14918734,
+        "docxBytes": 18047919
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
-        "pages": 4,
-        "textLines": 159,
+        "pages": 3,
+        "textLines": 133,
         "sections": [
           "awards",
           "basics",
@@ -62014,12 +59993,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14926334,
-        "docxBytes": 18050608
+        "pdfBytes": 14925444,
+        "docxBytes": 18050617
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "9ffc68ec79abda20f8b2874ab98bf177817ba688cc660ee53b90158f400b29a8"
+  "candidateSha256": "7d6e886b17c9e976a58c08d8ec4b93dca3b55e443af25266fefa89e914fe224f"
 }

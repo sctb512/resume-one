@@ -121,6 +121,7 @@
       "declarationsSeen": 143,
       "matchedRoles": [
         "body",
+        "entrySource",
         "header",
         "item",
         "itemTitle",
@@ -131,7 +132,7 @@
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 109
+      "evidenceRecords": 115
     },
     "fontRequests": [
       {
@@ -231,6 +232,667 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [
+        {
+          "entryFile": "index.js",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/Resume.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5504,
+                "endByte": 5551,
+                "line": 275,
+                "column": 25,
+                "endLine": 275,
+                "endColumn": 72,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dangerouslySetInnerHTML={{ __html: highlight }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5529,
+                "endByte": 5550,
+                "line": 275,
+                "column": 50,
+                "endLine": 275,
+                "endColumn": 71,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ __html: highlight }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5531,
+                "endByte": 5548,
+                "line": 275,
+                "column": 52,
+                "endLine": 275,
+                "endColumn": 69,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "__html: highlight",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6650,
+                "endByte": 6670,
+                "line": 312,
+                "column": 33,
+                "endLine": 312,
+                "endColumn": 53,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6657,
+                "endByte": 6670,
+                "line": 312,
+                "column": 40,
+                "endLine": 312,
+                "endColumn": 53,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6658,
+                "endByte": 6669,
+                "line": 312,
+                "column": 41,
+                "endLine": 312,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "project.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9815,
+                "endByte": 9966,
+                "line": 401,
+                "column": 21,
+                "endLine": 405,
+                "endColumn": 23,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "style={{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9822,
+                "endByte": 9965,
+                "line": 401,
+                "column": 28,
+                "endLine": 405,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9846,
+                "endByte": 9862,
+                "line": 402,
+                "column": 23,
+                "endLine": 402,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "fontSize: '12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9856,
+                "endByte": 9862,
+                "line": 402,
+                "column": 33,
+                "endLine": 402,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9886,
+                "endByte": 9902,
+                "line": 403,
+                "column": 23,
+                "endLine": 403,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "color: '#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9893,
+                "endByte": 9902,
+                "line": 403,
+                "column": 30,
+                "endLine": 403,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9926,
+                "endByte": 9942,
+                "line": 404,
+                "column": 23,
+                "endLine": 404,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marginTop: '4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9937,
+                "endByte": 9942,
+                "line": 404,
+                "column": 34,
+                "endLine": 404,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10483,
+                "endByte": 10500,
+                "line": 424,
+                "column": 33,
+                "endLine": 424,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10490,
+                "endByte": 10500,
+                "line": 424,
+                "column": 40,
+                "endLine": 424,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10491,
+                "endByte": 10499,
+                "line": 424,
+                "column": 41,
+                "endLine": 424,
+                "endColumn": 49,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "cert.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10752,
+                "endByte": 10903,
+                "line": 432,
+                "column": 21,
+                "endLine": 436,
+                "endColumn": 23,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "style={{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10759,
+                "endByte": 10902,
+                "line": 432,
+                "column": 28,
+                "endLine": 436,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10783,
+                "endByte": 10799,
+                "line": 433,
+                "column": 23,
+                "endLine": 433,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "fontSize: '12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10793,
+                "endByte": 10799,
+                "line": 433,
+                "column": 33,
+                "endLine": 433,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10823,
+                "endByte": 10839,
+                "line": 434,
+                "column": 23,
+                "endLine": 434,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "color: '#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10830,
+                "endByte": 10839,
+                "line": 434,
+                "column": 30,
+                "endLine": 434,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10863,
+                "endByte": 10879,
+                "line": 435,
+                "column": 23,
+                "endLine": 435,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marginTop: '4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10874,
+                "endByte": 10879,
+                "line": 435,
+                "column": 34,
+                "endLine": 435,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11513,
+                "endByte": 11664,
+                "line": 457,
+                "column": 21,
+                "endLine": 461,
+                "endColumn": 23,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "style={{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11520,
+                "endByte": 11663,
+                "line": 457,
+                "column": 28,
+                "endLine": 461,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n                      fontSize: '12px',\n                      color: '#6b7280',\n                      marginTop: '4px',\n                    }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11544,
+                "endByte": 11560,
+                "line": 458,
+                "column": 23,
+                "endLine": 458,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "fontSize: '12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11554,
+                "endByte": 11560,
+                "line": 458,
+                "column": 33,
+                "endLine": 458,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'12px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11584,
+                "endByte": 11600,
+                "line": 459,
+                "column": 23,
+                "endLine": 459,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "color: '#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11591,
+                "endByte": 11600,
+                "line": 459,
+                "column": 30,
+                "endLine": 459,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'#6b7280'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11624,
+                "endByte": 11640,
+                "line": 460,
+                "column": 23,
+                "endLine": 460,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marginTop: '4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 11635,
+                "endByte": 11640,
+                "line": 460,
+                "column": 34,
+                "endLine": 460,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'4px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 12675,
+                "endByte": 12703,
+                "line": 494,
+                "column": 36,
+                "endLine": 494,
+                "endColumn": 64,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "style={{ marginTop: '8px' }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 12682,
+                "endByte": 12702,
+                "line": 494,
+                "column": 43,
+                "endLine": 494,
+                "endColumn": 63,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ marginTop: '8px' }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 12684,
+                "endByte": 12700,
+                "line": 494,
+                "column": 45,
+                "endLine": 494,
+                "endColumn": 61,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marginTop: '8px'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 12695,
+                "endByte": 12700,
+                "line": 494,
+                "column": 56,
+                "endLine": 494,
+                "endColumn": 61,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'8px'",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/index.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        }
+      ],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -328,6 +990,7 @@
         "value": {
           "roles": [
             "body",
+            "entrySource",
             "header",
             "item",
             "itemTitle",
@@ -338,13 +1001,25 @@
             "sectionTitle",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 10.5,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -376,7 +1051,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -504,7 +1179,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -696,7 +1371,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -856,7 +1531,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -984,7 +1659,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1208,7 +1883,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1432,7 +2107,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1849,202 +2524,6 @@
         },
         "classification": "adapted",
         "reason": "头部文字对齐；未模拟逐节点对齐",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/bottom",
-        "value": 6.35,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "Layout",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 458,
-              "endByte": 472,
-              "line": 25,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 8,
-              "projectedDeclarationIndex": 9,
-              "originalScope": [
-                "@media print"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/left",
-        "value": 6.35,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "Layout",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 458,
-              "endByte": 472,
-              "line": 25,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 8,
-              "projectedDeclarationIndex": 9,
-              "originalScope": [
-                "@media print"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/right",
-        "value": 6.35,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "Layout",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 458,
-              "endByte": 472,
-              "line": 25,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 8,
-              "projectedDeclarationIndex": 9,
-              "originalScope": [
-                "@media print"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/top",
-        "value": 6.35,
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "Layout",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 458,
-              "endByte": 472,
-              "line": 25,
-              "column": 5,
-              "columnUnit": "utf8-bytes"
-            },
-            "printProfileProjection": {
-              "format": "resume-one-css-print-profile-v1",
-              "profile": "print",
-              "kind": "positive-print-media",
-              "originalDeclarationIndex": 8,
-              "projectedDeclarationIndex": 9,
-              "originalScope": [
-                "@media print"
-              ],
-              "removedMediaScopes": [
-                "@media print"
-              ],
-              "sourceSpanRetained": true,
-              "importantRetained": true,
-              "sourceOrderPreservedWithinBlock": true,
-              "equivalent": false
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
         "equivalent": false
       },
       {
@@ -2781,6 +3260,606 @@
         },
         "classification": "adapted",
         "reason": "条目边框近似为 timeline/cards",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/top",
+        "value": 6.35,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 6.35,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "24px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 24px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 458,
+                    "endByte": 472,
+                    "line": 25,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 8,
+                    "projectedDeclarationIndex": 9,
+                    "originalScope": [
+                      "@media print"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 6.35
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/right",
+        "value": 6.35,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "right",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 6.35,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "24px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 24px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 458,
+                    "endByte": 472,
+                    "line": 25,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 8,
+                    "projectedDeclarationIndex": 9,
+                    "originalScope": [
+                      "@media print"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 6.35
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/bottom",
+        "value": 6.35,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 6.35,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "24px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 24px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 458,
+                    "endByte": 472,
+                    "line": 25,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 8,
+                    "projectedDeclarationIndex": 9,
+                    "originalScope": [
+                      "@media print"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 6.35
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/left",
+        "value": 6.35,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "left",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 6.35,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "24px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 24px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 458,
+                    "endByte": 472,
+                    "line": 25,
+                    "column": 5,
+                    "columnUnit": "utf8-bytes"
+                  },
+                  "printProfileProjection": {
+                    "format": "resume-one-css-print-profile-v1",
+                    "profile": "print",
+                    "kind": "positive-print-media",
+                    "originalDeclarationIndex": 8,
+                    "projectedDeclarationIndex": 9,
+                    "originalScope": [
+                      "@media print"
+                    ],
+                    "removedMediaScopes": [
+                      "@media print"
+                    ],
+                    "sourceSpanRetained": true,
+                    "importantRetained": true,
+                    "sourceOrderPreservedWithinBlock": true,
+                    "equivalent": false
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 6.35
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 458,
+              "endByte": 472,
+              "line": 25,
+              "column": 5,
+              "columnUnit": "utf8-bytes"
+            },
+            "printProfileProjection": {
+              "format": "resume-one-css-print-profile-v1",
+              "profile": "print",
+              "kind": "positive-print-media",
+              "originalDeclarationIndex": 8,
+              "projectedDeclarationIndex": 9,
+              "originalScope": [
+                "@media print"
+              ],
+              "removedMediaScopes": [
+                "@media print"
+              ],
+              "sourceSpanRetained": true,
+              "importantRetained": true,
+              "sourceOrderPreservedWithinBlock": true,
+              "equivalent": false
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -3870,6 +4949,14 @@
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
         "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
+        "equivalent": false
       }
     ],
     "differences": [
@@ -3979,151 +5066,6 @@
           "declaration": {
             "property": "margin-bottom",
             "value": {
-              "text": "32px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: 32px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1559,
-              "endByte": 1579,
-              "line": 89,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkCard",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1582,
-              "endByte": 1596,
-              "line": 90,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkCard",
-          "declaration": {
-            "property": "background",
-            "value": {
-              "text": "#fafafa",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "background: #fafafa;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1599,
-              "endByte": 1619,
-              "line": 91,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkCard",
-          "declaration": {
-            "property": "border-radius",
-            "value": {
-              "text": "6px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border-radius: 6px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1622,
-              "endByte": 1641,
-              "line": 92,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkCard",
-          "declaration": {
-            "property": "border",
-            "value": {
-              "text": "1px solid #e5e7eb",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border: 1px solid #e5e7eb;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1644,
-              "endByte": 1670,
-              "line": 93,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkCard",
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
               "text": "0",
               "truncated": false
             },
@@ -4141,296 +5083,6 @@
               "endByte": 1710,
               "line": 96,
               "column": 5,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkHeader",
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "16px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: 16px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1752,
-              "endByte": 1772,
-              "line": 101,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "12px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 12px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2392,
-              "endByte": 2408,
-              "line": 140,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "700",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 700;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2411,
-              "endByte": 2428,
-              "line": 141,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "text-transform",
-            "value": {
-              "text": "uppercase",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "text-transform: uppercase;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2431,
-              "endByte": 2457,
-              "line": 142,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "letter-spacing",
-            "value": {
-              "text": "0.5px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "letter-spacing: 0.5px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2460,
-              "endByte": 2482,
-              "line": 143,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#7c3aed",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #7c3aed;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2485,
-              "endByte": 2500,
-              "line": 144,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "ImpactLabel",
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "8px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: 8px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2503,
-              "endByte": 2522,
-              "line": 145,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkHighlights",
-          "declaration": {
-            "property": "margin",
-            "value": {
-              "text": "0",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin: 0;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2563,
-              "endByte": 2573,
-              "line": 149,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkHighlights",
-          "declaration": {
-            "property": "padding-left",
-            "value": {
-              "text": "20px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding-left: 20px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2576,
-              "endByte": 2595,
-              "line": 150,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "WorkHighlights",
-          "declaration": {
-            "property": "list-style",
-            "value": {
-              "text": "disc",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "list-style: disc;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2598,
-              "endByte": 2615,
-              "line": 151,
-              "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -4502,93 +5154,6 @@
         "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SkillsGrid",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "grid",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: grid;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2818,
-              "endByte": 2832,
-              "line": 167,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SkillsGrid",
-          "declaration": {
-            "property": "grid-template-columns",
-            "value": {
-              "text": "repeat(auto-fit, minmax(200px, 1fr))",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2835,
-              "endByte": 2895,
-              "line": 168,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SkillsGrid",
-          "declaration": {
-            "property": "gap",
-            "value": {
-              "text": "24px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "gap: 24px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 2898,
-              "endByte": 2908,
-              "line": 169,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
         "code": "COMPONENT_INHERITANCE_UNVERIFIED",
         "source": {
           "file": "src/Resume.jsx",
@@ -4605,93 +5170,6 @@
         "message": "仅采用本组件静态声明；导入组件及 styled 继承链没有计算样式等价证明"
       },
       {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadgeList",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3249,
-              "endByte": 3263,
-              "line": 189,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadgeList",
-          "declaration": {
-            "property": "flex-wrap",
-            "value": {
-              "text": "wrap",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "flex-wrap: wrap;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3266,
-              "endByte": 3282,
-              "line": 190,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadgeList",
-          "declaration": {
-            "property": "gap",
-            "value": {
-              "text": "6px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "gap: 6px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3285,
-              "endByte": 3294,
-              "line": 191,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
         "code": "COMPONENT_INHERITANCE_UNVERIFIED",
         "source": {
           "file": "src/Resume.jsx",
@@ -4706,209 +5184,6 @@
           }
         },
         "message": "仅采用本组件静态声明；导入组件及 styled 继承链没有计算样式等价证明"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "12px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 12px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3336,
-              "endByte": 3352,
-              "line": 195,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "6px 12px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 6px 12px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3355,
-              "endByte": 3373,
-              "line": 196,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "background",
-            "value": {
-              "text": "white",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "background: white;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3376,
-              "endByte": 3394,
-              "line": 197,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "border",
-            "value": {
-              "text": "1px solid #d1d5db",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border: 1px solid #d1d5db;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3397,
-              "endByte": 3423,
-              "line": 198,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "color",
-            "value": {
-              "text": "#4b5563",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color: #4b5563;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3426,
-              "endByte": 3441,
-              "line": 199,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "font-weight",
-            "value": {
-              "text": "500",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-weight: 500;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3444,
-              "endByte": 3461,
-              "line": 200,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "StyledBadge",
-          "declaration": {
-            "property": "border-radius",
-            "value": {
-              "text": "4px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "border-radius: 4px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3464,
-              "endByte": 3483,
-              "line": 201,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "COMPONENT_INHERITANCE_UNVERIFIED",
@@ -4941,93 +5216,6 @@
           }
         },
         "message": "仅采用本组件静态声明；导入组件及 styled 继承链没有计算样式等价证明"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SimpleList",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "grid",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: grid;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3605,
-              "endByte": 3619,
-              "line": 209,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SimpleList",
-          "declaration": {
-            "property": "grid-template-columns",
-            "value": {
-              "text": "repeat(auto-fit, minmax(250px, 1fr))",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3622,
-              "endByte": 3682,
-              "line": 210,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SimpleList",
-          "declaration": {
-            "property": "gap",
-            "value": {
-              "text": "16px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "gap: 16px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 3685,
-              "endByte": 3695,
-              "line": 211,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "UNCLASSIFIED_TEMPLATE_UNSUPPORTED",
@@ -6344,6 +6532,87 @@
         "source": {
           "previous": {
             "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "32px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 32px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1559,
+                "endByte": 1579,
+                "line": 89,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHeader",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1752,
+                "endByte": 1772,
+                "line": 101,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHeader",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1752,
+                "endByte": 1772,
+                "line": 101,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
             "component": "ContactWrapper",
             "declaration": {
               "property": "font-size",
@@ -6992,6 +7261,249 @@
         "source": {
           "previous": {
             "file": "src/Resume.jsx",
+            "component": "WorkHeader",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1752,
+                "endByte": 1772,
+                "line": 101,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "8px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 8px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2503,
+                "endByte": 2522,
+                "line": 145,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "8px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 8px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2503,
+                "endByte": 2522,
+                "line": 145,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "8px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 8px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2503,
+                "endByte": 2522,
+                "line": 145,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHighlights",
+            "declaration": {
+              "property": "margin",
+              "value": {
+                "text": "0",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin: 0;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2563,
+                "endByte": 2573,
+                "line": 149,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "margin-bottom",
+              "value": {
+                "text": "8px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "margin-bottom: 8px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2503,
+                "endByte": 2522,
+                "line": 145,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1582,
+                "endByte": 1596,
+                "line": 90,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHighlights",
+            "declaration": {
+              "property": "padding-left",
+              "value": {
+                "text": "20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding-left: 20px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2576,
+                "endByte": 2595,
+                "line": 150,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHighlights",
+            "declaration": {
+              "property": "padding-left",
+              "value": {
+                "text": "20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding-left: 20px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2576,
+                "endByte": 2595,
+                "line": 150,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
             "component": "Layout",
             "declaration": {
               "property": "margin",
@@ -7471,6 +7983,1140 @@
                 "startByte": 3108,
                 "endByte": 3127,
                 "line": 182,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "SkillsGrid",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "grid",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: grid;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2818,
+                "endByte": 2832,
+                "line": 167,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "flex",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: flex;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3249,
+                "endByte": 3263,
+                "line": 189,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "flex",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: flex;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3249,
+                "endByte": 3263,
+                "line": 189,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "SkillsGrid",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2898,
+                "endByte": 2908,
+                "line": 169,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "6px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 6px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3285,
+                "endByte": 3294,
+                "line": 191,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "6px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 6px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3285,
+                "endByte": 3294,
+                "line": 191,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1582,
+                "endByte": 1596,
+                "line": 90,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1582,
+                "endByte": 1596,
+                "line": 90,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "24px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 24px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1582,
+                "endByte": 1596,
+                "line": 90,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkHighlights",
+            "declaration": {
+              "property": "padding-left",
+              "value": {
+                "text": "20px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding-left: 20px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2576,
+                "endByte": 2595,
+                "line": 150,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "padding",
+              "value": {
+                "text": "6px 12px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "padding: 6px 12px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3355,
+                "endByte": 3373,
+                "line": 196,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "#fafafa",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: #fafafa;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1599,
+                "endByte": 1619,
+                "line": 91,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "white",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: white;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3376,
+                "endByte": 3394,
+                "line": 197,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "background",
+              "value": {
+                "text": "white",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "background: white;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3376,
+                "endByte": 3394,
+                "line": 197,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "1px solid #e5e7eb",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: 1px solid #e5e7eb;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1644,
+                "endByte": 1670,
+                "line": 93,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "1px solid #d1d5db",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: 1px solid #d1d5db;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3397,
+                "endByte": 3423,
+                "line": 198,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "border",
+              "value": {
+                "text": "1px solid #d1d5db",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border: 1px solid #d1d5db;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3397,
+                "endByte": 3423,
+                "line": 198,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "#7c3aed",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: #7c3aed;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2485,
+                "endByte": 2500,
+                "line": 144,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "#4b5563",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: #4b5563;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3426,
+                "endByte": 3441,
+                "line": 199,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "color",
+              "value": {
+                "text": "#4b5563",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "color: #4b5563;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3426,
+                "endByte": 3441,
+                "line": 199,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "ImpactLabel",
+            "declaration": {
+              "property": "font-weight",
+              "value": {
+                "text": "700",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-weight: 700;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2411,
+                "endByte": 2428,
+                "line": 141,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "font-weight",
+              "value": {
+                "text": "500",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-weight: 500;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3444,
+                "endByte": 3461,
+                "line": 200,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "font-weight",
+              "value": {
+                "text": "500",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-weight: 500;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3444,
+                "endByte": 3461,
+                "line": 200,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "WorkCard",
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "6px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: 6px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 1622,
+                "endByte": 1641,
+                "line": 92,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "4px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: 4px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3464,
+                "endByte": 3483,
+                "line": 201,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadge",
+            "declaration": {
+              "property": "border-radius",
+              "value": {
+                "text": "4px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "border-radius: 4px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3464,
+                "endByte": 3483,
+                "line": 201,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "flex",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: flex;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3249,
+                "endByte": 3263,
+                "line": 189,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "grid",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: grid;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3605,
+                "endByte": 3619,
+                "line": 209,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "display",
+              "value": {
+                "text": "grid",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "display: grid;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3605,
+                "endByte": 3619,
+                "line": 209,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "SkillsGrid",
+            "declaration": {
+              "property": "grid-template-columns",
+              "value": {
+                "text": "repeat(auto-fit, minmax(200px, 1fr))",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2835,
+                "endByte": 2895,
+                "line": 168,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "grid-template-columns",
+              "value": {
+                "text": "repeat(auto-fit, minmax(250px, 1fr))",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3622,
+                "endByte": 3682,
+                "line": 210,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "grid-template-columns",
+              "value": {
+                "text": "repeat(auto-fit, minmax(250px, 1fr))",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3622,
+                "endByte": 3682,
+                "line": 210,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/Resume.jsx",
+            "component": "StyledBadgeList",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "6px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 6px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3285,
+                "endByte": 3294,
+                "line": 191,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3685,
+                "endByte": 3695,
+                "line": 211,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/Resume.jsx",
+            "component": "SimpleList",
+            "declaration": {
+              "property": "gap",
+              "value": {
+                "text": "16px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "gap: 16px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3685,
+                "endByte": 3695,
+                "line": 211,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -8511,302 +10157,6 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/top",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "48px 32px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 48px 32px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 267,
-                "endByte": 286,
-                "line": 17,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 24px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 458,
-                "endByte": 472,
-                "line": 25,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 8,
-                "projectedDeclarationIndex": 9,
-                "originalScope": [
-                  "@media print"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/right",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "48px 32px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 48px 32px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 267,
-                "endByte": 286,
-                "line": 17,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 24px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 458,
-                "endByte": 472,
-                "line": 25,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 8,
-                "projectedDeclarationIndex": 9,
-                "originalScope": [
-                  "@media print"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/bottom",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "48px 32px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 48px 32px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 267,
-                "endByte": 286,
-                "line": 17,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 24px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 458,
-                "endByte": 472,
-                "line": 25,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 8,
-                "projectedDeclarationIndex": 9,
-                "originalScope": [
-                  "@media print"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
-        "code": "TOKEN_CONFLICT",
-        "source": {
-          "target": "/page/marginsMm/left",
-          "previous": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "48px 32px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 48px 32px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 267,
-                "endByte": 286,
-                "line": 17,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/Resume.jsx",
-            "component": "Layout",
-            "declaration": {
-              "property": "padding",
-              "value": {
-                "text": "24px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "padding: 24px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/Resume.jsx",
-                "startByte": 458,
-                "endByte": 472,
-                "line": 25,
-                "column": 5,
-                "columnUnit": "utf8-bytes"
-              },
-              "printProfileProjection": {
-                "format": "resume-one-css-print-profile-v1",
-                "profile": "print",
-                "kind": "positive-print-media",
-                "originalDeclarationIndex": 8,
-                "projectedDeclarationIndex": 9,
-                "originalScope": [
-                  "@media print"
-                ],
-                "removedMediaScopes": [
-                  "@media print"
-                ],
-                "sourceSpanRetained": true,
-                "importantRetained": true,
-                "sourceOrderPreservedWithinBlock": true,
-                "equivalent": false
-              }
-            }
-          }
-        },
-        "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
-      },
-      {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
@@ -9593,6 +10943,267 @@
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "32px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: 32px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1559,
+              "endByte": 1579,
+              "line": 89,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1582,
+              "endByte": 1596,
+              "line": 90,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1582,
+              "endByte": 1596,
+              "line": 90,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1582,
+              "endByte": 1596,
+              "line": 90,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1582,
+              "endByte": 1596,
+              "line": 90,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "background",
+            "value": {
+              "text": "#fafafa",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "background: #fafafa;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1599,
+              "endByte": 1619,
+              "line": 91,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "border-radius",
+            "value": {
+              "text": "6px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border-radius: 6px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1622,
+              "endByte": 1641,
+              "line": 92,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkCard",
+          "declaration": {
+            "property": "border",
+            "value": {
+              "text": "1px solid #e5e7eb",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border: 1px solid #e5e7eb;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1644,
+              "endByte": 1670,
+              "line": 93,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHeader",
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "16px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: 16px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1752,
+              "endByte": 1772,
+              "line": 101,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
           "component": "WorkTitle",
           "declaration": {
             "property": "margin",
@@ -10228,6 +11839,354 @@
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "font-size",
+            "value": {
+              "text": "12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-size: 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2392,
+              "endByte": 2408,
+              "line": 140,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "font-weight",
+            "value": {
+              "text": "700",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-weight: 700;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2411,
+              "endByte": 2428,
+              "line": 141,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "text-transform",
+            "value": {
+              "text": "uppercase",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "text-transform: uppercase;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2431,
+              "endByte": 2457,
+              "line": 142,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "letter-spacing",
+            "value": {
+              "text": "0.5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "letter-spacing: 0.5px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2460,
+              "endByte": 2482,
+              "line": 143,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "color",
+            "value": {
+              "text": "#7c3aed",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "color: #7c3aed;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2485,
+              "endByte": 2500,
+              "line": 144,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "ImpactLabel",
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "8px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: 8px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2503,
+              "endByte": 2522,
+              "line": 145,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "margin",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin: 0;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2563,
+              "endByte": 2573,
+              "line": 149,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "margin",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin: 0;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2563,
+              "endByte": 2573,
+              "line": 149,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "margin",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin: 0;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2563,
+              "endByte": 2573,
+              "line": 149,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "margin",
+            "value": {
+              "text": "0",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin: 0;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2563,
+              "endByte": 2573,
+              "line": 149,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2576,
+              "endByte": 2595,
+              "line": 150,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "WorkHighlights",
+          "declaration": {
+            "property": "list-style",
+            "value": {
+              "text": "disc",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "list-style: disc;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2598,
+              "endByte": 2615,
+              "line": 151,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
           "component": "WorkHighlights",
           "declaration": {
             "property": "margin-bottom",
@@ -10313,6 +12272,93 @@
           }
         },
         "message": "多个样式共用 v2 token，按声明投影优先级选择，未宣称 CSS 级联等价"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SkillsGrid",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "grid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: grid;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2818,
+              "endByte": 2832,
+              "line": 167,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SkillsGrid",
+          "declaration": {
+            "property": "grid-template-columns",
+            "value": {
+              "text": "repeat(auto-fit, minmax(200px, 1fr))",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2835,
+              "endByte": 2895,
+              "line": 168,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SkillsGrid",
+          "declaration": {
+            "property": "gap",
+            "value": {
+              "text": "24px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "gap: 24px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 2898,
+              "endByte": 2908,
+              "line": 169,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -10626,6 +12672,470 @@
               "startByte": 3108,
               "endByte": 3127,
               "line": 182,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadgeList",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3249,
+              "endByte": 3263,
+              "line": 189,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadgeList",
+          "declaration": {
+            "property": "flex-wrap",
+            "value": {
+              "text": "wrap",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "flex-wrap: wrap;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3266,
+              "endByte": 3282,
+              "line": 190,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadgeList",
+          "declaration": {
+            "property": "gap",
+            "value": {
+              "text": "6px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "gap: 6px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3285,
+              "endByte": 3294,
+              "line": 191,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "font-size",
+            "value": {
+              "text": "12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-size: 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3336,
+              "endByte": 3352,
+              "line": 195,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "6px 12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 6px 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3355,
+              "endByte": 3373,
+              "line": 196,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "6px 12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 6px 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3355,
+              "endByte": 3373,
+              "line": 196,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "6px 12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 6px 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3355,
+              "endByte": 3373,
+              "line": 196,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "6px 12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 6px 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3355,
+              "endByte": 3373,
+              "line": 196,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "background",
+            "value": {
+              "text": "white",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "background: white;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3376,
+              "endByte": 3394,
+              "line": 197,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "border",
+            "value": {
+              "text": "1px solid #d1d5db",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border: 1px solid #d1d5db;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3397,
+              "endByte": 3423,
+              "line": 198,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "color",
+            "value": {
+              "text": "#4b5563",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "color: #4b5563;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3426,
+              "endByte": 3441,
+              "line": 199,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "font-weight",
+            "value": {
+              "text": "500",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-weight: 500;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3444,
+              "endByte": 3461,
+              "line": 200,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "StyledBadge",
+          "declaration": {
+            "property": "border-radius",
+            "value": {
+              "text": "4px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "border-radius: 4px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3464,
+              "endByte": 3483,
+              "line": 201,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SimpleList",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "grid",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: grid;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3605,
+              "endByte": 3619,
+              "line": 209,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SimpleList",
+          "declaration": {
+            "property": "grid-template-columns",
+            "value": {
+              "text": "repeat(auto-fit, minmax(250px, 1fr))",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3622,
+              "endByte": 3682,
+              "line": 210,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "SimpleList",
+          "declaration": {
+            "property": "gap",
+            "value": {
+              "text": "16px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "gap: 16px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 3685,
+              "endByte": 3695,
+              "line": 211,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -11253,14 +13763,6 @@
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
-        "source": {
-          "requestedMm": 6.35,
-          "chosenMm": 15.8
-        },
-        "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
       }
     ],
     "limitations": [
@@ -11707,7 +14209,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [
       {
         "assetId": "font-0",
@@ -12043,6 +14545,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 317236,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/product-manager-canvas.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -12053,7 +14567,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -12076,11 +14590,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 7121831,
-        "docxBytes": 19073722
+        "pdfBytes": 7121744,
+        "docxBytes": 19073718
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
@@ -12103,11 +14617,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6917331,
-        "docxBytes": 19073382
+        "pdfBytes": 6917260,
+        "docxBytes": 19073377
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -12121,11 +14635,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6505827,
-        "docxBytes": 19070433
+        "pdfBytes": 6505814,
+        "docxBytes": 19070426
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 5,
@@ -12148,12 +14662,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6920833,
-        "docxBytes": 19075776
+        "pdfBytes": 6920900,
+        "docxBytes": 19075772
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "7b99378d08b3600e6ae9fdec72e87743b35941fdb683f608c13053b5ad6b3193"
+  "candidateSha256": "1a9c6c29dd341f873fc82f4f5ed26c2bf99c0109f52f3fee18bd0ce2d8e6eef3"
 }

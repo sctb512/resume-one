@@ -90,12 +90,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 19.08,
+      "top": 16.0,
       "right": 16.0,
       "bottom": 16.0,
       "left": 16.0
     },
-    "sectionGapMm": 4.0
+    "sectionGapMm": 4.0,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column"

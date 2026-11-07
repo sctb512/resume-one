@@ -172,7 +172,7 @@
         "section",
         "sectionTitle"
       ],
-      "evidenceRecords": 121
+      "evidenceRecords": 149
     },
     "fontRequests": [
       {
@@ -256,6 +256,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -346,6 +360,362 @@
         "source": null,
         "classification": "adapted",
         "reason": "缺少静态证据的值采用候选/显式安全默认，不代表原模板样式",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-accent",
+          "value": "var(--color-accent-light)",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-accent-dark",
+          "value": "#5f8787",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-accent-light",
+          "value": "#527575",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-background",
+          "value": "var(--color-background-light)",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-background-dark",
+          "value": "#121113",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-background-light",
+          "value": "#fff",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-dimmed",
+          "value": "var(--color-dimmed-light)",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-dimmed-dark",
+          "value": "#222",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-dimmed-light",
+          "value": "#f3f4f6",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-primary",
+          "value": "var(--color-primary-light)",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-primary-dark",
+          "value": "#c1c1c1",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-primary-light",
+          "value": "#111827",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-secondary",
+          "value": "var(--color-secondary-light)",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-secondary-dark",
+          "value": "#888",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--color-secondary-light",
+          "value": "#6b7280",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale-ratio",
+          "value": "1.25",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale0",
+          "value": "1rem",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale1",
+          "value": "calc(var(--scale0) * var(--scale-ratio))",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale2",
+          "value": "calc(var(--scale1) * var(--scale-ratio))",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale3",
+          "value": "calc(var(--scale2) * var(--scale-ratio))",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale4",
+          "value": "calc(var(--scale3) * var(--scale-ratio))",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--scale5",
+          "value": "calc(var(--scale4) * var(--scale-ratio))",
+          "sources": [
+            "dist/index.cjs#literal-1692.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 22
+        },
+        "source": {
+          "file": "bin/cli.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 22
+        },
+        "source": {
+          "file": "dist/index.cjs"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 22
+        },
+        "source": {
+          "file": "dist/index.js"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 22
+        },
+        "source": {
+          "file": "dist/index.umd.cjs"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
         "equivalent": false
       },
       {
@@ -1822,18 +2192,30 @@
             "section",
             "sectionTitle"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 10.5,
+          "documentSizePt": 10.5,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
         "target": "/typography/body/sizePt",
-        "value": 12.0,
+        "value": 10.5,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -1862,7 +2244,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2037,7 +2419,7 @@
       },
       {
         "target": "/typography/name/sizePt",
-        "value": 26.0,
+        "value": 32.04345703125,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -2066,7 +2448,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2241,7 +2623,7 @@
       },
       {
         "target": "/typography/label/sizePt",
-        "value": 12.0,
+        "value": 10.5,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -2445,7 +2827,7 @@
       },
       {
         "target": "/typography/summary/sizePt",
-        "value": 12.0,
+        "value": 10.5,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -2649,7 +3031,7 @@
       },
       {
         "target": "/typography/sectionTitle/sizePt",
-        "value": 13.0,
+        "value": 20.5078125,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -2678,7 +3060,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2853,7 +3235,7 @@
       },
       {
         "target": "/typography/itemTitle/sizePt",
-        "value": 10.6,
+        "value": 16.40625,
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
@@ -2882,7 +3264,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -4593,6 +4975,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -10845,37 +11235,6 @@
         "message": "样式块含解析器未支持语法；仅考虑可独立重新解析的声明，原作用域与完整级联不作等价证明"
       },
       {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "color-scheme",
-            "value": {
-              "text": "light dark",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "color-scheme:light dark;",
-              "truncated": false
-            },
-            "scope": [
-              ":root"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 6,
-              "endByte": 30,
-              "line": 1,
-              "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
         "code": "CONDITIONAL_RULE_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
@@ -13472,93 +13831,6 @@
             "declaration": {
               "property": "font-size",
               "value": {
-                "text": "14px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size:14px",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "dist/index.cjs#literal-1692.css",
-                "startByte": 1132,
-                "endByte": 1146,
-                "line": 1,
-                "column": 1133,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "dist/index.cjs#literal-1692.css",
-            "component": null,
-            "declaration": {
-              "property": "font",
-              "value": {
-                "text": "1em/1.5 Lato,sans-serif",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font:1em/1.5 Lato,sans-serif;",
-                "truncated": false
-              },
-              "scope": [
-                "body"
-              ],
-              "span": {
-                "file": "dist/index.cjs#literal-1692.css",
-                "startByte": 1442,
-                "endByte": 1471,
-                "line": 1,
-                "column": 1443,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "dist/index.cjs#literal-1692.css",
-            "component": null,
-            "declaration": {
-              "property": "font",
-              "value": {
-                "text": "1em/1.5 Lato,sans-serif",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font:1em/1.5 Lato,sans-serif;",
-                "truncated": false
-              },
-              "scope": [
-                "body"
-              ],
-              "span": {
-                "file": "dist/index.cjs#literal-1692.css",
-                "startByte": 1442,
-                "endByte": 1471,
-                "line": 1,
-                "column": 1443,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "dist/index.cjs#literal-1692.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
                 "text": "var(--scale4)",
                 "truncated": false
               },
@@ -13756,35 +14028,97 @@
         "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
           "declaration": {
-            "property": "font-size",
+            "property": "font",
             "value": {
-              "text": "var(--scale5)",
+              "text": "1em/1.5 Lato,sans-serif",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size:var(--scale5)",
+              "text": "font:1em/1.5 Lato,sans-serif;",
               "truncated": false
             },
             "scope": [
-              "h1"
+              "body"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1798,
-              "endByte": 1821,
+              "startByte": 1442,
+              "endByte": 1471,
               "line": 1,
-              "column": 1799,
+              "column": 1443,
               "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "/typography/name/sizePt 需要 7..=42，采用安全值 26；没有 clamp 来源数值"
+        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+      },
+      {
+        "code": "FONT_FAMILY_FALLBACK",
+        "source": {
+          "file": "dist/index.cjs#literal-1692.css",
+          "component": null,
+          "declaration": {
+            "property": "font",
+            "value": {
+              "text": "1em/1.5 Lato,sans-serif",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font:1em/1.5 Lato,sans-serif;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "dist/index.cjs#literal-1692.css",
+              "startByte": 1442,
+              "endByte": 1471,
+              "line": 1,
+              "column": 1443,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+      },
+      {
+        "code": "FONT_FAMILY_FALLBACK",
+        "source": {
+          "file": "dist/index.cjs#literal-1692.css",
+          "component": null,
+          "declaration": {
+            "property": "font",
+            "value": {
+              "text": "1em/1.5 Lato,sans-serif",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font:1em/1.5 Lato,sans-serif;",
+              "truncated": false
+            },
+            "scope": [
+              "body"
+            ],
+            "span": {
+              "file": "dist/index.cjs#literal-1692.css",
+              "startByte": 1442,
+              "endByte": 1471,
+              "line": 1,
+              "column": 1443,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -13880,37 +14214,6 @@
         "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "var(--scale3)",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size:var(--scale3);",
-              "truncated": false
-            },
-            "scope": [
-              "h3"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1910,
-              "endByte": 1934,
-              "line": 1,
-              "column": 1911,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "/typography/sectionTitle/sizePt 需要 7..=42，采用安全值 13；没有 clamp 来源数值"
-      },
-      {
         "code": "FONT_FAMILY_FALLBACK",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
@@ -13942,128 +14245,35 @@
         "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "dist/index.cjs#literal-1692.css",
           "component": null,
           "declaration": {
-            "property": "font-size",
+            "property": "color-scheme",
             "value": {
-              "text": "var(--scale2)",
+              "text": "light dark",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "font-size:var(--scale2)",
+              "text": "color-scheme:light dark;",
               "truncated": false
             },
             "scope": [
-              "h4"
+              ":root"
             ],
             "span": {
               "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1973,
-              "endByte": 1996,
+              "startByte": 6,
+              "endByte": 30,
               "line": 1,
-              "column": 1974,
+              "column": 7,
               "columnUnit": "utf8-bytes"
             }
           }
         },
-        "message": "/typography/itemTitle/sizePt 需要 7..=42，采用安全值 10.6；没有 clamp 来源数值"
-      },
-      {
-        "code": "FONT_FAMILY_FALLBACK",
-        "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "font",
-            "value": {
-              "text": "1em/1.5 Lato,sans-serif",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font:1em/1.5 Lato,sans-serif;",
-              "truncated": false
-            },
-            "scope": [
-              "body"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1442,
-              "endByte": 1471,
-              "line": 1,
-              "column": 1443,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
-      },
-      {
-        "code": "FONT_FAMILY_FALLBACK",
-        "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "font",
-            "value": {
-              "text": "1em/1.5 Lato,sans-serif",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font:1em/1.5 Lato,sans-serif;",
-              "truncated": false
-            },
-            "scope": [
-              "body"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1442,
-              "endByte": 1471,
-              "line": 1,
-              "column": 1443,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
-      },
-      {
-        "code": "FONT_FAMILY_FALLBACK",
-        "source": {
-          "file": "dist/index.cjs#literal-1692.css",
-          "component": null,
-          "declaration": {
-            "property": "font",
-            "value": {
-              "text": "1em/1.5 Lato,sans-serif",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font:1em/1.5 Lato,sans-serif;",
-              "truncated": false
-            },
-            "scope": [
-              "body"
-            ],
-            "span": {
-              "file": "dist/index.cjs#literal-1692.css",
-              "startByte": 1442,
-              "endByte": 1471,
-              "line": 1,
-              "column": 1443,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "原 font-family: Lato,sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -15139,7 +15349,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [
       {
         "assetId": "font-0",
@@ -15656,6 +15866,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/even.txt",
     "sha256": "a1436e5316bd543cf13606ac2a6b8e2c979e6b2284f9db4e4ec6ebace473e8b8",
@@ -15666,10 +15888,10 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
-        "pages": 2,
+        "pages": 3,
         "textLines": 64,
         "sections": [
           "awards",
@@ -15689,15 +15911,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6649768,
-        "docxBytes": 18492789
+        "pdfBytes": 6650563,
+        "docxBytes": 18492790
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
-        "pages": 2,
-        "textLines": 89,
+        "pages": 3,
+        "textLines": 90,
         "sections": [
           "awards",
           "basics",
@@ -15716,11 +15938,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6650952,
-        "docxBytes": 18492627
+        "pdfBytes": 6651774,
+        "docxBytes": 18492607
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -15734,15 +15956,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6646182,
+        "pdfBytes": 6646191,
         "docxBytes": 18490334
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
-        "pages": 5,
-        "textLines": 207,
+        "pages": 4,
+        "textLines": 331,
         "sections": [
           "awards",
           "basics",
@@ -15761,12 +15983,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6654491,
-        "docxBytes": 18494496
+        "pdfBytes": 6654402,
+        "docxBytes": 18494450
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "2c2f80ba7c96b5ea427503aeb3d2c5cfa2a4096a3ece1c51f8b3cb8f319439bd"
+  "candidateSha256": "fc3a729c58f48ded3e35bbe278f179a1dea36aac297550b45e7b0d0940aa1073"
 }

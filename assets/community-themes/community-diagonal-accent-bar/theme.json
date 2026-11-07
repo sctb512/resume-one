@@ -103,11 +103,12 @@
   },
   "page": {
     "marginsMm": {
-      "top": 17.62,
-      "right": 10.583333333333334,
-      "bottom": 10.583333333333334,
-      "left": 10.583333333333334
-    }
+      "top": 23.28333333333333,
+      "right": 23.28333333333333,
+      "bottom": 23.28333333333333,
+      "left": 23.28333333333333
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -128,15 +129,200 @@
   "sections": {
     "awards": {
       "heading": "line",
-      "title": "Awards"
+      "title": "Awards",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "title"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 13.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05555555555555555
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "awarder",
+              "prefix": "Awarded by "
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 11.25,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 10.5,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "certificates": {
       "heading": "line",
-      "title": "Certificates"
+      "title": "Certificates",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 13.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05555555555555555
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "issuer",
+              "prefix": "Issued by "
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 11.25,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 10.5,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "education": {
       "heading": "line",
-      "title": "Education"
+      "title": "Education",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "institution"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 13.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05555555555555555
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "studyType"
+            },
+            {
+              "field": "area",
+              "prefix": " in "
+            },
+            {
+              "field": "score",
+              "prefix": " • "
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 11.25,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 10.5,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "interests": {
       "heading": "line",
@@ -148,11 +334,93 @@
     },
     "projects": {
       "heading": "line",
-      "title": "Projects"
+      "title": "Projects",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 14.25,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05263157894736842
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 0.0
+        }
+      ],
+      "date": "inline"
     },
     "publications": {
       "heading": "line",
-      "title": "Publications"
+      "title": "Publications",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 13.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05555555555555555
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 4.5
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "publisher",
+              "prefix": "Published by "
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 11.25,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#4B5563"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "releaseDate"
+            }
+          ],
+          "style": {
+            "family": "cjk-sans",
+            "sizePt": 10.5,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "references": {
       "heading": "line",
@@ -164,11 +432,129 @@
     },
     "volunteer": {
       "heading": "line",
-      "title": "Volunteer"
+      "title": "Volunteer",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 14.25,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05263157894736842
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 0.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "organization"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#E11D48"
+          },
+          "spaceBeforePt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 10.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "work": {
       "heading": "line",
-      "title": "Experience"
+      "title": "Experience",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 14.25,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#111827",
+            "trackingEm": 0.05263157894736842
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 0.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 12.0,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#E11D48"
+          },
+          "spaceBeforePt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "cjk-serif",
+            "sizePt": 10.5,
+            "weight": 600,
+            "fontStyle": "normal",
+            "lineHeight": 1.4,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     }
   },
   "provenance": {

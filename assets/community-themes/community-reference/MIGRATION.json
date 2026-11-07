@@ -108,6 +108,7 @@
       "declarationsSeen": 122,
       "matchedRoles": [
         "body",
+        "entrySource",
         "header",
         "item",
         "label",
@@ -116,7 +117,7 @@
         "section",
         "summary"
       ],
-      "evidenceRecords": 140
+      "evidenceRecords": 179
     },
     "fontRequests": [
       {
@@ -216,6 +217,2073 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [
+        {
+          "entryFile": "src/Resume.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2034,
+                "endByte": 2043,
+                "line": 106,
+                "column": 13,
+                "endLine": 106,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "as=\"main\"",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2301,
+                "endByte": 2334,
+                "line": 115,
+                "column": 24,
+                "endLine": 115,
+                "endColumn": 57,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(`mailto:${basics.email}`)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2308,
+                "endByte": 2334,
+                "line": 115,
+                "column": 31,
+                "endLine": 115,
+                "endColumn": 57,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(`mailto:${basics.email}`)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2309,
+                "endByte": 2333,
+                "line": 115,
+                "column": 32,
+                "endLine": 115,
+                "endColumn": 56,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "`mailto:${basics.email}`",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2317,
+                "endByte": 2332,
+                "line": 115,
+                "column": 40,
+                "endLine": 115,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${basics.email}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2319,
+                "endByte": 2331,
+                "line": 115,
+                "column": 42,
+                "endLine": 115,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.email",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2496,
+                "endByte": 2515,
+                "line": 120,
+                "column": 23,
+                "endLine": 120,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(basics.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2503,
+                "endByte": 2515,
+                "line": 120,
+                "column": 30,
+                "endLine": 120,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(basics.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2504,
+                "endByte": 2514,
+                "line": 120,
+                "column": 31,
+                "endLine": 120,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2570,
+                "endByte": 2598,
+                "line": 122,
+                "column": 22,
+                "endLine": 122,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "getLinkRel(basics.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2580,
+                "endByte": 2598,
+                "line": 122,
+                "column": 32,
+                "endLine": 122,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(basics.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2581,
+                "endByte": 2591,
+                "line": 122,
+                "column": 33,
+                "endLine": 122,
+                "endColumn": 43,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "array",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2751,
+                "endByte": 2899,
+                "line": 129,
+                "column": 18,
+                "endLine": 133,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n                  basics.location.city,\n                  basics.location.region,\n                  basics.location.countryCode,\n                ]",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2751,
+                "endByte": 2925,
+                "line": 129,
+                "column": 18,
+                "endLine": 134,
+                "endColumn": 26,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n                  basics.location.city,\n                  basics.location.region,\n                  basics.location.countryCode,\n                ]\n                  .filter",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2751,
+                "endByte": 2934,
+                "line": 129,
+                "column": 18,
+                "endLine": 134,
+                "endColumn": 35,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n                  basics.location.city,\n                  basics.location.region,\n                  basics.location.countryCode,\n                ]\n                  .filter(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2751,
+                "endByte": 2958,
+                "line": 129,
+                "column": 18,
+                "endLine": 135,
+                "endColumn": 24,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n                  basics.location.city,\n                  basics.location.region,\n                  basics.location.countryCode,\n                ]\n                  .filter(Boolean)\n                  .join",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_JOIN_RECEIVER",
+              "message": "join receiver must be an explicit lexical JSON-array data path",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2751,
+                "endByte": 2964,
+                "line": 129,
+                "column": 18,
+                "endLine": 135,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n                  basics.location.city,\n                  basics.location.region,\n                  basics.location.countryCode,\n                ]\n                  .filter(Boolean)\n                  .join(', ')",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2771,
+                "endByte": 2786,
+                "line": 130,
+                "column": 19,
+                "endLine": 130,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2771,
+                "endByte": 2791,
+                "line": 130,
+                "column": 19,
+                "endLine": 130,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location.city",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2811,
+                "endByte": 2826,
+                "line": 131,
+                "column": 19,
+                "endLine": 131,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2811,
+                "endByte": 2833,
+                "line": 131,
+                "column": 19,
+                "endLine": 131,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location.region",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2853,
+                "endByte": 2868,
+                "line": 132,
+                "column": 19,
+                "endLine": 132,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2853,
+                "endByte": 2880,
+                "line": 132,
+                "column": 19,
+                "endLine": 132,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "basics.location.countryCode",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2925,
+                "endByte": 2934,
+                "line": 134,
+                "column": 26,
+                "endLine": 134,
+                "endColumn": 35,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2958,
+                "endByte": 2964,
+                "line": 135,
+                "column": 24,
+                "endLine": 135,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(', ')",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 2959,
+                "endByte": 2963,
+                "line": 135,
+                "column": 25,
+                "endLine": 135,
+                "endColumn": 29,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "', '",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3085,
+                "endByte": 3105,
+                "line": 139,
+                "column": 34,
+                "endLine": 139,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(profile.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3092,
+                "endByte": 3105,
+                "line": 139,
+                "column": 41,
+                "endLine": 139,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(profile.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3093,
+                "endByte": 3104,
+                "line": 139,
+                "column": 42,
+                "endLine": 139,
+                "endColumn": 53,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profile.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3324,
+                "endByte": 3352,
+                "line": 146,
+                "column": 26,
+                "endLine": 146,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "getLinkRel(profileUrl, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3334,
+                "endByte": 3352,
+                "line": 146,
+                "column": 36,
+                "endLine": 146,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(profileUrl, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3886,
+                "endByte": 3905,
+                "line": 167,
+                "column": 15,
+                "endLine": 167,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={job.name}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 3920,
+                "endByte": 4086,
+                "line": 168,
+                "column": 15,
+                "endLine": 172,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={\n                job.startDate ? (\n                  <DateRange startDate={job.startDate} endDate={job.endDate} />\n                ) : null\n              }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4139,
+                "endByte": 4164,
+                "line": 174,
+                "column": 15,
+                "endLine": 174,
+                "endColumn": 40,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={job.summary}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4179,
+                "endByte": 4206,
+                "line": 175,
+                "column": 15,
+                "endLine": 175,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "highlights={job.highlights}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "array",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4481,
+                "endByte": 4506,
+                "line": 186,
+                "column": 27,
+                "endLine": 186,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[edu.studyType, edu.area]",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4481,
+                "endByte": 4528,
+                "line": 186,
+                "column": 27,
+                "endLine": 187,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[edu.studyType, edu.area]\n              .filter",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4481,
+                "endByte": 4537,
+                "line": 186,
+                "column": 27,
+                "endLine": 187,
+                "endColumn": 31,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[edu.studyType, edu.area]\n              .filter(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4481,
+                "endByte": 4557,
+                "line": 186,
+                "column": 27,
+                "endLine": 188,
+                "endColumn": 20,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[edu.studyType, edu.area]\n              .filter(Boolean)\n              .join",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_JOIN_RECEIVER",
+              "message": "join receiver must be an explicit lexical JSON-array data path",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4481,
+                "endByte": 4565,
+                "line": 186,
+                "column": 27,
+                "endLine": 188,
+                "endColumn": 28,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[edu.studyType, edu.area]\n              .filter(Boolean)\n              .join(' in ')",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4482,
+                "endByte": 4495,
+                "line": 186,
+                "column": 28,
+                "endLine": 186,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.studyType",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4497,
+                "endByte": 4505,
+                "line": 186,
+                "column": 43,
+                "endLine": 186,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.area",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4528,
+                "endByte": 4537,
+                "line": 187,
+                "column": 22,
+                "endLine": 187,
+                "endColumn": 31,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4557,
+                "endByte": 4565,
+                "line": 188,
+                "column": 20,
+                "endLine": 188,
+                "endColumn": 28,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(' in ')",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4558,
+                "endByte": 4564,
+                "line": 188,
+                "column": 21,
+                "endLine": 188,
+                "endColumn": 27,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "' in '",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "array",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4598,
+                "endByte": 4703,
+                "line": 189,
+                "column": 32,
+                "endLine": 192,
+                "endColumn": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n              edu.score ? `GPA: ${edu.score}` : '',\n              ...(edu.courses || []),\n            ]",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4598,
+                "endByte": 4710,
+                "line": 189,
+                "column": 32,
+                "endLine": 192,
+                "endColumn": 21,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n              edu.score ? `GPA: ${edu.score}` : '',\n              ...(edu.courses || []),\n            ].filter",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4598,
+                "endByte": 4719,
+                "line": 189,
+                "column": 32,
+                "endLine": 192,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "[\n              edu.score ? `GPA: ${edu.score}` : '',\n              ...(edu.courses || []),\n            ].filter(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4614,
+                "endByte": 4623,
+                "line": 190,
+                "column": 15,
+                "endLine": 190,
+                "endColumn": 24,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.score",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "ternary_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4614,
+                "endByte": 4650,
+                "line": 190,
+                "column": 15,
+                "endLine": 190,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.score ? `GPA: ${edu.score}` : ''",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_string",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4626,
+                "endByte": 4645,
+                "line": 190,
+                "column": 27,
+                "endLine": 190,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "`GPA: ${edu.score}`",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4632,
+                "endByte": 4644,
+                "line": 190,
+                "column": 33,
+                "endLine": 190,
+                "endColumn": 45,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${edu.score}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4634,
+                "endByte": 4643,
+                "line": 190,
+                "column": 35,
+                "endLine": 190,
+                "endColumn": 44,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.score",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "spread_element",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4666,
+                "endByte": 4688,
+                "line": 191,
+                "column": 15,
+                "endLine": 191,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "...(edu.courses || [])",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4669,
+                "endByte": 4688,
+                "line": 191,
+                "column": 18,
+                "endLine": 191,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(edu.courses || [])",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4670,
+                "endByte": 4681,
+                "line": 191,
+                "column": 19,
+                "endLine": 191,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.courses",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "binary_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4670,
+                "endByte": 4687,
+                "line": 191,
+                "column": 19,
+                "endLine": 191,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "edu.courses || []",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4710,
+                "endByte": 4719,
+                "line": 192,
+                "column": 21,
+                "endLine": 192,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(Boolean)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4860,
+                "endByte": 4899,
+                "line": 198,
+                "column": 17,
+                "endLine": 198,
+                "endColumn": 56,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={title ? edu.institution : ''}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 4916,
+                "endByte": 5154,
+                "line": 199,
+                "column": 17,
+                "endLine": 206,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={\n                  edu.startDate ? (\n                    <DateRange\n                      startDate={edu.startDate}\n                      endDate={edu.endDate}\n                    />\n                  ) : null\n                }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5171,
+                "endByte": 5230,
+                "line": 207,
+                "column": 17,
+                "endLine": 207,
+                "endColumn": 76,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "highlights={highlights.length > 0 ? highlights : undefined}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "undefined",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5220,
+                "endByte": 5229,
+                "line": 207,
+                "column": 66,
+                "endLine": 207,
+                "endColumn": 75,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "undefined",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5621,
+                "endByte": 5648,
+                "line": 221,
+                "column": 26,
+                "endLine": 221,
+                "endColumn": 53,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "items={skillGroup.keywords}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 5649,
+                "endByte": 5666,
+                "line": 221,
+                "column": 54,
+                "endLine": 221,
+                "endColumn": 71,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "variant=\"default\"",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6025,
+                "endByte": 6261,
+                "line": 235,
+                "column": 15,
+                "endLine": 242,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={\n                project.startDate ? (\n                  <DateRange\n                    startDate={project.startDate}\n                    endDate={project.endDate}\n                  />\n                ) : null\n              }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6276,
+                "endByte": 7054,
+                "line": 243,
+                "column": 15,
+                "endLine": 265,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={\n                <>\n                  {project.description}\n                  {project.url && safeUrl(project.url) && (\n                    <>\n                      <br />\n                      <a\n                        href={safeUrl(project.",
+              "sourceTruncated": true
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6383,
+                "endByte": 6403,
+                "line": 246,
+                "column": 35,
+                "endLine": 246,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6390,
+                "endByte": 6403,
+                "line": 246,
+                "column": 42,
+                "endLine": 246,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6391,
+                "endByte": 6402,
+                "line": 246,
+                "column": 43,
+                "endLine": 246,
+                "endColumn": 54,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "project.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6516,
+                "endByte": 6536,
+                "line": 250,
+                "column": 31,
+                "endLine": 250,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6523,
+                "endByte": 6536,
+                "line": 250,
+                "column": 38,
+                "endLine": 250,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(project.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6524,
+                "endByte": 6535,
+                "line": 250,
+                "column": 39,
+                "endLine": 250,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "project.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6607,
+                "endByte": 6636,
+                "line": 252,
+                "column": 30,
+                "endLine": 252,
+                "endColumn": 59,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "getLinkRel(project.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6617,
+                "endByte": 6636,
+                "line": 252,
+                "column": 40,
+                "endLine": 252,
+                "endColumn": 59,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(project.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6618,
+                "endByte": 6629,
+                "line": 252,
+                "column": 41,
+                "endLine": 252,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "project.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6929,
+                "endByte": 6953,
+                "line": 261,
+                "column": 34,
+                "endLine": 261,
+                "endColumn": 58,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "items={project.keywords}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 6954,
+                "endByte": 6970,
+                "line": 261,
+                "column": 59,
+                "endLine": 261,
+                "endColumn": 75,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "variant=\"accent\"",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 7069,
+                "endByte": 7100,
+                "line": 266,
+                "column": 15,
+                "endLine": 266,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "highlights={project.highlights}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 7457,
+                "endByte": 7484,
+                "line": 280,
+                "column": 15,
+                "endLine": 280,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={vol.organization}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 7499,
+                "endByte": 7665,
+                "line": 281,
+                "column": 15,
+                "endLine": 285,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={\n                vol.startDate ? (\n                  <DateRange startDate={vol.startDate} endDate={vol.endDate} />\n                ) : null\n              }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 7680,
+                "endByte": 7705,
+                "line": 286,
+                "column": 15,
+                "endLine": 286,
+                "endColumn": 40,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={vol.summary}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 7720,
+                "endByte": 7747,
+                "line": 287,
+                "column": 15,
+                "endLine": 287,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "highlights={vol.highlights}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8088,
+                "endByte": 8112,
+                "line": 301,
+                "column": 15,
+                "endLine": 301,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={award.awarder}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8127,
+                "endByte": 8149,
+                "line": 302,
+                "column": 15,
+                "endLine": 302,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={award.date}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8164,
+                "endByte": 8191,
+                "line": 303,
+                "column": 15,
+                "endLine": 303,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={award.summary}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8548,
+                "endByte": 8572,
+                "line": 317,
+                "column": 15,
+                "endLine": 317,
+                "endColumn": 39,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={pub.publisher}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8587,
+                "endByte": 8614,
+                "line": 318,
+                "column": 15,
+                "endLine": 318,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={pub.releaseDate}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8629,
+                "endByte": 9132,
+                "line": 319,
+                "column": 15,
+                "endLine": 335,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={\n                <>\n                  {pub.summary}\n                  {pub.url && safeUrl(pub.url) && (\n                    <>\n                      <br />\n                      <a\n                        href={safeUrl(pub.url)}\n              ",
+              "sourceTruncated": true
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8724,
+                "endByte": 8740,
+                "line": 322,
+                "column": 31,
+                "endLine": 322,
+                "endColumn": 47,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(pub.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8731,
+                "endByte": 8740,
+                "line": 322,
+                "column": 38,
+                "endLine": 322,
+                "endColumn": 47,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(pub.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8732,
+                "endByte": 8739,
+                "line": 322,
+                "column": 39,
+                "endLine": 322,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "pub.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8853,
+                "endByte": 8869,
+                "line": 326,
+                "column": 31,
+                "endLine": 326,
+                "endColumn": 47,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(pub.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8860,
+                "endByte": 8869,
+                "line": 326,
+                "column": 38,
+                "endLine": 326,
+                "endColumn": 47,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(pub.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8861,
+                "endByte": 8868,
+                "line": 326,
+                "column": 39,
+                "endLine": 326,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "pub.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8940,
+                "endByte": 8965,
+                "line": 328,
+                "column": 30,
+                "endLine": 328,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "getLinkRel(pub.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8950,
+                "endByte": 8965,
+                "line": 328,
+                "column": 40,
+                "endLine": 328,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(pub.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 8951,
+                "endByte": 8958,
+                "line": 328,
+                "column": 41,
+                "endLine": 328,
+                "endColumn": 48,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "pub.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9491,
+                "endByte": 9513,
+                "line": 349,
+                "column": 15,
+                "endLine": 349,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subtitle={cert.issuer}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9528,
+                "endByte": 9549,
+                "line": 350,
+                "column": 15,
+                "endLine": 350,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dateRange={cert.date}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9564,
+                "endByte": 9902,
+                "line": 351,
+                "column": 15,
+                "endLine": 361,
+                "endColumn": 16,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={\n                cert.url && safeUrl(cert.url) ? (\n                  <a\n                    href={safeUrl(cert.url)}\n                    target=\"_blank\"\n                    rel={getLinkRel(cert.url, true)}\n                  >\n                 ",
+              "sourceTruncated": true
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9606,
+                "endByte": 9623,
+                "line": 352,
+                "column": 29,
+                "endLine": 352,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9613,
+                "endByte": 9623,
+                "line": 352,
+                "column": 36,
+                "endLine": 352,
+                "endColumn": 46,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9614,
+                "endByte": 9622,
+                "line": 352,
+                "column": 37,
+                "endLine": 352,
+                "endColumn": 45,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "cert.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9675,
+                "endByte": 9692,
+                "line": 354,
+                "column": 27,
+                "endLine": 354,
+                "endColumn": 44,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "safeUrl(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9682,
+                "endByte": 9692,
+                "line": 354,
+                "column": 34,
+                "endLine": 354,
+                "endColumn": 44,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(cert.url)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9683,
+                "endByte": 9691,
+                "line": 354,
+                "column": 35,
+                "endLine": 354,
+                "endColumn": 43,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "cert.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9755,
+                "endByte": 9781,
+                "line": 356,
+                "column": 26,
+                "endLine": 356,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "getLinkRel(cert.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9765,
+                "endByte": 9781,
+                "line": 356,
+                "column": 36,
+                "endLine": 356,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(cert.url, true)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9766,
+                "endByte": 9774,
+                "line": 356,
+                "column": 37,
+                "endLine": 356,
+                "endColumn": 45,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "cert.url",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "undefined",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 9877,
+                "endByte": 9886,
+                "line": 360,
+                "column": 21,
+                "endLine": 360,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "undefined",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10507,
+                "endByte": 10557,
+                "line": 385,
+                "column": 13,
+                "endLine": 385,
+                "endColumn": 63,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "items={interests.flatMap((i) => i.keywords || [])}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10514,
+                "endByte": 10531,
+                "line": 385,
+                "column": 20,
+                "endLine": 385,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "interests.flatMap",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10514,
+                "endByte": 10556,
+                "line": 385,
+                "column": 20,
+                "endLine": 385,
+                "endColumn": 62,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "interests.flatMap((i) => i.keywords || [])",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10531,
+                "endByte": 10556,
+                "line": 385,
+                "column": 37,
+                "endLine": 385,
+                "endColumn": 62,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "((i) => i.keywords || [])",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "formal_parameters",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10532,
+                "endByte": 10535,
+                "line": 385,
+                "column": 38,
+                "endLine": 385,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(i)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arrow_function",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10532,
+                "endByte": 10555,
+                "line": 385,
+                "column": 38,
+                "endLine": 385,
+                "endColumn": 61,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(i) => i.keywords || []",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10539,
+                "endByte": 10549,
+                "line": 385,
+                "column": 45,
+                "endLine": 385,
+                "endColumn": 55,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "i.keywords",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "binary_expression",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10539,
+                "endByte": 10555,
+                "line": 385,
+                "column": 45,
+                "endLine": 385,
+                "endColumn": 61,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "i.keywords || []",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10570,
+                "endByte": 10587,
+                "line": 386,
+                "column": 13,
+                "endLine": 386,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "variant=\"default\"",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/Resume.jsx",
+                "startByte": 10918,
+                "endByte": 10945,
+                "line": 399,
+                "column": 15,
+                "endLine": 399,
+                "endColumn": 42,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "description={ref.reference}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/index.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        }
+      ],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -309,6 +2377,452 @@
         "equivalent": false
       },
       {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-color-accent",
+          "value": "#2563eb",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-color-background",
+          "value": "#ffffff",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-color-border",
+          "value": "#e5e7eb",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-color-primary",
+          "value": "#1a1a1a",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-color-secondary",
+          "value": "#4a4a4a",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-column-gap",
+          "value": "24px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-font-mono",
+          "value": "\"Courier New\", Courier, monospace",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-font-sans",
+          "value": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-font-serif",
+          "value": "Cambria, Georgia, \"Times New Roman\", serif",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-line-height-normal",
+          "value": "1.5",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-line-height-relaxed",
+          "value": "1.75",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-line-height-tight",
+          "value": "1.2",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-max-width",
+          "value": "660px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-radius-lg",
+          "value": "12px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-radius-md",
+          "value": "8px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-radius-sm",
+          "value": "4px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-shadow-md",
+          "value": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-shadow-sm",
+          "value": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-size-body",
+          "value": "11px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-size-heading",
+          "value": "16px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-size-name",
+          "value": "36px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-size-small",
+          "value": "10px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-size-subheading",
+          "value": "14px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-space-item",
+          "value": "12px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-space-margin",
+          "value": "48px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-space-section",
+          "value": "18px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-space-tight",
+          "value": "8px",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-weight-bold",
+          "value": "700",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-weight-medium",
+          "value": "500",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-weight-normal",
+          "value": "400",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "cross-file-root-variable",
+        "value": {
+          "name": "--resume-weight-semibold",
+          "value": "600",
+          "sources": [
+            "src/index.jsx#literal-2661.css"
+          ]
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+        "equivalent": false
+      },
+      {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 31
+        },
+        "source": {
+          "file": "src/Resume.jsx"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
         "target": "resolved-css-value",
         "value": "660px",
         "source": {
@@ -342,7 +2856,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif",
+        "value": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -374,7 +2888,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "11pt",
+        "value": "11px",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -406,7 +2920,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#000",
+        "value": "#1a1a1a",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -438,7 +2952,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "2rem",
+        "value": "18px",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Header",
@@ -470,7 +2984,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "28pt",
+        "value": "36px",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Name",
@@ -502,7 +3016,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#000",
+        "value": "#1a1a1a",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Name",
@@ -534,7 +3048,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "16pt",
+        "value": "16px",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Label",
@@ -566,7 +3080,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#333",
+        "value": "#4a4a4a",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Label",
@@ -598,7 +3112,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "11pt",
+        "value": "11px",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Contact",
@@ -630,7 +3144,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#0066cc",
+        "value": "#2563eb",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Contact",
@@ -664,7 +3178,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#333",
+        "value": "#4a4a4a",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Summary",
@@ -695,8 +3209,20 @@
         "equivalent": false
       },
       {
+        "target": "available-static-root-variables",
+        "value": {
+          "count": 31
+        },
+        "source": {
+          "file": "src/index.jsx"
+        },
+        "classification": "adapted",
+        "reason": "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载",
+        "equivalent": false
+      },
+      {
         "target": "resolved-css-value",
-        "value": "11pt",
+        "value": "11px",
         "source": {
           "file": "src/Resume.jsx#literal-1244.css",
           "component": null,
@@ -728,7 +3254,7 @@
       },
       {
         "target": "resolved-css-value",
-        "value": "#0066cc",
+        "value": "#2563eb",
         "source": {
           "file": "src/Resume.jsx#literal-1244.css",
           "component": null,
@@ -2618,6 +5144,7 @@
         "value": {
           "roles": [
             "body",
+            "entrySource",
             "header",
             "item",
             "label",
@@ -2626,18 +5153,30 @@
             "section",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 8.25,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
         "target": "/typography/body/sizePt",
-        "value": 11.0,
+        "value": 8.25,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -2664,7 +5203,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2733,7 +5272,7 @@
       },
       {
         "target": "/typography/body/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -2765,7 +5304,7 @@
       },
       {
         "target": "/typography/name/sizePt",
-        "value": 28.0,
+        "value": 27.0,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Name",
@@ -2792,7 +5331,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -2893,7 +5432,7 @@
       },
       {
         "target": "/typography/name/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Name",
@@ -2925,7 +5464,7 @@
       },
       {
         "target": "/typography/label/sizePt",
-        "value": 16.0,
+        "value": 12.0,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Label",
@@ -2952,7 +5491,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -3021,7 +5560,7 @@
       },
       {
         "target": "/typography/label/color",
-        "value": "#333333",
+        "value": "#4A4A4A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Label",
@@ -3053,7 +5592,7 @@
       },
       {
         "target": "/typography/summary/sizePt",
-        "value": 11.0,
+        "value": 8.25,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3149,7 +5688,7 @@
       },
       {
         "target": "/typography/summary/color",
-        "value": "#333333",
+        "value": "#4A4A4A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Summary",
@@ -3245,7 +5784,7 @@
       },
       {
         "target": "/typography/sectionTitle/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3341,7 +5880,7 @@
       },
       {
         "target": "/typography/itemTitle/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3373,7 +5912,7 @@
       },
       {
         "target": "/typography/meta/sizePt",
-        "value": 11.0,
+        "value": 8.25,
         "source": {
           "file": "src/Resume.jsx",
           "component": "Contact",
@@ -3400,7 +5939,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -3469,7 +6008,7 @@
       },
       {
         "target": "/typography/meta/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3565,7 +6104,7 @@
       },
       {
         "target": "/typography/sideDate/color",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3597,7 +6136,7 @@
       },
       {
         "target": "/colors/ink",
-        "value": "#000000",
+        "value": "#1A1A1A",
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3764,7 +6303,7 @@
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/bottom",
+        "target": "/page/marginsMm/top",
         "value": 10.583333333333334,
         "source": {
           "file": "src/Resume.jsx",
@@ -3792,12 +6331,47 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/left",
-        "value": 5.291666666666667,
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 10.583333333333334,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "40px 20px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 40px 20px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 566,
+                    "endByte": 585,
+                    "line": 27,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 10.583333333333334
+        },
         "source": {
           "file": "src/Resume.jsx",
           "component": "Layout",
@@ -3824,7 +6398,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -3856,11 +6430,78 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/top",
+        "target": "page-box-composition",
+        "value": {
+          "side": "right",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 5.291666666666667,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "40px 20px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 40px 20px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 566,
+                    "endByte": 585,
+                    "line": 27,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 5.291666666666667
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "40px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 40px 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 566,
+              "endByte": 585,
+              "line": 27,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/bottom",
         "value": 10.583333333333334,
         "source": {
           "file": "src/Resume.jsx",
@@ -3888,7 +6529,173 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 10.583333333333334,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "40px 20px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 40px 20px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 566,
+                    "endByte": 585,
+                    "line": 27,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 10.583333333333334
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "40px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 40px 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 566,
+              "endByte": 585,
+              "line": 27,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/left",
+        "value": 5.291666666666667,
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "40px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 40px 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 566,
+              "endByte": 585,
+              "line": 27,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "left",
+          "inputs": [
+            {
+              "box": "src/Resume.jsx:Layout",
+              "kind": 3,
+              "valueMm": 5.291666666666667,
+              "source": {
+                "file": "src/Resume.jsx",
+                "component": "Layout",
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "40px 20px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 40px 20px;",
+                    "truncated": false
+                  },
+                  "scope": [],
+                  "span": {
+                    "file": "src/Resume.jsx",
+                    "startByte": 566,
+                    "endByte": 585,
+                    "line": 27,
+                    "column": 3,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 5.291666666666667
+        },
+        "source": {
+          "file": "src/Resume.jsx",
+          "component": "Layout",
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "40px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 40px 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 566,
+              "endByte": 585,
+              "line": 27,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -4978,6 +7785,14 @@
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
         "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
+        "equivalent": false
       }
     ],
     "differences": [
@@ -5069,35 +7884,6 @@
               "endByte": 1496,
               "line": 70,
               "column": 7,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/Resume.jsx",
-          "component": "SkillGroup",
-          "declaration": {
-            "property": "margin-bottom",
-            "value": {
-              "text": "12px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-bottom: 12px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/Resume.jsx",
-              "startByte": 1660,
-              "endByte": 1680,
-              "line": 82,
-              "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -7032,7 +9818,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7061,7 +9847,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7090,7 +9876,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7119,7 +9905,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7148,7 +9934,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7177,7 +9963,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7206,7 +9992,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "FONT_FAMILY_FALLBACK",
@@ -7235,7 +10021,7 @@
             }
           }
         },
-        "message": "原 font-family: 'Helvetica Neue',\n    Helvetica,\n    Arial,\n    sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
+        "message": "原 font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif；显式采用 cjk-sans，未声称字形、字宽或字体资产等价"
       },
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
@@ -7878,6 +10664,35 @@
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
+          "file": "src/Resume.jsx",
+          "component": "SkillGroup",
+          "declaration": {
+            "property": "margin-bottom",
+            "value": {
+              "text": "12px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-bottom: 12px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/Resume.jsx",
+              "startByte": 1660,
+              "endByte": 1680,
+              "line": 82,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
           "file": "src/index.jsx#literal-2116.css",
           "component": null,
           "declaration": {
@@ -8367,17 +11182,17 @@
           "role": "name",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 28.0,
+            "sizePt": 27.0,
             "weight": 700,
             "lineHeight": 1.6,
-            "color": "#000000"
+            "color": "#1A1A1A"
           },
           "chosen": {
             "family": "cjk-serif",
-            "sizePt": 28.0,
+            "sizePt": 27.0,
             "weight": 600,
             "lineHeight": 1.6,
-            "color": "#000000",
+            "color": "#1A1A1A",
             "fontStyle": "normal"
           }
         },
@@ -8392,26 +11207,18 @@
             "sizePt": 13.0,
             "weight": 600,
             "lineHeight": 1.6,
-            "color": "#000000"
+            "color": "#1A1A1A"
           },
           "chosen": {
             "family": "cjk-serif",
             "sizePt": 13.0,
             "weight": 600,
             "lineHeight": 1.6,
-            "color": "#000000",
+            "color": "#1A1A1A",
             "fontStyle": "normal"
           }
         },
         "message": "未加载原字面前仅使用内置真实字面：无衬线 400 或衬线 600，不合成斜体；原请求另存 fontRequests，可由显式字体资料库恢复"
-      },
-      {
-        "code": "BASELINE_TOP_CLEARANCE_ADAPTED",
-        "source": {
-          "requestedMm": 10.583333333333334,
-          "chosenMm": 14.37
-        },
-        "message": "CSS 盒顶内距与共享渲染器首行基线不同；保留字体上缘并增加 3mm 纸面留白"
       }
     ],
     "limitations": [
@@ -8778,7 +11585,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
@@ -9468,6 +12275,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 290044,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/reference.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -9478,11 +12297,11 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
-        "pages": 3,
-        "textLines": 64,
+        "pages": 2,
+        "textLines": 62,
         "sections": [
           "awards",
           "basics",
@@ -9501,15 +12320,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14922705,
-        "docxBytes": 18050340
+        "pdfBytes": 14922126,
+        "docxBytes": 18050332
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
-        "pages": 3,
-        "textLines": 63,
+        "pages": 2,
+        "textLines": 61,
         "sections": [
           "awards",
           "basics",
@@ -9528,11 +12347,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923807,
-        "docxBytes": 18049882
+        "pdfBytes": 14923125,
+        "docxBytes": 18049876
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -9546,15 +12365,15 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918692,
-        "docxBytes": 18047887
+        "pdfBytes": 14918702,
+        "docxBytes": 18047886
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
-        "pages": 5,
-        "textLines": 160,
+        "pages": 3,
+        "textLines": 117,
         "sections": [
           "awards",
           "basics",
@@ -9573,12 +12392,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14926456,
-        "docxBytes": 18050389
+        "pdfBytes": 14924892,
+        "docxBytes": 18050387
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "5d8621021471c303f63f4651695bc47ca1a43b1ac112c7541bdf30af4790099a"
+  "candidateSha256": "437f8b3edf9ad6378f0a8732bd3aa7070c0ea37f99b8b8cf7290b93d830bbc11"
 }

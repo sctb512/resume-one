@@ -6,35 +6,58 @@ No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
 
-Font font-0 (becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048):
-Source family: Inter; real weight/slant: 400/normal
-Source repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3
-Original static input: Inter-Regular.ttf
-Original and static-input SHA-256: 40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82
-Named family: Resume One IS W400
-Final named output SHA-256: becf1b907cf6f9359707de5c753356d48d0644d1e47c6f868169821065186048
-Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
-Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+Font font-0 (56fa09fce3f948c205fbb33910ea9e07cfa0ca8afe656edcc28ec34e8cb58785):
+Source family: Outfit; actual static weight/slant: 400/normal
+Original source URL: https://raw.githubusercontent.com/Outfitio/Outfit-Fonts/902773808eb372f70fb34e8946dd1ffe604efc79/fonts/ttf/Outfit-Regular.ttf
+Pinned commit: 902773808eb372f70fb34e8946dd1ffe604efc79
+Original version: Version 1.100; ttfautohint (v1.8.4.7-5d5b);gftools[0.9.27]
+Copyright preserved: Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Original and static-input SHA-256: 3b64ac4f6ab6a8eebddd4b0bc03c811c43602e11e176382ab0ee6be615ab861b
+Named family: Resume One OF W400
+Final named output SHA-256: 56fa09fce3f948c205fbb33910ea9e07cfa0ca8afe656edcc28ec34e8cb58785
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
 
 
-Font font-1 (b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06):
-Source family: Inter; real weight/slant: 500/normal
-Source repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3
-Original static input: Inter-Medium.ttf
-Original and static-input SHA-256: 97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872
-Named family: Resume One IS W500
-Final named output SHA-256: b3ac812fdd1f4dfad25a2f680d1cd649eb1ce3cd7b5647f98a70b97aef042e06
-Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
-Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+Font font-2 (baba3fce1266d2088ab7c01d74242ed41e7d944231ccd5d00faa086cf957e359):
+Source family: Outfit; actual static weight/slant: 500/normal
+Original source URL: https://raw.githubusercontent.com/Outfitio/Outfit-Fonts/902773808eb372f70fb34e8946dd1ffe604efc79/fonts/ttf/Outfit-Medium.ttf
+Pinned commit: 902773808eb372f70fb34e8946dd1ffe604efc79
+Original version: Version 1.100; ttfautohint (v1.8.4.7-5d5b);gftools[0.9.27]
+Copyright preserved: Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Original and static-input SHA-256: dc8d9212fc57556a55d01e863071f727cd6264b748e28885d853807aeb186142
+Named family: Resume One OF W500
+Final named output SHA-256: baba3fce1266d2088ab7c01d74242ed41e7d944231ccd5d00faa086cf957e359
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
 
 
-Font font-2 (47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45):
-Source family: Inter; real weight/slant: 600/normal
-Source repository: https://github.com/rsms/inter/tree/e3a3d4c57d5ecc01453a575621882a384c1995a3
-Original static input: Inter-SemiBold.ttf
-Original and static-input SHA-256: 78a843fade9d4612a5567302fb595b56976eb5fcebf4fea5a5912d638bafcde3
-Named family: Resume One IS W600
-Final named output SHA-256: 47bc0f257a630468293f625d2d9dedba36fb923074fc1b5a2c9eafc1e91d9f45
-Name-table-only derivative; head checksum updated; invalidated DSIG removed where present. Outlines, metrics, shaping, weight/slant and embedding permissions preserved byte-for-byte. No synthesized weight/slant or variable-font instancing.
-Original license: OFL-1.1; complete unchanged text copied separately. Conversion audit SHA-256: 4e03ddf946249398e5a03840659ad758c0bb916c3788ea13dbb15b166a3e3b42
+Font font-3 (81cae6e8e3a7c2ae25839d9fe0bbde2f12e67ba5e2cfc9dc9f44bba222ee44c8):
+Source family: Outfit; actual static weight/slant: 600/normal
+Original source URL: https://raw.githubusercontent.com/Outfitio/Outfit-Fonts/902773808eb372f70fb34e8946dd1ffe604efc79/fonts/ttf/Outfit-SemiBold.ttf
+Pinned commit: 902773808eb372f70fb34e8946dd1ffe604efc79
+Original version: Version 1.100; ttfautohint (v1.8.4.7-5d5b);gftools[0.9.27]
+Copyright preserved: Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Original and static-input SHA-256: bf2e1d2a6ec2a67952e8b36edd2b2bb9f340c0cdd10b0ad5145b4dbbc1339608
+Named family: Resume One OF W600
+Final named output SHA-256: 81cae6e8e3a7c2ae25839d9fe0bbde2f12e67ba5e2cfc9dc9f44bba222ee44c8
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+
+
+Font font-1 (03c1fa13576fb4499ba2403b2da7f5df5d36e2ddd9efb3e65107161e5f8bcc08):
+Source family: Outfit; actual static weight/slant: 700/normal
+Original source URL: https://raw.githubusercontent.com/Outfitio/Outfit-Fonts/902773808eb372f70fb34e8946dd1ffe604efc79/fonts/ttf/Outfit-Bold.ttf
+Pinned commit: 902773808eb372f70fb34e8946dd1ffe604efc79
+Original version: Version 1.100; ttfautohint (v1.8.4.7-5d5b);gftools[0.9.27]
+Copyright preserved: Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Original and static-input SHA-256: f620b69582e06d7e1b3bbde74ed8c5876eadabb038390780db2a3414a1490197
+Named family: Resume One OF W700
+Final named output SHA-256: 03c1fa13576fb4499ba2403b2da7f5df5d36e2ddd9efb3e65107161e5f8bcc08
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: c676351bf8576b9aba743cd5eaa8c0e7ee0d51f805d720447b4df4ddb6a2e416.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
 

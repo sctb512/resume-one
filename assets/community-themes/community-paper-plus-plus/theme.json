@@ -32,7 +32,7 @@
   "typography": {
     "body": {
       "family": "asset:font-0",
-      "sizePt": 8.399999999999999,
+      "sizePt": 9.1,
       "weight": 400,
       "lineHeight": 1.4,
       "color": "#424242",
@@ -40,14 +40,14 @@
     },
     "name": {
       "family": "asset:font-1",
-      "sizePt": 8.819999999999999,
+      "sizePt": 13.65,
       "weight": 600,
       "lineHeight": 1.4,
       "fontStyle": "normal"
     },
     "label": {
       "family": "cjk-serif",
-      "sizePt": 10.0,
+      "sizePt": 9.1,
       "weight": 600,
       "lineHeight": 1.4,
       "color": "#424242",
@@ -62,7 +62,7 @@
     },
     "sectionTitle": {
       "family": "asset:font-2",
-      "sizePt": 8.399999999999999,
+      "sizePt": 13.0,
       "weight": 300,
       "lineHeight": 1.4,
       "fontStyle": "normal"
@@ -91,11 +91,12 @@
   },
   "page": {
     "marginsMm": {
-      "top": 8.32,
+      "top": 29.809722222222224,
       "right": 16,
       "bottom": 16,
       "left": 16
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

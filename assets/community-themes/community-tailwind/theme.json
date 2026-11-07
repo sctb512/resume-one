@@ -90,7 +90,8 @@
       "right": 16,
       "bottom": 16,
       "left": 16
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column"

@@ -31,9 +31,9 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 12.0,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.7,
       "color": "#1F2937",
       "fontStyle": "normal"
@@ -48,25 +48,25 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 18.0,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.4,
       "trackingEm": 0.020833333333333332,
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 13.5,
-      "weight": 400,
+      "weight": 300,
       "lineHeight": 1.8,
       "color": "#374151",
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 10.5,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
       "trackingEm": 0.14285714285714285,
       "textTransform": "uppercase",
@@ -74,9 +74,9 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 15.0,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
       "trackingEm": -0.025,
       "textTransform": "uppercase",
@@ -84,30 +84,33 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-sans",
+      "family": "asset:font-2",
       "sizePt": 12.0,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#4B5563"
+      "color": "#4B5563",
+      "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-2",
       "sizePt": 10.5,
       "weight": 400,
       "lineHeight": 1.4,
       "trackingEm": 0.07142857142857142,
       "textTransform": "uppercase",
-      "color": "#6B7280"
+      "color": "#6B7280",
+      "fontStyle": "normal"
     }
   },
   "page": {
     "marginsMm": {
-      "top": 20.06,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 12.7,
+      "right": 12.7,
+      "bottom": 12.7,
+      "left": 12.7
     },
-    "sectionGapMm": 15.875
+    "sectionGapMm": 15.875,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -177,5 +180,27 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-bold-header-statement",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "0b7eb9500b81cc8074653a70460ac0e236a20a3768d2daa3dd545f94bf695875",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "03c1fa13576fb4499ba2403b2da7f5df5d36e2ddd9efb3e65107161e5f8bcc08",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "56fa09fce3f948c205fbb33910ea9e07cfa0ca8afe656edcc28ec34e8cb58785",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

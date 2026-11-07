@@ -7,3 +7,17 @@ No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
 Upstream author declaration: godraadam
 Original project declaration: https://github.com/godraadam/jsonresume-theme-minyma.git
+
+Font font-0 (884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da):
+Source family: Roboto; actual static weight/slant: 400/normal
+Original source URL: https://raw.githubusercontent.com/googlefonts/roboto-2/38062f4b4a0be4346d07a928408da21602545e9e/src/hinted/Roboto-Regular.ttf
+Pinned commit: 38062f4b4a0be4346d07a928408da21602545e9e
+Original version: Version 2.001047; 2015
+Copyright preserved: Copyright 2015 Google Inc. All Rights Reserved.
+Original and static-input SHA-256: 56a45233d29f11b4dfb86d248e921939d115778f87325e7ae8cc108383d6664d
+Named family: Resume One RB W400
+Final named output SHA-256: 884d671a93c80edc7eac9a9dc44656203bd72eb7cca8d38e5301ee9a000c11da
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: Apache-2.0; complete unchanged text retained separately, SHA-256: c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+

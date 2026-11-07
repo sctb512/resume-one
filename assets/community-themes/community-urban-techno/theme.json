@@ -32,11 +32,12 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#111111"
+      "color": "#111111",
+      "fontStyle": "normal"
     },
     "name": {
       "family": "cjk-serif",
@@ -49,20 +50,21 @@
       "fontStyle": "normal"
     },
     "label": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 8.25,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
       "trackingEm": 0.09090909090909091,
       "textTransform": "uppercase",
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.4,
-      "color": "#111111"
+      "color": "#111111",
+      "fontStyle": "normal"
     },
     "sectionTitle": {
       "family": "cjk-serif",
@@ -84,9 +86,9 @@
       "fontStyle": "normal"
     },
     "meta": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 8.25,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.4,
       "trackingEm": 0.045454545454545456,
       "textTransform": "uppercase",
@@ -110,7 +112,8 @@
       "right": 16.0,
       "bottom": 16.0,
       "left": 16.0
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "sidebar-left",
@@ -191,5 +194,21 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-urban-techno",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "e0ee12d515ca262e5595d7a691f36db073d1ddf23619ee75053e455f32a48f46",
+        "license": "Apache-2.0"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "588aa669182adf8b3cd8913a81bb190c520ff5bd794cd7f877ce4878176fa2e4",
+        "license": "Apache-2.0"
+      }
+    ]
   }
 }

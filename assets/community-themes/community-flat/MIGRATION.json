@@ -273,7 +273,7 @@
         "sidebar",
         "summary"
       ],
-      "evidenceRecords": 34
+      "evidenceRecords": 40
     },
     "fontRequests": [
       {
@@ -357,6 +357,20 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -463,13 +477,25 @@
             "sidebar",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 12.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -605,7 +631,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -741,7 +767,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1017,105 +1043,37 @@
         "equivalent": false
       },
       {
-        "target": "/page/marginsMm/bottom",
-        "value": 16.0,
-        "source": {
-          "file": "style.js#literal-15.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0 30px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0 30px;",
-              "truncated": false
-            },
-            "scope": [
-              ".container"
-            ],
-            "span": {
-              "file": "style.js#literal-15.css",
-              "startByte": 776,
-              "endByte": 792,
-              "line": 61,
-              "column": 2,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/left",
+        "target": "/page/sectionGapMm",
         "value": 7.9375,
         "source": {
           "file": "style.js#literal-15.css",
           "component": null,
           "declaration": {
-            "property": "padding",
+            "property": "margin-top",
             "value": {
-              "text": "0 30px",
+              "text": "30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "padding: 0 30px;",
+              "text": "margin-top: 30px;",
               "truncated": false
             },
             "scope": [
-              ".container"
+              "section"
             ],
             "span": {
               "file": "style.js#literal-15.css",
-              "startByte": 776,
-              "endByte": 792,
-              "line": 61,
+              "startByte": 345,
+              "endByte": 362,
+              "line": 31,
               "column": 2,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-        "equivalent": false
-      },
-      {
-        "target": "/page/marginsMm/right",
-        "value": 7.9375,
-        "source": {
-          "file": "style.js#literal-15.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0 30px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0 30px;",
-              "truncated": false
-            },
-            "scope": [
-              ".container"
-            ],
-            "span": {
-              "file": "style.js#literal-15.css",
-              "startByte": 776,
-              "endByte": 792,
-              "line": 61,
-              "column": 2,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
         "equivalent": false
       },
       {
@@ -1149,41 +1107,393 @@
           }
         },
         "classification": "adapted",
-        "reason": "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
         "equivalent": false
       },
       {
-        "target": "/page/sectionGapMm",
-        "value": 7.9375,
+        "target": "page-box-composition",
+        "value": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 16.0
+        },
         "source": {
           "file": "style.js#literal-15.css",
           "component": null,
           "declaration": {
-            "property": "margin-top",
+            "property": "padding",
             "value": {
-              "text": "30px",
+              "text": "0 30px",
               "truncated": false
             },
             "important": false,
             "raw": {
-              "text": "margin-top: 30px;",
+              "text": "padding: 0 30px;",
               "truncated": false
             },
             "scope": [
-              "section"
+              ".container"
             ],
             "span": {
               "file": "style.js#literal-15.css",
-              "startByte": 345,
-              "endByte": 362,
-              "line": 31,
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
               "column": 2,
               "columnUnit": "utf8-bytes"
             }
           }
         },
         "classification": "adapted",
-        "reason": "模块纵向外边距近似统一模块间距；横排方向，未模拟 margin collapse、writing-mode 或上下边距求和",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/right",
+        "value": 7.9375,
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "right",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 7.9375,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 7.9375
+        },
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/bottom",
+        "value": 16.0,
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 16.0
+        },
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        "equivalent": false
+      },
+      {
+        "target": "/page/marginsMm/left",
+        "value": 7.9375,
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        "equivalent": false
+      },
+      {
+        "target": "page-box-composition",
+        "value": {
+          "side": "left",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 7.9375,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "effectiveMm": 7.9375
+        },
+        "source": {
+          "file": "style.js#literal-15.css",
+          "component": null,
+          "declaration": {
+            "property": "padding",
+            "value": {
+              "text": "0 30px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding: 0 30px;",
+              "truncated": false
+            },
+            "scope": [
+              ".container"
+            ],
+            "span": {
+              "file": "style.js#literal-15.css",
+              "startByte": 776,
+              "endByte": 792,
+              "line": 61,
+              "column": 2,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "classification": "adapted",
+        "reason": "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
         "equivalent": false
       },
       {
@@ -1548,6 +1858,14 @@
         },
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
+        "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
         "equivalent": false
       }
     ],
@@ -4619,68 +4937,6 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.js#literal-15.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0 30px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0 30px;",
-              "truncated": false
-            },
-            "scope": [
-              ".container"
-            ],
-            "span": {
-              "file": "style.js#literal-15.css",
-              "startByte": 776,
-              "endByte": 792,
-              "line": 61,
-              "column": 2,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
-        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
-        "source": {
-          "file": "style.js#literal-15.css",
-          "component": null,
-          "declaration": {
-            "property": "padding",
-            "value": {
-              "text": "0 30px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding: 0 30px;",
-              "truncated": false
-            },
-            "scope": [
-              ".container"
-            ],
-            "span": {
-              "file": "style.js#literal-15.css",
-              "startByte": 776,
-              "endByte": 792,
-              "line": 61,
-              "column": 2,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp"
-      },
-      {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
           "file": "style.js#literal-15.css",
@@ -5113,6 +5369,90 @@
           }
         },
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "side": "top",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "sumMm": 0.0
+        },
+        "message": "纸面边距与容器内距分别解析并相加；结果须为 3..35mm，负值、百分比或超范围采用 16mm，不猜测容器宽度"
+      },
+      {
+        "code": "NUMERIC_VALUE_UNREPRESENTABLE",
+        "source": {
+          "side": "bottom",
+          "inputs": [
+            {
+              "box": ".container",
+              "kind": 3,
+              "valueMm": 0.0,
+              "source": {
+                "file": "style.js#literal-15.css",
+                "component": null,
+                "declaration": {
+                  "property": "padding",
+                  "value": {
+                    "text": "0 30px",
+                    "truncated": false
+                  },
+                  "important": false,
+                  "raw": {
+                    "text": "padding: 0 30px;",
+                    "truncated": false
+                  },
+                  "scope": [
+                    ".container"
+                  ],
+                  "span": {
+                    "file": "style.js#literal-15.css",
+                    "startByte": 776,
+                    "endByte": 792,
+                    "line": 61,
+                    "column": 2,
+                    "columnUnit": "utf8-bytes"
+                  }
+                }
+              }
+            }
+          ],
+          "sumMm": 0.0
+        },
+        "message": "纸面边距与容器内距分别解析并相加；结果须为 3..35mm，负值、百分比或超范围采用 16mm，不猜测容器宽度"
       },
       {
         "code": "COLOR_READABILITY_FALLBACK",
@@ -5608,7 +5948,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [
       {
         "assetId": "font-0",
@@ -5865,6 +6205,18 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 0,
+    "issues": [],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/flat.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -5875,7 +6227,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -5898,11 +6250,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 7345970,
+        "pdfBytes": 7345989,
         "docxBytes": 19382273
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 2,
@@ -5925,11 +6277,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6996538,
+        "pdfBytes": 6996552,
         "docxBytes": 19382022
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -5943,11 +6295,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 6995173,
+        "pdfBytes": 6995174,
         "docxBytes": 19379691
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 5,
@@ -5970,12 +6322,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 7000008,
+        "pdfBytes": 6999996,
         "docxBytes": 19384049
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "58a426d1fa67fbc136c8f4fb69681cd8e51ebcd66c3940df0fe1ed554b0571a0"
+  "candidateSha256": "baa91354e0e932da6fda5354b162147f649f1c376373ac87a1c6e0e802273654"
 }

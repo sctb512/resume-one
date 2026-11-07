@@ -5,3 +5,31 @@ License declaration: MIT
 No upstream endorsement. License declaration is not legal clearance.
 No source code executed; resume JSON not modified.
 Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
+
+Font font-0 (cdbdffe6d5f62388ce966b4a70c3ee1b9bc15c4976441e9bf0747a0431b99941):
+Source family: Work Sans; actual static weight/slant: 400/normal
+Original source URL: https://raw.githubusercontent.com/weiweihuanghuang/Work-Sans/b35c81086186162164947bd39574683073d9b268/fonts/ttf/WorkSans-Regular.ttf
+Pinned commit: b35c81086186162164947bd39574683073d9b268
+Original version: Version 2.012; ttfautohint (v1.8.3)
+Copyright preserved: Copyright 2019 The Work Sans Project Authors (https://github.com/weiweihuanghuang/Work-Sans)
+Original and static-input SHA-256: c4df840f74d05fddda0e716c9991f6d176bb278e43c39c8817760bbcbfdad3c5
+Named family: Resume One WS W400
+Final named output SHA-256: cdbdffe6d5f62388ce966b4a70c3ee1b9bc15c4976441e9bf0747a0431b99941
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: 749aca05078664ce682dce1b1b10096ac397cb088c1a6df4e1bb56f0092a9272.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+
+
+Font font-1 (6beea9a6b9ca1b271530a8d8b90590e15963fc104be04dbaaca02bfdd3cfd6f4):
+Source family: Work Sans; actual static weight/slant: 600/normal
+Original source URL: https://raw.githubusercontent.com/weiweihuanghuang/Work-Sans/b35c81086186162164947bd39574683073d9b268/fonts/ttf/WorkSans-SemiBold.ttf
+Pinned commit: b35c81086186162164947bd39574683073d9b268
+Original version: Version 2.012; ttfautohint (v1.8.3)
+Copyright preserved: Copyright 2019 The Work Sans Project Authors (https://github.com/weiweihuanghuang/Work-Sans)
+Original and static-input SHA-256: 083b456dcbd3f8b1227ee1db508c8a247a85a0f7d1ffe3396589b7ab4641359e
+Named family: Resume One WS W600
+Final named output SHA-256: 6beea9a6b9ca1b271530a8d8b90590e15963fc104be04dbaaca02bfdd3cfd6f4
+Modified by Resume One: name-table metadata only; head checksum updated; invalidated DSIG removed where present. All other tables, outlines, metrics, shaping, original copyright/license/version names, weight/slant, and embedding permissions remain byte-for-byte unchanged. No synthesis or variable-font instancing.
+Original license: OFL-1.1; complete unchanged text retained separately, SHA-256: 749aca05078664ce682dce1b1b10096ac397cb088c1a6df4e1bb56f0092a9272.
+Source font version is recorded; identity with the theme's remotely served font version and 100% visual equivalence have not been certified.
+

@@ -109,13 +109,14 @@
   },
   "page": {
     "marginsMm": {
-      "top": 15.19,
+      "top": 9.524999999999999,
       "right": 16.0,
       "bottom": 7.9375,
       "left": 16.0
     },
     "avoidSplitItems": true,
-    "size": "A4"
+    "size": "A4",
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

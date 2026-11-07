@@ -96,7 +96,8 @@
       "bottom": 16.0,
       "left": 16.0
     },
-    "sectionGapMm": 10.583333333333334
+    "sectionGapMm": 10.583333333333334,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",

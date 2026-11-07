@@ -100,11 +100,12 @@
   },
   "page": {
     "marginsMm": {
-      "top": 14.37,
-      "right": 7.9375,
-      "bottom": 7.9375,
-      "left": 7.9375
-    }
+      "top": 26.987499999999997,
+      "right": 26.987499999999997,
+      "bottom": 26.987499999999997,
+      "left": 26.987499999999997
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column",
@@ -127,15 +128,197 @@
     "awards": {
       "heading": "line",
       "items": "stack",
-      "title": "Awards & Honors"
+      "title": "Awards & Honors",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "title"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "awarder"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "italic",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#1F2937"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          },
+          "spaceAfterPt": 6.0
+        }
+      ],
+      "date": "inline"
     },
     "certificates": {
       "heading": "line",
-      "title": "Certificates"
+      "title": "Certificates",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "issuer"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "italic",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#1F2937"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "date"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          },
+          "spaceAfterPt": 6.0
+        }
+      ],
+      "date": "inline"
     },
     "education": {
       "heading": "line",
-      "title": "Education"
+      "title": "Education",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "institution"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "studyType"
+            },
+            {
+              "field": "area",
+              "prefix": " in "
+            },
+            {
+              "field": "score",
+              "prefix": " • "
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#1F2937"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          }
+        }
+      ],
+      "date": "inline"
     },
     "interests": {
       "heading": "line",
@@ -147,7 +330,29 @@
     },
     "projects": {
       "heading": "line",
-      "title": "Research Projects"
+      "title": "Research Projects",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        }
+      ],
+      "date": "inline"
     },
     "publications": {
       "heading": "line",
@@ -163,11 +368,129 @@
     },
     "volunteer": {
       "heading": "line",
-      "title": "Service & Leadership"
+      "title": "Service & Leadership",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "organization"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "italic",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#1F2937"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          },
+          "spaceAfterPt": 6.0
+        }
+      ],
+      "date": "inline"
     },
     "work": {
       "heading": "line",
-      "title": "Professional Experience"
+      "title": "Professional Experience",
+      "entryHeader": [
+        {
+          "role": "itemTitle",
+          "parts": [
+            {
+              "field": "position"
+            }
+          ],
+          "style": {
+            "family": "asset:font-1",
+            "sizePt": 13.0,
+            "weight": 700,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#111827"
+          },
+          "spaceBeforePt": 0.0,
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "body",
+          "parts": [
+            {
+              "field": "name"
+            }
+          ],
+          "style": {
+            "family": "asset:font-2",
+            "sizePt": 12.0,
+            "weight": 400,
+            "fontStyle": "italic",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#1F2937"
+          },
+          "spaceAfterPt": 3.0
+        },
+        {
+          "role": "meta",
+          "parts": [
+            {
+              "field": "dateRange",
+              "dateFormat": "short-en"
+            }
+          ],
+          "style": {
+            "family": "asset:font-0",
+            "sizePt": 11.0,
+            "weight": 400,
+            "fontStyle": "normal",
+            "lineHeight": 1.6,
+            "textTransform": "none",
+            "color": "#6B7280"
+          },
+          "spaceAfterPt": 6.0
+        }
+      ],
+      "date": "inline"
     }
   },
   "provenance": {

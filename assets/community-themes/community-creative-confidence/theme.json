@@ -91,15 +91,16 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.0,
-      "right": 16.0,
-      "bottom": 6.603999999999999,
-      "left": 16.0
+      "top": 8.889999999999999,
+      "right": 8.127999999999998,
+      "bottom": 12.191999999999998,
+      "left": 8.127999999999998
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true,
     "sectionGapMm": 4.0,
-    "size": "Letter"
+    "size": "Letter",
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "sidebar-right",

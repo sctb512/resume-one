@@ -31,14 +31,15 @@
   ],
   "typography": {
     "body": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 11.25,
       "weight": 400,
       "lineHeight": 1.5,
-      "color": "#0A0A0A"
+      "color": "#0A0A0A",
+      "fontStyle": "normal"
     },
     "name": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 26.0,
       "weight": 600,
       "lineHeight": 1.4,
@@ -57,15 +58,15 @@
       "fontStyle": "normal"
     },
     "summary": {
-      "family": "cjk-serif",
+      "family": "asset:font-3",
       "sizePt": 13.5,
-      "weight": 600,
+      "weight": 500,
       "lineHeight": 1.45,
       "color": "#0A0A0A",
       "fontStyle": "normal"
     },
     "sectionTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-1",
       "sizePt": 13.0,
       "weight": 600,
       "lineHeight": 1.5,
@@ -73,9 +74,9 @@
       "fontStyle": "normal"
     },
     "itemTitle": {
-      "family": "cjk-serif",
+      "family": "asset:font-2",
       "sizePt": 15.75,
-      "weight": 600,
+      "weight": 700,
       "lineHeight": 1.5,
       "trackingEm": -0.014285714285714284,
       "textTransform": "uppercase",
@@ -93,11 +94,12 @@
       "fontStyle": "normal"
     },
     "sideDate": {
-      "family": "cjk-sans",
+      "family": "asset:font-0",
       "sizePt": 8.5,
       "weight": 400,
       "lineHeight": 1.5,
-      "color": "#0A0A0A"
+      "color": "#0A0A0A",
+      "fontStyle": "normal"
     }
   },
   "page": {
@@ -106,7 +108,8 @@
       "right": 16.0,
       "bottom": 16.0,
       "left": 16.0
-    }
+    },
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column"
@@ -152,5 +155,33 @@
     "upstreamLicense": "MIT",
     "upstreamUrl": "https://github.com/jsonresume/jsonresume.org/tree/542cd5315fc9995fca3c401d0c818767530bb6bd/packages/themes/jsonresume-theme-brutalist",
     "upstreamRevision": "542cd5315fc9995fca3c401d0c818767530bb6bd"
+  },
+  "assets": {
+    "fonts": [
+      {
+        "id": "font-0",
+        "path": "font-0.ttf",
+        "sha256": "a9c908a2489e8d47a1046c61b8549e93b80fa5e87162d7f560e45ca8306a49de",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-1",
+        "path": "font-1.ttf",
+        "sha256": "ed35f359c3e09974046003d49f1d07a295041cd80b2222ec95403fed6a17e630",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-2",
+        "path": "font-2.ttf",
+        "sha256": "98d681f04126dec1efd29b6341607f37a41d8faafcb51d289aa6bbf114ed32c6",
+        "license": "OFL-1.1"
+      },
+      {
+        "id": "font-3",
+        "path": "font-3.ttf",
+        "sha256": "8982bf55c34dbf5df2e8df603fab58e92c33b32dda373f5c02ccedb13648173b",
+        "license": "OFL-1.1"
+      }
+    ]
   }
 }

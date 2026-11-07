@@ -240,6 +240,7 @@
       "declarationsSeen": 133,
       "matchedRoles": [
         "body",
+        "entrySource",
         "label",
         "meta",
         "name",
@@ -247,7 +248,7 @@
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 40
+      "evidenceRecords": 42
     },
     "fontRequests": [
       {
@@ -339,6 +340,1826 @@
         "fontStyle": "normal"
       }
     ],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [
+        {
+          "entryFile": "src/index.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Awards.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 116,
+                "endByte": 151,
+                "line": 5,
+                "column": 3,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (!awards) {\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 119,
+                "endByte": 128,
+                "line": 5,
+                "column": 6,
+                "endLine": 5,
+                "endColumn": 15,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(!awards)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "unary_expression",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 120,
+                "endByte": 127,
+                "line": 5,
+                "column": 7,
+                "endLine": 5,
+                "endColumn": 14,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "!awards",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "statement_block",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 129,
+                "endByte": 151,
+                "line": 5,
+                "column": 16,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "return_statement",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 135,
+                "endByte": 147,
+                "line": 6,
+                "column": 5,
+                "endLine": 6,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "return null;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 326,
+                "endByte": 346,
+                "line": 16,
+                "column": 15,
+                "endLine": 16,
+                "endColumn": 35,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle={a.awarder}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 361,
+                "endByte": 374,
+                "line": 17,
+                "column": 15,
+                "endLine": 17,
+                "endColumn": 28,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "date={a.date}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 389,
+                "endByte": 408,
+                "line": 18,
+                "column": 15,
+                "endLine": 18,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "summary={a.summary}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Certificates.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 128,
+                "endByte": 169,
+                "line": 5,
+                "column": 3,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (!certificates) {\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 131,
+                "endByte": 146,
+                "line": 5,
+                "column": 6,
+                "endLine": 5,
+                "endColumn": 21,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(!certificates)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "unary_expression",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 132,
+                "endByte": 145,
+                "line": 5,
+                "column": 7,
+                "endLine": 5,
+                "endColumn": 20,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "!certificates",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "statement_block",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 147,
+                "endByte": 169,
+                "line": 5,
+                "column": 22,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "return_statement",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 153,
+                "endByte": 165,
+                "line": 6,
+                "column": 5,
+                "endLine": 6,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "return null;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 355,
+                "endByte": 374,
+                "line": 16,
+                "column": 15,
+                "endLine": 16,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle={c.issuer}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Certificates.jsx",
+                "startByte": 389,
+                "endByte": 402,
+                "line": 17,
+                "column": 15,
+                "endLine": 17,
+                "endColumn": 28,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "date={c.date}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Date.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 153,
+                "endByte": 202,
+                "line": 9,
+                "column": 3,
+                "endLine": 11,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (!date) {\n    return <Text>Present</Text>;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 156,
+                "endByte": 163,
+                "line": 9,
+                "column": 6,
+                "endLine": 9,
+                "endColumn": 13,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(!date)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "unary_expression",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 157,
+                "endByte": 162,
+                "line": 9,
+                "column": 7,
+                "endLine": 9,
+                "endColumn": 12,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "!date",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "statement_block",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 164,
+                "endByte": 202,
+                "line": 9,
+                "column": 14,
+                "endLine": 11,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n    return <Text>Present</Text>;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "return_statement",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 170,
+                "endByte": 198,
+                "line": 10,
+                "column": 5,
+                "endLine": 10,
+                "endColumn": 33,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "return <Text>Present</Text>;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "jsx_opening_element",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 177,
+                "endByte": 183,
+                "line": 10,
+                "column": 12,
+                "endLine": 10,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "<Text>",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "jsx_element",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 177,
+                "endByte": 197,
+                "line": 10,
+                "column": 12,
+                "endLine": 10,
+                "endColumn": 32,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "<Text>Present</Text>",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "jsx_closing_element",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 190,
+                "endByte": 197,
+                "line": 10,
+                "column": 25,
+                "endLine": 10,
+                "endColumn": 32,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "</Text>",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "new_expression",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 223,
+                "endByte": 237,
+                "line": 13,
+                "column": 20,
+                "endLine": 13,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "new Date(date)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 231,
+                "endByte": 237,
+                "line": 13,
+                "column": 28,
+                "endLine": 13,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(date)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 258,
+                "endByte": 292,
+                "line": 15,
+                "column": 19,
+                "endLine": 15,
+                "endColumn": 53,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ year: 'numeric', month: 'long' }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 260,
+                "endByte": 275,
+                "line": 15,
+                "column": 21,
+                "endLine": 15,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "year: 'numeric'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 266,
+                "endByte": 275,
+                "line": 15,
+                "column": 27,
+                "endLine": 15,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'numeric'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 277,
+                "endByte": 290,
+                "line": 15,
+                "column": 38,
+                "endLine": 15,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "month: 'long'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 284,
+                "endByte": 290,
+                "line": 15,
+                "column": 45,
+                "endLine": 15,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'long'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 318,
+                "endByte": 345,
+                "line": 16,
+                "column": 25,
+                "endLine": 16,
+                "endColumn": 52,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "fullDate.toLocaleDateString",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 318,
+                "endByte": 363,
+                "line": 16,
+                "column": 25,
+                "endLine": 16,
+                "endColumn": 70,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "fullDate.toLocaleDateString('en-US', options)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 345,
+                "endByte": 363,
+                "line": 16,
+                "column": 52,
+                "endLine": 16,
+                "endColumn": 70,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "('en-US', options)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Date.jsx",
+                "startByte": 346,
+                "endByte": 353,
+                "line": 16,
+                "column": 53,
+                "endLine": 16,
+                "endColumn": 60,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'en-US'",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/DateRange.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/DateRange.jsx",
+                "startByte": 243,
+                "endByte": 259,
+                "line": 13,
+                "column": 13,
+                "endLine": 13,
+                "endColumn": 29,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "date={startDate}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/DateRange.jsx",
+                "startByte": 297,
+                "endByte": 311,
+                "line": 15,
+                "column": 13,
+                "endLine": 15,
+                "endColumn": 27,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "date={endDate}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Education.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 122,
+                "endByte": 160,
+                "line": 5,
+                "column": 3,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (!education) {\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 125,
+                "endByte": 137,
+                "line": 5,
+                "column": 6,
+                "endLine": 5,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(!education)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "unary_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 126,
+                "endByte": 136,
+                "line": 5,
+                "column": 7,
+                "endLine": 5,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "!education",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "statement_block",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 138,
+                "endByte": 160,
+                "line": 5,
+                "column": 19,
+                "endLine": 7,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n    return null;\n  }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "return_statement",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 144,
+                "endByte": 156,
+                "line": 6,
+                "column": 5,
+                "endLine": 6,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "return null;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "MUTABLE_BINDING",
+              "message": "let/var bindings are not safely lowered by this frontend",
+              "astKind": "variable_declarator",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 268,
+                "endByte": 331,
+                "line": 13,
+                "column": 15,
+                "endLine": 13,
+                "endColumn": 78,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle = e.area ? `${e.studyType} in ${e.area}` : e.studyType",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 279,
+                "endByte": 285,
+                "line": 13,
+                "column": 26,
+                "endLine": 13,
+                "endColumn": 32,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.area",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "ternary_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 279,
+                "endByte": 331,
+                "line": 13,
+                "column": 26,
+                "endLine": 13,
+                "endColumn": 78,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.area ? `${e.studyType} in ${e.area}` : e.studyType",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_string",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 288,
+                "endByte": 317,
+                "line": 13,
+                "column": 35,
+                "endLine": 13,
+                "endColumn": 64,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "`${e.studyType} in ${e.area}`",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 289,
+                "endByte": 303,
+                "line": 13,
+                "column": 36,
+                "endLine": 13,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${e.studyType}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 291,
+                "endByte": 302,
+                "line": 13,
+                "column": 38,
+                "endLine": 13,
+                "endColumn": 49,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.studyType",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 307,
+                "endByte": 316,
+                "line": 13,
+                "column": 54,
+                "endLine": 13,
+                "endColumn": 63,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${e.area}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 309,
+                "endByte": 315,
+                "line": 13,
+                "column": 56,
+                "endLine": 13,
+                "endColumn": 62,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.area",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 320,
+                "endByte": 331,
+                "line": 13,
+                "column": 67,
+                "endLine": 13,
+                "endColumn": 78,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.studyType",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 344,
+                "endByte": 421,
+                "line": 15,
+                "column": 11,
+                "endLine": 17,
+                "endColumn": 12,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (e.score) {\n            subTitle = `${subTitle} (${e.score})`;\n          }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 347,
+                "endByte": 356,
+                "line": 15,
+                "column": 14,
+                "endLine": 15,
+                "endColumn": 23,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(e.score)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 348,
+                "endByte": 355,
+                "line": 15,
+                "column": 15,
+                "endLine": 15,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.score",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "statement_block",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 357,
+                "endByte": 421,
+                "line": 15,
+                "column": 24,
+                "endLine": 17,
+                "endColumn": 12,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{\n            subTitle = `${subTitle} (${e.score})`;\n          }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "assignment_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 371,
+                "endByte": 408,
+                "line": 16,
+                "column": 13,
+                "endLine": 16,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle = `${subTitle} (${e.score})`",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "expression_statement",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 371,
+                "endByte": 409,
+                "line": 16,
+                "column": 13,
+                "endLine": 16,
+                "endColumn": 51,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle = `${subTitle} (${e.score})`;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_string",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 382,
+                "endByte": 408,
+                "line": 16,
+                "column": 24,
+                "endLine": 16,
+                "endColumn": 50,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "`${subTitle} (${e.score})`",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 383,
+                "endByte": 394,
+                "line": 16,
+                "column": 25,
+                "endLine": 16,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${subTitle}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "template_substitution",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 396,
+                "endByte": 406,
+                "line": 16,
+                "column": 38,
+                "endLine": 16,
+                "endColumn": 48,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "${e.score}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 398,
+                "endByte": 405,
+                "line": 16,
+                "column": 40,
+                "endLine": 16,
+                "endColumn": 47,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "e.score",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 516,
+                "endByte": 535,
+                "line": 22,
+                "column": 15,
+                "endLine": 22,
+                "endColumn": 34,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle={subTitle}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNINITIALIZED_BINDING",
+              "message": "lexical binding is read before initialization",
+              "astKind": "identifier",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 526,
+                "endByte": 534,
+                "line": 22,
+                "column": 25,
+                "endLine": 22,
+                "endColumn": 33,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "subTitle",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Education.jsx",
+                "startByte": 622,
+                "endByte": 644,
+                "line": 25,
+                "column": 15,
+                "endLine": 25,
+                "endColumn": 37,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "highlights={e.courses}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Experience.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 722,
+                "endByte": 734,
+                "line": 42,
+                "column": 33,
+                "endLine": 42,
+                "endColumn": 45,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marked.parse",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 722,
+                "endByte": 761,
+                "line": 42,
+                "column": 33,
+                "endLine": 42,
+                "endColumn": 72,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "marked.parse(summary, { breaks: true })",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 734,
+                "endByte": 761,
+                "line": 42,
+                "column": 45,
+                "endLine": 42,
+                "endColumn": 72,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(summary, { breaks: true })",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "object",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 744,
+                "endByte": 760,
+                "line": 42,
+                "column": 55,
+                "endLine": 42,
+                "endColumn": 71,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ breaks: true }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 746,
+                "endByte": 758,
+                "line": 42,
+                "column": 57,
+                "endLine": 42,
+                "endColumn": 69,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "breaks: true",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 914,
+                "endByte": 925,
+                "line": 50,
+                "column": 19,
+                "endLine": 50,
+                "endColumn": 30,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "date={date}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 1180,
+                "endByte": 1229,
+                "line": 59,
+                "column": 20,
+                "endLine": 59,
+                "endColumn": 69,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "dangerouslySetInnerHTML={{ __html: htmlSummary }}",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_EXPRESSION",
+              "message": "expression is outside the finite, data-only template whitelist",
+              "astKind": "object",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 1205,
+                "endByte": 1228,
+                "line": 59,
+                "column": 45,
+                "endLine": 59,
+                "endColumn": 68,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ __html: htmlSummary }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "pair",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 1207,
+                "endByte": 1226,
+                "line": 59,
+                "column": 47,
+                "endLine": 59,
+                "endColumn": 66,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "__html: htmlSummary",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSAFE_OR_UNSUPPORTED_ATTRIBUTE",
+              "message": "attribute is not in the finite whitelist; handlers, raw HTML, style, polymorphic as, refs and resource loads are unsupported",
+              "astKind": "jsx_attribute",
+              "span": {
+                "file": "src/ui/Experience.jsx",
+                "startByte": 1258,
+                "endByte": 1276,
+                "line": 61,
+                "column": 15,
+                "endLine": 61,
+                "endColumn": 33,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "items={highlights}",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Hero.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 812,
+                "endByte": 825,
+                "line": 49,
+                "column": 20,
+                "endLine": 49,
+                "endColumn": 33,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 812,
+                "endByte": 888,
+                "line": 49,
+                "column": 20,
+                "endLine": 51,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find(\n    ({ network }) => network.toLowerCase() === 'linkedin'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 825,
+                "endByte": 888,
+                "line": 49,
+                "column": 33,
+                "endLine": 51,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(\n    ({ network }) => network.toLowerCase() === 'linkedin'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "formal_parameters",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 831,
+                "endByte": 844,
+                "line": 50,
+                "column": 5,
+                "endLine": 50,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network })",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arrow_function",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 831,
+                "endByte": 884,
+                "line": 50,
+                "column": 5,
+                "endLine": 50,
+                "endColumn": 58,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network }) => network.toLowerCase() === 'linkedin'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "object_pattern",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 832,
+                "endByte": 843,
+                "line": 50,
+                "column": 6,
+                "endLine": 50,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ network }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 848,
+                "endByte": 867,
+                "line": 50,
+                "column": 22,
+                "endLine": 50,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 848,
+                "endByte": 869,
+                "line": 50,
+                "column": 22,
+                "endLine": 50,
+                "endColumn": 43,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase()",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "binary_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 848,
+                "endByte": 884,
+                "line": 50,
+                "column": 22,
+                "endLine": 50,
+                "endColumn": 58,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase() === 'linkedin'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 874,
+                "endByte": 884,
+                "line": 50,
+                "column": 48,
+                "endLine": 50,
+                "endColumn": 58,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'linkedin'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 907,
+                "endByte": 920,
+                "line": 52,
+                "column": 18,
+                "endLine": 52,
+                "endColumn": 31,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 907,
+                "endByte": 981,
+                "line": 52,
+                "column": 18,
+                "endLine": 54,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find(\n    ({ network }) => network.toLowerCase() === 'github'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 920,
+                "endByte": 981,
+                "line": 52,
+                "column": 31,
+                "endLine": 54,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(\n    ({ network }) => network.toLowerCase() === 'github'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "formal_parameters",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 926,
+                "endByte": 939,
+                "line": 53,
+                "column": 5,
+                "endLine": 53,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network })",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arrow_function",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 926,
+                "endByte": 977,
+                "line": 53,
+                "column": 5,
+                "endLine": 53,
+                "endColumn": 56,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network }) => network.toLowerCase() === 'github'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "object_pattern",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 927,
+                "endByte": 938,
+                "line": 53,
+                "column": 6,
+                "endLine": 53,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ network }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 943,
+                "endByte": 962,
+                "line": 53,
+                "column": 22,
+                "endLine": 53,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 943,
+                "endByte": 964,
+                "line": 53,
+                "column": 22,
+                "endLine": 53,
+                "endColumn": 43,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase()",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "binary_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 943,
+                "endByte": 977,
+                "line": 53,
+                "column": 22,
+                "endLine": 53,
+                "endColumn": 56,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase() === 'github'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 969,
+                "endByte": 977,
+                "line": 53,
+                "column": 48,
+                "endLine": 53,
+                "endColumn": 56,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'github'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1001,
+                "endByte": 1014,
+                "line": 55,
+                "column": 19,
+                "endLine": 55,
+                "endColumn": 32,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_CALL",
+              "message": "only explicit JSON-array map/join descriptors are lowered; no calls are executed",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1001,
+                "endByte": 1076,
+                "line": 55,
+                "column": 19,
+                "endLine": 57,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "profiles.find(\n    ({ network }) => network.toLowerCase() === 'twitter'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arguments",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1014,
+                "endByte": 1076,
+                "line": 55,
+                "column": 32,
+                "endLine": 57,
+                "endColumn": 4,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(\n    ({ network }) => network.toLowerCase() === 'twitter'\n  )",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "formal_parameters",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1020,
+                "endByte": 1033,
+                "line": 56,
+                "column": 5,
+                "endLine": 56,
+                "endColumn": 18,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network })",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "arrow_function",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1020,
+                "endByte": 1072,
+                "line": 56,
+                "column": 5,
+                "endLine": 56,
+                "endColumn": 57,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "({ network }) => network.toLowerCase() === 'twitter'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "object_pattern",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1021,
+                "endByte": 1032,
+                "line": 56,
+                "column": 6,
+                "endLine": 56,
+                "endColumn": 17,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "{ network }",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1037,
+                "endByte": 1056,
+                "line": 56,
+                "column": 22,
+                "endLine": 56,
+                "endColumn": 41,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "call_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1037,
+                "endByte": 1058,
+                "line": 56,
+                "column": 22,
+                "endLine": 56,
+                "endColumn": 43,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase()",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "binary_expression",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1037,
+                "endByte": 1072,
+                "line": 56,
+                "column": 22,
+                "endLine": 56,
+                "endColumn": 57,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "network.toLowerCase() === 'twitter'",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "string",
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 1063,
+                "endByte": 1072,
+                "line": 56,
+                "column": 48,
+                "endLine": 56,
+                "endColumn": 57,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "'twitter'",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        }
+      ],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -436,6 +2257,7 @@
         "value": {
           "roles": [
             "body",
+            "entrySource",
             "label",
             "meta",
             "name",
@@ -443,13 +2265,25 @@
             "sectionTitle",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 8.25,
+          "documentSizePt": 8.25,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -481,7 +2315,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -616,7 +2450,7 @@
       },
       {
         "target": "/typography/name/sizePt",
-        "value": 16.799999999999997,
+        "value": 11.549999999999999,
         "source": {
           "file": "src/ui/References.jsx",
           "component": "Name",
@@ -643,7 +2477,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -746,7 +2580,7 @@
       },
       {
         "target": "/typography/label/sizePt",
-        "value": 16.799999999999997,
+        "value": 11.549999999999999,
         "source": {
           "file": "src/ui/Experience.jsx",
           "component": "SubTitle",
@@ -773,7 +2607,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -976,7 +2810,7 @@
       },
       {
         "target": "/typography/sectionTitle/sizePt",
-        "value": 19.799999999999997,
+        "value": 13.612499999999999,
         "source": {
           "file": "src/index.jsx#literal-238.css",
           "component": null,
@@ -1005,7 +2839,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -1755,6 +3589,14 @@
         "classification": "adapted",
         "reason": "原 font-family 的第一非 generic 字族，仅请求后续精确 family/weight/slant 资产匹配；候选仍保留 CJK fallback",
         "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
+        "equivalent": false
       }
     ],
     "differences": [
@@ -1797,93 +3639,6 @@
         "message": "未从普通 JS 模板字符串提取调色板或执行代码"
       },
       {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/DateRange.jsx",
-          "component": "Range",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/DateRange.jsx",
-              "startByte": 100,
-              "endByte": 114,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/DateRange.jsx",
-          "component": "Range",
-          "declaration": {
-            "property": "font-style",
-            "value": {
-              "text": "italic",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-style: italic;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/DateRange.jsx",
-              "startByte": 117,
-              "endByte": 136,
-              "line": 6,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/DateRange.jsx",
-          "component": "Range",
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "13px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 13px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/DateRange.jsx",
-              "startByte": 139,
-              "endByte": 155,
-              "line": 7,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
         "code": "UNCLASSIFIED_TEMPLATE_UNSUPPORTED",
         "source": {
           "kind": "unclassified-template",
@@ -1920,209 +3675,6 @@
           }
         },
         "message": "未从普通 JS 模板字符串提取调色板或执行代码"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "BasicInfo",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 347,
-              "endByte": 361,
-              "line": 21,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "BasicInfo",
-          "declaration": {
-            "property": "gap",
-            "value": {
-              "text": "10px 20px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "gap: 10px 20px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 364,
-              "endByte": 379,
-              "line": 22,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "BasicInfo",
-          "declaration": {
-            "property": "justify-content",
-            "value": {
-              "text": "center",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "justify-content: center;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 382,
-              "endByte": 406,
-              "line": 23,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "BasicInfo",
-          "declaration": {
-            "property": "flex-wrap",
-            "value": {
-              "text": "wrap",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "flex-wrap: wrap;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 409,
-              "endByte": 425,
-              "line": 24,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "Info",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 457,
-              "endByte": 471,
-              "line": 28,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "Info",
-          "declaration": {
-            "property": "align-items",
-            "value": {
-              "text": "center",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "align-items: center;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 474,
-              "endByte": 494,
-              "line": 29,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/Hero.jsx",
-          "component": "Info",
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "1.5rem",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 1.5rem;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/Hero.jsx",
-              "startByte": 497,
-              "endByte": 515,
-              "line": 30,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SELECTOR_ROLE_UNRESOLVED",
@@ -2374,64 +3926,6 @@
           "file": "src/ui/List.jsx",
           "component": "ListContainer",
           "declaration": {
-            "property": "padding-left",
-            "value": {
-              "text": "20px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "padding-left: 20px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/List.jsx",
-              "startByte": 109,
-              "endByte": 128,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/List.jsx",
-          "component": "ListContainer",
-          "declaration": {
-            "property": "line-height",
-            "value": {
-              "text": "16px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "line-height: 16px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/List.jsx",
-              "startByte": 131,
-              "endByte": 149,
-              "line": 6,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/List.jsx",
-          "component": "ListContainer",
-          "declaration": {
             "property": "content",
             "value": {
               "text": "'•'",
@@ -2575,64 +4069,6 @@
               "endByte": 273,
               "line": 12,
               "column": 5,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/OneLineList.jsx",
-          "component": "List",
-          "declaration": {
-            "property": "font-size",
-            "value": {
-              "text": "1.4rem",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "font-size: 1.4rem;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/OneLineList.jsx",
-              "startByte": 138,
-              "endByte": 156,
-              "line": 9,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/OneLineList.jsx",
-          "component": "List",
-          "declaration": {
-            "property": "margin-left",
-            "value": {
-              "text": "5px",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "margin-left: 5px;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/OneLineList.jsx",
-              "startByte": 159,
-              "endByte": 176,
-              "line": 10,
-              "column": 3,
               "columnUnit": "utf8-bytes"
             }
           }
@@ -4652,6 +6088,87 @@
         "code": "COLLAPSED_ROLE_CONFLICT",
         "source": {
           "previous": {
+            "file": "src/ui/DateRange.jsx",
+            "component": "Range",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "13px",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 13px;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/DateRange.jsx",
+                "startByte": 139,
+                "endByte": 155,
+                "line": 7,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/Hero.jsx",
+            "component": "Info",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.5rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.5rem;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 497,
+                "endByte": 515,
+                "line": 30,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/Hero.jsx",
+            "component": "Info",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.5rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.5rem;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 497,
+                "endByte": 515,
+                "line": 30,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
             "file": "src/ui/Hero.jsx",
             "component": "Title",
             "declaration": {
@@ -4721,6 +6238,87 @@
                 "startByte": 88,
                 "endByte": 106,
                 "line": 5,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          }
+        },
+        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
+      },
+      {
+        "code": "COLLAPSED_ROLE_CONFLICT",
+        "source": {
+          "previous": {
+            "file": "src/ui/Hero.jsx",
+            "component": "Info",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.5rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.5rem;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/Hero.jsx",
+                "startByte": 497,
+                "endByte": 515,
+                "line": 30,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "next": {
+            "file": "src/ui/OneLineList.jsx",
+            "component": "List",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.4rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.4rem;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/OneLineList.jsx",
+                "startByte": 138,
+                "endByte": 156,
+                "line": 9,
+                "column": 3,
+                "columnUnit": "utf8-bytes"
+              }
+            }
+          },
+          "selected": {
+            "file": "src/ui/OneLineList.jsx",
+            "component": "List",
+            "declaration": {
+              "property": "font-size",
+              "value": {
+                "text": "1.4rem",
+                "truncated": false
+              },
+              "important": false,
+              "raw": {
+                "text": "font-size: 1.4rem;",
+                "truncated": false
+              },
+              "scope": [],
+              "span": {
+                "file": "src/ui/OneLineList.jsx",
+                "startByte": 138,
+                "endByte": 156,
+                "line": 9,
                 "column": 3,
                 "columnUnit": "utf8-bytes"
               }
@@ -5432,89 +7030,6 @@
                 "endByte": 84,
                 "line": 4,
                 "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "selected": {
-            "file": "src/ui/SubTitle.jsx",
-            "component": "Text",
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "22px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 22px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/ui/SubTitle.jsx",
-                "startByte": 68,
-                "endByte": 84,
-                "line": 4,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          }
-        },
-        "message": "多个声明投影到同一 v2 角色；按 important、主栏/通用角色、简单选择器、检查顺序择一；不是完整 CSS 级联"
-      },
-      {
-        "code": "COLLAPSED_ROLE_CONFLICT",
-        "source": {
-          "previous": {
-            "file": "src/ui/SubTitle.jsx",
-            "component": "Text",
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "22px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 22px;",
-                "truncated": false
-              },
-              "scope": [],
-              "span": {
-                "file": "src/ui/SubTitle.jsx",
-                "startByte": 68,
-                "endByte": 84,
-                "line": 4,
-                "column": 3,
-                "columnUnit": "utf8-bytes"
-              }
-            }
-          },
-          "next": {
-            "file": "src/index.jsx#literal-238.css",
-            "component": null,
-            "declaration": {
-              "property": "font-size",
-              "value": {
-                "text": "11px",
-                "truncated": false
-              },
-              "important": false,
-              "raw": {
-                "text": "font-size: 11px;",
-                "truncated": false
-              },
-              "scope": [
-                "html"
-              ],
-              "span": {
-                "file": "src/index.jsx#literal-238.css",
-                "startByte": 1203,
-                "endByte": 1219,
-                "line": 49,
-                "column": 7,
                 "columnUnit": "utf8-bytes"
               }
             }
@@ -6702,6 +8217,93 @@
       {
         "code": "CSS_PROPERTY_UNSUPPORTED",
         "source": {
+          "file": "src/ui/DateRange.jsx",
+          "component": "Range",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/DateRange.jsx",
+              "startByte": 100,
+              "endByte": 114,
+              "line": 5,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/DateRange.jsx",
+          "component": "Range",
+          "declaration": {
+            "property": "font-style",
+            "value": {
+              "text": "italic",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-style: italic;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/DateRange.jsx",
+              "startByte": 117,
+              "endByte": 136,
+              "line": 6,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/DateRange.jsx",
+          "component": "Range",
+          "declaration": {
+            "property": "font-size",
+            "value": {
+              "text": "13px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-size: 13px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/DateRange.jsx",
+              "startByte": 139,
+              "endByte": 155,
+              "line": 7,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
           "file": "src/ui/Experience.jsx",
           "component": "Meta",
           "declaration": {
@@ -6953,6 +8555,325 @@
               "startByte": 290,
               "endByte": 310,
               "line": 17,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "BasicInfo",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 347,
+              "endByte": 361,
+              "line": 21,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "BasicInfo",
+          "declaration": {
+            "property": "gap",
+            "value": {
+              "text": "10px 20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "gap: 10px 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 364,
+              "endByte": 379,
+              "line": 22,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "BasicInfo",
+          "declaration": {
+            "property": "justify-content",
+            "value": {
+              "text": "center",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "justify-content: center;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 382,
+              "endByte": 406,
+              "line": 23,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "BasicInfo",
+          "declaration": {
+            "property": "flex-wrap",
+            "value": {
+              "text": "wrap",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "flex-wrap: wrap;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 409,
+              "endByte": 425,
+              "line": 24,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "Info",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 457,
+              "endByte": 471,
+              "line": 28,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "Info",
+          "declaration": {
+            "property": "align-items",
+            "value": {
+              "text": "center",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "align-items: center;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 474,
+              "endByte": 494,
+              "line": 29,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/Hero.jsx",
+          "component": "Info",
+          "declaration": {
+            "property": "font-size",
+            "value": {
+              "text": "1.5rem",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-size: 1.5rem;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/Hero.jsx",
+              "startByte": 497,
+              "endByte": 515,
+              "line": 30,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/List.jsx",
+          "component": "ListContainer",
+          "declaration": {
+            "property": "padding-left",
+            "value": {
+              "text": "20px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "padding-left: 20px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/List.jsx",
+              "startByte": 109,
+              "endByte": 128,
+              "line": 5,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/List.jsx",
+          "component": "ListContainer",
+          "declaration": {
+            "property": "line-height",
+            "value": {
+              "text": "16px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "line-height: 16px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/List.jsx",
+              "startByte": 131,
+              "endByte": 149,
+              "line": 6,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/OneLineList.jsx",
+          "component": "List",
+          "declaration": {
+            "property": "font-size",
+            "value": {
+              "text": "1.4rem",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "font-size: 1.4rem;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/OneLineList.jsx",
+              "startByte": 138,
+              "endByte": 156,
+              "line": 9,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/OneLineList.jsx",
+          "component": "List",
+          "declaration": {
+            "property": "margin-left",
+            "value": {
+              "text": "5px",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "margin-left: 5px;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/OneLineList.jsx",
+              "startByte": 159,
+              "endByte": 176,
+              "line": 10,
               "column": 3,
               "columnUnit": "utf8-bytes"
             }
@@ -8372,13 +10293,13 @@
           "role": "name",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 16.799999999999997,
+            "sizePt": 11.549999999999999,
             "weight": 600,
             "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
-            "sizePt": 16.799999999999997,
+            "sizePt": 11.549999999999999,
             "weight": 600,
             "lineHeight": 1.4,
             "fontStyle": "normal"
@@ -8392,14 +10313,14 @@
           "role": "label",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 16.799999999999997,
+            "sizePt": 11.549999999999999,
             "weight": 400,
             "lineHeight": 1.4,
             "fontStyle": "italic"
           },
           "chosen": {
             "family": "cjk-sans",
-            "sizePt": 16.799999999999997,
+            "sizePt": 11.549999999999999,
             "weight": 400,
             "lineHeight": 1.4,
             "fontStyle": "normal"
@@ -8413,13 +10334,13 @@
           "role": "sectionTitle",
           "requested": {
             "family": "cjk-sans",
-            "sizePt": 19.799999999999997,
+            "sizePt": 13.612499999999999,
             "weight": 600,
             "lineHeight": 1.4
           },
           "chosen": {
             "family": "cjk-serif",
-            "sizePt": 19.799999999999997,
+            "sizePt": 13.612499999999999,
             "weight": 600,
             "lineHeight": 1.4,
             "fontStyle": "normal"
@@ -8776,7 +10697,7 @@
         "equivalent": false
       }
     ],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
@@ -8905,6 +10826,75 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 205545,
+    "issues": [
+      {
+        "file": "src/ui/Interests.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Languages.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/List.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/OneLineList.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Projects.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Publications.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/References.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Section.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Skills.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/SubTitle.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Summary.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Volunteer.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Work.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      }
+    ],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/professional.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -8915,7 +10905,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -8938,11 +10928,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923068,
-        "docxBytes": 18050434
+        "pdfBytes": 14923109,
+        "docxBytes": 18050402
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
@@ -8965,11 +10955,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14924783,
-        "docxBytes": 18050025
+        "pdfBytes": 14924816,
+        "docxBytes": 18049975
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -8983,11 +10973,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14918699,
-        "docxBytes": 18047889
+        "pdfBytes": 14918701,
+        "docxBytes": 18047885
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 7,
@@ -9010,12 +11000,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14929910,
-        "docxBytes": 18050551
+        "pdfBytes": 14929915,
+        "docxBytes": 18050544
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "91ad7a957670cf9fa7c3d06f593190fbb7ede41cdde711d46472a69395049c13"
+  "candidateSha256": "b57f50ae0d7166f35e7247eda835ed39247f049789c99e51a5a88e841f65a7ff"
 }

@@ -295,15 +295,148 @@
       "declarationsSeen": 45,
       "matchedRoles": [
         "body",
+        "entrySource",
         "itemTitle",
         "label",
         "name",
         "sectionTitle",
         "summary"
       ],
-      "evidenceRecords": 16
+      "evidenceRecords": 18
     },
     "fontRequests": [],
+    "entryHeaderFonts": [],
+    "entryTemplates": {
+      "format": "resume-one-entry-templates-v1",
+      "candidates": [],
+      "rejected": [
+        {
+          "entryFile": "src/index.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Avatar.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Awards.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_BLOCKED",
+          "blockers": [
+            {
+              "code": "UNSUPPORTED_FUNCTION_STATEMENT",
+              "message": "only const bindings followed by a direct return can be lowered",
+              "astKind": "if_statement",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 133,
+                "endByte": 166,
+                "line": 5,
+                "column": 3,
+                "endLine": 5,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "if (!awards?.length) return null;",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "parenthesized_expression",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 136,
+                "endByte": 153,
+                "line": 5,
+                "column": 6,
+                "endLine": 5,
+                "endColumn": 23,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "(!awards?.length)",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "unary_expression",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 137,
+                "endByte": 152,
+                "line": 5,
+                "column": 7,
+                "endLine": 5,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "!awards?.length",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "member_expression",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 138,
+                "endByte": 152,
+                "line": 5,
+                "column": 8,
+                "endLine": 5,
+                "endColumn": 22,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "awards?.length",
+              "sourceTruncated": false
+            },
+            {
+              "code": "UNSUPPORTED_SUBTREE_NODE",
+              "message": "node inside an unsupported construct; retained as evidence, not lowered",
+              "astKind": "return_statement",
+              "span": {
+                "file": "src/ui/Awards.jsx",
+                "startByte": 154,
+                "endByte": 166,
+                "line": 5,
+                "column": 24,
+                "endLine": 5,
+                "endColumn": 36,
+                "columnUnit": "utf8-bytes"
+              },
+              "source": "return null;",
+              "sourceTruncated": false
+            }
+          ],
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Badge.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Button.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        },
+        {
+          "entryFile": "src/ui/Card.jsx",
+          "code": "ENTRY_TEMPLATE_FRONTEND_UNSUPPORTED",
+          "equivalent": false
+        }
+      ],
+      "executedSourceCode": false,
+      "sourceModified": false,
+      "bindingVerified": false,
+      "layoutCompiled": false,
+      "visualVerified": false,
+      "migrationComplete": false,
+      "equivalent": false,
+      "scope": "direct bound item fields, native source grouping, self-field truthiness and guarded scalar text templates only"
+    },
     "evidence": [
       {
         "target": "/modules",
@@ -401,19 +534,32 @@
         "value": {
           "roles": [
             "body",
+            "entrySource",
             "itemTitle",
             "label",
             "name",
             "sectionTitle",
             "summary"
           ],
-          "rootSizePt": 12,
+          "initialRootSizeAssumptionPt": 12,
           "pxToPt": 0.75,
           "media": "unconditional-and-positive-print-projection"
         },
         "source": null,
         "classification": "adapted",
-        "reason": "组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "reason": "组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证",
+        "equivalent": false
+      },
+      {
+        "target": "font-size-context",
+        "value": {
+          "rootSizePt": 12.0,
+          "documentSizePt": 12.0,
+          "initialRootAssumptionPt": 12
+        },
+        "source": null,
+        "classification": "adapted",
+        "reason": "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
         "equivalent": false
       },
       {
@@ -445,7 +591,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -543,7 +689,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -611,7 +757,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -679,7 +825,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -747,7 +893,7 @@
           }
         },
         "classification": "adapted",
-        "reason": "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+        "reason": "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
         "equivalent": false
       },
       {
@@ -849,6 +995,14 @@
         "classification": "adapted",
         "reason": "正文前景色",
         "equivalent": false
+      },
+      {
+        "target": "/page/firstLinePosition",
+        "value": "line-box",
+        "source": null,
+        "classification": "adapted",
+        "reason": "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
+        "equivalent": false
       }
     ],
     "differences": [
@@ -870,35 +1024,6 @@
           }
         },
         "message": "未从普通 JS 模板字符串提取调色板或执行代码"
-      },
-      {
-        "code": "SELECTOR_ROLE_UNRESOLVED",
-        "source": {
-          "file": "src/ui/DateRange.jsx",
-          "component": "Range",
-          "declaration": {
-            "property": "display",
-            "value": {
-              "text": "flex",
-              "truncated": false
-            },
-            "important": false,
-            "raw": {
-              "text": "display: flex;",
-              "truncated": false
-            },
-            "scope": [],
-            "span": {
-              "file": "src/ui/DateRange.jsx",
-              "startByte": 100,
-              "endByte": 114,
-              "line": 5,
-              "column": 3,
-              "columnUnit": "utf8-bytes"
-            }
-          }
-        },
-        "message": "选择器或组件没有可用的静态角色映射，未把子节点样式应用于父角色"
       },
       {
         "code": "SOURCE_SYNTAX_UNSUPPORTED",
@@ -1520,6 +1645,35 @@
         "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
       },
       {
+        "code": "CSS_PROPERTY_UNSUPPORTED",
+        "source": {
+          "file": "src/ui/DateRange.jsx",
+          "component": "Range",
+          "declaration": {
+            "property": "display",
+            "value": {
+              "text": "flex",
+              "truncated": false
+            },
+            "important": false,
+            "raw": {
+              "text": "display: flex;",
+              "truncated": false
+            },
+            "scope": [],
+            "span": {
+              "file": "src/ui/DateRange.jsx",
+              "startByte": 100,
+              "endByte": 114,
+              "line": 5,
+              "column": 3,
+              "columnUnit": "utf8-bytes"
+            }
+          }
+        },
+        "message": "该静态属性或该属性的角色作用域尚无 v2 映射；原声明保留在差异中"
+      },
+      {
         "code": "RENDERER_REAL_FACE_FALLBACK",
         "source": {
           "role": "body",
@@ -1612,7 +1766,7 @@
   "fonts": {
     "fontMappings": [],
     "differences": [],
-    "libraryEntries": 35,
+    "libraryEntries": 55,
     "notices": [],
     "coreLoadThemeRequired": true,
     "layoutValidationRequired": true,
@@ -2206,6 +2360,95 @@
       "Projection does not prove original visual equivalence, component reachability, fonts, layout or pagination."
     ]
   },
+  "entryFonts": {
+    "fontMappings": [],
+    "differences": [],
+    "assetBudgetUnchanged": true,
+    "sourceExecuted": false
+  },
+  "templateInspection": {
+    "programBytes": 223085,
+    "issues": [
+      {
+        "file": "src/ui/Certificates.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Date.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/DateRange.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Education.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Hero.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Interests.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Languages.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/List.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/ProjectCard.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Projects.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Publications.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/References.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Resume.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Section.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Skills.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/SubTitle.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Summary.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Volunteer.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      },
+      {
+        "file": "src/ui/Work.jsx",
+        "code": "ADAPT_TEMPLATE_ENTRY_LIMIT"
+      }
+    ],
+    "sourceExecuted": false,
+    "runtimeEntryReachabilityVerified": false
+  },
   "licenseEvidence": {
     "path": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/input-licenses/tailwind.txt",
     "sha256": "577561bc6c6eacdc4cf5b60a67bceaaa9f2266c26e4aa0aca37701da2ed97097",
@@ -2216,7 +2459,7 @@
     "fixtureCount": 4,
     "checks": [
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/en-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/en-all.json",
         "sha256": "e3fb7d95f16732d3f42d78cdce7f0112ca2b629ce3c4b23292a0266bd30a4dfd",
         "schemaValid": true,
         "pages": 3,
@@ -2239,11 +2482,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14923036,
+        "pdfBytes": 14923079,
         "docxBytes": 18050380
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/zh-all.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/zh-all.json",
         "sha256": "5cc542195612811241558a5a8d1ed7ea4dacd157f4593088f8196e7979e4d32a",
         "schemaValid": true,
         "pages": 3,
@@ -2266,11 +2509,11 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14924668,
+        "pdfBytes": 14924708,
         "docxBytes": 18049948
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/missing.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/missing.json",
         "sha256": "4cd72d82fd6d5c14967c475c69fabd709e2427232e5ab8fddf87de6b8664b758",
         "schemaValid": true,
         "pages": 1,
@@ -2288,7 +2531,7 @@
         "docxBytes": 18047851
       },
       {
-        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261105/long-zh.json",
+        "fixture": "/Users/bintang/Documents/ChatGPT/resume_one/target/theme-refinement-20261107/long-zh.json",
         "sha256": "0dfd1b2b4054cec7af0899c60bf99b963fc75ebb1be9dbde905abf1d04d58ffe",
         "schemaValid": true,
         "pages": 7,
@@ -2311,12 +2554,12 @@
         "sourceUnchanged": true,
         "pdfSerialized": true,
         "docxSerialized": true,
-        "pdfBytes": 14929711,
+        "pdfBytes": 14929735,
         "docxBytes": 18050556
       }
     ],
     "visualVerified": false,
     "nativeWordVerified": false
   },
-  "candidateSha256": "f2da8f974fa6bf57d5f51fb30142dcc65c28d4b917e4bfd6e5bac218ecc44232"
+  "candidateSha256": "506f6ed4a0489dc677bd7245e2579a240d789c2547dc0503720f7448d22439f1"
 }

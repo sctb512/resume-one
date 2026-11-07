@@ -32,7 +32,7 @@
   "typography": {
     "body": {
       "family": "cjk-sans",
-      "sizePt": 9.600000000000001,
+      "sizePt": 7.800000000000001,
       "weight": 400,
       "lineHeight": 1.25,
       "trackingEm": 0.0,
@@ -40,7 +40,7 @@
     },
     "name": {
       "family": "cjk-sans",
-      "sizePt": 33.599999999999994,
+      "sizePt": 27.299999999999997,
       "weight": 400,
       "lineHeight": 1.0,
       "trackingEm": 0.0,
@@ -49,7 +49,7 @@
     },
     "label": {
       "family": "cjk-sans",
-      "sizePt": 17.64,
+      "sizePt": 14.3325,
       "weight": 400,
       "lineHeight": 1.25,
       "trackingEm": 0.0,
@@ -58,7 +58,7 @@
     },
     "summary": {
       "family": "cjk-sans",
-      "sizePt": 9.600000000000001,
+      "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.25,
       "trackingEm": 0.0,
@@ -66,7 +66,7 @@
     },
     "sectionTitle": {
       "family": "cjk-serif",
-      "sizePt": 10.8,
+      "sizePt": 8.775,
       "weight": 600,
       "lineHeight": 1.25,
       "trackingEm": 0.0,
@@ -75,7 +75,7 @@
     },
     "itemTitle": {
       "family": "cjk-sans",
-      "sizePt": 15.24,
+      "sizePt": 12.3825,
       "weight": 400,
       "lineHeight": 1.25,
       "trackingEm": 0.0
@@ -90,7 +90,7 @@
     },
     "sideDate": {
       "family": "cjk-sans",
-      "sizePt": 12.0,
+      "sizePt": 9.75,
       "weight": 400,
       "lineHeight": 1.25,
       "trackingEm": 0.0
@@ -98,12 +98,13 @@
   },
   "page": {
     "marginsMm": {
-      "top": 16.75,
-      "right": 16.0,
-      "bottom": 16.0,
-      "left": 16.0
+      "top": 10.343958333333333,
+      "right": 14.343958333333333,
+      "bottom": 10.343958333333333,
+      "left": 14.343958333333333
     },
-    "sectionGapMm": 4.0
+    "sectionGapMm": 4.0,
+    "firstLinePosition": "line-box"
   },
   "composition": {
     "preset": "single-column"

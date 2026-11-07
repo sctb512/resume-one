@@ -12,6 +12,8 @@ use url::Url;
 
 use crate::{MAX_FILE_BYTES, MAX_THEMES, ThemeError, sha256};
 
+pub(crate) const DEFAULT_COMMUNITY_REPOSITORY: &str = "sctb512/resume-one-themes";
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GithubSource {
     repository: String,
@@ -19,7 +21,7 @@ pub struct GithubSource {
     index_path: String,
 }
 
-fn safe_path(path: &str) -> bool {
+pub(crate) fn safe_path(path: &str) -> bool {
     !path.is_empty()
         && path.len() <= 240
         && path.is_ascii()
@@ -32,6 +34,11 @@ fn safe_path(path: &str) -> bool {
 }
 
 impl GithubSource {
+    pub fn community_default() -> Self {
+        Self::new(DEFAULT_COMMUNITY_REPOSITORY, "main", "index.json")
+            .expect("valid built-in community source")
+    }
+
     pub fn new(repository: &str, reference: &str, index_path: &str) -> Result<Self, ThemeError> {
         let parts: Vec<_> = repository.split('/').collect();
         if parts.len() != 2

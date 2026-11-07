@@ -46,6 +46,7 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/resume-one-themes
           ref: ${{ steps.themes.outputs.ref }}
+          ssh-key: ${{ secrets.THEMES_READ_KEY }}
           token: ${{ secrets.THEMES_READ_TOKEN || github.token }}
           path: .release-themes
           persist-credentials: false

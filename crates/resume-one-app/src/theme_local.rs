@@ -274,6 +274,7 @@ impl ThemeStore {
             .map(parse_sources)
             .transpose()
         {
+            Ok(None) if warnings.is_empty() => vec![GithubSource::community_default()],
             Ok(sources) => sources.unwrap_or_default(),
             Err(error) => {
                 warnings.push(error.to_string());
@@ -1031,6 +1032,19 @@ mod tests {
             ThemeStore::new(settings, defaults).unwrap().sources,
             [second]
         );
+    }
+
+    #[test]
+    fn default_source_is_used_until_user_saves_sources() {
+        let root = tempfile::tempdir().unwrap();
+        let settings = root.path().join("settings.json");
+        let defaults = root.path().join("themes");
+        let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        assert_eq!(store.sources, [GithubSource::community_default()]);
+        assert!(!settings.exists());
+        store.save_sources(vec![]).unwrap();
+        let reopened = ThemeStore::new(settings, defaults).unwrap();
+        assert!(reopened.sources.is_empty());
     }
 
     #[test]

@@ -63,7 +63,7 @@ resume-one export --file /absolute/resume.json --format pdf --out /absolute/resu
 
 ### 来源与下载
 
-`themes` 只接受公开 GitHub 来源，不接受网站 URL、令牌或私有仓库。显式参数为 `--repository owner/repository`、`--ref`（默认 `main`）、`--index`（默认 `themes/index.json`）、绝对路径 `--cache`；它不会读取或更改 GUI 的目录设置。这里的 `owner/repository` 是参数占位符，不是软件默认源。
+`themes` 接受 GitHub 的 `owner/repository`，通过 `--ref`（默认 `main`）、`--index`（默认 `themes/index.json`）和绝对路径 `--cache` 读取指定主题源。它不会读取或更改 GUI 的目录设置。桌面预发布默认源是 `sctb512/resume-one-themes`，查询它时指定 `--index index.json`，并从进程环境提供有权读取该仓库的 `RESUME_ONE_THEME_GITHUB_TOKEN`。令牌不会存入设置、缓存或下载内容。其他仓库通过公开 GitHub 接口读取。
 
 ```sh
 resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json

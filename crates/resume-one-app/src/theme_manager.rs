@@ -626,7 +626,8 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let settings = root.path().join("settings.json");
         let defaults = root.path().join("themes");
-        let store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
+        store.save_sources(Vec::new()).unwrap();
         let child = Rc::new(RefCell::new(None));
         let output = child.clone();
         let (_, cx) = cx.add_window_view(|window, cx| {

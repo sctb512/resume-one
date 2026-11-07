@@ -144,7 +144,7 @@ enum Command {
         reference: String,
         #[arg(long = "index", default_value = "themes/index.json")]
         index_path: String,
-        /// 仅存公开主题文件；与简历和本地安装目录分离
+        /// 仅存主题数据；与简历和本地安装目录分离
         #[arg(long)]
         cache: PathBuf,
         #[arg(long)]

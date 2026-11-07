@@ -3,7 +3,10 @@ use std::{io::Read, time::Duration};
 use crate::{
     Catalog, GithubSource, MAX_FILE_BYTES, ThemeCache, ThemeEntry, ThemeError, VerifiedTheme,
     cache::safe_etag,
+    source::{DEFAULT_COMMUNITY_REPOSITORY, safe_path},
 };
+
+const THEME_TOKEN_ENV: &str = "RESUME_ONE_THEME_GITHUB_TOKEN";
 
 pub struct HttpResponse {
     pub status: u16,
@@ -11,18 +14,21 @@ pub struct HttpResponse {
     pub bytes: Vec<u8>,
 }
 
-/// Testable, GET-only transport. All generated URLs point to public GitHub hosts.
+/// Testable, GET-only transport. All generated URLs point to GitHub hosts.
 pub trait Transport: Send + Sync {
     fn get(&self, url: &str, etag: Option<&str>, limit: usize) -> Result<HttpResponse, ThemeError>;
 }
 
 #[derive(Clone)]
-pub struct UreqTransport(ureq::Agent);
+pub struct UreqTransport {
+    agent: ureq::Agent,
+    community_token: Option<String>,
+}
 
 impl Default for UreqTransport {
     fn default() -> Self {
-        Self(
-            ureq::Agent::config_builder()
+        Self {
+            agent: ureq::Agent::config_builder()
                 .https_only(true)
                 .max_redirects(0)
                 .http_status_as_error(false)
@@ -30,36 +36,107 @@ impl Default for UreqTransport {
                 .user_agent("Resume-One/0.1")
                 .build()
                 .into(),
-        )
+            community_token: None,
+        }
     }
+}
+
+struct RequestTarget {
+    url: url::Url,
+    accept: &'static str,
+    community: bool,
+}
+
+fn request_target(url: &str) -> Result<RequestTarget, ThemeError> {
+    let mut parsed =
+        url::Url::parse(url).map_err(|_| ThemeError::new("SOURCE_URL", "来源地址无效"))?;
+    if parsed.scheme() != "https"
+        || !matches!(
+            parsed.host_str(),
+            Some("api.github.com" | "raw.githubusercontent.com")
+        )
+        || parsed.port().is_some()
+        || !parsed.username().is_empty()
+        || parsed.password().is_some()
+        || parsed.query().is_some()
+        || parsed.fragment().is_some()
+    {
+        return Err(ThemeError::new("SOURCE_URL", "只允许 GitHub HTTPS 地址"));
+    }
+    if parsed.host_str() == Some("api.github.com") {
+        let prefix = format!("/repos/{DEFAULT_COMMUNITY_REPOSITORY}/");
+        let community = if let Some(path) = parsed.path().strip_prefix(&prefix) {
+            if !path
+                .strip_prefix("commits/")
+                .is_some_and(|reference| !reference.is_empty() && !reference.contains('/'))
+            {
+                return Err(ThemeError::new(
+                    "SOURCE_URL",
+                    "默认主题源只允许读取提交和主题文件",
+                ));
+            }
+            true
+        } else {
+            false
+        };
+        return Ok(RequestTarget {
+            url: parsed,
+            accept: "application/vnd.github.sha",
+            community,
+        });
+    }
+
+    let prefix = format!("/{DEFAULT_COMMUNITY_REPOSITORY}/");
+    if let Some(path) = parsed.path().strip_prefix(&prefix) {
+        let (commit, path) = path
+            .split_once('/')
+            .filter(|(commit, path)| GithubSource::valid_commit(commit) && safe_path(path))
+            .ok_or_else(|| {
+                ThemeError::new("SOURCE_URL", "私有主题文件须指定安全路径和完整 commit")
+            })?;
+        let mut target = url::Url::parse(&format!(
+            "https://api.github.com/repos/{DEFAULT_COMMUNITY_REPOSITORY}/contents/{path}"
+        ))
+        .expect("fixed host and validated path");
+        target.query_pairs_mut().append_pair("ref", commit);
+        parsed = target;
+        return Ok(RequestTarget {
+            url: parsed,
+            accept: "application/vnd.github.raw+json",
+            community: true,
+        });
+    }
+    Ok(RequestTarget {
+        url: parsed,
+        accept: "application/json",
+        community: false,
+    })
 }
 
 impl Transport for UreqTransport {
     fn get(&self, url: &str, etag: Option<&str>, limit: usize) -> Result<HttpResponse, ThemeError> {
-        let parsed =
-            url::Url::parse(url).map_err(|_| ThemeError::new("SOURCE_URL", "来源地址无效"))?;
-        if parsed.scheme() != "https"
-            || !matches!(
-                parsed.host_str(),
-                Some("api.github.com" | "raw.githubusercontent.com")
-            )
-            || parsed.port().is_some()
-            || !parsed.username().is_empty()
-            || parsed.password().is_some()
-            || parsed.query().is_some()
-            || parsed.fragment().is_some()
-        {
-            return Err(ThemeError::new(
-                "SOURCE_URL",
-                "只允许公开 GitHub HTTPS 地址",
-            ));
+        let target = request_target(url)?;
+        let mut request = self
+            .agent
+            .get(target.url.as_str())
+            .header("Accept", target.accept);
+        if target.community {
+            let token = self
+                .community_token
+                .as_deref()
+                .filter(|token| {
+                    !token.is_empty()
+                        && token.len() <= 1024
+                        && token.bytes().all(|b| b.is_ascii_graphic())
+                })
+                .ok_or_else(|| {
+                    ThemeError::new(
+                        "SOURCE_AUTH_REQUIRED",
+                        format!("默认主题源为私有仓库，请设置 {THEME_TOKEN_ENV} 后重新启动"),
+                    )
+                })?;
+            request = request.header("Authorization", format!("Bearer {token}"));
         }
-        let accept = if parsed.host_str() == Some("api.github.com") {
-            "application/vnd.github.sha"
-        } else {
-            "application/json"
-        };
-        let mut request = self.0.get(url).header("Accept", accept);
         if let Some(etag) = etag.filter(|tag| safe_etag(tag)) {
             request = request.header("If-None-Match", etag);
         }
@@ -70,6 +147,12 @@ impl Transport for UreqTransport {
             )
         })?;
         let status = response.status().as_u16();
+        if target.community && matches!(status, 401 | 404) {
+            return Err(ThemeError::new(
+                "SOURCE_AUTH_OR_NOT_FOUND",
+                "无法读取私有默认主题源，请检查令牌的仓库读取权限以及主题路径",
+            ));
+        }
         let etag = response
             .headers()
             .get("etag")
@@ -114,7 +197,10 @@ pub struct GithubClient<T = UreqTransport> {
 impl GithubClient<UreqTransport> {
     pub fn new(cache: ThemeCache) -> Self {
         Self {
-            transport: UreqTransport::default(),
+            transport: UreqTransport {
+                community_token: std::env::var(THEME_TOKEN_ENV).ok(),
+                ..UreqTransport::default()
+            },
             cache,
         }
     }
@@ -420,6 +506,43 @@ mod tests {
         assert_eq!(
             client.theme(&catalog, "zhibai", false).unwrap().bytes,
             bytes
+        );
+    }
+
+    #[test]
+    fn private_theme_credentials_are_only_for_the_default_repository() {
+        let source = GithubSource::community_default();
+        let commit = request_target(&source.commit_url()).unwrap();
+        assert!(commit.community);
+        assert_eq!(commit.accept, "application/vnd.github.sha");
+        let path = "themes/community-academic-cv-lite/theme.json";
+        let manifest = request_target(&source.raw_url(COMMIT, path)).unwrap();
+        assert!(manifest.community);
+        assert_eq!(manifest.accept, "application/vnd.github.raw+json");
+        assert_eq!(
+            manifest.url.as_str(),
+            format!(
+                "https://api.github.com/repos/{DEFAULT_COMMUNITY_REPOSITORY}/contents/{path}?ref={COMMIT}"
+            )
+        );
+        for url in [
+            "https://api.github.com/repos/sctb512/resume-one-themes-other/commits/main",
+            "https://raw.githubusercontent.com/another/resume-one-themes/main/index.json",
+        ] {
+            let public = request_target(url).unwrap();
+            assert!(!public.community);
+            assert_eq!(public.url.as_str(), url);
+        }
+        assert!(
+            request_target("https://api.github.com/repos/sctb512/resume-one-themes/keys").is_err()
+        );
+        assert_eq!(
+            UreqTransport::default()
+                .get(&source.commit_url(), None, 256)
+                .err()
+                .unwrap()
+                .code,
+            "SOURCE_AUTH_REQUIRED"
         );
     }
 

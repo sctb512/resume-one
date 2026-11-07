@@ -1,10 +1,14 @@
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    sync::{Arc, OnceLock},
+};
 
 use resume_one_core::appearance::Appearance;
 use resume_one_core::resume::{ResumeDocument, parse_resume};
 use resume_one_core::semantic::{ResumeContent, project};
 use resume_one_core::theme_style::ThemeStyle;
 use resume_one_core::{ThemeManifest, parse_theme};
+use resume_one_themes::{OriginalTheme, VerifiedTheme};
 
 use crate::workspace::{LocalFolder, OpenedFile};
 
@@ -39,6 +43,58 @@ pub struct BuiltinTheme {
     pub style: ThemeStyle,
     pub path: Option<PathBuf>,
     pub identity: String,
+    pub original: Option<Arc<OriginalTheme>>,
+}
+
+impl BuiltinTheme {
+    pub fn from_original(
+        theme: Arc<OriginalTheme>,
+        identity: String,
+        path: Option<PathBuf>,
+    ) -> Self {
+        // Only the shell and the module editor use the native defaults here.
+        static SHELL: OnceLock<ThemeManifest> = OnceLock::new();
+        let mut manifest = SHELL
+            .get_or_init(|| {
+                parse_theme(BUILTIN_THEMES[0].as_bytes()).expect("valid built-in shell")
+            })
+            .clone();
+        manifest.id = theme.id.clone();
+        manifest.name = theme.name.clone();
+        manifest.modules = crate::SECTION_LABELS
+            .iter()
+            .map(|(id, _)| (*id).to_owned())
+            .collect();
+        manifest.normalized["license"] = serde_json::json!(theme.license);
+        manifest.normalized["version"] = serde_json::json!(theme.version);
+        manifest.normalized["description"] = serde_json::json!(theme.package);
+        manifest.normalized["provenance"] = serde_json::json!({
+            "upstreamUrl": theme.upstream, "upstreamRevision": theme.version, "upstreamAuthor": theme.author
+        });
+        let style = ThemeStyle::from_manifest(&manifest);
+        Self {
+            manifest,
+            style,
+            identity,
+            path,
+            original: Some(theme),
+        }
+    }
+
+    pub fn from_verified(theme: &VerifiedTheme, identity: String) -> Option<Self> {
+        if let Some(original) = theme.original() {
+            return Some(Self::from_original(original.clone(), identity, None));
+        }
+        let manifest = theme.manifest()?.clone();
+        let style = ThemeStyle::from_manifest(&manifest);
+        Some(Self {
+            manifest,
+            style,
+            identity,
+            path: None,
+            original: None,
+        })
+    }
 }
 
 pub struct AppModel {
@@ -97,6 +153,7 @@ impl AppModel {
                     manifest,
                     style,
                     path: None,
+                    original: None,
                 })
             })
             .collect::<Result<Vec<_>, String>>()?;

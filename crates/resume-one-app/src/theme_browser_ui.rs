@@ -19,6 +19,17 @@ pub(super) fn thumbnail_window(offset: f32, height: f32, total: usize) -> std::o
     first.saturating_sub(2).min(total)..first.saturating_add(count + 2).min(total)
 }
 
+fn source_title(source: &GithubSource) -> &str {
+    if source.repository() == GithubSource::community_default().repository() {
+        match source.index_path() {
+            "originals/index.json" => return "原版 JSON Resume",
+            "index.json" => return "社区声明式主题",
+            _ => {}
+        }
+    }
+    source.repository()
+}
+
 impl ResumeOne {
     pub(super) fn hover_local_theme(
         &mut self,
@@ -232,7 +243,7 @@ impl ResumeOne {
                 .online
                 .sources
                 .get(self.online.source_index)
-                .map(|source| source.repository().to_owned())
+                .map(|source| source_title(source).to_owned())
                 .unwrap_or_else(|| "选择来源".into());
             nav = nav.child(
                 div()
@@ -274,7 +285,7 @@ impl ResumeOne {
                             .truncate()
                             .cursor_pointer()
                             .hover(|row| row.bg(color(style.colors.paper)))
-                            .child(format!("{} · {}", source.repository(), source.reference()))
+                            .child(format!("{} · {}", source_title(source), source.reference()))
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.online.select_source(index);
                                 this.theme_scroll.set_offset(gpui::point(px(0.), px(0.)));

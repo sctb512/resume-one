@@ -44,6 +44,7 @@ mod tests {
         model.document = parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"MainCompany"}],"skills":[{"name":"SideSkill"}]}"#).unwrap();
         model.content = project(&model.document);
         model.replace_themes(vec![BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             path: None,
@@ -86,6 +87,7 @@ mod tests {
         model.document = parse_resume(br#"{"basics":{"name":"Ada"}}"#).unwrap();
         model.content = project(&model.document);
         model.replace_themes(vec![BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             path: Some(root.path().join("fixture.theme.json")),
@@ -460,6 +462,7 @@ mod tests {
             value["sections"] = serde_json::json!({"work":{"items":kind}});
             let manifest = resume_one_core::parse_theme(value.to_string().as_bytes()).unwrap();
             model.replace_themes(vec![BuiltinTheme {
+                original: None,
                 style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
                 manifest,
                 path: None,
@@ -618,6 +621,7 @@ mod tests {
                 .unwrap();
                 manifest.normalized["composition"]["preset"] = serde_json::json!(preset);
                 model.replace_themes(vec![BuiltinTheme {
+                    original: None,
                     style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
                     manifest,
                     path: None,
@@ -787,6 +791,7 @@ mod tests {
         ))
         .unwrap();
         model.themes = vec![BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             identity: "test:centered-header".into(),
@@ -820,6 +825,7 @@ mod tests {
         ))
         .unwrap();
         model.themes = vec![BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             identity: "test:split-header".into(),
@@ -846,6 +852,7 @@ mod tests {
         ))
         .unwrap();
         let theme = BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             identity: "test:section-styles".into(),
@@ -1249,11 +1256,15 @@ impl ResumeOne {
             .border_color(color(style.colors.paper.mix(style.colors.ink, 0.12)))
             .bg(color(style.colors.paper))
             .shadow_sm();
-        if let Some(theme) = theme
-            && let Ok(data) = self.preview.resolve(&self.model, theme)
-        {
-            let scale = 48. / (data.layout.width_mm * PT_PER_MM);
-            thumb = thumb.child(page_canvas(data, 0, scale));
+        if let Some(theme) = theme {
+            if theme.original.is_some() {
+                if let Some(image) = self.original_thumbnail(theme) {
+                    thumb = thumb.child(image);
+                }
+            } else if let Ok(data) = self.preview.resolve(&self.model, theme) {
+                let scale = 48. / (data.layout.width_mm * PT_PER_MM);
+                thumb = thumb.child(page_canvas(data, 0, scale));
+            }
         }
         thumb.into_any_element()
     }

@@ -18,7 +18,7 @@
 | `set-field` | `resume-one set-field --file /absolute/resume.json --if-match sha256:... --section work --index 0 --field position --value '设计师' --dry-run` | 设置标准文本字段；`basics` 不带 `--index`；空值移除字段 |
 | `export` | `resume-one export --file /absolute/resume.json --format pdf --out /absolute/resume.pdf --theme /absolute/dir/name.theme.json` | `pdf`、可编辑 `docx`、`txt`、`md`；`--lang zh`（默认）或 `en`；已有目标需显式 `--overwrite`；`--theme` 支持 PDF / DOCX |
 | `schema` | `resume-one schema` | 返回固定版本及内置 Schema 内容 |
-| `themes` | `resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json` | 显式联网读取声明式主题清单；`--offline` 只读已验证缓存；不读取简历 |
+| `themes` | `resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json` | 读取在线主题目录；`--offline` 只读已验证缓存；不读取简历 |
 | `verify-theme-source` | `resume-one verify-theme-source --dir /absolute/source-checkout --json` | 离线检查待发布默认源的清单、主题文件和人工验收记录；不读取简历 |
 
 `--json` 可放在子命令前或后。成功或失败时 stdout 都恰好是一行 JSON，结构为 `{"protocolVersion":1,"ok":true,"result":{...}}` 或 `{"protocolVersion":1,"ok":false,"error":{"code":"...","message":"..."}}`；错误可能附 `file`、`revision`、`error.diagnostics`。非 JSON 模式成功输出格式化结果，错误写入 stderr。`inspect`、`validate` 和补丁结果不输出简历正文；只有 `read` 会返回字段值。Schema 错误只列 JSON Pointer 和失败规则，不回显原值。建议不要长期保存 `read` 的输出日志。
@@ -63,16 +63,20 @@ resume-one export --file /absolute/resume.json --format pdf --out /absolute/resu
 
 ### 来源与下载
 
-`themes` 接受 GitHub 的 `owner/repository`，通过 `--ref`（默认 `main`）、`--index`（默认 `themes/index.json`）和绝对路径 `--cache` 读取指定主题源。它不会读取或更改 GUI 的目录设置。桌面预发布默认源是 `sctb512/resume-one-themes`，查询它时指定 `--index index.json`，并从进程环境提供有权读取该仓库的 `RESUME_ONE_THEME_GITHUB_TOKEN`。令牌不会存入设置、缓存或下载内容。其他仓库通过公开 GitHub 接口读取。
+`themes` 默认读取 `sctb512/resume-one-themes` 的 `main/originals/index.json`。它需要一个绝对路径作为 `--cache`，访问默认私有仓库需要在进程环境提供 `RESUME_ONE_THEME_GITHUB_TOKEN`。令牌仅用于读取该仓库。显式传入 `--repository owner/repository` 时，可使用 `--ref` 和 `--index` 指定其它来源，默认是 `main` 和 `themes/index.json`。命令独立于桌面设置。
 
 ```sh
 resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json
 resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache --offline download calm-paper --dir /absolute/local-themes --json
+resume-one themes --cache /absolute/theme-cache download original-even --dir /absolute/local-themes --json
+resume-one export --file /absolute/resume.json --out /absolute/resume.pdf --format pdf --theme /absolute/even.original.theme.json --json
 ```
 
-不带 `--offline` 时，分支/标签先解析成完整 commit，清单与主题文件均从该 commit 获取；可直接传 40 位 commit 固定版本。清单失败但旧缓存有效时返回旧清单及 `stale: true`、`warning`；没有缓存则报错。`list` 返回清单元数据，`manifestsValidated: false` 明确表示还未逐项验证主题，不能据此宣称可应用。`download ID --dir ...` 才校验原始文件的 SHA-256（清单提供时）、ID、名称、声明式格式和当前排版能力，再安装到显式指定且已存在的本地目录。
+原版包使用 `.original.theme.json` 后缀，下载后可用作 `export --format pdf --theme` 的输入。PDF 需要本机 Chrome、Edge 或 Chromium，可用 `RESUME_ONE_CHROMIUM` 指定可执行文件的绝对路径。原版 PDF 沿用主题的字体、配色和标签文本。`--appearance` 用于声明式主题。
 
-下载文件名包含来源指纹、主题 ID 和内容摘要，保留原始 UTF-8 字节，不写入样式、HTML、简历正文或缓存元数据；已存在且字节相同则幂等返回，内容不同或为符号链接则拒绝覆盖。缓存与本地安装目录是两回事：缓存可按最近访问时间自动淘汰，总量 256 MiB；本地下载文件不会被缓存清理删除。`--offline` 不产生网络请求，只允许有效缓存。源/主题文件上限各 1 MiB，单份清单最多 500 项，网络请求超时 15 秒，不跟随重定向，也不请求图片、脚本或字体资源。来源、网络、缓存和主题下载错误退出码为 `7`；相对路径参数仍为 `2`。
+不带 `--offline` 时，分支/标签先解析成完整 commit，清单与主题文件均从该 commit 获取；可直接传 40 位 commit 固定版本。清单失败但旧缓存有效时返回旧清单及 `stale: true`、`warning`；没有缓存则报错。`list` 返回清单元数据，`manifestsValidated: false` 明确表示还未逐项验证主题，不能据此宣称可应用。`download ID --dir ...` 才校验原始文件的 SHA-256（原版主题必填）、ID、名称和包格式，并检查声明式主题的排版能力，再安装到显式指定且已存在的本地目录。
+
+下载文件名包含来源指纹、主题 ID 和内容摘要，保留原始 UTF-8 字节，不写入简历正文或缓存元数据；已存在且字节相同则幂等返回，内容不同或为符号链接则拒绝覆盖。缓存与本地安装目录是两回事：缓存可按最近访问时间自动淘汰，总量 256 MiB；本地下载文件不会被缓存清理删除。`--offline` 不产生网络请求，只允许有效缓存。源/主题文件上限各 1 MiB，单份清单最多 500 项，网络请求超时 15 秒，不跟随重定向，也不单独请求主题引用的图片、脚本或字体资源。来源、网络、缓存和主题下载错误退出码为 `7`；相对路径参数仍为 `2`。
 
 `verify-theme-source` 只读取所选仓库的 `themes/index.json`、`themes/review.json`、清单列出的主题文件及 `qa/` 下的验收证据；不会联网、下载、发布、修改文件或运行第三方主题代码。它要求每项主题有原文件 SHA-256、v2 `adapted` 来源、可用的当前渲染能力，以及与主题 ID、摘要、上游 URL/版本/许可一致的人工验收记录。记录遵循 [`theme-source-review-v1.schema.json`](../spec/theme-source-review-v1.schema.json)，包含审核人、日期、中英文短/长、缺字段、多页样例的上游与迁移版 PNG 截图，以及一份多页 PDF；全部证据需附原文件 SHA-256。每主题共 13 个证据文件，截图上限各 8 MiB、PDF 30 MiB、合计 512 MiB；重复路径、缺失文件、摘要不符或符号链接都会失败。证据只允许公开测试简历，不得含私人内容。失败退出码 `7`；成功结果增加 `evidenceFilesVerified`，`structurallyVerified: true` 只证明记录完整且一致，`humanReviewIndependentlyVerified: false` 明确表明没有机器证明许可或视觉审核真实完成。程序只检查 PNG/PDF 文件签名，不完整解码或判断相似度。发布者仍须人工打开上游和迁移版证据，核验上游许可及视觉/PDF 效果，公开 GitHub 仓库并固定真实 commit 后再配置默认源；此命令不代替发布流程。
 

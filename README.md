@@ -38,7 +38,9 @@ CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验�
 
 声明式主题的 `sections` 已支持四种模块标题 `plain/line/accent-line/filled`、两种条目间距 `stack/compact` 和 `inline/left/right` 日期，预览、PDF、可编辑 DOCX 均可使用；紧凑模式不缩小文字或省略字段。本地/在线主题走同一能力校验，现支持有限的单侧时间线、可分页卡片和关键词标签；自定义装饰等未实现配置仍报错。配置示例与精确语义见主题规范。
 
-在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为私有主题仓库 `sctb512/resume-one-themes` 的 `main/index.json`，已保存的在线源列表优先。启动前将有权读取该仓库的令牌提供给 `RESUME_ONE_THEME_GITHUB_TOKEN`。它只用于该仓库的 GitHub API 请求，其他公开主题源仍使用匿名请求。使用方式见[用户手册](./docs/user-manual.md)。
+在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为私有主题仓库 `sctb512/resume-one-themes` 的 `main/originals/index.json`，已保存的在线源列表优先。启动前将有权读取该仓库的令牌提供给 `RESUME_ONE_THEME_GITHUB_TOKEN`。它只用于该仓库的 GitHub API 请求，其他公开主题源仍使用匿名请求。使用方式见[用户手册](./docs/user-manual.md)。
+
+默认在线目录使用 JSON Resume 上游主题包的固定版本，保留原有渲染模板和样式。原版主题用当前简历在本机试穿，可下载到本地主题目录并导出 PDF。渲染需要本机 Chrome、Edge 或 Chromium。JSON 编辑、模块栏和语义格式导出仍由简里提供。既有声明式目录可单独添加为 `main/index.json`。包格式与资源限制见[原版主题包规范](./spec/json-resume-original-theme.md)。
 
 仓库正在按功能逐项实现和验收。已完成共享的、**不执行代码**的声明式主题 v1/v2 校验、v1 内存适配与可读性约束下的主题视觉 token 解析，以及 JSON Resume 内容校验、字节级 revision、带 revision 守卫的原子 JSON Patch（含预演）、标准模块/条目的 Schema 安全增删、独立的本地文档 CLI，以及 PDF、可编辑 DOCX、纯文本和 Markdown 导出。仓库现有 [20 套原生声明式主题文件](./assets/themes/)；桌面应用首次运行会将其安全安装到默认本地主题目录，后续仅对字节哈希与旧内置版完全一致的文件自动升级，用户改动不覆盖。支持更换唯一的本地目录、恢复默认目录、右键定位实际文件，以及左侧悬停试穿和点击选中。原生 JSON 编辑器已支持快捷键切换、实时更新有效预览、Schema 错误提示、格式化与撤销、带版本冲突保护的保存和私有恢复草稿；切换时主题栏连续收放，中央视图交接，而右侧模块栏始终固定。预览页和 JSON 视图右栏均已可增删标准模块与条目，并与 JSON 草稿和撤销链路同步。独立的主题迁移 CLI 已支持 v1→v2 升级，以及对第三方 npm/HTML/CSS/JS 主题目录做**低置信度静态提取**；后者只把十六进制或不透明整数 RGB 配色及包元数据写入候选，并在报告中列出有界的字体声明与布局线索，不是视觉等效迁移，必须人工重建布局并验收许可。
 
@@ -50,7 +52,7 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 
 单栏正文的页眉已支持 `composition.header: stacked/centered/split`，联系方式支持 `composition.contact: inline/stacked`；`split` 或 `preset: split-header` 将姓名/职业与联系方式分列排版，正文仍为单栏。居中按实际内容区逐行计算，长文本自动换行；分栏页眉遇到超长内容会退回全宽流式页眉，避免越界。预览、PDF、可编辑 DOCX 及本地/在线主题能力检查保持一致；图标联系方式仍明确拒绝。配置只属于主题，不写入简历 JSON。
 
-运行已实现的检查：`cargo test --workspace`；从源码使用 CLI：`cargo run -p resume-one-cli -- --help`。macOS 上可通过 `cargo run -p resume-one-app` 打开内置示例，或用 `cargo run -p resume-one-app -- /absolute/resume.json` 打开 JSON Resume 文件；有语法或 Schema 错误的 UTF-8 文件会直接进入源码修复界面。按 `⌘/` 切换预览和源码。macOS 开发包 `bash packaging/macos/bundle.sh debug` 会同时装入桌面程序、CLI 与独立迁移工具；装配后做本机临时签名及严格资源封签校验，但没有 Developer ID 签名或公证，不代表正式安装包。首次构建 GPUI 需要安装 Xcode Metal Toolchain。Windows 运行与安装包尚未验收。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及公开、已迁移、已验收的默认 GitHub 声明式主题源；缺少任一项不得标记正式发布。
+运行已实现的检查：`cargo test --workspace`；从源码使用 CLI：`cargo run -p resume-one-cli -- --help`。macOS 上可通过 `cargo run -p resume-one-app` 打开内置示例，或用 `cargo run -p resume-one-app -- /absolute/resume.json` 打开 JSON Resume 文件；有语法或 Schema 错误的 UTF-8 文件会直接进入源码修复界面。按 `⌘/` 切换预览和源码。macOS 开发包 `bash packaging/macos/bundle.sh debug` 会同时装入桌面程序、CLI 与独立迁移工具；装配后做本机临时签名及严格资源封签校验，但没有 Developer ID 签名或公证，不代表正式安装包。首次构建 GPUI 需要安装 Xcode Metal Toolchain。Windows 运行与安装包尚未验收。简历内容校验采用本地固定版本的 [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)；主题文件格式见 [声明式主题规范](./resume-one-theme-spec-v2.md)。最终发布须同时提供真实的 macOS/Windows 构建、约 20 套验收主题及已发布且目标用户可读取、通过验收的默认 GitHub 主题源；缺少任一项不得标记正式发布。
 
 ## 本地构建
 

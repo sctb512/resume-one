@@ -12,6 +12,7 @@ sha2.workspace = true
 jsonschema.workspace = true
 ureq = { version = "=3.4.2", default-features = false, features = ["rustls"] }
 url = "=2.5.8"
-
-[dev-dependencies]
+base64 = "0.22"
+rquickjs = "=0.14.0"
+tungstenite = { version = "=0.30.0", default-features = false, features = ["handshake"] }
 tempfile.workspace = true

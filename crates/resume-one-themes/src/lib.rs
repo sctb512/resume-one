@@ -1,12 +1,16 @@
-//! Public, code-free GitHub theme sources. This API has no resume input.
+//! Verified GitHub theme sources and an isolated renderer for original themes.
 
+mod browser;
 mod cache;
 mod client;
+mod original;
 mod release;
 mod source;
 
+pub use browser::{OriginalPreview, preview_original, print_original};
 pub use cache::ThemeCache;
 pub use client::{CatalogResult, GithubClient, HttpResponse, Transport, UreqTransport};
+pub use original::{ORIGINAL_THEME_SUFFIX, OriginalTheme};
 pub use release::{SourceAudit, audit_release_source};
 pub use source::{Catalog, GithubSource, ThemeEntry, VerifiedTheme, prefetch_window};
 

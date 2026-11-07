@@ -406,6 +406,41 @@ mod tests {
     }
 
     #[test]
+    fn default_original_theme_is_commit_pinned_cached_and_installs_exact_bytes() {
+        let directory = tempfile::tempdir().unwrap();
+        let mock = Mock::default();
+        let bytes = serde_json::to_vec(&crate::original::tests::fixture(
+            "globalThis.__resumeOneTheme = { render() { return '<h1>Example</h1>'; } }",
+        ))
+        .unwrap();
+        let source = GithubSource::community_default();
+        assert_eq!(source.index_path(), "originals/index.json");
+        mock.respond(200, COMMIT.as_bytes().into());
+        mock.respond(200, serde_json::to_vec(&json!({"version":1,"themes":[{
+            "id":"test", "name":"Test", "manifest":"test.original.theme.json", "sha256":sha256(&bytes)
+        }]})).unwrap());
+        mock.respond(200, bytes.clone());
+        let client = GithubClient::with_transport(
+            ThemeCache::new(&directory.path().join("cache")).unwrap(),
+            mock.clone(),
+        );
+        let catalog = client.catalog(&source, false).unwrap().catalog;
+        let verified = client.theme(&catalog, "test", false).unwrap();
+        assert!(verified.original().is_some());
+        let cached_catalog = client.catalog(&source, true).unwrap().catalog;
+        let cached = client.theme(&cached_catalog, "test", true).unwrap();
+        let installed = cached.install(&source, directory.path()).unwrap();
+        assert_eq!(std::fs::read(installed).unwrap(), bytes);
+        let calls = mock.calls.lock().unwrap();
+        assert_eq!(calls.len(), 3);
+        assert!(
+            calls[2]
+                .0
+                .ends_with(&format!("/{COMMIT}/originals/test.original.theme.json"))
+        );
+    }
+
+    #[test]
     fn resolves_ref_pins_all_requests_and_revalidates_cached_index() {
         let root = tempfile::tempdir().unwrap();
         let mock = Mock::default();

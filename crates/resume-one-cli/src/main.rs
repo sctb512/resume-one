@@ -114,7 +114,7 @@ enum Command {
         format: ExportFormat,
         #[arg(long, value_enum, default_value = "zh")]
         lang: ExportLanguage,
-        /// PDF / DOCX 主题清单的绝对路径（根目录 *.theme.json 或子目录 theme.json）
+        /// PDF / DOCX 主题路径，原版主题仅适用于 PDF
         #[arg(long)]
         theme: Option<PathBuf>,
         /// 独立外观设置的绝对路径；只影响本次 PDF / DOCX，不改写主题或简历
@@ -136,14 +136,15 @@ enum Command {
         #[arg(long)]
         dir: PathBuf,
     },
-    /// 显式读取 GitHub 声明式主题源或下载主题；不读取简历
+    /// 读取 GitHub 主题源或下载主题；不读取简历
     Themes {
+        /// 省略时使用简里的原版 JSON Resume 主题源
         #[arg(long)]
-        repository: String,
+        repository: Option<String>,
         #[arg(long = "ref", default_value = "main")]
         reference: String,
-        #[arg(long = "index", default_value = "themes/index.json")]
-        index_path: String,
+        #[arg(long = "index")]
+        index_path: Option<String>,
         /// 仅存主题数据；与简历和本地安装目录分离
         #[arg(long)]
         cache: PathBuf,
@@ -419,7 +420,18 @@ fn execute(command: Command) -> Result<Value, AppError> {
             }
             let issue =
                 |error: resume_one_themes::ThemeError| AppError::new(7, error.code, error.message);
-            let source = GithubSource::new(&repository, &reference, &index_path).map_err(issue)?;
+            let default = GithubSource::community_default();
+            let index = index_path.as_deref().unwrap_or_else(|| {
+                if repository.is_some() {
+                    "themes/index.json"
+                } else {
+                    default.index_path()
+                }
+            });
+            let repository = repository
+                .as_deref()
+                .unwrap_or_else(|| default.repository());
+            let source = GithubSource::new(repository, &reference, index).map_err(issue)?;
             let client = GithubClient::new(ThemeCache::new(&cache).map_err(issue)?);
             let result = client.catalog(&source, offline).map_err(issue)?;
             let warning = result
@@ -439,7 +451,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
                     let path = theme.install(&source, &dir).map_err(issue)?;
                     Ok(
                         json!({"source":source.as_json(),"commit":catalog.commit(),"stale":result.stale,
-                        "warning":warning,"id":theme.manifest().id,"sha256":theme.sha256(),"file":path,"verified":true}),
+                        "warning":warning,"id":theme.id(),"sha256":theme.sha256(),"file":path,"verified":true}),
                     )
                 }
             }
@@ -715,6 +727,32 @@ fn execute(command: Command) -> Result<Value, AppError> {
                     "THEME_FORMAT_UNSUPPORTED",
                     "--theme 仅适用于 PDF / DOCX 导出",
                 ));
+            }
+            if let Some(path) = theme.as_deref().filter(|path| {
+                path.file_name().is_some_and(|name| {
+                    name.to_string_lossy()
+                        .ends_with(resume_one_themes::ORIGINAL_THEME_SUFFIX)
+                })
+            }) {
+                absolute(path)?;
+                if !matches!(format, ExportFormat::Pdf) || appearance.is_some() {
+                    return Err(AppError::new(
+                        2,
+                        "ORIGINAL_THEME_EXPORT",
+                        "原版主题仅支持 PDF，使用主题自身的外观",
+                    )
+                    .file(path));
+                }
+                let document = load(&file)?;
+                let theme = resume_one_themes::OriginalTheme::load(path)
+                    .map_err(|error| AppError::new(3, error.code, error.message).file(path))?;
+                let bytes = resume_one_themes::print_original(&theme, &document.value)
+                    .map_err(|error| AppError::new(6, error.code, error.message).file(&out))?;
+                write_export(&file, &out, &bytes, overwrite)
+                    .map_err(|error| AppError::new(6, error.code, error.message).file(&out))?;
+                return Ok(
+                    json!({"file":file,"revision":document.revision,"out":out,"format":"pdf","bytes":bytes.len()}),
+                );
             }
             let document = load(&file)?;
             let content = project(&document);

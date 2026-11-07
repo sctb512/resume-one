@@ -2,7 +2,7 @@ use std::{
     collections::HashSet,
     ops::Range,
     path::{Path, PathBuf},
-    sync::OnceLock,
+    sync::{Arc, OnceLock},
 };
 
 use jsonschema::Validator;
@@ -10,7 +10,7 @@ use resume_one_core::{ThemeManifest, parse_theme};
 use serde_json::{Value, json};
 use url::Url;
 
-use crate::{MAX_FILE_BYTES, MAX_THEMES, ThemeError, sha256};
+use crate::{MAX_FILE_BYTES, MAX_THEMES, ORIGINAL_THEME_SUFFIX, OriginalTheme, ThemeError, sha256};
 
 pub(crate) const DEFAULT_COMMUNITY_REPOSITORY: &str = "sctb512/resume-one-themes";
 
@@ -35,7 +35,7 @@ pub(crate) fn safe_path(path: &str) -> bool {
 
 impl GithubSource {
     pub fn community_default() -> Self {
-        Self::new(DEFAULT_COMMUNITY_REPOSITORY, "main", "index.json")
+        Self::new(DEFAULT_COMMUNITY_REPOSITORY, "main", "originals/index.json")
             .expect("valid built-in community source")
     }
 
@@ -256,14 +256,41 @@ impl Catalog {
 
 #[derive(Debug, Clone)]
 pub struct VerifiedTheme {
-    pub(crate) manifest: ThemeManifest,
+    payload: ThemePayload,
     pub(crate) bytes: Vec<u8>,
     pub(crate) sha256: String,
 }
 
+#[derive(Debug, Clone)]
+enum ThemePayload {
+    Declarative(Box<ThemeManifest>),
+    Original(Arc<OriginalTheme>),
+}
+
 impl VerifiedTheme {
-    pub fn manifest(&self) -> &ThemeManifest {
-        &self.manifest
+    pub fn manifest(&self) -> Option<&ThemeManifest> {
+        match &self.payload {
+            ThemePayload::Declarative(manifest) => Some(manifest),
+            ThemePayload::Original(_) => None,
+        }
+    }
+    pub fn original(&self) -> Option<&Arc<OriginalTheme>> {
+        match &self.payload {
+            ThemePayload::Original(theme) => Some(theme),
+            ThemePayload::Declarative(_) => None,
+        }
+    }
+    pub fn id(&self) -> &str {
+        match &self.payload {
+            ThemePayload::Declarative(manifest) => &manifest.id,
+            ThemePayload::Original(theme) => &theme.id,
+        }
+    }
+    pub fn name(&self) -> &str {
+        match &self.payload {
+            ThemePayload::Declarative(manifest) => &manifest.name,
+            ThemePayload::Original(theme) => &theme.name,
+        }
     }
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
@@ -283,21 +310,33 @@ impl VerifiedTheme {
         {
             return Err(ThemeError::new("THEME_HASH", "主题 SHA-256 与清单不一致"));
         }
-        let manifest = parse_theme(bytes)
-            .map_err(|_| ThemeError::new("THEME_INVALID", "主题未通过声明式格式及安全校验"))?;
-        if manifest.id != entry.id || manifest.name != entry.name {
+        let payload = if entry.manifest.ends_with(ORIGINAL_THEME_SUFFIX) {
+            if entry.sha256.is_none() {
+                return Err(ThemeError::new("THEME_HASH", "原版主题必须提供 SHA-256"));
+            }
+            let value = serde_json::from_slice(bytes).map_err(|_| {
+                ThemeError::new("ORIGINAL_THEME_SCHEMA", "原版主题包不是有效的 JSON")
+            })?;
+            ThemePayload::Original(Arc::new(OriginalTheme::parse(&value)?))
+        } else {
+            let manifest = parse_theme(bytes)
+                .map_err(|_| ThemeError::new("THEME_INVALID", "主题未通过声明式格式及安全校验"))?;
+            resume_one_core::layout::check_theme(&manifest)
+                .map_err(|message| ThemeError::new("THEME_UNSUPPORTED", message))?;
+            ThemePayload::Declarative(Box::new(manifest))
+        };
+        let theme = Self {
+            payload,
+            bytes: bytes.into(),
+            sha256: hash,
+        };
+        if theme.id() != entry.id || theme.name() != entry.name {
             return Err(ThemeError::new(
                 "THEME_IDENTITY",
                 "主题 ID 或名称与清单不一致",
             ));
         }
-        resume_one_core::layout::check_theme(&manifest)
-            .map_err(|message| ThemeError::new("THEME_UNSUPPORTED", message))?;
-        Ok(Self {
-            manifest,
-            bytes: bytes.into(),
-            sha256: hash,
-        })
+        Ok(theme)
     }
 
     /// Explicit local installation; preserve original manifest bytes and never overwrite.
@@ -309,9 +348,14 @@ impl VerifiedTheme {
             return Err(ThemeError::new("THEME_DIRECTORY", "本地主题位置必须是目录"));
         }
         let prefix = &source.key()[..12];
+        let suffix = if self.original().is_some() {
+            ORIGINAL_THEME_SUFFIX
+        } else {
+            ".theme.json"
+        };
         let path = directory.join(format!(
-            "{prefix}-{}-{}.theme.json",
-            self.manifest.id,
+            "{prefix}-{}-{}{suffix}",
+            self.id(),
             &self.sha256[..12]
         ));
         // Idempotent only for an ordinary existing file with identical bytes.
@@ -350,6 +394,31 @@ mod tests {
     fn source() -> GithubSource {
         GithubSource::new("Example/Themes", "feature/paper", "themes/index.json").unwrap()
     }
+    #[test]
+    fn original_packages_are_explicit_and_require_a_hash() {
+        let value = crate::original::tests::fixture("globalThis.__resumeOneTheme = {}");
+        let bytes = serde_json::to_vec(&value).unwrap();
+        let mut entry = ThemeEntry {
+            id: "test".into(),
+            name: "Test".into(),
+            manifest: "test.original.theme.json".into(),
+            sha256: None,
+        };
+        assert_eq!(
+            VerifiedTheme::parse(&entry, &bytes).unwrap_err().code,
+            "THEME_HASH"
+        );
+        entry.sha256 = Some(sha256(&bytes));
+        let theme = VerifiedTheme::parse(&entry, &bytes).unwrap();
+        assert!(theme.manifest().is_none());
+        assert_eq!(theme.original().unwrap().package, "jsonresume-theme-test");
+        let directory = tempfile::tempdir().unwrap();
+        let path = theme.install(&source(), directory.path()).unwrap();
+        assert_eq!(OriginalTheme::load(&path).unwrap().id, "test");
+        entry.manifest = "test.theme.json".into();
+        assert!(VerifiedTheme::parse(&entry, &bytes).is_err());
+    }
+
     #[test]
     fn restricts_sources_and_paths_and_encodes_refs() {
         let source = source();

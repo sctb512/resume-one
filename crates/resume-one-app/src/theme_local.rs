@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use gpui::{Context, PathPromptOptions, Window, actions};
 use resume_one_core::appearance::Appearance;
 use resume_one_core::export::write_export_unnamed;
 use resume_one_core::parse_theme;
 use resume_one_core::theme_style::ThemeStyle;
-use resume_one_themes::{GithubSource, parse_sources, sha256};
+use resume_one_themes::{
+    GithubSource, ORIGINAL_THEME_SUFFIX, OriginalTheme, parse_sources, sha256,
+};
 use serde_json::{Value, json};
 
 use crate::ResumeOne;
@@ -506,6 +509,26 @@ impl ThemeStore {
         let mut warnings = Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
         for path in Self::theme_paths(directory)? {
+            let identity = format!(
+                "local:{}",
+                path.canonicalize()
+                    .unwrap_or_else(|_| path.clone())
+                    .display()
+            );
+            if path
+                .file_name()
+                .is_some_and(|name| name.to_string_lossy().ends_with(ORIGINAL_THEME_SUFFIX))
+            {
+                match OriginalTheme::load(&path) {
+                    Ok(theme) => themes.push(BuiltinTheme::from_original(
+                        Arc::new(theme),
+                        identity,
+                        Some(path),
+                    )),
+                    Err(error) => warnings.push(format!("{}：{error}", path.display())),
+                }
+                continue;
+            }
             let relative = path
                 .strip_prefix(directory)
                 .expect("scanned inside theme directory");
@@ -522,19 +545,15 @@ impl ThemeStore {
             }
             let style = ThemeStyle::from_manifest(&manifest);
             themes.push(BuiltinTheme {
-                identity: format!(
-                    "local:{}",
-                    path.canonicalize()
-                        .unwrap_or_else(|_| path.clone())
-                        .display()
-                ),
+                identity,
+                original: None,
                 manifest,
                 style,
                 path: Some(path),
             });
         }
         if themes.is_empty() {
-            return Err("主题目录没有有效的声明式主题".into());
+            return Err("主题目录没有有效主题".into());
         }
         let builtin_order: HashMap<String, usize> = BUILTIN_THEMES
             .iter()
@@ -1032,6 +1051,31 @@ mod tests {
             ThemeStore::new(settings, defaults).unwrap().sources,
             [second]
         );
+    }
+
+    #[test]
+    fn downloaded_original_is_available_from_the_configured_local_directory() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("themes");
+        fs::create_dir(&path).unwrap();
+        let file = path.join("local.original.theme.json");
+        let theme = json!({
+            "kind":"json-resume-original", "formatVersion":1, "id":"original-local", "name":"Local",
+            "package":"jsonresume-theme-local", "version":"1.0.0", "license":"MIT", "author":"Example",
+            "upstream":"https://example.com/theme",
+            "script":"globalThis.__resumeOneTheme = { render() { return '<p>Example</p>'; } }"
+        });
+        fs::write(&file, serde_json::to_vec(&theme).unwrap()).unwrap();
+        let (themes, warnings) = ThemeStore::scan(&path).unwrap();
+        assert!(warnings.is_empty());
+        let original = themes
+            .iter()
+            .find(|theme| theme.manifest.id == "original-local")
+            .unwrap();
+        assert!(original.original.is_some());
+        assert_eq!(original.path.as_deref(), Some(file.as_path()));
+        assert_eq!(original.manifest.modules.len(), crate::SECTION_LABELS.len());
+        assert_eq!(themes.len(), BUILTIN_THEMES.len() + 1);
     }
 
     #[test]

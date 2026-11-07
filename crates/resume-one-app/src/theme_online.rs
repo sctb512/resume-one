@@ -4,7 +4,6 @@ use std::{
     sync::Arc,
 };
 
-use resume_one_core::theme_style::ThemeStyle;
 use resume_one_themes::{
     Catalog, CatalogResult, GithubClient, GithubSource, ThemeError, VerifiedTheme, prefetch_window,
 };
@@ -465,12 +464,7 @@ impl OnlineThemes {
 
     pub fn thumbnail_theme(&self, id: &str) -> Option<BuiltinTheme> {
         let theme = self.ready.get(id)?;
-        Some(BuiltinTheme {
-            manifest: theme.manifest().clone(),
-            style: ThemeStyle::from_manifest(theme.manifest()),
-            path: None,
-            identity: self.identity(id)?,
-        })
+        BuiltinTheme::from_verified(theme, self.identity(id)?)
     }
 
     pub fn identity(&self, id: &str) -> Option<String> {
@@ -486,18 +480,7 @@ impl OnlineThemes {
 
     fn resolved(&mut self, id: &str) -> Option<BuiltinTheme> {
         let theme = self.ready.get(id)?;
-        let catalog = self.catalog.as_ref()?;
-        let result = BuiltinTheme {
-            manifest: theme.manifest().clone(),
-            style: ThemeStyle::from_manifest(theme.manifest()),
-            path: None,
-            identity: format!(
-                "online:{}:{}:{}",
-                catalog.source().key(),
-                catalog.commit(),
-                id
-            ),
-        };
+        let result = BuiltinTheme::from_verified(theme, self.identity(id)?)?;
         self.lru.retain(|key| key != id);
         self.lru.push_back(id.to_owned());
         Some(result)
@@ -593,7 +576,7 @@ impl OnlineThemes {
                     self.catalog
                         .as_ref()
                         .is_none_or(|current| catalog.commit() != current.commit())
-                }) || theme.manifest().id != job.id
+                }) || theme.id() != job.id
                 {
                     return effects;
                 }

@@ -1201,6 +1201,7 @@ mod tests {
         let original_manifest = manifest.normalized.clone();
         let mut model = AppModel::load(Some(&source_path)).unwrap();
         model.replace_themes(vec![crate::model::BuiltinTheme {
+            original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
             path: Some(theme_path.clone()),

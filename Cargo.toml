@@ -26,3 +26,8 @@ zip = { version = "8.6.0", default-features = false, features = ["deflate"] }
 printpdf = { version = "0.12.8", default-features = false }
 ttf-parser = "0.25.1"
 gpui = { version = "0.2.2", default-features = false, features = ["font-kit"] }
+
+# QuickJS parses upstream Handlebars templates at runtime. Keep its C engine
+# responsive under the same execution deadline in development and in releases.
+[profile.dev.package.rquickjs-sys]
+opt-level = 2

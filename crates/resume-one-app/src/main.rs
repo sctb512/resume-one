@@ -10,6 +10,7 @@ mod files;
 mod inline_ui;
 mod model;
 mod motion;
+mod original_preview;
 mod preview_ui;
 mod source_gutter;
 mod structure_ui;
@@ -103,6 +104,7 @@ struct ResumeOne {
     recovery_pending: bool,
     inline: inline_ui::InlineUi,
     preview: preview_ui::PreviewState,
+    original_preview: original_preview::OriginalPreviewState,
 }
 
 impl ResumeOne {
@@ -155,6 +157,7 @@ impl ResumeOne {
             recovery_pending: false,
             inline: inline_ui::InlineUi::default(),
             preview: preview_ui::PreviewState::new(cx),
+            original_preview: Default::default(),
         }
     }
     fn active_style(&self) -> ThemeStyle {
@@ -735,7 +738,12 @@ impl ResumeOne {
                     .flex()
                     .justify_center()
                     .when(self.model.preview_ready, |view| {
-                        view.child(self.resume_pages(cx))
+                        let theme = self.display_theme();
+                        if theme.original.is_some() {
+                            view.child(self.original_paper(theme))
+                        } else {
+                            view.child(self.resume_pages(cx))
+                        }
                     })
                     .when(!self.model.preview_ready, |view| {
                         view.child(
@@ -774,6 +782,8 @@ impl ResumeOne {
         }
         let accent = color(palette.accent);
         let enabled = self.structure_enabled();
+        let original = self.model.applied_theme().original.is_some();
+        let sidebar_tools = self.source_mode || original;
         let mut list = div()
             .id("module-list")
             .flex()
@@ -816,7 +826,7 @@ impl ResumeOne {
                         .child(count.to_string()),
                 );
             }
-            if self.source_mode && enabled {
+            if sidebar_tools && enabled {
                 if id != "basics" || !present {
                     controls = controls.child(self.source_module_add(&id, present, count, cx));
                 }
@@ -826,7 +836,7 @@ impl ResumeOne {
             } else if !present && enabled {
                 controls = controls.child(div().text_size(px(17.0)).text_color(accent).child("+"));
             }
-            let source_mode = self.source_mode;
+            let source_mode = sidebar_tools;
             let row_id = id.clone();
             list = list.child(
                 div()
@@ -939,7 +949,7 @@ impl ResumeOne {
                         }
                     })),
             );
-            if self.source_mode
+            if sidebar_tools
                 && present
                 && id != "basics"
                 && self.selected_item_module.as_deref() == Some(id.as_str())
@@ -1034,6 +1044,8 @@ impl ResumeOne {
                         "请先恢复或丢弃草稿，再编辑模块"
                     } else if !enabled {
                         "请先修复 JSON，结构操作暂不可用"
+                    } else if original && !self.source_mode {
+                        "在模块栏调整结构 · ⌘/ 或 Ctrl+/ 编辑内容"
                     } else if self.insertion_before.is_some() {
                         "选择要添加的模块 · Esc 取消"
                     } else if self.selected_module.is_some() || self.selected_item_module.is_some()
@@ -1069,6 +1081,7 @@ impl Render for ResumeOne {
             self.view_blend = self.sidebar_progress;
         }
         self.advance_inline_motion(window, cx);
+        self.request_original_preview(window, cx);
         let shell_target = self.active_style().colors;
         if self
             .shell

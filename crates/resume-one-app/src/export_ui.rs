@@ -68,12 +68,22 @@ struct ExportSnapshot {
     language: Language,
     content: ResumeContent,
     theme: ThemeManifest,
+    original: Option<(
+        std::sync::Arc<resume_one_themes::OriginalTheme>,
+        serde_json::Value,
+    )>,
     source_path: Option<PathBuf>,
 }
 
 fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
     let language = snapshot.language;
     match snapshot.kind {
+        ExportKind::Pdf if let Some((theme, resume)) = &snapshot.original => {
+            resume_one_themes::print_original(theme, resume).map_err(|error| error.to_string())
+        }
+        ExportKind::Docx if snapshot.original.is_some() => {
+            resume_one_core::docx::render(&snapshot.content, language)
+        }
         ExportKind::Pdf => {
             resume_one_core::pdf::render_with_theme(&snapshot.content, language, &snapshot.theme)
         }
@@ -318,6 +328,12 @@ impl ResumeOne {
         }
         let snapshot = ExportSnapshot {
             kind,
+            original: self
+                .model
+                .applied_theme()
+                .original
+                .as_ref()
+                .map(|theme| (theme.clone(), self.model.document.value.clone())),
             language: self.export_language,
             content: self.model.content.clone(),
             theme: self
@@ -505,6 +521,7 @@ mod tests {
             (ExportKind::Markdown, b"# ".as_slice()),
         ] {
             let snapshot = ExportSnapshot {
+                original: None,
                 kind,
                 language: Language::Zh,
                 content: model.content.clone(),
@@ -524,6 +541,7 @@ mod tests {
         ))
         .unwrap();
         let mut snapshot = ExportSnapshot {
+            original: None,
             kind: ExportKind::Docx,
             language: Language::Zh,
             content: model.content.clone(),
@@ -543,6 +561,7 @@ mod tests {
         let model = AppModel::load(None).unwrap();
         for kind in [ExportKind::Text, ExportKind::Markdown] {
             let snapshot = ExportSnapshot {
+                original: None,
                 kind,
                 language: Language::En,
                 content: model.content.clone(),

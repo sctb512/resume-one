@@ -178,7 +178,9 @@ pub fn audit_release_source(directory: &Path) -> Result<SourceAudit, ThemeError>
         })?;
         let bytes = read_source_file(&root, &catalog.manifest_path(entry), MAX_FILE_BYTES)?;
         let verified = VerifiedTheme::parse(entry, &bytes)?;
-        let theme = verified.manifest();
+        let theme = verified
+            .manifest()
+            .ok_or_else(|| ThemeError::new("RELEASE_NOT_MIGRATED", "此验收入口仅验证声明式主题"))?;
         let provenance = &theme.normalized["provenance"];
         if theme.source_version != 2
             || !theme.has_declared_license

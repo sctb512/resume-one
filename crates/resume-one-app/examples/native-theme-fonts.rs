@@ -24,19 +24,23 @@ fn main() {
     assert!(advance.width > gpui::px(0.0));
     // Generated packages may rename files. Read the same validated manifests
     // as the application instead of hard-coding a previous package's paths.
-    let root =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/community-themes");
-    let mut packages = std::fs::read_dir(&root)
-        .unwrap()
-        .map(|p| p.unwrap().path())
-        .filter(|p| p.is_dir())
-        .collect::<Vec<_>>();
+    let mut packages = Vec::new();
+    let root = std::env::var_os("RESUME_ONE_COMMUNITY_THEMES_DIR").map(std::path::PathBuf::from);
+    if let Some(root) = &root {
+        packages.extend(
+            std::fs::read_dir(root)
+                .expect("community theme data directory")
+                .map(|p| p.unwrap().path())
+                .filter(|p| p.is_dir()),
+        );
+        assert!(!packages.is_empty());
+    }
     packages.sort();
-    assert_eq!(packages.len(), 67);
     let mut faces = std::collections::BTreeMap::new();
     for package in packages {
         let relative = std::path::Path::new(package.file_name().unwrap()).join("theme.json");
-        let theme = resume_one_core::load_theme(&root, &relative).expect("validated local package");
+        let theme = resume_one_core::load_theme(root.as_deref().unwrap(), &relative)
+            .expect("validated local package");
         for id in theme.font_asset_ids() {
             let face = resume_one_core::fonts::get(id);
             faces
@@ -44,17 +48,18 @@ fn main() {
                 .or_insert(face);
         }
     }
-    assert!(!faces.is_empty());
     // Register every real weight before first resolving a family: native
     // systems can cache the family's face set on first access.
-    system
-        .add_fonts(
-            faces
-                .values()
-                .map(|f| Cow::Owned(f.bytes.as_ref().clone()))
-                .collect(),
-        )
-        .expect("native migrated font registration");
+    if !faces.is_empty() {
+        system
+            .add_fonts(
+                faces
+                    .values()
+                    .map(|f| Cow::Owned(f.bytes.as_ref().clone()))
+                    .collect(),
+            )
+            .expect("native migrated font registration");
+    }
     for face in faces.values() {
         let mut wanted = gpui::font(face.family.clone());
         wanted.weight = gpui::FontWeight(face.weight as f32);

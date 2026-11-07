@@ -65,13 +65,15 @@ try {
     Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json') -Destination (Join-Path $bundle 'assets\themes') -Force
-    # Same version-controlled local data set embedded by the application build.
-    $communityThemes = Get-ChildItem -LiteralPath (Join-Path $repoRoot 'assets\community-themes') -Directory -Filter 'community-*'
-    foreach ($theme in $communityThemes) {
-        if (-not (Test-Path -LiteralPath (Join-Path $theme.FullName 'theme.json') -PathType Leaf)) {
-            throw "Missing community theme manifest: $($theme.FullName)"
+    # Copy the same optional package set embedded by the build.
+    if ($env:RESUME_ONE_COMMUNITY_THEMES_DIR) {
+        $communityThemes = Get-ChildItem -LiteralPath $env:RESUME_ONE_COMMUNITY_THEMES_DIR -Directory -Filter 'community-*'
+        foreach ($theme in $communityThemes) {
+            if (-not (Test-Path -LiteralPath (Join-Path $theme.FullName 'theme.json') -PathType Leaf)) {
+                throw "Missing community theme manifest: $($theme.FullName)"
+            }
+            Copy-Item -LiteralPath $theme.FullName -Destination (Join-Path $bundle 'assets\themes') -Recurse -Force
         }
-        Copy-Item -LiteralPath $theme.FullName -Destination (Join-Path $bundle 'assets\themes') -Recurse -Force
     }
     if ($Archive) {
         $archivePath = Join-Path $repoRoot "target\$Profile\Resume-One-Windows-x64-unsigned.zip"

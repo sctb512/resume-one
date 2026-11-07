@@ -1,0 +1,124 @@
+name: Build and release Resume One
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resume-one-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_INCREMENTAL: '0'
+  CARGO_PROFILE_RELEASE_STRIP: none
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  native:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            platform: macOS-arm64
+          - os: windows-2025
+            platform: Windows-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Read the community theme pin
+        id: themes
+        shell: bash
+        run: |
+          ref=$(cat packaging/community-themes.ref)
+          [[ "$ref" =~ ^[0-9a-f]{40}$ ]]
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ github.repository_owner }}/resume-one-themes
+          ref: ${{ steps.themes.outputs.ref }}
+          token: ${{ secrets.THEMES_READ_TOKEN || github.token }}
+          path: .release-themes
+          persist-credentials: false
+      - name: Verify the checkout and set the theme directory
+        shell: bash
+        env:
+          THEME_COMMIT: ${{ steps.themes.outputs.ref }}
+        run: |
+          test "$(git -C .release-themes rev-parse HEAD)" = "$THEME_COMMIT"
+          echo "RESUME_ONE_COMMUNITY_THEMES_DIR=$GITHUB_WORKSPACE/.release-themes/themes" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Prepare Xcode and Rust
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          rustup show active-toolchain
+          if ! xcrun --sdk macosx metal --version; then
+            xcodebuild -downloadComponent MetalToolchain
+          fi
+          xcrun --sdk macosx metal --version
+      - name: Package macOS Apple Silicon
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p dist
+          bash packaging/macos/bundle.sh release "$GITHUB_WORKSPACE/dist/Resume One.app"
+          bash packaging/macos/archive.sh release \
+            "$GITHUB_WORKSPACE/dist/Resume-One-macOS-arm64-unsigned.zip" \
+            "$GITHUB_WORKSPACE/dist/Resume One.app"
+      - name: Package Windows x64
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          rustup show active-toolchain
+          ./packaging/windows/bundle.ps1 -Profile release -Archive
+          New-Item -ItemType Directory -Path dist | Out-Null
+          Copy-Item -LiteralPath 'target/release/Resume-One-Windows-x64-unsigned.zip' -Destination dist
+      - name: Verify the archive and bundled themes
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: python packaging/verify-release.py "dist/Resume-One-$PLATFORM-unsigned.zip" "$RESUME_ONE_COMMUNITY_THEMES_DIR"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: resume-one-${{ matrix.platform }}
+          path: dist/*.zip
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: native
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: resume-one-*
+          merge-multiple: true
+          path: dist
+      - name: Publish both native builds
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (
+            cd dist
+            sha256sum Resume-One-macOS-arm64-unsigned.zip Resume-One-Windows-x64-unsigned.zip > SHA256SUMS
+          )
+          gh release create "$GITHUB_REF_NAME" --verify-tag --prerelease --generate-notes \
+            dist/Resume-One-macOS-arm64-unsigned.zip dist/Resume-One-Windows-x64-unsigned.zip dist/SHA256SUMS

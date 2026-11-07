@@ -35,12 +35,13 @@ cp "$repo_root/docs/user-manual.md" "$repo_root/docs/cli-manual.md" "$bundle/Con
 cp "$repo_root/resume-one-theme-spec-v2.md" "$bundle/Contents/Resources/spec/"
 cp "$repo_root"/spec/* "$bundle/Contents/Resources/spec/"
 cp "$repo_root"/assets/themes/*.theme.json "$bundle/Contents/Resources/assets/themes/"
-# Only the checked-in local acceptance set is embedded by the application and
-# copied here. Batch outputs and comparison artifacts stay under target/.
-for manifest in "$repo_root"/assets/community-themes/community-*/theme.json; do
-    test -f "$manifest"
-    cp -R "$(dirname "$manifest")" "$bundle/Contents/Resources/assets/themes/"
-done
+# Copy the same optional package set embedded by the build.
+if [[ -n "${RESUME_ONE_COMMUNITY_THEMES_DIR:-}" ]]; then
+    for manifest in "$RESUME_ONE_COMMUNITY_THEMES_DIR"/community-*/theme.json; do
+        test -f "$manifest"
+        cp -R "$(dirname "$manifest")" "$bundle/Contents/Resources/assets/themes/"
+    done
+fi
 cp "$repo_root/target/$profile/resume-one-app" "$bundle/Contents/MacOS/resume-one-app"
 cp "$repo_root/target/$profile/resume-one" "$bundle/Contents/MacOS/resume-one"
 cp "$repo_root/target/$profile/resume-one-theme-migrate" "$bundle/Contents/MacOS/resume-one-theme-migrate"

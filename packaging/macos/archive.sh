@@ -27,6 +27,6 @@ ditto -c -k --sequesterRsrc --keepParent "$bundle" "$archive"
 unzip -tq "$archive" >/dev/null
 mkdir "$archive_dir/unpacked"
 ditto -x -k "$archive" "$archive_dir/unpacked"
-codesign --verify --deep --strict --verbose=2 "$archive_dir/unpacked/Resume One.app"
+codesign --verify --deep --strict --verbose=2 "$archive_dir/unpacked/$(basename "$bundle")"
 mv "$archive" "$output"
 echo "$output"

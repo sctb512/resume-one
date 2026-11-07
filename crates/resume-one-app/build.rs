@@ -1,6 +1,10 @@
-//! Embed only data from the version-controlled, locally accepted theme set.
-//! Theme source programs and runtime directory discovery are never involved.
-use std::{env, fs, path::Path};
+//! Embed the optional declarative package directory supplied by the build.
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+};
+
+const COMMUNITY_DIR: &str = "RESUME_ONE_COMMUNITY_THEMES_DIR";
 
 fn portable_name(value: &str) -> bool {
     !value.starts_with('.')
@@ -11,13 +15,21 @@ fn portable_name(value: &str) -> bool {
 }
 
 fn main() {
-    let root = Path::new(&env::var_os("CARGO_MANIFEST_DIR").unwrap())
-        .join("../../assets/community-themes");
-    println!("cargo:rerun-if-changed={}", root.display());
-    let mut packages = fs::read_dir(&root)
-        .expect("community theme data directory")
-        .map(|entry| entry.unwrap().path())
-        .collect::<Vec<_>>();
+    println!("cargo:rerun-if-env-changed={COMMUNITY_DIR}");
+    let root = env::var_os(COMMUNITY_DIR).map(PathBuf::from);
+    let mut packages = Vec::new();
+    if let Some(root) = &root {
+        assert!(
+            root.is_absolute() && fs::symlink_metadata(root).is_ok_and(|meta| meta.is_dir()),
+            "{COMMUNITY_DIR} must be an absolute regular directory"
+        );
+        println!("cargo:rerun-if-changed={}", root.display());
+        packages.extend(
+            fs::read_dir(root)
+                .expect("community theme data directory")
+                .map(|entry| entry.unwrap().path()),
+        );
+    }
     packages.sort();
     let mut generated = String::from("pub(super) const BUNDLES: &[Bundle] = &[\n");
     let mut count = 0;
@@ -92,8 +104,8 @@ fn main() {
         count += 1;
     }
     assert!(
-        count > 0 && count <= 256,
-        "community theme count must be bounded and nonzero"
+        count <= 256 && (root.is_none() || count > 0),
+        "a supplied community theme directory must contain 1 to 256 packages"
     );
     generated.push_str("];\n");
     fs::write(

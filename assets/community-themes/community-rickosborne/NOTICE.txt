@@ -1,9 +1,0 @@
-Rickosborne — Resume One best-effort declarative adaptation
-Source: https://www.npmjs.com/package/jsonresume-theme-rickosborne/v/2022.9.16-T1450
-Revision: 2022.9.16-T1450
-License declaration: CC-BY-NC-SA-4.0
-No upstream endorsement. License declaration is not legal clearance.
-No source code executed; resume JSON not modified.
-Not pixel-identical. See MIGRATION.json for mapped rules, substitutions and verification limits.
-Upstream author declaration: Rick Osborne (https://rickosborne.org)
-Original project declaration: https://github.com/rickosborne/jsonresume-theme-rickosborne

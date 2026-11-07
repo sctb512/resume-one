@@ -39,6 +39,9 @@ struct Declaration {
     section: Option<&'static str>,
     sidebar: bool,
     container: bool,
+    root: bool,
+    body_container: bool,
+    selector: String,
     property: String,
     value: String,
     // Importance, semantic relevance, simple-selector specificity, source order.
@@ -606,6 +609,8 @@ fn collect_css(
             let inferred_container = containers.contains(selector);
             let matched = if page_rule {
                 Some(("page", 0))
+            } else if selector == ":root" {
+                Some(("body", 1))
             } else if inferred_container {
                 Some(("body", 10))
             } else if side_columns.contains(selector) {
@@ -615,6 +620,7 @@ fn collect_css(
                     .and_then(role)
                     .or_else(|| base.and_then(role))
                     .map(|r| (r, 20))
+                    .or_else(|| component.map(|_| ("entrySource", 20)))
             } else {
                 selector_role(selector)
             };
@@ -695,6 +701,7 @@ fn collect_css(
             };
             audit.matched.insert(role.to_owned());
             let container = page_rule
+                || selector == ":root"
                 || inferred_container
                 || if scope.is_empty() || selector == "&" {
                     component.is_some_and(container_role)
@@ -713,6 +720,13 @@ fn collect_css(
                 section,
                 sidebar,
                 container,
+                root: matches!(selector, "html" | ":root")
+                    || (scope.is_empty()
+                        && component
+                            .is_some_and(|c| matches!(normalized(c).as_str(), "html" | "root"))),
+                body_container: selector == "body"
+                    || (scope.is_empty() && component.is_some_and(|c| normalized(c) == "body")),
+                selector: selector.to_owned(),
                 property: property.to_ascii_lowercase(),
                 value: value_resolved.clone(),
                 rank: (d["important"] == true, relevance, specificity, audit.seen),
@@ -720,8 +734,9 @@ fn collect_css(
             };
             // Expand only the bounded box shorthand; longhands then resolve in source order.
             if matches!(decl.property.as_str(), "padding" | "margin") {
-                let parts = decl.value.split_whitespace().collect::<Vec<_>>();
-                if (1..=4).contains(&parts.len()) {
+                if let Some(parts) =
+                    css_words(&decl.value, false).filter(|p| (1..=4).contains(&p.len()))
+                {
                     let four = match parts.as_slice() {
                         [a] => [*a, *a, *a, *a],
                         [a, b] => [*a, *b, *a, *b],
@@ -764,8 +779,7 @@ fn collect_css(
 }
 
 fn font_shorthand(input: &str) -> Option<Vec<(String, String)>> {
-    let spaced = input.replace('/', " / ");
-    let parts = spaced.split_whitespace().collect::<Vec<_>>();
+    let parts = css_words(input, true)?;
     let at = parts
         .iter()
         .position(|p| length_pt(p, 12.0, 12.0).is_some() && p.chars().any(char::is_alphabetic))?;
@@ -796,6 +810,65 @@ fn font_shorthand(input: &str) -> Option<Vec<(String, String)>> {
     }
     result.push(("font-family".into(), parts[family_at..].join(" ")));
     Some(result)
+}
+
+/// Token boundaries outside literal functions/quotes only; never split a calc
+/// expression into unrelated box sides or alter quoted font-family contents.
+fn css_words(input: &str, slash: bool) -> Option<Vec<&str>> {
+    if input.len() > 8192 {
+        return None;
+    }
+    let mut result = Vec::new();
+    let mut start = None;
+    let mut depth = 0usize;
+    let mut quote = None;
+    let mut escaped = false;
+    for (at, c) in input.char_indices() {
+        if let Some(q) = quote {
+            if escaped {
+                escaped = false;
+            } else if c == '\\' {
+                escaped = true;
+            } else if c == q {
+                quote = None;
+            }
+            continue;
+        }
+        if matches!(c, '\'' | '"') {
+            quote = Some(c);
+            start.get_or_insert(at);
+            continue;
+        }
+        if c == '(' {
+            depth += 1;
+            if depth > 32 {
+                return None;
+            }
+        }
+        if c == ')' {
+            depth = depth.checked_sub(1)?;
+        }
+        if depth == 0 && (c.is_ascii_whitespace() || (slash && c == '/')) {
+            if let Some(begin) = start.take() {
+                result.push(&input[begin..at]);
+            }
+            if c == '/' {
+                result.push(&input[at..at + 1]);
+            }
+            if result.len() > 32 {
+                return None;
+            }
+        } else {
+            start.get_or_insert(at);
+        }
+    }
+    if quote.is_some() || depth != 0 {
+        return None;
+    }
+    if let Some(begin) = start {
+        result.push(&input[begin..]);
+    }
+    (result.len() <= 32).then_some(result)
 }
 
 fn number(s: &str) -> Option<f64> {
@@ -849,23 +922,7 @@ fn font_families(input: &str) -> Option<Vec<String>> {
 }
 
 fn length_pt(s: &str, em: f64, rem: f64) -> Option<f64> {
-    let s = s.trim().to_ascii_lowercase();
-    for (unit, scale) in [
-        ("rem", rem),
-        ("em", em),
-        ("pt", 1.0),
-        ("px", 0.75),
-        ("mm", 72.0 / 25.4),
-        ("cm", 720.0 / 25.4),
-        ("in", 72.0),
-        ("pc", 12.0),
-        ("%", em / 100.0),
-    ] {
-        if let Some(value) = s.strip_suffix(unit) {
-            return number(value).map(|v| v * scale);
-        }
-    }
-    (number(&s) == Some(0.0)).then_some(0.0)
+    crate::css_numeric::length_pt(s, em, rem)
 }
 
 fn color(s: &str) -> Option<String> {
@@ -1019,14 +1076,45 @@ fn choose(
 ) -> BTreeMap<(String, String), Declaration> {
     let mut selected = BTreeMap::<(String, String), Declaration>::new();
     for d in declarations {
+        if d.body_container {
+            let key = ("body-container".to_owned(), d.property.clone());
+            if selected.get(&key).is_none_or(|old| d.rank >= old.rank) {
+                selected.insert(key, d.clone());
+            }
+        }
+        if d.root {
+            let key = ("root".to_owned(), d.property.clone());
+            if selected.get(&key).is_none_or(|old| d.rank >= old.rank) {
+                selected.insert(key, d.clone());
+            }
+        }
         if d.role == "body" && d.container {
             let key = ("document".to_owned(), d.property.clone());
-            if selected.get(&key).is_none_or(|old| d.rank >= old.rank) {
+            let depth = |v: &Declaration| {
+                if v.root {
+                    0
+                } else if v.body_container {
+                    1
+                } else {
+                    2
+                }
+            };
+            if selected
+                .get(&key)
+                .is_none_or(|old| (depth(d), d.rank) >= (depth(old), old.rank))
+            {
                 selected.insert(key, d.clone());
             }
         }
         let key = (d.role.to_owned(), d.property.clone());
         if let Some(old) = selected.get(&key) {
+            if d.role == "body" && d.root != old.root {
+                if d.root {
+                    continue;
+                }
+                selected.insert(key, d.clone());
+                continue;
+            }
             if old.value != d.value {
                 audit.difference("COLLAPSED_ROLE_CONFLICT", &json!({"previous":old.source,"next":d.source,
                     "selected":if d.rank >= old.rank {&d.source} else {&old.source}}),
@@ -1041,20 +1129,54 @@ fn choose(
     selected
 }
 
+fn font_context(selected: &BTreeMap<(String, String), Declaration>) -> (f64, f64, f64) {
+    let root = selected
+        .get(&("root".into(), "font-size".into()))
+        .and_then(|d| length_pt(&d.value, 12.0, 12.0))
+        .filter(|v| (0.1..=96.0).contains(v))
+        .unwrap_or(12.0);
+    let body = selected
+        .get(&("body-container".into(), "font-size".into()))
+        .and_then(|d| length_pt(&d.value, root, root))
+        .filter(|v| (0.1..=96.0).contains(v))
+        .unwrap_or(root);
+    let document = selected
+        .get(&("document".into(), "font-size".into()))
+        .and_then(|d| {
+            if d.root {
+                Some(root)
+            } else if d.body_container {
+                Some(body)
+            } else {
+                length_pt(&d.value, body, root)
+            }
+        })
+        .filter(|v| (0.1..=96.0).contains(v))
+        .unwrap_or(body);
+    (root, body, document)
+}
+
 fn text_styles(
     theme: &mut Value,
     selected: &BTreeMap<(String, String), Declaration>,
     audit: &mut Audit,
 ) {
-    let body_pt = selected
-        .get(&("body".into(), "font-size".into()))
-        .and_then(|d| length_pt(&d.value, 12.0, 12.0))
-        .filter(|n| (7.0..=42.0).contains(n))
-        .unwrap_or_else(|| {
-            theme["typography"]["body"]["sizePt"]
-                .as_f64()
-                .unwrap_or(10.0)
-        });
+    let (root_pt, body_root_pt, document_pt) = font_context(selected);
+    if let Some(d) = selected.get(&("root".into(), "font-size".into()))
+        && !length_pt(&d.value, 12.0, 12.0).is_some_and(|v| (0.1..=96.0).contains(&v))
+    {
+        audit.difference(
+            "ROOT_FONT_SIZE_CONTEXT_UNRESOLVED",
+            &d.source,
+            "根字号超出受支持的静态上下文范围，采用 12pt 初始根字号；相对尺寸不标为精确",
+        );
+    }
+    audit.evidence(
+        "font-size-context",
+        &json!({"rootSizePt":root_pt,"documentSizePt":document_pt,"initialRootAssumptionPt":12}),
+        &Value::Null,
+        "根字号独立于局部段落字号；相对字号使用对应根/推断文档父字号，尚不计算任意 DOM 祖先",
+    );
     for role in ROLES {
         let own = |p: &str| selected.get(&(role.into(), p.into()));
         let size_path = format!("/typography/{role}/sizePt");
@@ -1070,7 +1192,7 @@ fn text_styles(
                 theme,
                 audit,
                 &size_path,
-                length_pt(&d.value, 12.0, 12.0),
+                Some(document_pt),
                 7.0,
                 42.0,
                 old_size,
@@ -1083,12 +1205,20 @@ fn text_styles(
                 theme,
                 audit,
                 &size_path,
-                length_pt(&d.value, if role == "body" { 12.0 } else { body_pt }, 12.0),
+                if d.root {
+                    Some(root_pt)
+                } else if d.body_container {
+                    Some(body_root_pt)
+                } else if d.container {
+                    Some(document_pt)
+                } else {
+                    length_pt(&d.value, document_pt, root_pt)
+                },
                 7.0,
                 42.0,
                 old_size,
                 d,
-                "CSS px=0.75pt；相对字号使用推断的父正文及 12pt 根字号",
+                "CSS px=0.75pt；相对字号分别使用根字号和推断的文档父字号，局部段落不改变其它角色的父字号",
             );
         }
         let size = theme
@@ -1205,7 +1335,14 @@ fn text_styles(
                                 .and_then(number)
                                 .map(|n| n / 100.0)
                         })
-                        .or_else(|| length_pt(&d.value, size, 12.0).map(|v| v / size));
+                        .or_else(|| {
+                            length_pt(
+                                &d.value,
+                                if inherited { document_pt } else { size },
+                                root_pt,
+                            )
+                            .map(|v| v / size)
+                        });
                     bounded(
                         theme,
                         audit,
@@ -1222,7 +1359,12 @@ fn text_styles(
                     let value = if d.value == "normal" {
                         Some(0.0)
                     } else {
-                        length_pt(&d.value, size, 12.0).map(|n| n / size)
+                        length_pt(
+                            &d.value,
+                            if inherited { document_pt } else { size },
+                            root_pt,
+                        )
+                        .map(|n| n / size)
                     };
                     bounded(
                         theme,
@@ -1280,10 +1422,16 @@ fn section_paths(d: &Declaration, field: &str) -> Vec<String> {
 }
 
 fn border_color(s: &str) -> Option<String> {
-    color(s).or_else(|| s.split_whitespace().rev().find_map(color))
+    color(s).or_else(|| css_words(s, false)?.into_iter().rev().find_map(color))
 }
 
-fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut Audit) {
+fn apply_structure(
+    theme: &mut Value,
+    declarations: &[Declaration],
+    selected: &BTreeMap<(String, String), Declaration>,
+    audit: &mut Audit,
+) {
+    let (root_pt, _, document_pt) = font_context(selected);
     // Resolve per output target, so section-specific decoration is not flattened.
     let mut changes = BTreeMap::<String, (Value, Declaration, &str)>::new();
     for d in declarations {
@@ -1523,23 +1671,8 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
                     "按当前横排从左到右的文档方向投影到物理页边；不模拟 CSS writing-mode 或 RTL",
                 );
             }
-            let val = length_pt(v, 10.0, 12.0).map(|n| n * 25.4 / 72.0);
-            let val = match val {
-                Some(n) if (3.0..=35.0).contains(&n) => n,
-                _ => {
-                    audit.difference(
-                        "NUMERIC_VALUE_UNREPRESENTABLE",
-                        &d.source,
-                        "页边距需要 3..=35mm，采用安全值 16mm，不作 clamp",
-                    );
-                    16.0
-                }
-            };
-            proposals.push((
-                format!("/page/marginsMm/{side}"),
-                json!(val),
-                "容器内边距近似页面边距，CSS 盒模型及满版背景不等价",
-            ));
+            // Page margins and nested document padding are independent boxes;
+            // page_box resolves their separate cascades and composes them.
         }
         if matches!(
             d.property.as_str(),
@@ -1551,7 +1684,10 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
                 audit.difference("MODULE_MARGIN_NOT_GLOBALIZED", &d.source, "单一模块的 margin 不提升为所有模块的间距，避免 publication 等局部规则压缩整个文档");
                 continue;
             }
-            let val = length_pt(v, 10.0, 12.0).map(|n| n * 25.4 / 72.0);
+            let val = (!v.contains('%'))
+                .then(|| length_pt(v, document_pt, root_pt))
+                .flatten()
+                .map(|n| n * 25.4 / 72.0);
             let val = match val {
                 Some(n) if (3.0..=20.0).contains(&n) => n,
                 Some(n) if (0.0..3.0).contains(&n) => {
@@ -1625,6 +1761,116 @@ fn apply_structure(theme: &mut Value, declarations: &[Declaration], audit: &mut 
     }
     for (path, (value, d, reason)) in changes {
         write(theme, audit, &path, value, &d, reason);
+    }
+}
+
+fn page_box(
+    theme: &mut Value,
+    declarations: &[Declaration],
+    selected: &BTreeMap<(String, String), Declaration>,
+    audit: &mut Audit,
+) {
+    let (root_pt, body_pt, document_pt) = font_context(selected);
+    let mut groups = BTreeMap::<(u8, String), BTreeMap<String, Declaration>>::new();
+    for d in declarations {
+        let Some((kind, edge)) = d.property.split_once('-') else {
+            continue;
+        };
+        let Some(side) = (match edge {
+            "top" | "right" | "bottom" | "left" => Some(edge),
+            "block-start" => Some("top"),
+            "block-end" => Some("bottom"),
+            "inline-start" => Some("left"),
+            "inline-end" => Some("right"),
+            _ => None,
+        }) else {
+            continue;
+        };
+        let group = if d.role == "page" && kind == "margin" {
+            (0, "@page".into())
+        } else if kind == "padding" && d.container && matches!(d.role, "body" | "main") {
+            if d.root {
+                (1, "html".into())
+            } else if d.body_container {
+                (2, "body".into())
+            } else {
+                (
+                    3,
+                    if let Some(component) = d.source["component"].as_str() {
+                        format!("{}:{component}", d.source["file"].as_str().unwrap_or(""))
+                    } else {
+                        d.selector.clone()
+                    },
+                )
+            }
+        } else {
+            continue;
+        };
+        let fields = groups.entry(group).or_default();
+        if fields.get(side).is_none_or(|old| d.rank >= old.rank) {
+            fields.insert(side.into(), d.clone());
+        }
+    }
+    let document = groups
+        .iter()
+        .filter(|((kind, _), _)| *kind == 3)
+        .max_by_key(|(_, fields)| fields.values().map(|d| d.rank).max())
+        .map(|(key, _)| key.clone());
+    if groups.keys().filter(|(kind, _)| *kind == 3).count() > 1 {
+        audit.difference("DOCUMENT_PADDING_CONTAINER_INFERRED",&json!({"selected":document}),"多个候选文档容器未证明父子关系，选择单一容器的边距集合，不把所有备选布局或子节点内距相加");
+    }
+    for side in ["top", "right", "bottom", "left"] {
+        let mut total = 0.0;
+        let mut inputs = Vec::new();
+        let mut source = None;
+        let mut invalid = false;
+        for ((kind, id), fields) in &groups {
+            if *kind == 3 && document.as_ref() != Some(&(*kind, id.clone())) {
+                continue;
+            }
+            let Some(d) = fields.get(side) else { continue };
+            let em = match kind {
+                1 => root_pt,
+                2 => body_pt,
+                _ => document_pt,
+            };
+            // Percent box insets depend on containing-block width, never em.
+            let value = if d.value.contains('%') {
+                None
+            } else {
+                length_pt(&d.value, em, root_pt).map(|n| n * 25.4 / 72.0)
+            };
+            let valid = value.filter(|n| (0.0..=35.0).contains(n));
+            if let Some(value) = valid {
+                total += value;
+            } else {
+                invalid = true;
+            }
+            inputs.push(json!({"box":id,"kind":kind,"valueMm":valid,"source":d.source}));
+            source = Some(d);
+        }
+        let Some(source) = source else { continue };
+        let value = if !invalid && (3.0..=35.0).contains(&total) {
+            total
+        } else {
+            audit.difference("NUMERIC_VALUE_UNREPRESENTABLE",&json!({"side":side,"inputs":inputs,"sumMm":total}),"纸面边距与容器内距分别解析并相加；结果须为 3..35mm，负值、百分比或超范围采用 16mm，不猜测容器宽度");
+            16.0
+        };
+        let path = format!("/page/marginsMm/{side}");
+        write(
+            theme,
+            audit,
+            &path,
+            json!(value),
+            source,
+            "组合独立的 @page 纸面边距、html/body 内距与单一文档容器内距，不再相互覆盖；片段分页及完整 CSS 盒模型仍待复核",
+        );
+        audit.evidence(
+            "page-box-composition",
+            &json!({"side":side,"inputs":inputs,"effectiveMm":value}),
+            &source.source,
+            "各盒子的独立声明优先级；没有合并任意嵌套容器或按字体大小换算百分比页边距",
+        );
     }
 }
 
@@ -2108,16 +2354,23 @@ fn renderer_font_fallbacks(theme: &mut Value, audit: &mut Audit) {
 fn reserve_first_baseline_clearance(theme: &mut Value, audit: &mut Audit) {
     // The shared stack writer starts at a text baseline, whereas CSS padding
     // starts above the line box. A small CSS inset cannot be copied blindly.
-    let sans = layout::FontKind::Sans.vertical_metrics().0 as f64;
-    let serif = layout::FontKind::Serif.vertical_metrics().0 as f64;
+    let line_box = theme["page"]["firstLinePosition"] == "line-box";
+    let sans_metrics = layout::FontKind::Sans.vertical_metrics();
+    let serif_metrics = layout::FontKind::Serif.vertical_metrics();
     let ascent = ROLES
         .iter()
         .map(|role| {
             let text = &theme["typography"][role];
-            let factor = if text["family"] == "cjk-serif" {
-                serif
+            let (ascent, descent) = if text["family"] == "cjk-serif" {
+                serif_metrics
             } else {
-                sans
+                sans_metrics
+            };
+            let factor = if line_box {
+                (f64::from(ascent + descent) - text["lineHeight"].as_f64().unwrap_or(1.4)).max(0.0)
+                    / 2.0
+            } else {
+                f64::from(ascent)
             };
             text["sizePt"].as_f64().unwrap_or(0.0) * factor
         })
@@ -2133,6 +2386,303 @@ fn reserve_first_baseline_clearance(theme: &mut Value, audit: &mut Audit) {
         );
         put(theme, "/page/marginsMm/top", json!(chosen));
     }
+}
+
+fn linked_entry_declarations<'a>(
+    graph: &Value,
+    binding: &str,
+    file: &str,
+    by_component: &BTreeMap<(&str, &str), Vec<&'a Declaration>>,
+) -> BTreeMap<String, &'a Declaration> {
+    let mut selected = BTreeMap::new();
+    let Some(nodes) = graph["nodes"].as_array() else {
+        return selected;
+    };
+    let Some(node) = nodes
+        .iter()
+        .find(|node| node["id"] == binding && node["inheritanceLinked"] == true)
+    else {
+        return selected;
+    };
+    let mut priorities = BTreeMap::new();
+    for (order, layer) in node["layers"].as_array().into_iter().flatten().enumerate() {
+        let Some(name) = nodes
+            .iter()
+            .find(|node| node["id"] == *layer)
+            .and_then(|node| node["name"].as_str())
+        else {
+            continue;
+        };
+        for &declaration in by_component.get(&(file, name)).into_iter().flatten() {
+            // Base and derived styles target one element. Resolve both layers
+            // before computing em; the base is not another DOM ancestor.
+            let priority = (
+                declaration.rank.0,
+                declaration.rank.2,
+                order,
+                declaration.rank.3,
+            );
+            if priorities
+                .get(&declaration.property)
+                .is_none_or(|old| priority >= *old)
+            {
+                priorities.insert(declaration.property.clone(), priority);
+                selected.insert(declaration.property.clone(), declaration);
+            }
+        }
+    }
+    selected
+}
+
+fn entry_headers(
+    theme: &mut Value,
+    report: &Value,
+    declarations: &[Declaration],
+    selected: &BTreeMap<(String, String), Declaration>,
+    audit: &mut Audit,
+) -> (Value, Vec<Value>) {
+    let proof = match crate::entry_templates::extract(report) {
+        Ok(proof) => proof,
+        Err(error) => {
+            audit.difference(
+                "ENTRY_TEMPLATE_PROJECTION_UNSUPPORTED",
+                &json!({"message":error}),
+                "字段分组提取超出有界子集，保留标准模块排版",
+            );
+            return (json!({"error":error,"equivalent":false}), Vec::new());
+        }
+    };
+    let mut requests = Vec::new();
+    let (root_pt, _, document_pt) = font_context(selected);
+    let mut by_component = BTreeMap::<(&str, &str), Vec<&Declaration>>::new();
+    for declaration in declarations
+        .iter()
+        .filter(|d| matches!(d.selector.as_str(), "" | "&"))
+    {
+        if let (Some(file), Some(name)) = (
+            declaration.source["file"].as_str(),
+            declaration.source["component"].as_str(),
+        ) {
+            by_component
+                .entry((file, name))
+                .or_default()
+                .push(declaration);
+        }
+    }
+    for candidate in proof["candidates"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|c| c["usable"] == true && c["selectionUnambiguous"] == true)
+    {
+        let Some(module) = candidate["module"]
+            .as_str()
+            .filter(|s| MODULES[1..].contains(s))
+        else {
+            continue;
+        };
+        let Some(file) = candidate["entryFile"].as_str() else {
+            continue;
+        };
+        let Some(template) = report["templatePrograms"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .find(|t| t["entryFile"] == file && t["sourceSha256"] == candidate["sourceSha256"])
+        else {
+            continue;
+        };
+        let graph = &template["styleGraph"];
+        let Some(rows) = candidate["rows"]
+            .as_array()
+            .filter(|rows| !rows.is_empty() && rows.len() <= 8)
+        else {
+            continue;
+        };
+        if rows.iter().any(|r| r["singleSourceStyle"] == false) {
+            audit.difference("ENTRY_MIXED_INLINE_STYLES_UNREPRESENTABLE",candidate,"同一行含不同来源的字符样式，当前声明式标题行不能逐 span 表达，保留原模块排版而不静默拉平");
+            continue;
+        }
+        let mut lines = Vec::new();
+        let mut module_requests = Vec::new();
+        let mut supported = true;
+        for (index, row) in rows.iter().enumerate() {
+            let Some(parts) = row["parts"]
+                .as_array()
+                .filter(|p| !p.is_empty() && p.len() <= 6)
+            else {
+                supported = false;
+                break;
+            };
+            if parts.iter().any(|p| {
+                ["prefix", "suffix"].iter().any(|key| {
+                    p[*key].as_str().is_some_and(|s| {
+                        s.chars().count() > 32
+                            || s.contains(['<', '>'])
+                            || s.chars().any(char::is_control)
+                    })
+                })
+            }) {
+                supported = false;
+                break;
+            }
+            let mut probe = theme.clone();
+            probe["typography"]["body"] = json!({"family":"cjk-sans","sizePt":document_pt,"weight":400,"fontStyle":"normal","lineHeight":1.4,"textTransform":"none"});
+            let mut inherited = selected
+                .iter()
+                .filter(|((role, _), _)| {
+                    matches!(role.as_str(), "root" | "document" | "body-container")
+                })
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect::<BTreeMap<_, _>>();
+            for ((role, property), d) in selected {
+                if role == "document"
+                    && matches!(
+                        property.as_str(),
+                        "font-family"
+                            | "font-size"
+                            | "font-weight"
+                            | "font-style"
+                            | "line-height"
+                            | "letter-spacing"
+                            | "text-transform"
+                            | "color"
+                    )
+                {
+                    inherited.insert(("body".into(), property.clone()), d.clone());
+                }
+            }
+            let mut local = Audit::default();
+            text_styles(&mut probe, &inherited, &mut local);
+            let mut components = row["components"].as_array().cloned().unwrap_or_default();
+            if let Some(binding) = row["styleComponentBinding"].as_str()
+                && !components.iter().any(|c| c["binding"] == binding)
+            {
+                components.push(json!({"binding":binding}));
+            }
+            // Normalize inherited relative lengths before moving to a child.
+            // A parent's absolute line-height and tracking remain absolute.
+            for component in components.iter().chain(std::iter::once(&Value::Null)) {
+                let size = probe["typography"]["body"]["sizePt"]
+                    .as_f64()
+                    .unwrap_or(document_pt);
+                for key in ["font-size", "line-height", "letter-spacing"] {
+                    if let Some(d) = inherited.get_mut(&("body".into(), key.into())) {
+                        let computed = match key {
+                            "font-size" => Some(size),
+                            "line-height" if number(&d.value).is_none() => {
+                                probe["typography"]["body"]["lineHeight"]
+                                    .as_f64()
+                                    .map(|n| n * size)
+                            }
+                            "letter-spacing" => Some(
+                                probe["typography"]["body"]["trackingEm"]
+                                    .as_f64()
+                                    .unwrap_or(0.0)
+                                    * size,
+                            ),
+                            _ => None,
+                        };
+                        if let Some(value) = computed {
+                            d.value = format!("{value}pt");
+                        }
+                    }
+                }
+                if let Some(mut parent) =
+                    inherited.get(&("body".into(), "font-size".into())).cloned()
+                {
+                    parent.root = false;
+                    parent.body_container = false;
+                    parent.container = true;
+                    inherited.insert(("document".into(), "font-size".into()), parent);
+                }
+                let Some(binding) = component["binding"].as_str() else {
+                    continue;
+                };
+                for (property, declaration) in
+                    linked_entry_declarations(graph, binding, file, &by_component)
+                {
+                    let mut d = declaration.clone();
+                    d.role = "body";
+                    d.root = false;
+                    d.body_container = false;
+                    d.container = false;
+                    inherited.insert(("body".into(), property), d);
+                }
+                text_styles(&mut probe, &inherited, &mut local);
+            }
+            let request = font_requests(&probe, &inherited, &mut local)
+                .into_iter()
+                .find(|r| r["role"] == "body");
+            renderer_font_fallbacks(&mut probe, &mut local);
+            if !local.differences.is_empty() {
+                audit.difference(
+                    "ENTRY_ROW_STYLE_ADAPTATION",
+                    &json!({"module":module,"index":index,"differences":local.differences}),
+                    "行样式的数值限制和真实字体回退保持显式记录",
+                );
+            }
+            let mut style = probe["typography"]["body"].clone();
+            let background = if theme["composition"]["placements"][module] == "sidebar" {
+                theme["colors"]["sidebar"]
+                    .as_str()
+                    .or_else(|| theme["colors"]["paper"].as_str())
+            } else {
+                theme["colors"]["paper"].as_str()
+            };
+            if let (Some(color), Some(background)) = (style["color"].as_str(), background)
+                && rgb(color).contrast(rgb(background)) < 4.5
+            {
+                style.as_object_mut().unwrap().remove("color");
+                audit.difference(
+                    "ENTRY_ROW_COLOR_READABILITY_FALLBACK",
+                    row,
+                    "行覆盖色与所在栏位背景不可读，保留区域默认前景色",
+                );
+            }
+            let mut line = json!({"role":row["role"],"parts":parts,"style":style});
+            if let Some(binding) = row["styleComponentBinding"].as_str() {
+                let leaf = linked_entry_declarations(graph, binding, file, &by_component);
+                for (property, key) in [
+                    ("margin-top", "spaceBeforePt"),
+                    ("margin-bottom", "spaceAfterPt"),
+                ] {
+                    if let Some(d) = leaf.get(property) {
+                        if !d.value.contains('%')
+                            && let Some(value) = length_pt(
+                                &d.value,
+                                probe["typography"]["body"]["sizePt"]
+                                    .as_f64()
+                                    .unwrap_or(document_pt),
+                                root_pt,
+                            )
+                            .filter(|v| (0.0..=48.0).contains(v))
+                        {
+                            line[key] = json!(value);
+                        }
+                    }
+                }
+            }
+            if let Some(request) = request {
+                module_requests.push(json!({"path":format!("/sections/{module}/entryHeader/{index}/style"),"request":request,"source":row}));
+            }
+            lines.push(line);
+        }
+        if !supported {
+            audit.difference(
+                "ENTRY_HEADER_SCHEMA_LIMIT",
+                candidate,
+                "原字段分组超出声明式行数、字段数或纯文本长度限制，未截断输出",
+            );
+            continue;
+        }
+        let path = format!("/sections/{module}/entryHeader");
+        put(theme, &path, json!(lines));
+        put(theme, &format!("/sections/{module}/date"), json!("inline"));
+        audit.evidence(&path,&json!(lines),candidate,"按真实 map 项字段绑定保留顺序、分行、前后缀和本地静态样式；日期格式适配、组件继承与完整 CSS 布局不作等价证明");
+        requests.extend(module_requests);
+    }
+    (proof, requests)
 }
 
 /// Parse complete JSX snippets already present in the inspection. This uses
@@ -2357,11 +2907,52 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
     }
     audit.evidence("candidate-defaults",&json!({"typography":theme["typography"],"page":theme["page"],"composition":theme["composition"]}),&Value::Null,"缺少静态证据的值采用候选/显式安全默认，不代表原模板样式");
     let mut declarations = Vec::new();
+    let mut shared_variables = BTreeMap::<String, Option<(String, Vec<Value>)>>::new();
+    for file in files {
+        for (key, value) in root_variables(file) {
+            let entry = shared_variables
+                .entry(key)
+                .or_insert_with(|| Some((value.clone(), Vec::new())));
+            if let Some((old, sources)) = entry {
+                if old == &value {
+                    sources.push(file["file"].clone());
+                } else {
+                    *entry = None;
+                }
+            }
+        }
+        if shared_variables.len() > 4096 {
+            return Err("STYLE_ADAPT_VARIABLE_LIMIT: more than4096 rootvariables".into());
+        }
+    }
+    for (key, value) in &shared_variables {
+        if value.is_none() {
+            audit.difference(
+                "CROSS_FILE_ROOT_VARIABLE_AMBIGUOUS",
+                &json!({"variable":key}),
+                "不同文件的根变量声明不同，未猜测其加载顺序；使用文件内既有投影或报告无法解析",
+            );
+        } else if let Some((value, sources)) = value {
+            audit.evidence(
+                "cross-file-root-variable",
+                &json!({"name":key,"value":value,"sources":sources}),
+                &Value::Null,
+                "所有已读静态根声明值相同，可供没有本地声明的文件使用；未证明运行时加载或组件挂载",
+            );
+        }
+    }
     for file in files {
         let name = file["file"].as_str().unwrap_or("<unknown>");
-        let variables = root_variables(file);
+        let mut variables = root_variables(file);
+        for (key, value) in &shared_variables {
+            if !variables.contains_key(key)
+                && let Some((value, _)) = value
+            {
+                variables.insert(key.clone(), value.clone());
+            }
+        }
         if !variables.is_empty() && file["styledComponents"].is_array() {
-            audit.evidence("same-file-global-style-variables", &json!(variables), &json!({"file":name}), "从同文件顶层静态 createGlobalStyle 的无条件 :root/html 提取；组件挂载和跨文件运行时级联尚未证明");
+            audit.evidence("available-static-root-variables", &json!({"count":variables.len()}), &json!({"file":name}), "同文件静态根变量及无冲突的跨文件字面变量，值和来源另记在根变量证据中；未证明加载或挂载");
         }
         if file["syntaxValid"] == false {
             audit.difference(
@@ -2438,10 +3029,11 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
             );
         }
     }
-    audit.evidence("role-projection-policy",&json!({"roles":audit.matched,"rootSizePt":12,"pxToPt":0.75,"media":if report["printProfile"]["profile"]=="print" {"unconditional-and-positive-print-projection"}else{"unconditional-only"}}),&Value::Null,"组件名/简单选择器推断角色；同角色冲突按记录的优先级选择；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证");
+    audit.evidence("role-projection-policy",&json!({"roles":audit.matched,"initialRootSizeAssumptionPt":12,"pxToPt":0.75,"media":if report["printProfile"]["profile"]=="print" {"unconditional-and-positive-print-projection"}else{"unconditional-only"}}),&Value::Null,"组件名/简单选择器推断角色；相对字号另记实际根/文档上下文；跨文件加载顺序、DOM 匹配、继承与完整级联均未验证");
     let selected = choose(&declarations, &mut audit);
     text_styles(&mut theme, &selected, &mut audit);
-    apply_structure(&mut theme, &declarations, &mut audit);
+    apply_structure(&mut theme, &declarations, &selected, &mut audit);
+    page_box(&mut theme, &declarations, &selected, &mut audit);
     composition(&mut theme, &declarations, &selected, &mut audit);
     source_layout(&mut theme, files, &mut audit);
     if let Some(order) = report["markupHints"]["moduleOrder"]
@@ -2478,9 +3070,20 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
             }
         }
     }
+    let (entry_proof, entry_requests) =
+        entry_headers(&mut theme, report, &declarations, &selected, &mut audit);
     readable_colors(&mut theme, &mut audit);
     let font_requests = font_requests(&theme, &selected, &mut audit);
     renderer_font_fallbacks(&mut theme, &mut audit);
+    if !declarations.is_empty() {
+        put(&mut theme, "/page/firstLinePosition", json!("line-box"));
+        audit.evidence(
+            "/page/firstLinePosition",
+            &json!("line-box"),
+            &Value::Null,
+            "CSS 纸面起点为首个行盒顶边，使用实际字面度量定位首行基线；旧原生主题默认基线模式不变",
+        );
+    }
     reserve_first_baseline_clearance(&mut theme, &mut audit);
     put(&mut theme, "/provenance/fidelity", json!("adapted"));
     let parsed = parse_theme(theme.to_string().as_bytes())
@@ -2491,7 +3094,7 @@ pub(crate) fn adapt(report: &Value, candidate: Value) -> Result<(Value, Value), 
         "schemaValidated":true,"layoutValidated":true,
         "coverage":{"syntaxFiles":files.len(),"cssFiles":audit.css_files,"styledComponents":audit.styled,
             "declarationsSeen":audit.seen,"matchedRoles":audit.matched,"evidenceRecords":audit.evidence.len()},
-        "fontRequests":font_requests,"evidence":audit.evidence,"differences":audit.differences,
+        "fontRequests":font_requests,"entryHeaderFonts":entry_requests,"entryTemplates":entry_proof,"evidence":audit.evidence,"differences":audit.differences,
         "limitations":["角色/选择器映射为静态推断；不保证组件实际被使用","不模拟完整 CSS 级联、跨文件加载和 DOM 匹配",
             "条件 media/伪类/伪元素、动态样式、图片图标、任意网格及定位不等价",
             "字体显式 fallback；行宽、分页、字体度量和侧栏成员需要视觉审核"]});

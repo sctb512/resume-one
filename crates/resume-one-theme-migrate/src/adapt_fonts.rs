@@ -778,6 +778,83 @@ pub(crate) fn apply(
     ))
 }
 
+/// Reuse only faces already selected and verified by the global-role pass.
+/// Entry rows cannot silently exceed the package's existing four-face budget.
+pub(crate) fn apply_entry_rows(
+    candidate: &mut Value,
+    requests: &Value,
+    font_report: &Value,
+) -> Result<Value, String> {
+    let requests = requests
+        .as_array()
+        .filter(|r| r.len() <= 88)
+        .ok_or("ENTRY_FONT_REQUEST_LIMIT")?;
+    let mut next = candidate.clone();
+    let mut mappings = Vec::new();
+    let mut differences = Vec::new();
+    let mut seen = BTreeSet::new();
+    for entry in requests {
+        let path = entry["path"].as_str().ok_or("ENTRY_FONT_PATH")?;
+        let parts = path.split('/').collect::<Vec<_>>();
+        if parts.len() != 6
+            || parts[0] != ""
+            || parts[1] != "sections"
+            || parts[3] != "entryHeader"
+            || parts[5] != "style"
+            || !next["sections"].get(parts[2]).is_some_and(Value::is_object)
+            || !parts[4].parse::<usize>().is_ok_and(|n| n < 8)
+            || !seen.insert(path)
+            || !next.pointer(path).is_some_and(Value::is_object)
+        {
+            return Err("ENTRY_FONT_PATH".into());
+        }
+        let request = FontRequest::parse(&entry["request"])?;
+        let families = request
+            .families
+            .clone()
+            .unwrap_or_else(|| vec![request.primary.family.clone()]);
+        let selected = families
+            .iter()
+            .take_while(|f| !generic_family(f))
+            .find_map(|family| {
+                font_report["fontMappings"]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .find(|mapping| {
+                        mapping["status"] == "exact-static-face"
+                            && mapping["selectedFamily"] == family.as_str()
+                            && mapping["applied"]["weight"] == request.primary.weight
+                            && mapping["applied"]["fontStyle"] == request.primary.style
+                    })
+            });
+        let Some(mapping) = selected else {
+            differences.push(json!({"code":"ENTRY_FONT_FACE_NOT_SELECTED","path":path,"request":entry["request"],"equivalent":false}));
+            continue;
+        };
+        let id = mapping["assetId"].as_str().ok_or("ENTRY_FONT_ASSET")?;
+        if !next["assets"]["fonts"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .any(|a| a["id"] == id)
+        {
+            return Err("ENTRY_FONT_ASSET".into());
+        }
+        let style = next.pointer_mut(path).unwrap();
+        style["family"] = json!(format!("asset:{id}"));
+        style["weight"] = json!(request.primary.weight);
+        style["fontStyle"] = json!(request.primary.style);
+        mappings.push(json!({"path":path,"request":entry["request"],"assetId":id,"selectedFamily":mapping["selectedFamily"],"sha256":mapping["sha256"],"equivalent":false}));
+    }
+    parse_theme(&serde_json::to_vec(&next).map_err(|e| fail("ENTRY_FONT_CANDIDATE", e))?)
+        .map_err(candidate_error)?;
+    *candidate = next;
+    Ok(
+        json!({"fontMappings":mappings,"differences":differences,"assetBudgetUnchanged":true,"sourceExecuted":false}),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -822,6 +899,67 @@ mod tests {
     }
     fn request(role: &str, family: &str, weight: u16, style: &str) -> Value {
         json!({"role":role,"family":family,"weight":weight,"fontStyle":style})
+    }
+
+    #[test]
+    fn entry_rows_reuse_verified_assets_with_exact_face_and_ordered_stack() {
+        let f = Fixture::new();
+        let family = "Resume One Font Fixture";
+        f.write(json!({"formatVersion":1,"fonts":[f.entry("regular.ttf", REGULAR, family,400,"normal")]}));
+        let mut c = candidate();
+        let (report, _) = apply(
+            &mut c,
+            &json!([request("body", family, 400, "normal")]),
+            &f.library,
+        )
+        .unwrap();
+        c["sections"]["work"]["entryHeader"] = json!([
+            {"role":"body","parts":[{"field":"name"}],"style":{"family":"cjk-sans","weight":400,"fontStyle":"normal"}},
+            {"role":"body","parts":[{"field":"position"}],"style":{"family":"cjk-sans","weight":400,"fontStyle":"normal"}}
+        ]);
+        c["sections"]["work"]["date"] = json!("inline");
+        let before_assets = c["assets"].clone();
+        let mut req = request("body", "Missing", 400, "normal");
+        req["families"] = json!(["Missing", family, "serif"]);
+        let mut blocked = req.clone();
+        blocked["families"] = json!(["Missing", "serif", family]);
+        let result = apply_entry_rows(
+            &mut c,
+            &json!([
+                {"path":"/sections/work/entryHeader/0/style","request":req},
+                {"path":"/sections/work/entryHeader/1/style","request":blocked}
+            ]),
+            &report,
+        )
+        .unwrap();
+        assert_eq!(
+            c["sections"]["work"]["entryHeader"][0]["style"]["family"],
+            "asset:font-0"
+        );
+        assert_eq!(
+            c["sections"]["work"]["entryHeader"][1]["style"]["family"],
+            "cjk-sans"
+        );
+        assert_eq!(c["assets"], before_assets);
+        assert_eq!(result["fontMappings"].as_array().unwrap().len(), 1);
+        assert_eq!(
+            result["differences"][0]["code"],
+            "ENTRY_FONT_FACE_NOT_SELECTED"
+        );
+        let before = c.clone();
+        assert!(apply_entry_rows(&mut c,&json!([
+            {"path":"/sections/work/entryHeader/0/style","request":request("body",family,400,"normal")},
+            {"path":"/typography/body","request":request("body",family,400,"normal")}
+        ]),&report).is_err());
+        assert_eq!(c, before, "path rejection must be transactional");
+        let result=apply_entry_rows(&mut c,&json!([
+            {"path":"/sections/work/entryHeader/0/style","request":request("body",family,600,"normal")}
+        ]),&report).unwrap();
+        assert!(
+            result["fontMappings"].as_array().unwrap().is_empty(),
+            "never synthesize a weight"
+        );
+        assert_eq!(c, before);
     }
 
     #[test]

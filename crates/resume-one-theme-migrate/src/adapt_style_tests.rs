@@ -246,7 +246,11 @@ fn logical_padding_maps_to_known_physical_margins_without_invalid_keys() {
 fn tiny_top_padding_keeps_large_name_inside_the_page() {
     let (theme, report) = from_css("body{padding-top:3mm;} h1{font-size:30pt;font-weight:700;}");
     valid(&theme);
-    assert!(theme["page"]["marginsMm"]["top"].as_f64().unwrap() > 10.0);
+    assert_eq!(theme["page"]["firstLinePosition"], "line-box");
+    // Only ink extending above the CSS line box needs extra paper clearance;
+    // adding a full ascender here would count the first baseline twice.
+    let top = theme["page"]["marginsMm"]["top"].as_f64().unwrap();
+    assert!((3.0..10.0).contains(&top));
     assert!(has(&report, "BASELINE_TOP_CLEARANCE_ADAPTED"));
     let (theme, report) = from_css("body{padding-top:25mm;} h1{font-size:30pt;font-weight:700;}");
     assert!((theme["page"]["marginsMm"]["top"].as_f64().unwrap() - 25.0).abs() < 1e-6);
@@ -442,7 +446,8 @@ fn page_rule_and_longhands_keep_order() {
     );
     valid(&theme);
     assert_eq!(theme["page"]["size"], "Letter");
-    assert_eq!(theme["page"]["marginsMm"]["left"], 14.0);
+    // CSS @page margin and body padding are independent nested boxes.
+    assert_eq!(theme["page"]["marginsMm"]["left"], 26.0);
     assert_eq!(theme["page"]["sectionGapMm"], 7.0);
     assert_eq!(theme["page"]["avoidSplitItems"], true);
     assert_eq!(report["schemaValidated"], true);
@@ -533,6 +538,78 @@ fn logical_section_rules_retain_separator_and_vertical_rhythm() {
     assert!(has(&report, "BORDER_GEOMETRY_APPROXIMATED"));
     let (theme, _) = from_css(".section-title{border-inline-start:2px solid #334455;}");
     assert_eq!(theme["sections"]["work"]["heading"], "accent-line");
+}
+
+#[test]
+fn root_document_and_paragraph_relative_sizes_do_not_share_one_base() {
+    let (theme, report) = from_css(
+        "html{font-size:62.5%;} body{font-size:1.6rem;} .description{font-size:0.75em;} h1{font-size:calc(2rem + 5pt);} h2{font-size:1.5em;}",
+    );
+    valid(&theme);
+    assert!((theme["typography"]["body"]["sizePt"].as_f64().unwrap() - 9.0).abs() < 1e-6);
+    assert_eq!(theme["typography"]["name"]["sizePt"], 20.0);
+    assert_eq!(theme["typography"]["sectionTitle"]["sizePt"], 18.0);
+    assert!(
+        report["evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["target"] == "font-size-context" && e["value"]["rootSizePt"] == 7.5)
+    );
+}
+
+#[test]
+fn box_functions_are_whole_tokens_and_cross_file_root_variables_require_agreement() {
+    let input = json!({"syntaxEvidence":[syntax("tokens.css",":root{--gutter:calc(1rem + 3pt);--name:clamp(20pt,24pt,30pt);}"),syntax("resume.css","body{font-size:12pt;padding:var(--gutter) calc(2rem + 3pt);} h1{font-size:var(--name);}")]});
+    let (theme, report) = adapt(&input, candidate()).unwrap();
+    valid(&theme);
+    assert_eq!(theme["typography"]["name"]["sizePt"], 24.0);
+    assert!((theme["page"]["marginsMm"]["left"].as_f64().unwrap() - 9.525).abs() < 1e-6);
+    assert!(
+        report["evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["target"] == "cross-file-root-variable")
+    );
+    let input = json!({"syntaxEvidence":[syntax("a.css",":root{--name:20pt;}"),syntax("b.css",":root{--name:30pt;}"),syntax("resume.css","h1{font-size:var(--name);}")]});
+    let (theme, report) = adapt(&input, candidate()).unwrap();
+    assert_eq!(theme["typography"]["name"]["sizePt"], 26.0);
+    assert!(has(&report, "CROSS_FILE_ROOT_VARIABLE_AMBIGUOUS"));
+    assert!(has(&report, "CSS_VARIABLE_UNRESOLVED"));
+    assert_eq!(
+        css_words("calc(2rem + 1pt) 5px", false).unwrap(),
+        ["calc(2rem + 1pt)", "5px"]
+    );
+    assert_eq!(
+        css_words("12pt/1.4 'Example / Display'", true).unwrap(),
+        ["12pt", "/", "1.4", "'Example / Display'"]
+    );
+}
+
+#[test]
+fn page_margin_and_document_inset_compose_without_parent_important_leaks() {
+    let (theme, _) = from_js(
+        "import styled from 'styled-components';const Layout=styled.div`font-size:12pt;padding:30px;`; const Global=styled.div``;",
+    );
+    valid(&theme);
+    assert!((theme["page"]["marginsMm"]["left"].as_f64().unwrap() - 7.9375).abs() < 1e-6);
+    let mut input = json!({"syntaxEvidence":[syntax("style.css","@page{margin:0.75in;}body{padding:0!important;} .pro{max-width:800px;font-family:Inter;font-size:12pt;padding:50px 40px;} @media print{.pro{padding:30px;}}") ]});
+    crate::css_print::project(&mut input).unwrap();
+    let (theme, report) = adapt(&input, candidate()).unwrap();
+    valid(&theme);
+    for side in ["top", "right", "bottom", "left"] {
+        assert!((theme["page"]["marginsMm"][side].as_f64().unwrap() - 26.9875).abs() < 1e-6);
+    }
+    assert!(
+        report["evidence"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|e| e["target"] == "page-box-composition")
+    );
+    let (theme, _) = from_css("@page{margin:10mm;}body{padding:20%;}");
+    assert_eq!(theme["page"]["marginsMm"]["left"], 16.0);
 }
 
 /// Optional local corpus validation. Reads package text through the existing

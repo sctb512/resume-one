@@ -197,6 +197,12 @@ fn plan(
             Vec::new(),
         )
     };
+    let entry_fonts = adapt_fonts::apply_entry_rows(
+        &mut manifest,
+        &style_report["entryHeaderFonts"],
+        &font_report,
+    )
+    .map_err(|e| AppError::new(3, "ADAPT_ENTRY_FONTS", e))?;
     parse_theme(&serde_json::to_vec(&manifest).expect("JSON value"))
         .map_err(AppError::from_theme)?;
     let mut counts = std::collections::BTreeMap::<String, usize>::new();
@@ -211,6 +217,8 @@ fn plan(
     adaptation["utilityStyles"] = report["utilityStyles"].clone();
     adaptation["markupHints"] = report["markupHints"].clone();
     adaptation["printProfile"] = report["printProfile"].clone();
+    adaptation["entryFonts"] = entry_fonts;
+    adaptation["templateInspection"] = report["adaptTemplateInspection"].clone();
     Ok(Plan {
         manifest,
         report: adaptation,

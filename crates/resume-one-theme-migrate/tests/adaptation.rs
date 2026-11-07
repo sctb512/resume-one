@@ -149,6 +149,58 @@ fn adapt_static_source(files: &[(&str, &str)]) -> Value {
 }
 
 #[test]
+fn cli_preserves_bound_entry_rows_local_styles_and_print_insets_without_execution() {
+    let report = adapt_static_source(&[
+        (
+            "Resume.jsx",
+            r#"
+        import styled from 'styled-components';
+        import { DateRange } from '@jsonresume/core';
+        const Layout=styled.main`font-family:'Merriweather',serif;font-size:12pt;line-height:1.6; padding:30px;`;
+        const WorkTitle=styled.h3`font-size:13pt;font-weight:700;margin-bottom:4px;`;
+        const Employer=styled.div`font-style:italic;font-size:12pt;`;
+        const Dates=styled.div`font-size:11pt;color:#555555;`;
+        export default function Resume({resume}) {
+          return <Layout>{resume.work.map((job)=><article>
+            <WorkTitle>{job.position}</WorkTitle>
+            <Employer>{job.name}</Employer>
+            <Dates><DateRange startDate={job.startDate} endDate={job.endDate}/></Dates>
+            <p>{job.summary}</p>
+          </article>)}</Layout>;
+        }
+    "#,
+        ),
+        ("style.css", "@page{margin:0.75in;} body{padding:0;}"),
+    ]);
+    let theme = &report["result"]["candidate"];
+    let rows = theme["sections"]["work"]["entryHeader"]
+        .as_array()
+        .unwrap_or_else(|| {
+            panic!(
+                "source-bound entry header: {}; inspection: {}",
+                report["result"]["adaptation"]["styles"]["entryTemplates"],
+                report["result"]["adaptation"]["templateInspection"]
+            )
+        });
+    assert_eq!(rows.len(), 3);
+    assert_eq!(rows[0]["parts"][0]["field"], "position");
+    assert_eq!(rows[1]["parts"][0]["field"], "name");
+    assert_eq!(rows[2]["parts"][0]["field"], "dateRange");
+    assert_eq!(rows[0]["style"]["sizePt"], 13.0);
+    assert_eq!(rows[0]["spaceAfterPt"], 3.0);
+    assert_eq!(rows[1]["style"]["sizePt"], 12.0);
+    assert_eq!(rows[2]["style"]["sizePt"], 11.0);
+    assert_eq!(theme["page"]["firstLinePosition"], "line-box");
+    assert!((theme["page"]["marginsMm"]["left"].as_f64().unwrap() - 26.9875).abs() < 1e-6);
+    let adaptation = &report["result"]["adaptation"];
+    assert_eq!(
+        adaptation["styles"]["entryTemplates"]["candidates"][0]["dateSemanticsVerified"],
+        false
+    );
+    assert_eq!(adaptation["exactMigrationComplete"], false);
+}
+
+#[test]
 fn cli_print_projection_preserves_source_order_and_excludes_screen_and_conditions() {
     let report = adapt_static_source(&[(
         "style.css",

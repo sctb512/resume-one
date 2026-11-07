@@ -159,6 +159,9 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
     let mut records = Vec::new();
     let mut headings = crate::markup_hints::Headings::default();
     let mut utilities = Vec::new();
+    let mut programs = Vec::new();
+    let mut program_issues = Vec::new();
+    let mut program_bytes = 0usize;
     let utility_package = snapshot
         .files
         .iter()
@@ -201,7 +204,9 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
         }
         let mut nodes = vec![tree.root_node()];
         let mut visited = 0;
+        let mut has_jsx = false;
         while let Some(node) = nodes.pop() {
+            has_jsx |= matches!(node.kind(), "jsx_element" | "jsx_self_closing_element");
             visited += 1;
             if visited > 100_000 {
                 return Err(AppError::new(
@@ -271,12 +276,38 @@ pub(crate) fn augment(report: &mut Value, root: &Path) -> Result<(), AppError> {
                 nodes.push(node.named_child(i).unwrap());
             }
         }
+        if has_jsx {
+            if programs.len() >= 8 {
+                program_issues
+                    .push(json!({"file":file.relative_path,"code":"ADAPT_TEMPLATE_ENTRY_LIMIT"}));
+                continue;
+            }
+            match crate::template_ir::compile(&file.relative_path,&file.bytes) {
+                Ok(program)=>{
+                    let analysis = syntax::analyze(&file.relative_path, &file.bytes)
+                        .map_err(|e| AppError::new(3,e.code,e.message))?;
+                    let graph = analysis.as_ref().map(|analysis|crate::style_link::link(&file.relative_path,analysis,&program)).transpose()
+                        .map_err(|e|AppError::new(3,"ADAPT_STYLE_GRAPH",e))?;
+                    let bytes=serde_json::to_vec(&program).map_or(usize::MAX,|v|v.len())
+                        .saturating_add(serde_json::to_vec(&graph).map_or(usize::MAX,|v|v.len()));
+                    if program_bytes.saturating_add(bytes)>4*1024*1024 {
+                        program_issues.push(json!({"file":file.relative_path,"code":"ADAPT_TEMPLATE_BYTES_LIMIT"}));
+                        continue;
+                    }
+                    program_bytes+=bytes;
+                    programs.push(json!({"entryFile":file.relative_path,"sourceSha256":file.sha256,"program":program,"styleGraph":graph,"adaptationOnly":true}));
+                }
+                Err(error)=>program_issues.push(json!({"file":file.relative_path,"code":"ADAPT_TEMPLATE_UNSUPPORTED","message":error})),
+            }
+        }
     }
     report["syntaxEvidence"]
         .as_array_mut()
         .expect("inspection syntax evidence")
         .extend(additions);
     headings.apply(report);
+    report["templatePrograms"] = json!(programs);
+    report["adaptTemplateInspection"] = json!({"programBytes":program_bytes,"issues":program_issues,"sourceExecuted":false,"runtimeEntryReachabilityVerified":false});
     report["embeddedStyles"] = json!({"literalStyles":records,"executedSourceCode":false,"limitation":"仅恢复真实 JS 字符串或无动态插值的 style 区域作为数据；未证明加载顺序、最终使用或原模板等价"});
     report["utilityStyles"] = json!({"packageDeclaresTwindOrTailwind":utility_package,"projections":utilities,"configurationVerified":false,"equivalent":false});
     Ok(())

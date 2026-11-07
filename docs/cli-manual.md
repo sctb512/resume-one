@@ -82,6 +82,12 @@ resume-one themes --repository owner/repository --ref main --cache /absolute/the
 
 允许明确视觉替代时，使用 `--adapt`；原有 `--require-complete` 仍是严格等价门禁，不与它混用。适配器读取真实语法证据，将可表达的颜色、字体角色、字号、版面与模块标题/顺序投影到声明式 v2；未支持的样式、推断和替代写入报告，不执行主题代码，不修改 resume JSON。预览和导出采用纸面样式，工具会提取确定适用的静态打印规则，保留顺序、重要性和来源；有条件的宽度规则不猜测。纯文本 HTML/JSX 标题用于辅助识别模块层级和源码顺序，局部段落样式不会成为全局文字继承来源。字体资料库按 CSS 字族栈顺序选用真实字重和斜体均匹配的字体，越过缺失字体时记录明确差异，遇到通用/系统字体即停止。详细边界与报告字段见适配协议。
 
+适配器将纸面 `@page` 边距、html/body 内距和单一推断文档容器内距按边组合。`19.05mm + 7.94mm` 得到最终上边距 `26.99mm`。最终四边各限 3–35mm，百分数或不可表示的组合在报告中注明回退。存在已提取样式声明时输出 `page.firstLinePosition: "line-box"`，预览和 PDF 从行框顶部推进，逐行按真实字体度量定位基线。省略字段或使用 `baseline` 时沿用基线布局。DOCX 保留同一物理上边距并使用原生行框。字段契约见[纸张起点与首行定位](../resume-one-theme-spec-v2.md#纸张起点与首行定位)。
+
+静态数值支持有界的 `calc/min/max/clamp` 和维度检查。根字号、body 与文档容器字号使用独立上下文，`rem` 引用根字号，字号中的 `em/%` 引用推断父字号；局部段落不会改变其它角色的根上下文。根字号声明无法求值或越界时回退到 12pt 并记录差异，页边距百分数不按字号求值。这不是完整 CSS 数值、祖先继承或级联实现。
+
+条目页头可从模板 IR 的真实模块/`map` 项绑定提取直接字段，保留受支持的源码顺序、分行、前后缀及静态样式，输出 `sections.*.entryHeader`；混合行内样式、歧义候选和不支持的条件不会静默拉平。`styles.entryTemplates` 保留绑定、分组与拒绝证据；绑定已核对不等于浏览器实际行分组或完整组件语义已认证。来自 `@jsonresume/core` 的真实 `DateRange` 导入及同一条目 `startDate/endDate` 读取可显式适配为 `dateRange`/`short-en`，须记录 `DATE_FORMATTER_ADAPTED`，日期实现与语义等价仍未验证；此适配不使严格迁移通过。
+
 ```sh
 resume-one-theme-migrate --source /absolute/upstream --adapt --out /absolute/example.theme.json --verify-fixture /absolute/public-en.json --verify-fixture /absolute/public-zh.json
 resume-one-theme-migrate --source /absolute/catalog.json --adapt --batch --out /absolute/new-theme-packages --font-library /absolute/font-library.json --verify-fixture /absolute/public-en.json --verify-fixture /absolute/public-zh.json --verify-fixture /absolute/public-long.json --verify-fixture /absolute/public-missing.json --verify-exports
@@ -89,7 +95,7 @@ resume-one-theme-migrate --source /absolute/catalog.json --adapt --batch --out /
 
 批量清单为 `{"items":[{"slug":"example","sourceDirectory":"/absolute/upstream","upstreamUrl":"https://example.com/source","upstreamRevision":"fixed-version","license":"MIT","licenseFile":"/absolute/LICENSE"}]}`。目录必须是绝对路径，slug 唯一。目标必须是新目录，不覆盖已有本地主题。每套输出 `community-<slug>/theme.json`、`MIGRATION.json`、`NOTICE.txt` 及引用的字体/许可，汇总为 `migration-report.json`。单项失败继续检查其余项，但整批返回退出码 3 和 `ADAPT_BATCH_PARTIAL`，不把失败算成完成。
 
-`--verify-fixture` 只读取明确选择的公开/脱敏样本；报告保存指纹和计数，不保存样本正文。它检查 schema、模块渲染目标与纸面边界；`--verify-exports` 再检查 PDF/DOCX 字节生成。自动检查不代替原版逐主题截图、阅读器布局检查或 Microsoft Word 实机验收，`visualVerified` 仍为 false。
+`--verify-fixture` 只读取明确选择的公开/脱敏样本；报告保存指纹和计数，不保存样本正文。它检查 schema、模块渲染目标与纸面边界；`--verify-exports` 再检查 PDF/DOCX 字节生成。自动检查不代替原版逐主题截图、阅读器布局检查或 Microsoft Word 实机验收，`visualVerified` 与 `exactMigrationComplete` 仍为 false。完整 CSS 及 100% 视觉还原均未认证，DOCX 的字形定位、换行和分页也可能不同；生成成功不能当作严格迁移通过。
 
 字体资料库是 `{"formatVersion":1,"fonts":[...]}`，每项含 `family/weight/fontStyle/path/sha256/license/licensePath`；字体和许可路径必须绝对，字体最多 8 MiB，只支持静态 TTF/OTF。对已改名但有明确来源的字体可用 `fontFamily` 指定真实内部字族，别名关系会记录为差异。工具只按精确字重与斜体匹配，最多嵌入 4 个字面；缺失时保留明确的内置字体替代，不安装字体或联网下载。带字体的适配使用批量目录模式。
 

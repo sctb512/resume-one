@@ -38,7 +38,7 @@ CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验�
 
 声明式主题的 `sections` 已支持四种模块标题 `plain/line/accent-line/filled`、两种条目间距 `stack/compact` 和 `inline/left/right` 日期，预览、PDF、可编辑 DOCX 均可使用；紧凑模式不缩小文字或省略字段。本地/在线主题走同一能力校验，现支持有限的单侧时间线、可分页卡片和关键词标签；自定义装饰等未实现配置仍报错。配置示例与精确语义见主题规范。
 
-在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为私有主题仓库 `sctb512/resume-one-themes` 的 `main/originals/index.json`，已保存的在线源列表优先。启动前将有权读取该仓库的令牌提供给 `RESUME_ONE_THEME_GITHUB_TOKEN`。它只用于该仓库的 GitHub API 请求，其他公开主题源仍使用匿名请求。使用方式见[用户手册](./docs/user-manual.md)。
+在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为公开主题仓库 `sctb512/resume-one-themes` 的 `main/originals/index.json`，已保存的在线源列表优先。默认匿名读取 GitHub，无需登录。使用方式见[用户手册](./docs/user-manual.md)。
 
 默认在线目录使用 JSON Resume 上游主题包的固定版本，保留原有渲染模板和样式。原版主题用当前简历在本机试穿，可下载到本地主题目录并导出 PDF。渲染需要本机 Chrome、Edge 或 Chromium。JSON 编辑、模块栏和语义格式导出仍由简里提供。既有声明式目录可单独添加为 `main/index.json`。包格式与资源限制见[原版主题包规范](./spec/json-resume-original-theme.md)。
 
@@ -82,7 +82,7 @@ Windows 可在 PowerShell 用 `$env:RESUME_ONE_COMMUNITY_THEMES_DIR = (Resolve-P
 | `resume-one-themes` | 社区主题、许可、迁移记录与两个索引 | `v*` 标签在验证 Schema 和 SHA-256 后发布完整主题 ZIP。 |
 | `resume-one-site` | 简里静态项目主页 | `main` 构建通过后部署 GitHub Pages。仓库的 Pages 发布来源需选择 GitHub Actions。 |
 
-应用工作流从同一所有者的主题仓库检出锁定提交。主题仓库须先包含该提交。私有仓库可通过应用仓库的 Actions Secret `THEMES_READ_KEY` 使用主题仓库的只读 Deploy Key，或使用仅具有该主题仓库内容读取权限的 `THEMES_READ_TOKEN`。两种凭证只在打包时使用。应用和主题工作流支持手动构建制品，创建 Release 由标签推送触发。预发布仍采用当前本地验收口径。
+应用工作流从同一所有者的主题仓库检出锁定提交。主题仓库须先包含该提交。主题仓库公开读取，构建按固定提交检出。应用和主题工作流支持手动构建制品，创建 Release 由标签推送触发。预发布仍采用当前本地验收口径。
 
 macOS 如需保留已有应用，可向 `bundle.sh` 传第二个参数指定尚不存在的绝对 `.app` 路径；向 `archive.sh` 传第三个参数指定该应用归档。归档前后均检查封签。项目采用 [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt)，第三方与字体声明保留在包内。
 

@@ -47,7 +47,7 @@ struct RequestTarget {
     community: bool,
 }
 
-fn request_target(url: &str) -> Result<RequestTarget, ThemeError> {
+fn request_target(url: &str, authenticated: bool) -> Result<RequestTarget, ThemeError> {
     let mut parsed =
         url::Url::parse(url).map_err(|_| ThemeError::new("SOURCE_URL", "来源地址无效"))?;
     if parsed.scheme() != "https"
@@ -82,12 +82,12 @@ fn request_target(url: &str) -> Result<RequestTarget, ThemeError> {
         return Ok(RequestTarget {
             url: parsed,
             accept: "application/vnd.github.sha",
-            community,
+            community: community && authenticated,
         });
     }
 
     let prefix = format!("/{DEFAULT_COMMUNITY_REPOSITORY}/");
-    if let Some(path) = parsed.path().strip_prefix(&prefix) {
+    if authenticated && let Some(path) = parsed.path().strip_prefix(&prefix) {
         let (commit, path) = path
             .split_once('/')
             .filter(|(commit, path)| GithubSource::valid_commit(commit) && safe_path(path))
@@ -115,26 +115,15 @@ fn request_target(url: &str) -> Result<RequestTarget, ThemeError> {
 
 impl Transport for UreqTransport {
     fn get(&self, url: &str, etag: Option<&str>, limit: usize) -> Result<HttpResponse, ThemeError> {
-        let target = request_target(url)?;
+        let token = self.community_token.as_deref().filter(|token| {
+            !token.is_empty() && token.len() <= 1024 && token.bytes().all(|b| b.is_ascii_graphic())
+        });
+        let target = request_target(url, token.is_some())?;
         let mut request = self
             .agent
             .get(target.url.as_str())
             .header("Accept", target.accept);
-        if target.community {
-            let token = self
-                .community_token
-                .as_deref()
-                .filter(|token| {
-                    !token.is_empty()
-                        && token.len() <= 1024
-                        && token.bytes().all(|b| b.is_ascii_graphic())
-                })
-                .ok_or_else(|| {
-                    ThemeError::new(
-                        "SOURCE_AUTH_REQUIRED",
-                        format!("默认主题源为私有仓库，请设置 {THEME_TOKEN_ENV} 后重新启动"),
-                    )
-                })?;
+        if let Some(token) = token.filter(|_| target.community) {
             request = request.header("Authorization", format!("Bearer {token}"));
         }
         if let Some(etag) = etag.filter(|tag| safe_etag(tag)) {
@@ -547,11 +536,11 @@ mod tests {
     #[test]
     fn private_theme_credentials_are_only_for_the_default_repository() {
         let source = GithubSource::community_default();
-        let commit = request_target(&source.commit_url()).unwrap();
+        let commit = request_target(&source.commit_url(), true).unwrap();
         assert!(commit.community);
         assert_eq!(commit.accept, "application/vnd.github.sha");
         let path = "themes/community-academic-cv-lite/theme.json";
-        let manifest = request_target(&source.raw_url(COMMIT, path)).unwrap();
+        let manifest = request_target(&source.raw_url(COMMIT, path), true).unwrap();
         assert!(manifest.community);
         assert_eq!(manifest.accept, "application/vnd.github.raw+json");
         assert_eq!(
@@ -564,21 +553,24 @@ mod tests {
             "https://api.github.com/repos/sctb512/resume-one-themes-other/commits/main",
             "https://raw.githubusercontent.com/another/resume-one-themes/main/index.json",
         ] {
-            let public = request_target(url).unwrap();
+            let public = request_target(url, true).unwrap();
             assert!(!public.community);
             assert_eq!(public.url.as_str(), url);
         }
         assert!(
-            request_target("https://api.github.com/repos/sctb512/resume-one-themes/keys").is_err()
+            request_target(
+                "https://api.github.com/repos/sctb512/resume-one-themes/keys",
+                true
+            )
+            .is_err()
         );
-        assert_eq!(
-            UreqTransport::default()
-                .get(&source.commit_url(), None, 256)
-                .err()
-                .unwrap()
-                .code,
-            "SOURCE_AUTH_REQUIRED"
-        );
+        let commit = request_target(&source.commit_url(), false).unwrap();
+        assert!(!commit.community);
+        assert_eq!(commit.accept, "application/vnd.github.sha");
+        let raw_url = source.raw_url(COMMIT, path);
+        let raw = request_target(&raw_url, false).unwrap();
+        assert!(!raw.community);
+        assert_eq!(raw.url.as_str(), raw_url);
     }
 
     #[test]

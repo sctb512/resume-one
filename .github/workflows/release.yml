@@ -4,6 +4,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      verify_update_tag:
+        description: 'Verify an already published update on both native platforms'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -19,6 +24,7 @@ env:
 
 jobs:
   test:
+    if: ${{ !inputs.verify_update_tag }}
     uses: ./.github/workflows/ci.yml
 
   native:
@@ -134,3 +140,20 @@ jobs:
           if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$GITHUB_REF_NAME" --verify-tag "${flags[@]}" --generate-notes \
             dist/Resume-One-macOS-arm64-unsigned.zip dist/Resume-One-Windows-x64-unsigned.zip dist/SHA256SUMS
+
+  verify_published_update:
+    if: ${{ inputs.verify_update_tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    env:
+      CARGO_PROFILE_TEST_DEBUG: '0'
+      CARGO_PROFILE_TEST_STRIP: none
+      RESUME_ONE_QA_UPDATE_TAG: ${{ inputs.verify_update_tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - run: cargo test --locked -p resume-one-updater downloads_and_installs_the_public_release -- --ignored

@@ -609,6 +609,9 @@ mod tests {
         }
         let installation = Installation::open(&root, platform).unwrap();
         let release = installation.check().unwrap().expect("newer public release");
+        if let Ok(expected) = std::env::var("RESUME_ONE_QA_UPDATE_TAG") {
+            assert_eq!(release.tag, expected);
+        }
         let version = release.tag.clone();
         let prepared = release.prepare(installation).unwrap();
         let stage = prepared.directory.path().join(platform.archive_root());

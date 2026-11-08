@@ -82,7 +82,7 @@ Windows 可在 PowerShell 用 `$env:RESUME_ONE_COMMUNITY_THEMES_DIR = (Resolve-P
 | `resume-one-themes` | 原版与声明式社区主题、许可、迁移记录和索引 | `v*` 标签在验证 Schema 和 SHA-256 后发布完整主题 ZIP。 |
 | `resume-one-site` | 简里静态项目主页 | `main` 构建通过后部署 GitHub Pages。仓库的 Pages 发布来源需选择 GitHub Actions。 |
 
-应用工作流从同一所有者的主题仓库检出锁定提交。主题仓库公开读取。发布包内记录对应 Git 标签。桌面应用从公开的 Releases 检查较新版本，校验资产 SHA-256 后由独立进程在退出时安装，保留上一版备份。带预发布后缀的标签生成预发布，可用同一标签手动触发发布流水线。
+应用工作流从同一所有者的主题仓库检出锁定提交。主题仓库公开读取。发布包内记录对应 Git 标签。桌面应用从公开的 Releases 检查较新版本，校验资产 SHA-256 后由独立进程在退出时安装，保留上一版备份。带预发布后缀的标签生成预发布，可用同一标签手动触发发布流水线。发布后可在 `Build and release Resume One` 中填入 `verify_update_tag`，在两个原生 runner 从公开 Release 下载并验证升级。
 
 macOS 如需保留已有应用，可向 `bundle.sh` 传第二个参数指定尚不存在的绝对 `.app` 路径；向 `archive.sh` 传第三个参数指定该应用归档。归档前后均检查封签。项目采用 [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt)，第三方与字体声明保留在包内。
 

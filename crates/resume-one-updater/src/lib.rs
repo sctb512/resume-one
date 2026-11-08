@@ -446,7 +446,7 @@ pub fn apply_from_helper(arguments: impl IntoIterator<Item = OsString>) -> Resul
         }
         command.current_dir(&install.root).spawn().map(|_| ())
     };
-    let result = replace_installation(&install.root, &staged.root, &backup, &launch);
+    let result = replace_installation(&install.root, &staged.root, &backup, launch);
     if result.is_err() && install.root.is_dir() {
         let _ = launch();
     }

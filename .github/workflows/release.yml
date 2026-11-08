@@ -15,6 +15,7 @@ concurrency:
 env:
   CARGO_INCREMENTAL: '0'
   CARGO_PROFILE_RELEASE_STRIP: none
+  RESUME_ONE_RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
 
 jobs:
   test:
@@ -67,6 +68,11 @@ jobs:
             xcodebuild -downloadComponent MetalToolchain
           fi
           xcrun --sdk macosx metal --version
+      - name: Test the updater on the native runner
+        env:
+          CARGO_PROFILE_TEST_DEBUG: '0'
+          CARGO_PROFILE_TEST_STRIP: none
+        run: cargo test --locked -p resume-one-updater
       - name: Package macOS Apple Silicon
         if: runner.os == 'macOS'
         shell: bash
@@ -88,7 +94,12 @@ jobs:
         shell: bash
         env:
           PLATFORM: ${{ matrix.platform }}
-        run: python packaging/verify-release.py "dist/Resume-One-$PLATFORM-unsigned.zip" "$RESUME_ONE_COMMUNITY_THEMES_DIR"
+        run: |
+          args=()
+          if [[ -n "$RESUME_ONE_RELEASE_TAG" ]]; then
+            args+=(--release-tag "$RESUME_ONE_RELEASE_TAG")
+          fi
+          python packaging/verify-release.py "dist/Resume-One-$PLATFORM-unsigned.zip" "$RESUME_ONE_COMMUNITY_THEMES_DIR" "${args[@]}"
       - uses: actions/upload-artifact@v6
         with:
           name: resume-one-${{ matrix.platform }}
@@ -97,7 +108,7 @@ jobs:
           compression-level: 0
 
   publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: native
     runs-on: ubuntu-24.04
     permissions:
@@ -119,5 +130,7 @@ jobs:
             cd dist
             sha256sum Resume-One-macOS-arm64-unsigned.zip Resume-One-Windows-x64-unsigned.zip > SHA256SUMS
           )
-          gh release create "$GITHUB_REF_NAME" --verify-tag --prerelease --generate-notes \
+          flags=()
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$GITHUB_REF_NAME" --verify-tag "${flags[@]}" --generate-notes \
             dist/Resume-One-macOS-arm64-unsigned.zip dist/Resume-One-Windows-x64-unsigned.zip dist/SHA256SUMS

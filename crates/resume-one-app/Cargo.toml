@@ -16,6 +16,7 @@ dirs = "=5.0.1"
 serde_json.workspace = true
 resume-one-core = { path = "../resume-one-core" }
 resume-one-themes = { path = "../resume-one-themes" }
+resume-one-updater = { path = "../resume-one-updater" }
 futures-channel = "=0.3.34"
 
 [target.'cfg(target_os = "macos")'.dependencies]

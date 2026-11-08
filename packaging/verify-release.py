@@ -22,7 +22,7 @@ def verify_binary(binary, name, macos):
         raise ValueError(f"{name} is not a Windows x64 executable")
 
 
-def verify(archive_path, themes):
+def verify(archive_path, themes, release_tag=None):
     if archive_path.name not in {"Resume-One-macOS-arm64-unsigned.zip", "Resume-One-Windows-x64-unsigned.zip"}:
         raise ValueError("Unrecognized release archive name")
     macos = "macOS-arm64" in archive_path.name
@@ -45,6 +45,11 @@ def verify(archive_path, themes):
                 verify_binary(binary, name, macos)
         for name in ("README.md", "docs/user-manual.md", "docs/cli-manual.md", "resume-one-theme-spec-v2.md"):
             archive.getinfo(f"{resources}/{name}")
+
+        if release_tag is not None:
+            marker = archive.read(f"{resources}/release-tag.txt").decode("ascii").strip()
+            if marker != release_tag:
+                raise ValueError(f"Expected packaged tag {release_tag}, got {marker}")
 
         theme_root = f"{resources}/assets/themes/"
         native = [name for name in entries if name.startswith(theme_root)
@@ -74,8 +79,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
     parser.add_argument("themes", type=Path)
+    parser.add_argument("--release-tag")
     args = parser.parse_args()
-    verify(args.archive, args.themes)
+    verify(args.archive, args.themes, args.release_tag)
 
 
 if __name__ == "__main__":

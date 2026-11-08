@@ -12,6 +12,7 @@ path = "src/main.rs"
 [dependencies]
 resume-one-core = { path = "../resume-one-core" }
 resume-one-themes = { path = "../resume-one-themes" }
+resume-one-updater = { path = "../resume-one-updater" }
 serde_json.workspace = true
 clap.workspace = true
 tempfile.workspace = true

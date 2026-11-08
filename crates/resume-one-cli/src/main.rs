@@ -273,6 +273,18 @@ impl AppError {
 
 fn main() -> ExitCode {
     let args: Vec<_> = std::env::args_os().collect();
+    if args
+        .get(1)
+        .is_some_and(|arg| arg == resume_one_updater::APPLY_ARG)
+    {
+        return match resume_one_updater::apply_from_helper(args.into_iter().skip(2)) {
+            Ok(()) => ExitCode::SUCCESS,
+            Err(error) => {
+                eprintln!("{error}");
+                ExitCode::FAILURE
+            }
+        };
+    }
     let json_requested = args.iter().any(|arg| arg == "--json");
     let cli = match Cli::try_parse_from(args) {
         Ok(cli) => cli,

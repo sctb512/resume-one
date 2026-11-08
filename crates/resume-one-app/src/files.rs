@@ -9,6 +9,7 @@ use crate::appearance_ui::ShowAppearance;
 use crate::editor_ui::{Save, SaveAs, ToggleSource};
 use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
 use crate::theme_manager::ManageThemes;
+use crate::update_ui::CheckUpdates;
 use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
@@ -71,7 +72,11 @@ pub(super) fn register(cx: &mut App) {
     cx.set_menus(vec![
         Menu {
             name: "Resume One".into(),
-            items: vec![MenuItem::action("退出 Resume One", Quit)],
+            items: vec![
+                MenuItem::action("检查更新…", CheckUpdates),
+                MenuItem::separator(),
+                MenuItem::action("退出 Resume One", Quit),
+            ],
         },
         Menu {
             name: "文件".into(),
@@ -623,7 +628,7 @@ impl ResumeOne {
 
     pub(super) fn next_file(&mut self, _: &NextFile, _: &mut Window, cx: &mut Context<Self>) {
         let count = if self.files.actions_only {
-            3
+            3 + usize::from(self.updates.installation.is_some())
         } else {
             self.model
                 .folder
@@ -658,10 +663,12 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.files.open && self.files.actions_only {
-            if self.files.selected == 2 {
-                self.new_resume(&NewResume, window, cx);
-            } else {
-                self.prompt_path(self.files.selected == 1, window, cx);
+            match self.files.selected {
+                3 if self.updates.installation.is_some() => {
+                    self.check_updates(&CheckUpdates, window, cx)
+                }
+                2 => self.new_resume(&NewResume, window, cx),
+                _ => self.prompt_path(self.files.selected == 1, window, cx),
             }
             return;
         }
@@ -800,6 +807,24 @@ impl ResumeOne {
                         cx.listener(|this, _, window, cx| this.new_resume(&NewResume, window, cx)),
                     ),
             );
+        if self.updates.installation.is_some() {
+            menu = menu.child(
+                div()
+                    .id("check-updates")
+                    .px_3()
+                    .py_2()
+                    .rounded_md()
+                    .cursor_pointer()
+                    .when(self.files.actions_only && self.files.selected == 3, |row| {
+                        row.bg(color(colors.canvas))
+                    })
+                    .hover(|row| row.bg(color(colors.canvas)))
+                    .child(self.updates.label())
+                    .on_click(cx.listener(|this, _, window, cx| {
+                        this.check_updates(&CheckUpdates, window, cx)
+                    })),
+            );
+        }
         if let Some(folder) = &self.model.folder
             && !self.files.actions_only
         {

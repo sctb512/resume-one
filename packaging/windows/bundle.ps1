@@ -75,6 +75,9 @@ try {
             Copy-Item -LiteralPath $theme.FullName -Destination (Join-Path $bundle 'assets\themes') -Recurse -Force
         }
     }
+    if ($env:RESUME_ONE_RELEASE_TAG) {
+        Set-Content -LiteralPath (Join-Path $bundle 'release-tag.txt') -Value $env:RESUME_ONE_RELEASE_TAG -Encoding ascii
+    }
     if ($Archive) {
         $archivePath = Join-Path $repoRoot "target\$Profile\Resume-One-Windows-x64-unsigned.zip"
         if (Test-Path -LiteralPath $archivePath) {

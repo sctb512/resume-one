@@ -19,6 +19,7 @@ mod theme_info;
 mod theme_local;
 mod theme_manager;
 mod theme_online;
+mod update_ui;
 mod workspace;
 mod workspace_ui;
 
@@ -92,6 +93,7 @@ struct ResumeOne {
     export_language: resume_one_core::render::Language,
     theme_store: Option<theme_local::ThemeStore>,
     theme_manager_open: bool,
+    updates: update_ui::UpdateUi,
     online: theme_online::OnlineThemes,
     theme_scroll: ScrollHandle,
     hovered_section: Option<(String, usize)>,
@@ -145,6 +147,7 @@ impl ResumeOne {
             export_language: resume_one_core::render::Language::Zh,
             theme_store: None,
             theme_manager_open: false,
+            updates: update_ui::UpdateUi::default(),
             online: theme_online::OnlineThemes::default(),
             theme_scroll: ScrollHandle::new(),
             hovered_section: None,
@@ -1204,6 +1207,7 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::manage_themes))
             .on_action(cx.listener(Self::open_appearance))
             .on_action(cx.listener(Self::quit))
+            .on_action(cx.listener(Self::check_updates))
             .bg(color(style.colors.canvas))
             .when(self.inline.form.is_some(), |view| {
                 view.child(self.inline_pointer_events(cx))
@@ -1360,6 +1364,7 @@ fn main() {
                 let view = cx.new(|cx| {
                     let mut app = ResumeOne::new(model, cx);
                     app.theme_store = Some(theme_store);
+                    app.updates.installation = resume_one_updater::Installation::detect();
                     app
                 });
                 window.focus(&view.read(cx).focus);
@@ -1369,6 +1374,10 @@ fn main() {
                     close_view.update(cx, |app, cx| app.confirm_close(window, cx))
                 });
                 let root = cx.new(|cx| gpui_component::Root::new(view.clone(), window, cx));
+                let update_view = view.clone();
+                window.defer(cx, move |window, cx| {
+                    update_view.update(cx, |app, cx| app.request_update(false, window, cx));
+                });
                 if let Some(path) = path.map(std::path::PathBuf::from) {
                     window.defer(cx, move |window, cx| {
                         view.update(cx, |app, cx| app.load_path(path, window, cx));

@@ -5392,6 +5392,7 @@ dependencies = [
  "objc2-app-kit",
  "resume-one-core",
  "resume-one-themes",
+ "resume-one-updater",
  "serde_json",
  "tempfile",
  "windows-sys 0.61.2",
@@ -5405,6 +5406,7 @@ dependencies = [
  "docx-rs",
  "resume-one-core",
  "resume-one-themes",
+ "resume-one-updater",
  "serde_json",
  "tempfile",
  "zip",
@@ -5458,6 +5460,20 @@ dependencies = [
  "tungstenite",
  "ureq",
  "url",
+]
+
+[[package]]
+name = "resume-one-updater"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "semver",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+ "ureq",
+ "windows-sys 0.61.2",
+ "zip",
 ]
 
 [[package]]

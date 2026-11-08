@@ -45,6 +45,9 @@ fi
 cp "$repo_root/target/$profile/resume-one-app" "$bundle/Contents/MacOS/resume-one-app"
 cp "$repo_root/target/$profile/resume-one" "$bundle/Contents/MacOS/resume-one"
 cp "$repo_root/target/$profile/resume-one-theme-migrate" "$bundle/Contents/MacOS/resume-one-theme-migrate"
+if [[ -n "${RESUME_ONE_RELEASE_TAG:-}" ]]; then
+    printf '%s\n' "$RESUME_ONE_RELEASE_TAG" > "$bundle/Contents/Resources/release-tag.txt"
+fi
 plutil -lint -s "$bundle/Contents/Info.plist"
 for name in resume-one resume-one-theme-migrate; do
     codesign --force --sign - "$bundle/Contents/MacOS/$name"

@@ -65,16 +65,6 @@ try {
     Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json') -Destination (Join-Path $bundle 'assets\themes') -Force
-    # Copy the same optional package set embedded by the build.
-    if ($env:RESUME_ONE_COMMUNITY_THEMES_DIR) {
-        $communityThemes = Get-ChildItem -LiteralPath $env:RESUME_ONE_COMMUNITY_THEMES_DIR -Directory -Filter 'community-*'
-        foreach ($theme in $communityThemes) {
-            if (-not (Test-Path -LiteralPath (Join-Path $theme.FullName 'theme.json') -PathType Leaf)) {
-                throw "Missing community theme manifest: $($theme.FullName)"
-            }
-            Copy-Item -LiteralPath $theme.FullName -Destination (Join-Path $bundle 'assets\themes') -Recurse -Force
-        }
-    }
     if ($env:RESUME_ONE_RELEASE_TAG) {
         Set-Content -LiteralPath (Join-Path $bundle 'release-tag.txt') -Value $env:RESUME_ONE_RELEASE_TAG -Encoding ascii
     }

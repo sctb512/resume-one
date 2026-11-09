@@ -432,7 +432,7 @@ fn execute(command: Command) -> Result<Value, AppError> {
             }
             let issue =
                 |error: resume_one_themes::ThemeError| AppError::new(7, error.code, error.message);
-            let default = GithubSource::community_default();
+            let default = GithubSource::defaults()[1].clone();
             let index = index_path.as_deref().unwrap_or_else(|| {
                 if repository.is_some() {
                     "themes/index.json"

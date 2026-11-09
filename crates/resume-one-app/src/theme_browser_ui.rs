@@ -19,17 +19,6 @@ pub(super) fn thumbnail_window(offset: f32, height: f32, total: usize) -> std::o
     first.saturating_sub(2).min(total)..first.saturating_add(count + 2).min(total)
 }
 
-fn source_title(source: &GithubSource) -> &str {
-    if source.repository() == GithubSource::community_default().repository() {
-        match source.index_path() {
-            "originals/index.json" => return "原版 JSON Resume",
-            "index.json" => return "社区声明式主题",
-            _ => {}
-        }
-    }
-    source.repository()
-}
-
 impl ResumeOne {
     pub(super) fn hover_local_theme(
         &mut self,
@@ -243,7 +232,7 @@ impl ResumeOne {
                 .online
                 .sources
                 .get(self.online.source_index)
-                .map(|source| source_title(source).to_owned())
+                .map(|source| source.display_name().to_owned())
                 .unwrap_or_else(|| "选择来源".into());
             nav = nav.child(
                 div()
@@ -285,7 +274,7 @@ impl ResumeOne {
                             .truncate()
                             .cursor_pointer()
                             .hover(|row| row.bg(color(style.colors.paper)))
-                            .child(format!("{} · {}", source_title(source), source.reference()))
+                            .child(source.display_name().to_owned())
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.online.select_source(index);
                                 this.theme_scroll.set_offset(gpui::point(px(0.), px(0.)));
@@ -628,7 +617,7 @@ mod tests {
             let app = owner.read(cx);
             assert_eq!(
                 app.model.themes.len(),
-                crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
+                crate::model::BUILTIN_THEMES.len() + 1
             );
             let downloaded = app
                 .model
@@ -723,14 +712,14 @@ mod tests {
             assert_eq!(app.model.document.source, resume);
             assert_eq!(
                 app.model.themes.len(),
-                crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
+                crate::model::BUILTIN_THEMES.len() + 1
             );
         });
         assert_eq!(
             std::fs::read_dir(root.path().join("defaults"))
                 .unwrap()
                 .count(),
-            crate::model::BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
+            crate::model::BUILTIN_THEMES.len()
         );
     }
 }

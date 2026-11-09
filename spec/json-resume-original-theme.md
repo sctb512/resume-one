@@ -6,6 +6,10 @@
 
 `originals/index.json` 沿用[来源索引 v1](../resume-one-theme-source-v1.schema.json)。原版包路径以 `.original.theme.json` 结尾，每项必须填写整个文件的 SHA-256。客户端将分支解析为 Git commit，再按同一 commit 获取索引和包。索引中的 ID 和名称须与包内值一致。
 
+同一索引也支持声明式主题的可选 `files` 对象。键为与清单同目录的 TTF、OTF、TXT 或 MD 文件名，值为文件 SHA-256。含 `files` 的条目也须提供清单自身的 `sha256`。声明的字体路径及摘要须与 `assets.fonts` 一致。字体上限为 8 MiB，文本上限为 1 MiB，完整包上限为 32 MiB。应用按同一 commit 下载全部资源，校验后才渲染或安装。下载到本地时保存一个带 `theme.json` 的完整文件夹。
+
+本机来源配置由 `repository`、`ref`、`indexPath` 和可选的 `name` 组成。展示名称由用户编辑，缓存身份由前三项决定。
+
 包遵循 [JSON Schema](./json-resume-original-theme-v1.schema.json)，UTF-8 文件上限为 1 MiB。`package`、`version`、`author`、`upstream` 和 `license` 对应上游发布。主题仓库另附原始许可及依赖声明。将上游 npm 包和依赖固定后，打包器把模板、样式和静态资源装入单文件。旧包读取的模板和样式可在打包时绑定到静态字节。JS 入口以 `globalThis.__resumeOneTheme` 暴露同步 `render(resume) -> string`，可附 `pdfRenderOptions`。可选的 `stylesheets` 用原始 HTTPS URL 对应已打包的 CSS，渲染器用这些内容替换 HTML 引用，无需网络。
 
 ## 执行与显示

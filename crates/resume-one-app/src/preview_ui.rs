@@ -1269,8 +1269,13 @@ impl ResumeOne {
         thumb.into_any_element()
     }
 
-    pub(super) fn resume_pages(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
-        let data = match self.preview.resolve(&self.model, self.display_theme()) {
+    pub(super) fn resume_pages(
+        &self,
+        theme: &crate::model::BuiltinTheme,
+        interactive: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui::AnyElement {
+        let data = match self.preview.resolve(&self.model, theme) {
             Ok(data) => data,
             Err(message) => {
                 return div()
@@ -1282,7 +1287,7 @@ impl ResumeOne {
                     .into_any_element();
             }
         };
-        let style = self.active_style();
+        let style = self.model.effective_style(theme);
         let spotlight = self.insertion_active();
         let px_per_mm = PX_PER_MM * self.preview_scale;
         let px_per_pt = PX_PER_PT * self.preview_scale;
@@ -1309,9 +1314,11 @@ impl ResumeOne {
                 .flex_none()
                 .bg(color(data.layout.paper))
                 .shadow_md()
-                .on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
-                    this.paper_hover_changed(page_index, *hovering, window, cx);
-                }))
+                .when(interactive, |page| {
+                    page.on_hover(cx.listener(move |this, hovering: &bool, window, cx| {
+                        this.paper_hover_changed(page_index, *hovering, window, cx);
+                    }))
+                })
                 .child(
                     div()
                         .absolute()
@@ -1319,6 +1326,10 @@ impl ResumeOne {
                         .opacity(1.0 - 0.22 * self.spotlight_progress)
                         .child(page_canvas(data.clone(), page_index, px_per_pt)),
                 );
+            if !interactive {
+                pages = pages.child(page);
+                continue;
+            }
             for region in data
                 .regions
                 .iter()

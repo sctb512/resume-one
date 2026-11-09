@@ -277,7 +277,7 @@ impl ThemeStore {
             .map(parse_sources)
             .transpose()
         {
-            Ok(None) if warnings.is_empty() => vec![GithubSource::community_default()],
+            Ok(None) if warnings.is_empty() => GithubSource::defaults().to_vec(),
             Ok(sources) => sources.unwrap_or_default(),
             Err(error) => {
                 warnings.push(error.to_string());
@@ -469,7 +469,6 @@ impl ThemeStore {
                 ));
             }
         }
-        warnings.extend(crate::community_themes::seed(directory));
         Ok(warnings)
     }
 
@@ -505,10 +504,16 @@ impl ThemeStore {
         Ok(paths)
     }
 
-    fn scan(directory: &Path) -> Result<(Vec<BuiltinTheme>, Vec<String>), String> {
+    fn scan(
+        directory: &Path,
+        hide_legacy: bool,
+    ) -> Result<(Vec<BuiltinTheme>, Vec<String>), String> {
         let mut warnings = Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
         for path in Self::theme_paths(directory)? {
+            if hide_legacy && crate::legacy_community::is_previous_default(&path) {
+                continue;
+            }
             let identity = format!(
                 "local:{}",
                 path.canonicalize()
@@ -574,7 +579,7 @@ impl ThemeStore {
     }
 
     pub fn load_themes(&mut self) -> Result<Vec<BuiltinTheme>, String> {
-        let (themes, warnings) = Self::scan(&self.directory)?;
+        let (themes, warnings) = Self::scan(&self.directory, self.directory == self.default_dir)?;
         self.warnings.extend(warnings);
         Ok(themes)
     }
@@ -587,7 +592,7 @@ impl ThemeStore {
         if !directory.is_dir() {
             return Err("主题位置必须是目录".into());
         }
-        let (themes, warnings) = Self::scan(&directory)?;
+        let (themes, warnings) = Self::scan(&directory, directory == self.default_dir)?;
         let value = if directory == self.default_dir {
             Value::Null
         } else {
@@ -771,10 +776,7 @@ mod tests {
             BUILTIN_THEMES[0].as_bytes()
         );
         assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
-        assert_eq!(
-            store.load_themes().unwrap().len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
-        );
+        assert_eq!(store.load_themes().unwrap().len(), BUILTIN_THEMES.len());
         assert_eq!(fs::read(&custom_path).unwrap(), custom_bytes);
         assert_eq!(
             fs::read(&settings).unwrap(),
@@ -987,10 +989,7 @@ mod tests {
         let original = theme.to_string();
         fs::write(package.join("theme.json"), &original).unwrap();
         let themes = store.load_themes().unwrap();
-        assert_eq!(
-            themes.len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 1
-        );
+        assert_eq!(themes.len(), BUILTIN_THEMES.len() + 1);
         assert!(store.warnings.is_empty());
         let font_theme = themes
             .iter()
@@ -999,10 +998,7 @@ mod tests {
         assert_eq!(font_theme.style.typography.body.family, "asset:body");
         assert!(resume_one_core::layout::check_theme(&font_theme.manifest).is_ok());
         fs::write(package.join("fixture.ttf"), b"tampered font").unwrap();
-        assert_eq!(
-            store.load_themes().unwrap().len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
-        );
+        assert_eq!(store.load_themes().unwrap().len(), BUILTIN_THEMES.len());
         assert!(
             store
                 .warnings
@@ -1066,7 +1062,7 @@ mod tests {
             "script":"globalThis.__resumeOneTheme = { render() { return '<p>Example</p>'; } }"
         });
         fs::write(&file, serde_json::to_vec(&theme).unwrap()).unwrap();
-        let (themes, warnings) = ThemeStore::scan(&path).unwrap();
+        let (themes, warnings) = ThemeStore::scan(&path, false).unwrap();
         assert!(warnings.is_empty());
         let original = themes
             .iter()
@@ -1084,7 +1080,7 @@ mod tests {
         let settings = root.path().join("settings.json");
         let defaults = root.path().join("themes");
         let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
-        assert_eq!(store.sources, [GithubSource::community_default()]);
+        assert_eq!(store.sources, GithubSource::defaults());
         assert!(!settings.exists());
         store.save_sources(vec![]).unwrap();
         let reopened = ThemeStore::new(settings, defaults).unwrap();
@@ -1113,10 +1109,7 @@ mod tests {
         let defaults = root.path().join("defaults");
         let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
         let themes = store.load_themes().unwrap();
-        assert_eq!(
-            themes.len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
-        );
+        assert_eq!(themes.len(), BUILTIN_THEMES.len());
         assert_eq!(themes[0].manifest.id, "zhibai");
         let path = themes[0].path.as_ref().unwrap();
         assert!(path.is_file());
@@ -1141,10 +1134,7 @@ mod tests {
         )
         .unwrap();
         let themes = store.choose(custom.clone()).unwrap();
-        assert_eq!(
-            themes.len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len() + 2
-        );
+        assert_eq!(themes.len(), BUILTIN_THEMES.len() + 2);
         assert!(
             themes
                 .iter()
@@ -1168,10 +1158,7 @@ mod tests {
             serde_json::from_slice(&fs::read(&store.settings_path).unwrap()).unwrap();
         saved["future"] = json!({"onlineSources": ["example"]});
         fs::write(&store.settings_path, serde_json::to_vec(&saved).unwrap()).unwrap();
-        assert_eq!(
-            store.reset().unwrap().len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
-        );
+        assert_eq!(store.reset().unwrap().len(), BUILTIN_THEMES.len());
         assert_eq!(store.directory, defaults.canonicalize().unwrap());
         let saved: Value =
             serde_json::from_slice(&fs::read(&store.settings_path).unwrap()).unwrap();
@@ -1186,10 +1173,7 @@ mod tests {
         let defaults = root.path().join("defaults");
         fs::write(&settings, b"{invalid").unwrap();
         let mut store = ThemeStore::new(settings.clone(), defaults.clone()).unwrap();
-        assert_eq!(
-            store.load_themes().unwrap().len(),
-            BUILTIN_THEMES.len() + crate::community_themes::BUNDLES.len()
-        );
+        assert_eq!(store.load_themes().unwrap().len(), BUILTIN_THEMES.len());
         assert!(!store.warnings.is_empty());
         assert_eq!(fs::read(&settings).unwrap(), b"{invalid");
         let missing = root.path().join("missing");

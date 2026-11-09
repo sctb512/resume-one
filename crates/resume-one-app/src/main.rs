@@ -3,11 +3,11 @@
 mod appearance_ui;
 mod chrome;
 mod color_sampler;
-mod community_themes;
 mod editor_ui;
 mod export_ui;
 mod files;
 mod inline_ui;
+mod legacy_community;
 mod model;
 mod motion;
 mod original_preview;
@@ -743,9 +743,9 @@ impl ResumeOne {
                     .when(self.model.preview_ready, |view| {
                         let theme = self.display_theme();
                         if theme.original.is_some() {
-                            view.child(self.original_paper(theme))
+                            view.child(self.original_paper(theme, cx))
                         } else {
-                            view.child(self.resume_pages(cx))
+                            view.child(self.resume_pages(theme, true, cx))
                         }
                     })
                     .when(!self.model.preview_ready, |view| {

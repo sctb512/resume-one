@@ -441,7 +441,7 @@ mod tests {
             std::env::var_os("RESUME_ONE_ORIGINAL_CATALOG").expect("path to original index"),
         );
         let catalog = crate::Catalog::parse(
-            crate::GithubSource::community_default(),
+            crate::GithubSource::defaults()[1].clone(),
             &"0".repeat(40),
             &fs::read(&index).unwrap(),
         )

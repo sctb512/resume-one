@@ -331,10 +331,14 @@ impl OnlineThemes {
         if self.sources == sources {
             return;
         }
-        let selected = self.sources.get(self.source_index).cloned();
+        let selected = self.sources.get(self.source_index).map(GithubSource::key);
         self.sources = sources.to_vec();
         self.source_index = selected
-            .and_then(|selected| self.sources.iter().position(|source| source == &selected))
+            .and_then(|selected| {
+                self.sources
+                    .iter()
+                    .position(|source| source.key() == selected)
+            })
             .unwrap_or(0);
         self.restart();
     }

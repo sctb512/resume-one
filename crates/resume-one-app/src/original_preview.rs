@@ -45,15 +45,30 @@ impl From<OriginalPreview> for Page {
 #[derive(Default)]
 pub(super) struct OriginalPreviewState {
     running: bool,
+    last_declarative: Option<BuiltinTheme>,
     recent: VecDeque<(Key, Result<Page, String>)>,
 }
 
 impl ResumeOne {
     pub(super) fn request_original_preview(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.source_mode || !self.model.preview_ready || self.original_preview.running {
+        if self.source_mode || !self.model.preview_ready {
             return;
         }
         let displayed = self.display_theme();
+        if displayed.original.is_none() {
+            if self
+                .original_preview
+                .last_declarative
+                .as_ref()
+                .is_none_or(|previous| previous.identity != displayed.identity)
+            {
+                self.original_preview.last_declarative = Some(displayed.clone());
+            }
+            return;
+        }
+        if self.original_preview.running {
+            return;
+        }
         let (Some(theme), Some(key)) =
             (displayed.original.clone(), Key::for_theme(self, displayed))
         else {
@@ -104,7 +119,11 @@ impl ResumeOne {
         )
     }
 
-    pub(super) fn original_paper(&self, theme: &BuiltinTheme) -> AnyElement {
+    pub(super) fn original_paper(
+        &self,
+        theme: &BuiltinTheme,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
         let key = Key::for_theme(self, theme).expect("original theme");
         let style = self.active_style();
         let width = style.page.width_mm * 3. * self.preview_scale;
@@ -122,12 +141,13 @@ impl ResumeOne {
             .iter()
             .find(|(candidate, _)| candidate == &key)
             .map(|(_, page)| page);
-        // Avoid flicker while waiting for a new hover. Never display another document.
+        // Keep a valid paper for this document while a new theme paints.
         let picture = cached.or_else(|| {
-            let applied = Key::for_theme(self, self.model.applied_theme())?;
             recent
                 .iter()
-                .find(|(candidate, page)| candidate == &applied && page.is_ok())
+                .find(|(candidate, page)| {
+                    candidate.resume_revision == key.resume_revision && page.is_ok()
+                })
                 .map(|(_, page)| page)
         });
         match picture {
@@ -151,9 +171,14 @@ impl ResumeOne {
                 .text_color(color(style.colors.muted))
                 .child(error.clone())
                 .into_any_element(),
-            None => paper
-                .min_h(px(style.page.height_mm * 3. * self.preview_scale))
-                .into_any_element(),
+            None => {
+                let fallback = self
+                    .original_preview
+                    .last_declarative
+                    .as_ref()
+                    .unwrap_or(&self.model.themes[0]);
+                self.resume_pages(fallback, false, cx)
+            }
         }
     }
 }

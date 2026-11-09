@@ -1,4 +1,4 @@
-"""Verify the native bundle layout and match its themes to the selected source."""
+"""Verify the native bundle layout and check that only native themes are bundled."""
 
 import argparse
 from pathlib import Path, PurePosixPath
@@ -22,7 +22,7 @@ def verify_binary(binary, name, macos):
         raise ValueError(f"{name} is not a Windows x64 executable")
 
 
-def verify(archive_path, themes, release_tag=None):
+def verify(archive_path, release_tag=None):
     if archive_path.name not in {"Resume-One-macOS-arm64-unsigned.zip", "Resume-One-Windows-x64-unsigned.zip"}:
         raise ValueError("Unrecognized release archive name")
     macos = "macOS-arm64" in archive_path.name
@@ -57,31 +57,17 @@ def verify(archive_path, themes, release_tag=None):
                   and "/" not in name.removeprefix(theme_root)]
         if len(native) != 20:
             raise ValueError(f"Expected 20 native themes, got {len(native)}")
-        expected = {}
-        for package in sorted(themes.glob("community-*")):
-            if not (package / "theme.json").is_file():
-                raise ValueError(f"{package.name} is missing theme.json")
-            for file in package.iterdir():
-                expected[f"{theme_root}{package.name}/{file.name}"] = file
-        bundled = {name for name in entries if name.startswith(f"{theme_root}community-")}
-        if bundled != expected.keys():
-            raise ValueError("Community theme archive paths differ from the pinned checkout")
-        for name, file in expected.items():
-            if archive.read(name) != file.read_bytes():
-                raise ValueError(f"Theme file mismatch: {name}")
-        count = sum(file.name == "theme.json" for file in expected.values())
-        if count == 0:
-            raise ValueError("The selected community checkout contains no packages")
-        print(f"Verified {archive_path.name}, 3 executables, 20 native themes and {count} community packages.")
+        if {name for name in entries if name.startswith(theme_root)} != set(native):
+            raise ValueError("Only native themes may be included in the release archive")
+        print(f"Verified {archive_path.name}, 3 executables and 20 native themes.")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
-    parser.add_argument("themes", type=Path)
     parser.add_argument("--release-tag")
     args = parser.parse_args()
-    verify(args.archive, args.themes, args.release_tag)
+    verify(args.archive, args.release_tag)
 
 
 if __name__ == "__main__":

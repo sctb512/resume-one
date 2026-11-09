@@ -1,12 +1,12 @@
 use std::{
-    collections::HashSet,
+    collections::{BTreeMap, HashSet},
     ops::Range,
     path::{Path, PathBuf},
     sync::{Arc, OnceLock},
 };
 
 use jsonschema::Validator;
-use resume_one_core::{ThemeManifest, parse_theme};
+use resume_one_core::{Diagnostic, MAX_FONT_BYTES, ThemeManifest, load_theme_fonts, parse_theme};
 use serde_json::{Value, json};
 use url::Url;
 
@@ -19,6 +19,7 @@ pub struct GithubSource {
     repository: String,
     reference: String,
     index_path: String,
+    name: Option<String>,
 }
 
 pub(crate) fn safe_path(path: &str) -> bool {
@@ -34,9 +35,28 @@ pub(crate) fn safe_path(path: &str) -> bool {
 }
 
 impl GithubSource {
-    pub fn community_default() -> Self {
-        Self::new(DEFAULT_COMMUNITY_REPOSITORY, "main", "originals/index.json")
-            .expect("valid built-in community source")
+    pub fn defaults() -> [Self; 2] {
+        [
+            ("迁移版社区主题", "migrated-index.json"),
+            ("原版 JSON Resume", "originals/index.json"),
+        ]
+        .map(|(name, path)| {
+            Self::new(DEFAULT_COMMUNITY_REPOSITORY, "main", path)
+                .and_then(|source| source.with_name(name))
+                .expect("valid built-in source")
+        })
+    }
+
+    pub fn with_name(mut self, name: &str) -> Result<Self, ThemeError> {
+        let name = name.trim();
+        if name.chars().count() > 60 || name.chars().any(char::is_control) {
+            return Err(ThemeError::new(
+                "SOURCE_NAME",
+                "展示名称最多 60 个字符，且不能包含控制字符",
+            ));
+        }
+        self.name = (!name.is_empty()).then(|| name.to_owned());
+        Ok(self)
     }
 
     pub fn new(repository: &str, reference: &str, index_path: &str) -> Result<Self, ThemeError> {
@@ -73,6 +93,7 @@ impl GithubSource {
             repository: repository.to_ascii_lowercase(),
             reference: reference.into(),
             index_path: index_path.into(),
+            name: None,
         })
     }
 
@@ -80,10 +101,13 @@ impl GithubSource {
         let object = value
             .as_object()
             .ok_or_else(|| ThemeError::new("SOURCE_CONFIG", "来源配置须为对象"))?;
-        if object.len() != 3 {
+        if object
+            .keys()
+            .any(|key| !matches!(key.as_str(), "repository" | "ref" | "indexPath" | "name"))
+        {
             return Err(ThemeError::new(
                 "SOURCE_CONFIG",
-                "来源只接受 repository、ref、indexPath",
+                "来源只接受 repository、ref、indexPath、name",
             ));
         }
         let string = |key| {
@@ -91,11 +115,41 @@ impl GithubSource {
                 .as_str()
                 .ok_or_else(|| ThemeError::new("SOURCE_CONFIG", format!("缺少字符串字段 {key}")))
         };
-        Self::new(string("repository")?, string("ref")?, string("indexPath")?)
+        let source = Self::new(string("repository")?, string("ref")?, string("indexPath")?)?;
+        if object.contains_key("name") {
+            source.with_name(string("name")?)
+        } else {
+            Ok(source)
+        }
+    }
+
+    pub(crate) fn location_json(&self) -> Value {
+        json!({"repository": self.repository, "ref": self.reference, "indexPath": self.index_path})
     }
 
     pub fn as_json(&self) -> Value {
-        json!({"repository": self.repository, "ref": self.reference, "indexPath": self.index_path})
+        let mut value = self.location_json();
+        if let Some(name) = &self.name {
+            value["name"] = json!(name);
+        }
+        value
+    }
+
+    pub fn name(&self) -> Option<&str> {
+        self.name.as_deref()
+    }
+
+    pub fn display_name(&self) -> &str {
+        self.name().unwrap_or_else(|| {
+            if self.repository == DEFAULT_COMMUNITY_REPOSITORY {
+                match self.index_path.as_str() {
+                    "originals/index.json" => return "原版 JSON Resume",
+                    "index.json" | "migrated-index.json" => return "迁移版社区主题",
+                    _ => {}
+                }
+            }
+            self.repository()
+        })
     }
 
     pub fn repository(&self) -> &str {
@@ -108,7 +162,7 @@ impl GithubSource {
         &self.index_path
     }
     pub fn key(&self) -> String {
-        sha256(self.as_json().to_string().as_bytes())
+        sha256(self.location_json().to_string().as_bytes())
     }
 
     pub(crate) fn commit_url(&self) -> String {
@@ -142,6 +196,7 @@ pub struct ThemeEntry {
     pub name: String,
     pub manifest: String,
     pub sha256: Option<String>,
+    pub files: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Clone)]
@@ -211,11 +266,35 @@ impl Catalog {
                     "清单包含重复 ID、重复文件或不安全的 manifest 路径",
                 ));
             }
+            let files = item["files"]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .map(|(name, hash)| {
+                    (
+                        name.clone(),
+                        hash.as_str().expect("validated hash").to_ascii_lowercase(),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>();
+            if !files.is_empty()
+                && (manifest.ends_with(ORIGINAL_THEME_SUFFIX)
+                    || item["sha256"].is_null()
+                    || files.keys().any(|name| {
+                        !safe_path(name) || name.contains('/') || name.starts_with('.')
+                    }))
+            {
+                return Err(ThemeError::new(
+                    "SOURCE_ENTRY",
+                    "主题资源必须属于带摘要的声明式主题包",
+                ));
+            }
             entries.push(ThemeEntry {
                 id: id.into(),
                 name: item["name"].as_str().expect("validated name").into(),
                 manifest: manifest.into(),
                 sha256: item["sha256"].as_str().map(str::to_ascii_lowercase),
+                files,
             });
         }
         Ok(Self {
@@ -259,6 +338,7 @@ pub struct VerifiedTheme {
     payload: ThemePayload,
     pub(crate) bytes: Vec<u8>,
     pub(crate) sha256: String,
+    pub(crate) files: BTreeMap<String, Arc<[u8]>>,
 }
 
 #[derive(Debug, Clone)]
@@ -299,6 +379,16 @@ impl VerifiedTheme {
         &self.sha256
     }
     pub fn parse(entry: &ThemeEntry, bytes: &[u8]) -> Result<Self, ThemeError> {
+        Self::parse_with_files(entry, bytes, |_, _| {
+            Err(ThemeError::new("THEME_RESOURCE", "缺少主题包资源"))
+        })
+    }
+
+    pub(crate) fn parse_with_files(
+        entry: &ThemeEntry,
+        bytes: &[u8],
+        mut read: impl FnMut(&str, &str) -> Result<Vec<u8>, ThemeError>,
+    ) -> Result<Self, ThemeError> {
         if bytes.len() > MAX_FILE_BYTES {
             return Err(ThemeError::new("THEME_TOO_LARGE", "主题超过 1 MiB"));
         }
@@ -310,6 +400,7 @@ impl VerifiedTheme {
         {
             return Err(ThemeError::new("THEME_HASH", "主题 SHA-256 与清单不一致"));
         }
+        let mut files: BTreeMap<String, Arc<[u8]>> = BTreeMap::new();
         let payload = if entry.manifest.ends_with(ORIGINAL_THEME_SUFFIX) {
             if entry.sha256.is_none() {
                 return Err(ThemeError::new("THEME_HASH", "原版主题必须提供 SHA-256"));
@@ -321,6 +412,56 @@ impl VerifiedTheme {
         } else {
             let manifest = parse_theme(bytes)
                 .map_err(|_| ThemeError::new("THEME_INVALID", "主题未通过声明式格式及安全校验"))?;
+            if manifest.id != entry.id || manifest.name != entry.name {
+                return Err(ThemeError::new(
+                    "THEME_IDENTITY",
+                    "主题 ID 或名称与清单不一致",
+                ));
+            }
+            if manifest.normalized["assets"]["fonts"]
+                .as_array()
+                .is_some_and(|fonts| {
+                    fonts.iter().any(|font| {
+                        let path = font["path"].as_str().expect("validated path");
+                        let hash = font["sha256"].as_str().expect("validated digest");
+                        !entry
+                            .files
+                            .get(path)
+                            .is_some_and(|digest| digest.eq_ignore_ascii_case(hash))
+                    })
+                })
+            {
+                return Err(ThemeError::new(
+                    "THEME_RESOURCE",
+                    "主题包缺少声明的字体及摘要",
+                ));
+            }
+            let mut total = bytes.len();
+            for (name, digest) in &entry.files {
+                let content = read(name, digest)?;
+                total += content.len();
+                if content.len() > resource_limit(name)
+                    || total > 32 * 1024 * 1024
+                    || sha256(&content) != *digest
+                {
+                    return Err(ThemeError::new(
+                        "THEME_RESOURCE",
+                        "主题资源超出大小限制或摘要不匹配",
+                    ));
+                }
+                files.insert(name.clone(), content.into());
+            }
+            let manifest = load_theme_fonts(manifest, |path| {
+                files
+                    .get(path)
+                    .map(|bytes| bytes.to_vec())
+                    .ok_or_else(|| Diagnostic {
+                        code: "FONT_IO",
+                        path: String::new(),
+                        message: "缺少主题字体".into(),
+                    })
+            })
+            .map_err(|issues| ThemeError::new("THEME_RESOURCE", format!("{issues:?}")))?;
             resume_one_core::layout::check_theme(&manifest)
                 .map_err(|message| ThemeError::new("THEME_UNSUPPORTED", message))?;
             ThemePayload::Declarative(Box::new(manifest))
@@ -329,6 +470,7 @@ impl VerifiedTheme {
             payload,
             bytes: bytes.into(),
             sha256: hash,
+            files,
         };
         if theme.id() != entry.id || theme.name() != entry.name {
             return Err(ThemeError::new(
@@ -348,6 +490,10 @@ impl VerifiedTheme {
             return Err(ThemeError::new("THEME_DIRECTORY", "本地主题位置必须是目录"));
         }
         let prefix = &source.key()[..12];
+        if !self.files.is_empty() {
+            let package = directory.join(format!("{prefix}-{}-{}", self.id(), &self.sha256[..12]));
+            return self.install_package(&package);
+        }
         let suffix = if self.original().is_some() {
             ORIGINAL_THEME_SUFFIX
         } else {
@@ -374,6 +520,66 @@ impl VerifiedTheme {
         resume_one_core::export::write_export_unnamed(&path, &self.bytes, false)
             .map_err(|error| ThemeError::new(error.code, error.message))?;
         Ok(path)
+    }
+
+    fn install_package(&self, package: &Path) -> Result<PathBuf, ThemeError> {
+        use std::fs;
+        let io = |error: std::io::Error| ThemeError::new("THEME_DIRECTORY", error.to_string());
+        match fs::create_dir(package) {
+            Ok(()) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+            Err(error) => return Err(io(error)),
+        }
+        if !fs::symlink_metadata(package).map_err(io)?.is_dir() {
+            return Err(ThemeError::new("FILE_EXISTS", "本地同名位置不是普通目录"));
+        }
+        let files: Vec<_> = self
+            .files
+            .iter()
+            .map(|(name, bytes)| (name.as_str(), bytes.as_ref()))
+            .chain(std::iter::once(("theme.json", self.bytes.as_slice())))
+            .collect();
+        let mut missing = Vec::new();
+        for (name, bytes) in files {
+            let path = package.join(name);
+            match fs::symlink_metadata(&path) {
+                Ok(meta)
+                    if meta.is_file()
+                        && meta.len() == bytes.len() as u64
+                        && fs::read(&path).map_err(io)? == bytes => {}
+                Ok(_) => {
+                    return Err(ThemeError::new(
+                        "FILE_EXISTS",
+                        "本地主题包已有不同文件，保留原文件",
+                    ));
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                    missing.push((path, bytes))
+                }
+                Err(error) => return Err(io(error)),
+            }
+        }
+        // Publish the manifest last so a failed or interrupted copy can be retried.
+        for (path, bytes) in missing {
+            if let Err(error) = resume_one_core::export::write_export_unnamed(&path, bytes, false) {
+                if error.code != "FILE_EXISTS"
+                    || !fs::symlink_metadata(&path)
+                        .is_ok_and(|meta| meta.is_file() && meta.len() == bytes.len() as u64)
+                    || !fs::read(&path).is_ok_and(|saved| saved == bytes)
+                {
+                    return Err(ThemeError::new(error.code, error.message));
+                }
+            }
+        }
+        Ok(package.join("theme.json"))
+    }
+}
+
+pub(crate) fn resource_limit(name: &str) -> usize {
+    if name.ends_with(".ttf") || name.ends_with(".otf") {
+        MAX_FONT_BYTES
+    } else {
+        MAX_FILE_BYTES
     }
 }
 
@@ -403,6 +609,7 @@ mod tests {
             name: "Test".into(),
             manifest: "test.original.theme.json".into(),
             sha256: None,
+            files: BTreeMap::new(),
         };
         assert_eq!(
             VerifiedTheme::parse(&entry, &bytes).unwrap_err().code,
@@ -492,6 +699,7 @@ mod tests {
             name: "居中页眉验收".into(),
             manifest: "centered-header.theme.json".into(),
             sha256: Some(sha256(bytes)),
+            files: BTreeMap::new(),
         };
         assert_eq!(VerifiedTheme::parse(&entry, bytes).unwrap().bytes(), bytes);
         let mut unsupported: serde_json::Value = serde_json::from_slice(bytes).unwrap();
@@ -508,6 +716,7 @@ mod tests {
             name: "模块样式验收".into(),
             manifest: "section-styles.theme.json".into(),
             sha256: Some(sha256(bytes)),
+            files: BTreeMap::new(),
         };
         let theme = VerifiedTheme::parse(&entry, bytes).unwrap();
         assert_eq!(theme.bytes(), bytes);

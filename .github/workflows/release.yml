@@ -42,26 +42,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Read the community theme pin
-        id: themes
-        shell: bash
-        run: |
-          ref=$(cat packaging/community-themes.ref)
-          [[ "$ref" =~ ^[0-9a-f]{40}$ ]]
-          echo "ref=$ref" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v6
-        with:
-          repository: ${{ github.repository_owner }}/resume-one-themes
-          ref: ${{ steps.themes.outputs.ref }}
-          path: .release-themes
-          persist-credentials: false
-      - name: Verify the checkout and set the theme directory
-        shell: bash
-        env:
-          THEME_COMMIT: ${{ steps.themes.outputs.ref }}
-        run: |
-          test "$(git -C .release-themes rev-parse HEAD)" = "$THEME_COMMIT"
-          echo "RESUME_ONE_COMMUNITY_THEMES_DIR=$GITHUB_WORKSPACE/.release-themes/themes" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
@@ -105,7 +85,7 @@ jobs:
           if [[ -n "$RESUME_ONE_RELEASE_TAG" ]]; then
             args+=(--release-tag "$RESUME_ONE_RELEASE_TAG")
           fi
-          python packaging/verify-release.py "dist/Resume-One-$PLATFORM-unsigned.zip" "$RESUME_ONE_COMMUNITY_THEMES_DIR" "${args[@]}"
+          python packaging/verify-release.py "dist/Resume-One-$PLATFORM-unsigned.zip" "${args[@]}"
       - uses: actions/upload-artifact@v6
         with:
           name: resume-one-${{ matrix.platform }}

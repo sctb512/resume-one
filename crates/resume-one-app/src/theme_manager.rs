@@ -41,7 +41,7 @@ pub(super) fn register(cx: &mut App) {
 
 pub(super) struct ThemeManager {
     owner: WeakEntity<ResumeOne>,
-    inputs: [Entity<InputState>; 3],
+    inputs: [Entity<InputState>; 4],
     editing: Option<String>,
     error: Option<String>,
     scroll: ScrollHandle,
@@ -50,7 +50,7 @@ pub(super) struct ThemeManager {
 
 impl ThemeManager {
     fn new(owner: Entity<ResumeOne>, window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let inputs = ["", "main", "themes/index.json"]
+        let inputs = ["", "main", "themes/index.json", ""]
             .map(|value| cx.new(|cx| InputState::new(window, cx).default_value(value)));
         let observer = cx.observe(&owner, |_, _, cx| cx.notify());
         Self {
@@ -64,7 +64,11 @@ impl ThemeManager {
     }
 
     fn reset_draft(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        for (input, value) in self.inputs.iter().zip(["", "main", "themes/index.json"]) {
+        for (input, value) in self
+            .inputs
+            .iter()
+            .zip(["", "main", "themes/index.json", ""])
+        {
             input.update(cx, |state, cx| {
                 state.set_value(value.to_owned(), window, cx)
             });
@@ -122,11 +126,12 @@ impl ThemeManager {
     fn edit(&mut self, source: &GithubSource, window: &mut Window, cx: &mut Context<Self>) {
         self.editing = Some(source.key());
         self.error = None;
-        for (input, value) in
-            self.inputs
-                .iter()
-                .zip([source.repository(), source.reference(), source.index_path()])
-        {
+        for (input, value) in self.inputs.iter().zip([
+            source.repository(),
+            source.reference(),
+            source.index_path(),
+            source.name().unwrap_or(""),
+        ]) {
             input.update(cx, |state, cx| {
                 state.set_value(value.to_owned(), window, cx)
             });
@@ -140,7 +145,9 @@ impl ThemeManager {
             .inputs
             .each_ref()
             .map(|input| input.read(cx).value().to_string());
-        let source = match GithubSource::new(values[0].trim(), values[1].trim(), values[2].trim()) {
+        let source = match GithubSource::new(values[0].trim(), values[1].trim(), values[2].trim())
+            .and_then(|source| source.with_name(&values[3]))
+        {
             Ok(source) => source,
             Err(error) => {
                 self.error = Some(error.message);
@@ -288,7 +295,7 @@ impl Render for ThemeManager {
                                     div()
                                         .text_size(px(13.0))
                                         .truncate()
-                                        .child(source.repository().to_string()),
+                                        .child(source.display_name().to_owned()),
                                 )
                                 .child(
                                     div()
@@ -296,7 +303,8 @@ impl Render for ThemeManager {
                                         .text_color(color(style.colors.muted))
                                         .truncate()
                                         .child(format!(
-                                            "{} · {}",
+                                            "{} · {} · {}",
+                                            source.repository(),
                                             source.reference(),
                                             source.index_path()
                                         )),
@@ -322,30 +330,40 @@ impl Render for ThemeManager {
                         ),
                 );
         }
-        let mut form = div().flex().flex_col().gap_3();
-        for (index, label) in [
-            "GitHub 仓库 · owner/repository",
-            "分支、标签或 commit",
-            "清单路径",
-        ]
-        .into_iter()
-        .enumerate()
-        {
+        let field = |index, label| {
             let selector = format!("theme-source-input-{index}");
-            form = form.child(
+            div()
+                .flex()
+                .flex_col()
+                .gap_1()
+                .min_w_0()
+                .flex_1()
+                .child(
+                    div()
+                        .text_size(px(11.0))
+                        .text_color(color(style.colors.muted))
+                        .child(label),
+                )
+                .child(self.source_input(index, selector, &style, window, cx))
+        };
+        let form = div()
+            .flex()
+            .flex_col()
+            .gap_3()
+            .child(
                 div()
                     .flex()
-                    .flex_col()
-                    .gap_1()
-                    .child(
-                        div()
-                            .text_size(px(11.0))
-                            .text_color(color(style.colors.muted))
-                            .child(label),
-                    )
-                    .child(self.source_input(index, selector, &style, window, cx)),
+                    .gap_3()
+                    .child(field(0, "GitHub 仓库 · owner/repository"))
+                    .child(field(1, "分支、标签或 commit")),
+            )
+            .child(
+                div()
+                    .flex()
+                    .gap_3()
+                    .child(field(2, "清单路径"))
+                    .child(field(3, "展示名称（可选）")),
             );
-        }
         let choose_owner = owner.downgrade();
         let reset_owner = owner.downgrade();
         div()
@@ -670,6 +688,7 @@ mod tests {
             manager.update(cx, |manager, cx| {
                 manager.edit(&sources[0], window, cx);
                 manager.inputs[1].update(cx, |state, cx| state.set_value("v2", window, cx));
+                manager.inputs[3].update(cx, |state, cx| state.set_value("我的主题", window, cx));
                 manager.save(window, cx);
                 assert!(manager.error.is_none());
                 manager.remove(&sources[1].key(), window, cx);
@@ -679,6 +698,7 @@ mod tests {
         let reopened = ThemeStore::new(settings, defaults).unwrap();
         assert_eq!(reopened.sources.len(), 1);
         assert_eq!(reopened.sources[0].reference(), "v2");
+        assert_eq!(reopened.sources[0].display_name(), "我的主题");
         cx.update(|_, cx| assert_eq!(owner.read(cx).model.document.source, source));
     }
 }

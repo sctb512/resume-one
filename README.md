@@ -40,7 +40,7 @@ CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验�
 
 在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为公开主题仓库 `sctb512/resume-one-themes` 的 `main/originals/index.json`，已保存的在线源列表优先。默认匿名读取 GitHub，无需登录。使用方式见[用户手册](./docs/user-manual.md)。
 
-默认在线目录使用 JSON Resume 上游主题包的固定版本，保留原有渲染模板和样式。原版主题用当前简历在本机试穿，可下载到本地主题目录并导出 PDF。渲染需要本机 Chrome、Edge 或 Chromium。JSON 编辑、模块栏和语义格式导出仍由简里提供。既有声明式目录可单独添加为 `main/index.json`。包格式与资源限制见[原版主题包规范](./spec/json-resume-original-theme.md)。
+「在线」默认提供「迁移版社区主题」和「原版 JSON Resume」，由 [主题仓库](https://github.com/sctb512/resume-one-themes) 分发。迁移版包含 67 套声明式适配，随包提供字体和许可文件。原版复用已验证的上游模板，在本机用当前简历渲染并支持 PDF，需要 Chrome、Edge 或 Chromium。可在「管理」中设置来源的展示名称，或右键下载主题供离线使用。包格式见[原版主题包规范](./spec/json-resume-original-theme.md)。
 
 仓库正在按功能逐项实现和验收。已完成共享的、**不执行代码**的声明式主题 v1/v2 校验、v1 内存适配与可读性约束下的主题视觉 token 解析，以及 JSON Resume 内容校验、字节级 revision、带 revision 守卫的原子 JSON Patch（含预演）、标准模块/条目的 Schema 安全增删、独立的本地文档 CLI，以及 PDF、可编辑 DOCX、纯文本和 Markdown 导出。仓库现有 [20 套原生声明式主题文件](./assets/themes/)；桌面应用首次运行会将其安全安装到默认本地主题目录，后续仅对字节哈希与旧内置版完全一致的文件自动升级，用户改动不覆盖。支持更换唯一的本地目录、恢复默认目录、右键定位实际文件，以及左侧悬停试穿和点击选中。原生 JSON 编辑器已支持快捷键切换、实时更新有效预览、Schema 错误提示、格式化与撤销、带版本冲突保护的保存和私有恢复草稿；切换时主题栏连续收放，中央视图交接，而右侧模块栏始终固定。预览页和 JSON 视图右栏均已可增删标准模块与条目，并与 JSON 草稿和撤销链路同步。独立的主题迁移 CLI 已支持 v1→v2 升级，以及对第三方 npm/HTML/CSS/JS 主题目录做**低置信度静态提取**；后者只把十六进制或不透明整数 RGB 配色及包元数据写入候选，并在报告中列出有界的字体声明与布局线索，不是视觉等效迁移，必须人工重建布局并验收许可。
 
@@ -61,18 +61,6 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
 
 Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配便携 ZIP。脚本自动定位 Windows SDK 的 `x64/fxc.exe`，也可设置 `GPUI_FXC_PATH`。包内附规范、手册、原生主题和示例。Windows 桌面构建使用原生 Windows 环境编译 DirectX 着色器。
-
-### 随包加入社区主题
-
-本地源码构建默认提供 20 套原生主题。需要和发布包一样内置社区主题时，将主题仓库检出到 [锁定提交](./packaging/community-themes.ref)，并在运行 Cargo 或打包脚本前设置 `RESUME_ONE_COMMUNITY_THEMES_DIR` 为其中 `themes/` 的绝对路径。
-
-```sh
-git -C ../resume-one-themes checkout --detach "$(cat packaging/community-themes.ref)"
-export RESUME_ONE_COMMUNITY_THEMES_DIR="$(cd ../resume-one-themes/themes && pwd)"
-bash packaging/macos/bundle.sh release
-```
-
-Windows 可在 PowerShell 用 `$env:RESUME_ONE_COMMUNITY_THEMES_DIR = (Resolve-Path '../resume-one-themes/themes').Path` 指定同一目录，然后执行 Windows 打包命令。使用已发布的主题 ZIP 时，也可直接在应用「管理」中选择解压后的 `themes/`。
 
 ## 三仓与自动发布
 

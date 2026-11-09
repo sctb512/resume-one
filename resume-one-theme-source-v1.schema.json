@@ -18,7 +18,18 @@
           "name": { "type": "string", "minLength": 1, "maxLength": 80 },
           "description": { "type": "string", "maxLength": 240 },
           "manifest": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9_./-]+\\.json$" },
-          "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+          "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+          "files": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 31,
+            "additionalProperties": false,
+            "patternProperties": {
+              "^[A-Za-z0-9][A-Za-z0-9_.-]{0,119}\\.(ttf|otf|txt|md)$": {
+                "type": "string", "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            }
+          }
         }
       }
     }

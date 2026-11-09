@@ -105,7 +105,7 @@ impl ThemeCache {
         };
         let value: Value = serde_json::from_slice(&bytes)
             .map_err(|_| ThemeError::new("CACHE_INVALID", "清单缓存 JSON 无效"))?;
-        if value["source"] != source.as_json() {
+        if value["source"] != source.location_json() {
             return Err(ThemeError::new("CACHE_INVALID", "清单缓存的来源不匹配"));
         }
         let commit = value["commit"]
@@ -134,11 +134,25 @@ impl ThemeCache {
         else {
             return Ok(None);
         };
-        VerifiedTheme::parse(entry, &bytes).map(Some)
+        VerifiedTheme::parse_with_files(entry, &bytes, |name, digest| {
+            self.resource(name, digest)?
+                .ok_or_else(|| ThemeError::new("THEME_NOT_CACHED", "主题资源未缓存"))
+        })
+        .map(Some)
+    }
+
+    pub(crate) fn resource(&self, name: &str, digest: &str) -> Result<Option<Vec<u8>>, ThemeError> {
+        let limit = crate::source::resource_limit(name);
+        Ok(Self::read(&self.path("objects", digest)?, limit)?
+            .filter(|bytes| crate::sha256(bytes) == digest))
+    }
+
+    pub(crate) fn store_resource(&self, digest: &str, bytes: &[u8]) -> Result<(), ThemeError> {
+        self.store(&self.path("objects", digest)?, bytes)
     }
 
     pub(crate) fn store_catalog(&self, catalog: &Catalog) -> Result<(), ThemeError> {
-        let bytes = serde_json::to_vec(&json!({"source":catalog.source.as_json(),"commit":catalog.commit,
+        let bytes = serde_json::to_vec(&json!({"source":catalog.source.location_json(),"commit":catalog.commit,
             "index":std::str::from_utf8(&catalog.bytes).expect("validated UTF-8"),"etag":catalog.etag})).expect("JSON value");
         self.store(&self.path("catalogs", &catalog.source.key())?, &bytes)
     }

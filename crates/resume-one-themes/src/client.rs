@@ -299,7 +299,30 @@ impl<T: Transport> GithubClient<T> {
             MAX_FILE_BYTES,
         )?;
         status(response.status)?;
-        let theme = VerifiedTheme::parse(entry, &response.bytes)?;
+        let manifest_path = catalog.manifest_path(entry);
+        let theme = VerifiedTheme::parse_with_files(entry, &response.bytes, |name, digest| {
+            if let Ok(Some(bytes)) = self.cache.resource(name, digest) {
+                return Ok(bytes);
+            }
+            let path = manifest_path.rsplit_once('/').map_or_else(
+                || name.to_owned(),
+                |(directory, _)| format!("{directory}/{name}"),
+            );
+            let response = self.transport.get(
+                &catalog.source.raw_url(&catalog.commit, &path),
+                None,
+                crate::source::resource_limit(name),
+            )?;
+            status(response.status)?;
+            if crate::sha256(&response.bytes) != digest {
+                return Err(ThemeError::new(
+                    "THEME_HASH",
+                    "主题资源 SHA-256 与清单不一致",
+                ));
+            }
+            self.cache.store_resource(digest, &response.bytes)?;
+            Ok(response.bytes)
+        })?;
         self.cache.store_theme(catalog, entry, &theme)?;
         Ok(theme)
     }
@@ -402,7 +425,7 @@ mod tests {
             "globalThis.__resumeOneTheme = { render() { return '<h1>Example</h1>'; } }",
         ))
         .unwrap();
-        let source = GithubSource::community_default();
+        let source = GithubSource::defaults()[1].clone();
         assert_eq!(source.index_path(), "originals/index.json");
         mock.respond(200, COMMIT.as_bytes().into());
         mock.respond(200, serde_json::to_vec(&json!({"version":1,"themes":[{
@@ -535,7 +558,7 @@ mod tests {
 
     #[test]
     fn private_theme_credentials_are_only_for_the_default_repository() {
-        let source = GithubSource::community_default();
+        let source = GithubSource::defaults()[1].clone();
         let commit = request_target(&source.commit_url(), true).unwrap();
         assert!(commit.community);
         assert_eq!(commit.accept, "application/vnd.github.sha");

@@ -32,7 +32,7 @@ pub mod structure;
 pub mod theme_style;
 
 const MAX_THEME_BYTES: usize = 1_048_576;
-const MAX_FONT_BYTES: usize = 8_388_608;
+pub const MAX_FONT_BYTES: usize = 8_388_608;
 const V1_SCHEMA: &str = include_str!("../../../resume-one-theme-v1.schema.json");
 const V2_SCHEMA: &str = include_str!("../../../resume-one-theme-v2.schema.json");
 
@@ -195,8 +195,29 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
     }
     let bytes = read_limited(&path, MAX_THEME_BYTES)
         .map_err(|error| vec![diagnostic("THEME_IO", "", error.to_string())])?;
-    let mut theme = parse_theme(&bytes)?;
+    let theme = parse_theme(&bytes)?;
     let theme_dir = path.parent().expect("canonical file has parent");
+    load_theme_fonts(theme, |relative| {
+        let font_path = std::fs::canonicalize(theme_dir.join(relative))?;
+        if !font_path.starts_with(theme_dir) || !font_path.is_file() {
+            return Err(diagnostic("FONT_PATH_ESCAPE", "", "字体文件不在主题目录内"));
+        }
+        Ok(read_limited(&font_path, MAX_FONT_BYTES)?)
+    })
+}
+
+impl From<std::io::Error> for Diagnostic {
+    fn from(error: std::io::Error) -> Self {
+        diagnostic("FONT_IO", "", error.to_string())
+    }
+}
+
+/// Resolve only the fonts declared in a validated manifest. The resolver
+/// supplies local bytes or verified package resources without changing the JSON.
+pub fn load_theme_fonts(
+    mut theme: ThemeManifest,
+    mut read: impl FnMut(&str) -> Result<Vec<u8>, Diagnostic>,
+) -> Result<ThemeManifest, Vec<Diagnostic>> {
     let mut problems = Vec::new();
     let mut verified_fonts = Vec::new();
     if let Some(fonts) = theme
@@ -206,27 +227,8 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
     {
         for (index, font) in fonts.iter().enumerate() {
             let relative = font["path"].as_str().expect("schema checked font path");
-            let font_path = match std::fs::canonicalize(theme_dir.join(relative)) {
-                Ok(path) if path.starts_with(theme_dir) && path.is_file() => path,
-                Ok(_) => {
-                    problems.push(diagnostic(
-                        "FONT_PATH_ESCAPE",
-                        format!("/assets/fonts/{index}/path"),
-                        "字体文件不在主题目录内",
-                    ));
-                    continue;
-                }
-                Err(error) => {
-                    problems.push(diagnostic(
-                        "FONT_IO",
-                        format!("/assets/fonts/{index}/path"),
-                        error.to_string(),
-                    ));
-                    continue;
-                }
-            };
-            match read_limited(&font_path, MAX_FONT_BYTES) {
-                Ok(bytes) => {
+            match read(relative) {
+                Ok(bytes) if bytes.len() <= MAX_FONT_BYTES => {
                     let actual = format!("{:x}", Sha256::digest(&bytes));
                     if !actual
                         .eq_ignore_ascii_case(font["sha256"].as_str().expect("schema checked hash"))
@@ -244,11 +246,15 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
                         ));
                     }
                 }
-                Err(error) => problems.push(diagnostic(
+                Ok(_) => problems.push(diagnostic(
                     "FONT_IO",
                     format!("/assets/fonts/{index}/path"),
-                    error.to_string(),
+                    "文件超过安全大小限制",
                 )),
+                Err(mut error) => {
+                    error.path = format!("/assets/fonts/{index}/path");
+                    problems.push(error);
+                }
             }
         }
     }

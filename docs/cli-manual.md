@@ -63,7 +63,7 @@ resume-one export --file /absolute/resume.json --format pdf --out /absolute/resu
 
 ### 来源与下载
 
-`themes` 默认读取 `sctb512/resume-one-themes` 的 `main/originals/index.json`。它需要一个绝对路径作为 `--cache`，默认公开来源可匿名读取。显式传入 `--repository owner/repository` 时，可使用 `--ref` 和 `--index` 指定其它来源，默认是 `main` 和 `themes/index.json`。命令独立于桌面设置。
+`themes` 默认读取 `sctb512/resume-one-themes` 的 `main/originals/index.json`。它需要一个绝对路径作为 `--cache`，默认公开来源可匿名读取。显式传入 `--repository owner/repository` 时，可使用 `--ref` 和 `--index` 指定其它来源，默认是 `main` 和 `themes/index.json`。命令独立于桌面设置。 读取完整迁移版目录可用 `--index migrated-index.json`。下载带资源的迁移包会保存一个包含主题、字体和许可的子目录，输出中的 `file` 指向其 `theme.json`。
 
 ```sh
 resume-one themes --repository owner/repository --ref main --cache /absolute/theme-cache list --json

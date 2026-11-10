@@ -7,13 +7,19 @@ import zipfile
 
 FONT_NAMES = ("NotoSansSC-Regular.ttf", "NotoSerifSC-SemiBold.ttf")
 FONT_SOURCE = Path(__file__).resolve().parents[1] / "assets" / "fonts"
+ARCHIVES = {
+    "Resume-One-macOS-arm64-unsigned.zip": ("macOS", 0x0100000C),
+    "Resume-One-macOS-x64-unsigned.zip": ("macOS", 0x01000007),
+    "Resume-One-Windows-arm64-unsigned.zip": ("Windows", 0xAA64),
+    "Resume-One-Windows-x64-unsigned.zip": ("Windows", 0x8664),
+}
 
 
-def verify_binary(binary, name, macos):
+def verify_binary(binary, name, macos, machine):
     header = binary.read(64)
     if macos:
-        if header[:8] != bytes.fromhex("cffaedfe0c000001"):
-            raise ValueError(f"{name} is not an ARM64 Mach-O executable")
+        if header[:8] != struct.pack("<II", 0xFEEDFACF, machine):
+            raise ValueError(f"{name} does not have the expected Mach-O architecture")
         return
     if len(header) != 64 or header[:2] != b"MZ":
         raise ValueError(f"{name} is not a Windows executable")
@@ -21,14 +27,15 @@ def verify_binary(binary, name, macos):
     if not 64 <= pe_offset <= 1024 * 1024:
         raise ValueError(f"{name} has an invalid PE header")
     binary.seek(pe_offset)
-    if binary.read(6) != b"PE\0\0\x64\x86":
-        raise ValueError(f"{name} is not a Windows x64 executable")
+    if binary.read(6) != b"PE\0\0" + struct.pack("<H", machine):
+        raise ValueError(f"{name} does not have the expected PE architecture")
 
 
 def verify(archive_path, release_tag=None):
-    if archive_path.name not in {"Resume-One-macOS-arm64-unsigned.zip", "Resume-One-Windows-x64-unsigned.zip"}:
+    if archive_path.name not in ARCHIVES:
         raise ValueError("Unrecognized release archive name")
-    macos = "macOS-arm64" in archive_path.name
+    os_name, machine = ARCHIVES[archive_path.name]
+    macos = os_name == "macOS"
     root = "Resume One.app/Contents" if macos else "Resume One"
     resources = f"{root}/Resources" if macos else root
     executables = f"{root}/MacOS" if macos else root
@@ -56,7 +63,7 @@ def verify(archive_path, release_tag=None):
         for name in ("resume-one-app", "resume-one", "resume-one-theme-migrate"):
             member = f"{executables}/{name}{suffix}"
             with archive.open(member) as binary:
-                verify_binary(binary, name, macos)
+                verify_binary(binary, name, macos, machine)
             executable = archive.read(member)
             for font_name, data in fonts.items():
                 if data in executable:

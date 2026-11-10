@@ -60,7 +60,7 @@ PDF / DOCX 已支持主题的单栏排版、纸张/边距、颜色和基础字�
 
 Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Studio C++ Build Tools 和 Windows SDK，在仓库根目录的 PowerShell 运行 `rustup toolchain install 1.99.0-x86_64-pc-windows-msvc`，然后运行 `cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate`。预期三个二进制分别为 `target\release\resume-one-app.exe`、`target\release\resume-one.exe` 和 `target\release\resume-one-theme-migrate.exe`。该命令尚未在 Windows 实机验收，不得把预期路径当成已交付的 Windows 安装包。
 
-Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配便携 ZIP。脚本自动定位 Windows SDK 的 `x64/fxc.exe`，也可设置 `GPUI_FXC_PATH`。包内附规范、手册、原生主题和示例。Windows 桌面构建使用原生 Windows 环境编译 DirectX 着色器。
+Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配当前处理器对应的便携 ZIP。可通过 `-Architecture x64` 或 `-Architecture arm64` 显式选择已安装的 Rust MSVC 目标，输出位于 `target/<目标>/release/`。脚本自动定位 Windows SDK 的 `fxc.exe`，也可设置 `GPUI_FXC_PATH`。
 
 macOS 和 Windows 的打包脚本让桌面程序、文档 CLI 和迁移器共用一套 Noto Sans SC 与 Noto Serif SC。请保留完整的应用包或解压目录。普通的 `cargo build` 和 `cargo run` 使用内嵌字体，仍支持直接运行源码构建的可执行文件。
 
@@ -68,7 +68,7 @@ macOS 和 Windows 的打包脚本让桌面程序、文档 CLI 和迁移器共用
 
 | 仓库 | 内容 | 发布触发 |
 | --- | --- | --- |
-| `resume-one` | 应用、两个 CLI、原生主题、规范与手册 | `v*` 标签在原生 runner 构建 macOS ARM64 与 Windows x64 ZIP。校验包结构、二进制架构和主题文件后创建 GitHub Release。 |
+| `resume-one` | 应用、两个 CLI、原生主题、规范与手册 | `v*` 标签为 macOS Apple 芯片、macOS Intel、Windows x64 和 Windows ARM64 构建 ZIP。校验包结构、二进制架构、共享字体和主题文件后创建 GitHub Release。 |
 | `resume-one-themes` | 原版与声明式社区主题、许可、迁移记录和索引 | `v*` 标签在验证 Schema 和 SHA-256 后发布完整主题 ZIP。 |
 | `resume-one-site` | 简里静态项目主页 | `main` 构建通过后部署 GitHub Pages。仓库的 Pages 发布来源需选择 GitHub Actions。 |
 

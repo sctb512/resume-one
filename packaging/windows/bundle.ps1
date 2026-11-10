@@ -1,6 +1,8 @@
 param(
     [ValidateSet('debug', 'release')]
     [string]$Profile = 'release',
+    [ValidateSet('x64', 'arm64')]
+    [string]$Architecture,
     [switch]$Archive
 )
 
@@ -11,6 +13,14 @@ if (-not $IsWindows -and $PSVersionTable.PSEdition -eq 'Core') {
 }
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+if (-not $Architecture) {
+    $Architecture = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+}
+$target = switch ($Architecture) {
+    'x64' { 'x86_64-pc-windows-msvc' }
+    'arm64' { 'aarch64-pc-windows-msvc' }
+    default { throw "Unsupported Windows architecture: $Architecture" }
+}
 $previousFxc = $env:GPUI_FXC_PATH
 $previousPackagedFonts = $env:RESUME_ONE_PACKAGED_FONTS
 Push-Location $repoRoot
@@ -20,16 +30,21 @@ try {
         if (Test-Path -LiteralPath $sdkBin -PathType Container) {
             $fxc = Get-ChildItem -LiteralPath $sdkBin -Directory |
                 Sort-Object Name -Descending |
-                ForEach-Object { Join-Path $_.FullName 'x64\fxc.exe' } |
+                ForEach-Object {
+                    $sdkVersion = $_.FullName
+                    foreach ($hostArch in @($Architecture, 'x64', 'x86') | Select-Object -Unique) {
+                        Join-Path $sdkVersion "$hostArch\fxc.exe"
+                    }
+                } |
                 Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
                 Select-Object -First 1
             if ($fxc) { $env:GPUI_FXC_PATH = $fxc }
         }
     }
     if (-not $env:GPUI_FXC_PATH -or -not (Test-Path -LiteralPath $env:GPUI_FXC_PATH -PathType Leaf)) {
-        throw 'The Windows SDK HLSL compiler (x64\fxc.exe) is required; install the Windows SDK or set GPUI_FXC_PATH.'
+        throw 'The Windows SDK HLSL compiler fxc.exe is required; install the Windows SDK or set GPUI_FXC_PATH.'
     }
-    $buildArgs = @('build', '--locked', '-p', 'resume-one-app', '-p', 'resume-one-cli', '-p', 'resume-one-theme-migrate')
+    $buildArgs = @('build', '--locked', '--target', $target, '-p', 'resume-one-app', '-p', 'resume-one-cli', '-p', 'resume-one-theme-migrate')
     if ($Profile -eq 'release') {
         $buildArgs += '--release'
     }
@@ -39,10 +54,11 @@ try {
         throw "Cargo build failed with exit code $LASTEXITCODE."
     }
 
-    $bundle = Join-Path $repoRoot "target\$Profile\Resume One"
+    $buildDir = Join-Path $repoRoot "target\$target\$Profile"
+    $bundle = Join-Path $buildDir 'Resume One'
     New-Item -ItemType Directory -Path $bundle -Force | Out-Null
     foreach ($name in @('resume-one-app', 'resume-one', 'resume-one-theme-migrate')) {
-        $source = Join-Path $repoRoot "target\$Profile\$name.exe"
+        $source = Join-Path $buildDir "$name.exe"
         if (-not (Test-Path -LiteralPath $source -PathType Leaf)) {
             throw "Missing built binary: $source"
         }
@@ -88,7 +104,7 @@ try {
         Remove-Item -LiteralPath $smokeDir -Recurse -Force
     }
     if ($Archive) {
-        $archivePath = Join-Path $repoRoot "target\$Profile\Resume-One-Windows-x64-unsigned.zip"
+        $archivePath = Join-Path $buildDir "Resume-One-Windows-$Architecture-unsigned.zip"
         if (Test-Path -LiteralPath $archivePath) {
             throw "Archive already exists; move it before packaging: $archivePath"
         }

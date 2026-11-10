@@ -35,8 +35,20 @@ jobs:
         include:
           - os: macos-15
             platform: macOS-arm64
+            target: aarch64-apple-darwin
+            arch: arm64
+          - os: macos-15-intel
+            platform: macOS-x64
+            target: x86_64-apple-darwin
+            arch: x64
           - os: windows-2025
             platform: Windows-x64
+            target: x86_64-pc-windows-msvc
+            arch: x64
+          - os: windows-11-arm
+            platform: Windows-arm64
+            target: aarch64-pc-windows-msvc
+            arch: arm64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -45,6 +57,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+      - run: rustup target add ${{ matrix.target }}
       - name: Prepare Xcode and Rust
         if: runner.os == 'macOS'
         shell: bash
@@ -58,24 +71,24 @@ jobs:
         env:
           CARGO_PROFILE_TEST_DEBUG: '0'
           CARGO_PROFILE_TEST_STRIP: none
-        run: cargo test --locked -p resume-one-updater
-      - name: Package macOS Apple Silicon
+        run: cargo test --locked -p resume-one-updater --target ${{ matrix.target }}
+      - name: Package macOS
         if: runner.os == 'macOS'
         shell: bash
         run: |
           mkdir -p dist
           bash packaging/macos/bundle.sh release "$GITHUB_WORKSPACE/dist/Resume One.app"
           bash packaging/macos/archive.sh release \
-            "$GITHUB_WORKSPACE/dist/Resume-One-macOS-arm64-unsigned.zip" \
+            "$GITHUB_WORKSPACE/dist/Resume-One-${{ matrix.platform }}-unsigned.zip" \
             "$GITHUB_WORKSPACE/dist/Resume One.app"
-      - name: Package Windows x64
+      - name: Package Windows
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           rustup show active-toolchain
-          ./packaging/windows/bundle.ps1 -Profile release -Archive
+          ./packaging/windows/bundle.ps1 -Profile release -Architecture ${{ matrix.arch }} -Archive
           New-Item -ItemType Directory -Path dist | Out-Null
-          Copy-Item -LiteralPath 'target/release/Resume-One-Windows-x64-unsigned.zip' -Destination dist
+          Copy-Item -LiteralPath 'target/${{ matrix.target }}/release/Resume-One-${{ matrix.platform }}-unsigned.zip' -Destination dist
       - name: Verify the archive and bundled themes
         shell: bash
         env:
@@ -108,25 +121,37 @@ jobs:
           pattern: resume-one-*
           merge-multiple: true
           path: dist
-      - name: Publish both native builds
+      - name: Publish all native builds
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          (
-            cd dist
-            sha256sum Resume-One-macOS-arm64-unsigned.zip Resume-One-Windows-x64-unsigned.zip > SHA256SUMS
+          cd dist
+          archives=(
+            Resume-One-macOS-arm64-unsigned.zip
+            Resume-One-macOS-x64-unsigned.zip
+            Resume-One-Windows-x64-unsigned.zip
+            Resume-One-Windows-arm64-unsigned.zip
           )
+          sha256sum "${archives[@]}" > SHA256SUMS
           flags=()
           if [[ "$GITHUB_REF_NAME" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$GITHUB_REF_NAME" --verify-tag "${flags[@]}" --generate-notes \
-            dist/Resume-One-macOS-arm64-unsigned.zip dist/Resume-One-Windows-x64-unsigned.zip dist/SHA256SUMS
+            "${archives[@]}" SHA256SUMS
 
   verify_published_update:
     if: ${{ inputs.verify_update_tag }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, windows-2025]
+        include:
+          - os: macos-15
+            target: aarch64-apple-darwin
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+          - os: windows-2025
+            target: x86_64-pc-windows-msvc
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
     runs-on: ${{ matrix.os }}
     env:
       CARGO_PROFILE_TEST_DEBUG: '0'
@@ -136,4 +161,5 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - run: cargo test --locked -p resume-one-updater downloads_and_installs_the_public_release -- --ignored
+      - run: rustup target add ${{ matrix.target }}
+      - run: cargo test --locked -p resume-one-updater --target ${{ matrix.target }} downloads_and_installs_the_public_release -- --ignored

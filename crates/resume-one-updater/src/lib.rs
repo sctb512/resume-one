@@ -24,53 +24,64 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Platform {
-    Mac,
-    Windows,
+    Mac(Architecture),
+    Windows(Architecture),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Architecture {
+    Arm64,
+    X64,
 }
 
 impl Platform {
     fn current() -> Option<Self> {
-        if cfg!(all(target_os = "macos", target_arch = "aarch64")) {
-            Some(Self::Mac)
-        } else if cfg!(all(target_os = "windows", target_arch = "x86_64")) {
-            Some(Self::Windows)
-        } else {
-            None
+        let architecture = match std::env::consts::ARCH {
+            "aarch64" => Architecture::Arm64,
+            "x86_64" => Architecture::X64,
+            _ => return None,
+        };
+        match std::env::consts::OS {
+            "macos" => Some(Self::Mac(architecture)),
+            "windows" => Some(Self::Windows(architecture)),
+            _ => None,
         }
     }
 
     fn archive(self) -> &'static str {
         match self {
-            Self::Mac => "Resume-One-macOS-arm64-unsigned.zip",
-            Self::Windows => "Resume-One-Windows-x64-unsigned.zip",
+            Self::Mac(Architecture::Arm64) => "Resume-One-macOS-arm64-unsigned.zip",
+            Self::Mac(Architecture::X64) => "Resume-One-macOS-x64-unsigned.zip",
+            Self::Windows(Architecture::Arm64) => "Resume-One-Windows-arm64-unsigned.zip",
+            Self::Windows(Architecture::X64) => "Resume-One-Windows-x64-unsigned.zip",
         }
     }
 
     fn archive_root(self) -> &'static str {
         match self {
-            Self::Mac => "Resume One.app",
-            Self::Windows => "Resume One",
+            Self::Mac(_) => "Resume One.app",
+            Self::Windows(_) => "Resume One",
         }
     }
 
     fn app(self) -> &'static str {
         match self {
-            Self::Mac => "Contents/MacOS/resume-one-app",
-            Self::Windows => "resume-one-app.exe",
+            Self::Mac(_) => "Contents/MacOS/resume-one-app",
+            Self::Windows(_) => "resume-one-app.exe",
         }
     }
 
     fn cli(self) -> &'static str {
         match self {
-            Self::Mac => "Contents/MacOS/resume-one",
-            Self::Windows => "resume-one.exe",
+            Self::Mac(_) => "Contents/MacOS/resume-one",
+            Self::Windows(_) => "resume-one.exe",
         }
     }
 
     fn marker(self) -> &'static str {
         match self {
-            Self::Mac => "Contents/Resources/release-tag.txt",
-            Self::Windows => "release-tag.txt",
+            Self::Mac(_) => "Contents/Resources/release-tag.txt",
+            Self::Windows(_) => "release-tag.txt",
         }
     }
 }
@@ -94,8 +105,8 @@ impl Installation {
         let exe = std::env::current_exe().ok()?.canonicalize().ok()?;
         let parent = exe.parent()?;
         let root = match platform {
-            Platform::Mac => parent.parent()?.parent()?,
-            Platform::Windows => parent,
+            Platform::Mac(_) => parent.parent()?.parent()?,
+            Platform::Windows(_) => parent,
         };
         if root.join(platform.app()).canonicalize().ok()? != exe {
             return None;
@@ -108,8 +119,8 @@ impl Installation {
             return Err("安装目录无效".into());
         }
         let expected_name = match platform {
-            Platform::Mac => root.extension().is_some_and(|ext| ext == "app"),
-            Platform::Windows => root.file_name().is_some_and(|name| name == "Resume One"),
+            Platform::Mac(_) => root.extension().is_some_and(|ext| ext == "app"),
+            Platform::Windows(_) => root.file_name().is_some_and(|name| name == "Resume One"),
         };
         if !expected_name || !regular_directory(root) {
             return Err("请从解压后的 Resume One 应用目录运行更新".into());
@@ -303,8 +314,8 @@ fn unpack(file: &Path, directory: &Path, platform: Platform) -> Result<()> {
         let path = entry.enclosed_name().ok_or("更新包包含越界路径")?;
         let mut components = path.components();
         let root = components.next();
-        let resource =
-            platform == Platform::Mac && root == Some(Component::Normal("__MACOSX".as_ref()));
+        let resource = matches!(platform, Platform::Mac(_))
+            && root == Some(Component::Normal("__MACOSX".as_ref()));
         if (!resource && root != Some(Component::Normal(platform.archive_root().as_ref())))
             || path.components().any(|part| !matches!(part, Component::Normal(name) if name.to_str().is_some_and(|name| !name.contains([':', '\\']) && !name.ends_with([' ', '.']))))
             || !names.insert(path.to_string_lossy().to_ascii_lowercase())
@@ -318,7 +329,7 @@ fn unpack(file: &Path, directory: &Path, platform: Platform) -> Result<()> {
         if total > MAX_EXTRACTED {
             return Err("更新包展开大小超限".into());
         }
-        if platform == Platform::Windows {
+        if matches!(platform, Platform::Windows(_)) {
             let target = directory.join(&path);
             if entry.is_dir() {
                 fs::create_dir_all(&target)?;
@@ -334,7 +345,7 @@ fn unpack(file: &Path, directory: &Path, platform: Platform) -> Result<()> {
             }
         }
     }
-    if platform == Platform::Mac
+    if matches!(platform, Platform::Mac(_))
         && !Command::new("/usr/bin/ditto")
             .args(["-x", "-k"])
             .arg(file)
@@ -351,14 +362,13 @@ fn unpack(file: &Path, directory: &Path, platform: Platform) -> Result<()> {
 impl Prepared {
     /// Start the helper from a sibling directory so Windows can rename the app after it exits.
     pub fn handoff(self, reopen: Option<&Path>) -> Result<()> {
-        let helper =
-            self.directory
-                .path()
-                .join(if self.installation.platform == Platform::Windows {
-                    "apply-update.exe"
-                } else {
-                    "apply-update"
-                });
+        let helper = self.directory.path().join(
+            if matches!(self.installation.platform, Platform::Windows(_)) {
+                "apply-update.exe"
+            } else {
+                "apply-update"
+            },
+        );
         fs::copy(
             self.installation
                 .root
@@ -535,8 +545,8 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    fn release(tag: &str, prerelease: bool) -> Value {
-        let name = Platform::Mac.archive();
+    fn release(tag: &str, prerelease: bool, platform: Platform) -> Value {
+        let name = platform.archive();
         json!({"tag_name": tag, "prerelease": prerelease, "draft": false,
             "assets": [{"name":name, "browser_download_url":format!("{DOWNLOAD}/{tag}/{name}"),
                 "digest":format!("sha256:{}", "a".repeat(64)), "size":1000}]})
@@ -544,12 +554,12 @@ mod tests {
 
     #[test]
     fn selects_newer_verified_package_in_the_installed_channel() {
+        let platform = Platform::Mac(Architecture::Arm64);
         let list = json!([
-            release("v0.1.1-preview.2", true),
-            release("v0.1.0-preview.2", true),
-            release("v0.1.0", false)
+            release("v0.1.1-preview.2", true, platform),
+            release("v0.1.0-preview.2", true, platform),
+            release("v0.1.0", false, platform)
         ]);
-        let platform = Platform::Mac;
         assert!(
             select_release(&list, &Version::parse("0.1.0").unwrap(), platform)
                 .unwrap()
@@ -562,13 +572,37 @@ mod tests {
                 .tag,
             "v0.1.1-preview.2"
         );
-        let mut wrong = release("v1.0.0", false);
+        let mut wrong = release("v1.0.0", false, platform);
         wrong["assets"][0]["browser_download_url"] = json!("https://example.com/update.zip");
         assert!(
             select_release(&json!([wrong]), &Version::parse("0.1.0").unwrap(), platform)
                 .unwrap()
                 .is_none()
         );
+    }
+
+    #[test]
+    fn selects_the_installed_architecture_instead_of_a_newer_incompatible_asset() {
+        for (installed, other) in [
+            (
+                Platform::Mac(Architecture::X64),
+                Platform::Mac(Architecture::Arm64),
+            ),
+            (
+                Platform::Windows(Architecture::Arm64),
+                Platform::Windows(Architecture::X64),
+            ),
+        ] {
+            let list = json!([
+                release("v0.1.2", false, other),
+                release("v0.1.1", false, installed),
+            ]);
+            let selected = select_release(&list, &Version::new(0, 1, 0), installed)
+                .unwrap()
+                .unwrap();
+            assert!(selected.url.ends_with(installed.archive()));
+            assert_eq!(selected.tag, "v0.1.1");
+        }
     }
 
     #[test]
@@ -592,7 +626,7 @@ mod tests {
             .unwrap();
         writer.write_all(b"outside").unwrap();
         writer.finish().unwrap();
-        assert!(unpack(&archive, &output, Platform::Windows).is_err());
+        assert!(unpack(&archive, &output, Platform::Windows(Architecture::X64)).is_err());
         assert!(!temp.path().join("escaped").exists());
     }
 

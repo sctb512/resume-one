@@ -11,8 +11,9 @@ use ttf_parser::Face;
 use unicode_segmentation::UnicodeSegmentation;
 mod sections;
 
-pub const SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
-pub const SERIF_FONT_BYTES: &[u8] =
+// Keep one copy of each fallback font per executable across crates and codegen units.
+pub static SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
+pub static SERIF_FONT_BYTES: &[u8] =
     include_bytes!("../../../assets/fonts/NotoSerifSC-SemiBold.ttf");
 pub const PT_PER_MM: f32 = 72.0 / 25.4;
 

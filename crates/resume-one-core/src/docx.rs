@@ -320,6 +320,7 @@ fn lane_end() -> Paragraph {
 }
 
 pub fn render(content: &ResumeContent, language: Language) -> Result<Vec<u8>, String> {
+    crate::fonts::check_bundled_fonts()?;
     let style = ThemeStyle::built_in_fallback();
     pack(build_document(content, language, &style)?, &style)
 }
@@ -962,8 +963,8 @@ fn pack(mut document: XMLDocx, style: &ThemeStyle) -> Result<Vec<u8>, String> {
         .write_all(rels.as_bytes())
         .map_err(|e| e.to_string())?;
     for (name, data, key) in [
-        ("sans", crate::layout::SANS_FONT_BYTES, 1u8),
-        ("serif", crate::layout::SERIF_FONT_BYTES, 2u8),
+        ("sans", crate::fonts::sans_font_bytes(), 1u8),
+        ("serif", crate::fonts::serif_font_bytes(), 2u8),
     ] {
         archive
             .start_file(format!("word/fonts/{name}.odttf"), options)
@@ -1818,8 +1819,8 @@ mod tests {
         assert!(!body.contains("HIDDEN"));
         let mut archive = zip::ZipArchive::new(Cursor::new(&bytes)).unwrap();
         for (name, original, key) in [
-            ("sans", crate::layout::SANS_FONT_BYTES, 1u8),
-            ("serif", crate::layout::SERIF_FONT_BYTES, 2u8),
+            ("sans", crate::fonts::sans_font_bytes(), 1u8),
+            ("serif", crate::fonts::serif_font_bytes(), 2u8),
         ] {
             let mut decoded = Vec::new();
             archive

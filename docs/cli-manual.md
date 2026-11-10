@@ -6,6 +6,8 @@
 
 `resume-one` 是独立本地程序，不依赖桌面应用运行，不会自动读取 GUI 当前打开的简历。所有文件操作都需要显式的**绝对路径** `--file` 或 `--dir`。从仓库运行时可使用 `cargo run -p resume-one-cli -- <命令>`；构建后的程序名为 `resume-one`。Windows PowerShell 中路径应加引号，例如 `--file 'C:\Users\Me\Documents\resume.json'`。
 
+预发布包中的两个命令行工具和桌面应用共用字体文件，PDF、DOCX 和主题适配均可离线使用。从命令行调用时，请保留 macOS 的完整 `.app` 或 Windows 的完整解压目录。可将可执行文件所在目录加入 `PATH`，也可以在 macOS 上创建指向包内可执行文件的符号链接。
+
 | 命令 | 示例 | 结果 |
 |---|---|---|
 | `init` | `resume-one init --file /absolute/resume.json` | 创建最小有效文件；已存在则拒绝覆盖 |

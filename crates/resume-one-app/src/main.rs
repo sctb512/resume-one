@@ -1294,7 +1294,54 @@ impl Render for ResumeOne {
     }
 }
 
+struct StartupError(String);
+
+impl Render for StartupError {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .size_full()
+            .flex()
+            .items_center()
+            .p_6()
+            .child(self.0.clone())
+    }
+}
+
+fn show_startup_error(message: String) {
+    eprintln!("{message}");
+    Application::new().run(move |cx: &mut App| {
+        cx.on_window_closed(|cx| {
+            if cx.windows().is_empty() {
+                cx.quit();
+            }
+        })
+        .detach();
+        let bounds = Bounds::centered(None, size(px(520.), px(180.)), cx);
+        if cx
+            .open_window(
+                WindowOptions {
+                    window_bounds: Some(WindowBounds::Windowed(bounds)),
+                    ..Default::default()
+                },
+                |window, cx| {
+                    window.set_window_title("简里 · 无法启动");
+                    cx.new(|_| StartupError(message))
+                },
+            )
+            .is_err()
+        {
+            cx.quit();
+        } else {
+            cx.activate(true);
+        }
+    });
+}
+
 fn main() {
+    if let Err(error) = resume_one_core::fonts::check_bundled_fonts() {
+        show_startup_error(error);
+        return;
+    }
     let path = std::env::args_os().nth(1);
     // Build the initial document from embedded data. Selected resume files and
     // restored browsing scopes may block in the OS and must wait for a window.

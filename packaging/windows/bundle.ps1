@@ -12,6 +12,7 @@ if (-not $IsWindows -and $PSVersionTable.PSEdition -eq 'Core') {
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $previousFxc = $env:GPUI_FXC_PATH
+$previousPackagedFonts = $env:RESUME_ONE_PACKAGED_FONTS
 Push-Location $repoRoot
 try {
     if (-not $env:GPUI_FXC_PATH) {
@@ -32,6 +33,7 @@ try {
     if ($Profile -eq 'release') {
         $buildArgs += '--release'
     }
+    $env:RESUME_ONE_PACKAGED_FONTS = '1'
     & cargo @buildArgs
     if ($LASTEXITCODE -ne 0) {
         throw "Cargo build failed with exit code $LASTEXITCODE."
@@ -61,12 +63,29 @@ try {
     Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json') -Destination (Join-Path $bundle 'assets') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\gpui-component\LICENSE-APACHE') -Destination (Join-Path $bundle 'vendor\gpui-component') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\fonts\OFL-*.txt') -Destination (Join-Path $bundle 'assets\fonts') -Force
+    $fontFiles = @(
+        (Join-Path $repoRoot 'assets\fonts\NotoSansSC-Regular.ttf'),
+        (Join-Path $repoRoot 'assets\fonts\NotoSerifSC-SemiBold.ttf')
+    )
+    Copy-Item -LiteralPath $fontFiles -Destination (Join-Path $bundle 'assets\fonts') -Force
     Copy-Item -Path (Join-Path $repoRoot 'docs\*.md') -Destination (Join-Path $bundle 'docs') -Force
     Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json') -Destination (Join-Path $bundle 'assets\themes') -Force
     if ($env:RESUME_ONE_RELEASE_TAG) {
         Set-Content -LiteralPath (Join-Path $bundle 'release-tag.txt') -Value $env:RESUME_ONE_RELEASE_TAG -Encoding ascii
+    }
+    $smokeDir = Join-Path ([IO.Path]::GetTempPath()) ("resume-one-qa-" + [Guid]::NewGuid())
+    New-Item -ItemType Directory -Path $smokeDir | Out-Null
+    try {
+        & (Join-Path $bundle 'resume-one.exe') export --file (Join-Path $bundle 'example.resume.json') `
+            --format pdf --out (Join-Path $smokeDir 'example.pdf') | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Bundled font export failed with exit code $LASTEXITCODE."
+        }
+    }
+    finally {
+        Remove-Item -LiteralPath $smokeDir -Recurse -Force
     }
     if ($Archive) {
         $archivePath = Join-Path $repoRoot "target\$Profile\Resume-One-Windows-x64-unsigned.zip"
@@ -80,5 +99,6 @@ try {
 }
 finally {
     $env:GPUI_FXC_PATH = $previousFxc
+    $env:RESUME_ONE_PACKAGED_FONTS = $previousPackagedFonts
     Pop-Location
 }

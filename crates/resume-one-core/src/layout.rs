@@ -2,6 +2,7 @@
 //! All positions are points in a bottom-left page coordinate system.
 
 use crate::ThemeManifest;
+use crate::fonts::{check_bundled_fonts, sans_font_bytes, serif_font_bytes};
 use crate::render::Language;
 use crate::semantic::{Item, ResumeContent};
 use crate::theme_style::{
@@ -11,10 +12,6 @@ use ttf_parser::Face;
 use unicode_segmentation::UnicodeSegmentation;
 mod sections;
 
-// Keep one copy of each fallback font per executable across crates and codegen units.
-pub static SANS_FONT_BYTES: &[u8] = include_bytes!("../../../assets/fonts/NotoSansSC-Regular.ttf");
-pub static SERIF_FONT_BYTES: &[u8] =
-    include_bytes!("../../../assets/fonts/NotoSerifSC-SemiBold.ttf");
 pub const PT_PER_MM: f32 = 72.0 / 25.4;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -48,8 +45,8 @@ impl FontKind {
             );
         }
         let bytes = match self {
-            Self::Sans => SANS_FONT_BYTES,
-            Self::Serif => SERIF_FONT_BYTES,
+            Self::Sans => sans_font_bytes(),
+            Self::Serif => serif_font_bytes(),
             Self::Local(_) => unreachable!(),
         };
         let face = Face::parse(bytes, 0).expect("validated bundled font");
@@ -64,7 +61,7 @@ impl FontKind {
         if let Self::Local(id) = self {
             let font = crate::fonts::get(id);
             let face = Face::parse(&font.bytes, 0).expect("validated local font");
-            let fallback = Face::parse(SANS_FONT_BYTES, 0).expect("bundled font");
+            let fallback = Face::parse(sans_font_bytes(), 0).expect("bundled font");
             return text
                 .graphemes(true)
                 .map(|cluster| {
@@ -81,8 +78,8 @@ impl FontKind {
                 .sum();
         }
         let bytes = match self {
-            Self::Sans => SANS_FONT_BYTES,
-            Self::Serif => SERIF_FONT_BYTES,
+            Self::Sans => sans_font_bytes(),
+            Self::Serif => serif_font_bytes(),
             Self::Local(_) => unreachable!(),
         };
         measured_width(
@@ -815,6 +812,7 @@ pub(crate) fn font_kind(style: &TextStyle) -> Result<FontKind, String> {
 }
 
 fn validate_theme(theme: &ThemeManifest, style: &ThemeStyle) -> Result<(), String> {
+    check_bundled_fonts()?;
     let source = &theme.normalized;
     if source["page"]
         .get("firstLinePosition")
@@ -1407,8 +1405,8 @@ pub(crate) fn side_date_lines_for_style(
     heading: &str,
     date: &str,
 ) -> SideDateLines {
-    let sans_face = Face::parse(SANS_FONT_BYTES, 0).expect("validated bundled font");
-    let serif_face = Face::parse(SERIF_FONT_BYTES, 0).expect("validated bundled font");
+    let sans_face = Face::parse(sans_font_bytes(), 0).expect("validated bundled font");
+    let serif_face = Face::parse(serif_font_bytes(), 0).expect("validated bundled font");
     PageWriter::new(sans_face, serif_face, style).side_date_lines(
         heading,
         date,
@@ -1422,8 +1420,9 @@ fn layout_with_style(
     language: Language,
     style: &ThemeStyle,
 ) -> Result<ResumeLayout, String> {
-    let sans_face = Face::parse(SANS_FONT_BYTES, 0).map_err(|error| error.to_string())?;
-    let serif_face = Face::parse(SERIF_FONT_BYTES, 0).map_err(|error| error.to_string())?;
+    check_bundled_fonts()?;
+    let sans_face = Face::parse(sans_font_bytes(), 0).map_err(|error| error.to_string())?;
+    let serif_face = Face::parse(serif_font_bytes(), 0).map_err(|error| error.to_string())?;
     let mut page = PageWriter::new(sans_face, serif_face, style);
     layout_basics(&mut page, content, style, "page")?;
     if style.has_sidebar() {
@@ -1675,8 +1674,8 @@ fn sidebar_layout(
     main.left = main_style.page.margins.left * PT_PER_MM;
     main.right = main_style.page.margins.right * PT_PER_MM;
     let mut side = PageWriter::new(
-        Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-        Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+        Face::parse(sans_font_bytes(), 0).unwrap(),
+        Face::parse(serif_font_bytes(), 0).unwrap(),
         &side_style,
     );
     // Side content starts below the complete full-width header/summary even
@@ -1804,7 +1803,7 @@ fn sidebar_layout(
 /// Fallback is explicit in shared layout, so preview and PDF use identical
 /// faces/advances; a Latin-only selected font never drops Chinese glyphs.
 fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement>>, String> {
-    let fallback = Face::parse(SANS_FONT_BYTES, 0).expect("bundled font");
+    let fallback = Face::parse(sans_font_bytes(), 0).expect("bundled font");
     pages
         .into_iter()
         .map(|elements| {
@@ -1820,8 +1819,8 @@ fn fallback_runs(pages: Vec<Vec<LayoutElement>>) -> Result<Vec<Vec<LayoutElement
                     None
                 };
                 let data = match text.font {
-                    FontKind::Sans => SANS_FONT_BYTES,
-                    FontKind::Serif => SERIF_FONT_BYTES,
+                    FontKind::Sans => sans_font_bytes(),
+                    FontKind::Serif => serif_font_bytes(),
                     FontKind::Local(_) => local.as_ref().unwrap().bytes.as_slice(),
                 };
                 let face = Face::parse(data, 0).map_err(|_| "排版字体无法解析")?;
@@ -1905,8 +1904,8 @@ mod tests {
                 let (ascent, descent) = font.vertical_metrics();
                 let leading = size * line_height;
                 let mut writer = PageWriter::new(
-                    Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-                    Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                    Face::parse(sans_font_bytes(), 0).unwrap(),
+                    Face::parse(serif_font_bytes(), 0).unwrap(),
                     &style,
                 );
                 let top = writer.y;
@@ -1948,8 +1947,8 @@ mod tests {
             (text.line_height + ascent - descent) * text.size_pt / 2.0
         };
         let mut writer = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         let page_top = writer.y;
@@ -1992,8 +1991,8 @@ mod tests {
             - style.page.margins.top * PT_PER_MM
             - (text.line_height + ascent - descent) * text.size_pt / 2.0;
         let mut writer = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         for index in 0..300 {
@@ -2136,8 +2135,8 @@ mod tests {
             theme.normalized["sections"]["work"] = serde_json::json!({"heading":heading});
             let style = ThemeStyle::from_manifest(&theme);
             let mut writer = PageWriter::new(
-                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                Face::parse(sans_font_bytes(), 0).unwrap(),
+                Face::parse(serif_font_bytes(), 0).unwrap(),
                 &style,
             );
             let top = writer.y;
@@ -2189,8 +2188,8 @@ mod tests {
         style.page.first_line_position = FirstLinePosition::LineBox;
         let labels: Vec<_> = (0..2000).map(|index| format!("KEY{index:04}")).collect();
         let mut writer = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         layout_chips(&mut writer, &labels, &style);
@@ -2800,8 +2799,8 @@ mod tests {
             assert_eq!(reserved, wanted);
             let style = ThemeStyle::built_in_fallback();
             let mut page = PageWriter::new(
-                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                Face::parse(sans_font_bytes(), 0).unwrap(),
+                Face::parse(serif_font_bytes(), 0).unwrap(),
                 &style,
             );
             page.height = 600.0;
@@ -2964,8 +2963,8 @@ mod tests {
     fn tracked_wrap_keeps_combining_clusters_and_zero_tracking_keeps_legacy_layout() {
         let style = ThemeStyle::built_in_fallback();
         let writer = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         let mut role = style.typography.body.clone();
@@ -3252,8 +3251,8 @@ mod tests {
             let style = ThemeStyle::from_manifest(&theme);
             let result = layout_with_theme(&content, Language::En, &theme).unwrap();
             let measure = PageWriter::new(
-                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                Face::parse(sans_font_bytes(), 0).unwrap(),
+                Face::parse(serif_font_bytes(), 0).unwrap(),
                 &style,
             );
             let header: Vec<_> = result
@@ -3318,8 +3317,8 @@ mod tests {
         let style = ThemeStyle::from_manifest(&theme);
         let result = layout_with_theme(&content, Language::En, &theme).unwrap();
         let measure = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         let mut left_count = 0;
@@ -3697,8 +3696,8 @@ mod tests {
         let style = ThemeStyle::from_manifest(&theme);
         let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
         let measure = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         let texts: Vec<_> = layout
@@ -3801,8 +3800,8 @@ mod tests {
         let content = project(&parse_resume(&serde_json::to_vec(&source).unwrap()).unwrap());
         let style = ThemeStyle::from_manifest(&theme);
         let measure = PageWriter::new(
-            Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-            Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+            Face::parse(sans_font_bytes(), 0).unwrap(),
+            Face::parse(serif_font_bytes(), 0).unwrap(),
             &style,
         );
         let layout = layout_with_theme(&content, Language::En, &theme).unwrap();
@@ -3896,8 +3895,8 @@ mod tests {
             let theme = crate::parse_theme(&std::fs::read(&path).unwrap()).unwrap();
             let style = ThemeStyle::from_manifest(&theme);
             let measure = PageWriter::new(
-                Face::parse(SANS_FONT_BYTES, 0).unwrap(),
-                Face::parse(SERIF_FONT_BYTES, 0).unwrap(),
+                Face::parse(sans_font_bytes(), 0).unwrap(),
+                Face::parse(serif_font_bytes(), 0).unwrap(),
                 &style,
             );
             let layout = layout_with_theme(&content, Language::Zh, &theme).unwrap();
@@ -3975,8 +3974,8 @@ mod tests {
 
     #[test]
     fn wraps_multilingual_text_without_exceeding_content_width() {
-        let face = Face::parse(SANS_FONT_BYTES, 0).unwrap();
-        let serif_face = Face::parse(SERIF_FONT_BYTES, 0).unwrap();
+        let face = Face::parse(sans_font_bytes(), 0).unwrap();
+        let serif_face = Face::parse(serif_font_bytes(), 0).unwrap();
         let writer = PageWriter::new(face, serif_face, &ThemeStyle::built_in_fallback());
         let lines = writer.wrap(
             "这是一段很长的中文内容 with several English words and more content",

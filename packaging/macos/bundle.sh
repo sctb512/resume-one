@@ -16,9 +16,9 @@ fi
 
 cd "$repo_root"
 if [[ "$profile" == release ]]; then
-    cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
+    RESUME_ONE_PACKAGED_FONTS=1 cargo build --locked --release -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
 else
-    cargo build --locked -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
+    RESUME_ONE_PACKAGED_FONTS=1 cargo build --locked -p resume-one-app -p resume-one-cli -p resume-one-theme-migrate
 fi
 
 mkdir -p "$bundle/Contents/MacOS"
@@ -31,6 +31,8 @@ cp "$repo_root/resume-one-theme-spec-v2.md" "$bundle/Contents/Resources/"
 cp "$repo_root/assets/example.resume.json" "$bundle/Contents/Resources/assets/"
 cp "$repo_root/vendor/gpui-component/LICENSE-APACHE" "$bundle/Contents/Resources/vendor/gpui-component/"
 cp "$repo_root/assets/fonts/"OFL-*.txt "$bundle/Contents/Resources/assets/fonts/"
+cp -X "$repo_root/assets/fonts/NotoSansSC-Regular.ttf" "$repo_root/assets/fonts/NotoSerifSC-SemiBold.ttf" \
+    "$bundle/Contents/Resources/assets/fonts/"
 cp "$repo_root/docs/user-manual.md" "$repo_root/docs/cli-manual.md" "$bundle/Contents/Resources/docs/"
 cp "$repo_root/resume-one-theme-spec-v2.md" "$bundle/Contents/Resources/spec/"
 cp "$repo_root"/spec/* "$bundle/Contents/Resources/spec/"
@@ -49,4 +51,9 @@ codesign --force --sign - "$bundle"
 codesign --verify --deep --strict --verbose=2 "$bundle"
 "$bundle/Contents/MacOS/resume-one" --version >/dev/null
 "$bundle/Contents/MacOS/resume-one-theme-migrate" --version >/dev/null
+smoke_dir="$(mktemp -d)"
+trap 'rm -r "$smoke_dir"' EXIT
+"$bundle/Contents/MacOS/resume-one" export \
+    --file "$bundle/Contents/Resources/example.resume.json" \
+    --format pdf --out "$smoke_dir/example.pdf" >/dev/null
 echo "$bundle"

@@ -1,8 +1,7 @@
 //! PDF encoding of the shared, font-measured resume layout.
 use crate::ThemeManifest;
-use crate::layout::{
-    self, FontKind, LayoutElement, PT_PER_MM, ResumeLayout, SANS_FONT_BYTES, SERIF_FONT_BYTES,
-};
+use crate::fonts::{sans_font_bytes, serif_font_bytes};
+use crate::layout::{self, FontKind, LayoutElement, PT_PER_MM, ResumeLayout};
 use crate::render::Language;
 use crate::semantic::ResumeContent;
 use crate::theme_style::Rgb;
@@ -37,9 +36,9 @@ pub fn render_with_theme(
 
 fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, String> {
     let mut font_warnings = Vec::new();
-    let sans = ParsedFont::from_bytes(SANS_FONT_BYTES, 0, &mut font_warnings)
+    let sans = ParsedFont::from_bytes(sans_font_bytes(), 0, &mut font_warnings)
         .ok_or_else(|| "内置无衬线字体无法解析".to_owned())?;
-    let serif = ParsedFont::from_bytes(SERIF_FONT_BYTES, 0, &mut font_warnings)
+    let serif = ParsedFont::from_bytes(serif_font_bytes(), 0, &mut font_warnings)
         .ok_or_else(|| "内置衬线字体无法解析".to_owned())?;
     let mut document = PdfDocument::new(if content.name.is_empty() {
         "Resume One"

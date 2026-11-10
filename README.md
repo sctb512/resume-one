@@ -62,6 +62,8 @@ Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Stu
 
 Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配便携 ZIP。脚本自动定位 Windows SDK 的 `x64/fxc.exe`，也可设置 `GPUI_FXC_PATH`。包内附规范、手册、原生主题和示例。Windows 桌面构建使用原生 Windows 环境编译 DirectX 着色器。
 
+macOS 和 Windows 的打包脚本让桌面程序、文档 CLI 和迁移器共用一套 Noto Sans SC 与 Noto Serif SC。请保留完整的应用包或解压目录。普通的 `cargo build` 和 `cargo run` 使用内嵌字体，仍支持直接运行源码构建的可执行文件。
+
 ## 三仓与自动发布
 
 | 仓库 | 内容 | 发布触发 |

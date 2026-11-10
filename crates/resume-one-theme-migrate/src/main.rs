@@ -169,6 +169,9 @@ fn main() -> ExitCode {
         }
     };
     if cli.adapt {
+        if let Err(error) = resume_one_core::fonts::check_bundled_fonts() {
+            return emit(Err(AppError::new(5, "FONT_RESOURCE", error)));
+        }
         emit(if cli.batch {
             adaptation::batch(&cli)
         } else {

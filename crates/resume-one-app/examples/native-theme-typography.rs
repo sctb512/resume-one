@@ -27,8 +27,8 @@ fn main() {
     let system = app.text_system();
     system
         .add_fonts(vec![
-            Cow::Borrowed(layout::SANS_FONT_BYTES),
-            Cow::Borrowed(layout::SERIF_FONT_BYTES),
+            Cow::Borrowed(resume_one_core::fonts::sans_font_bytes()),
+            Cow::Borrowed(resume_one_core::fonts::serif_font_bytes()),
         ])
         .unwrap();
     let mut loaded: BTreeSet<_> = theme.font_asset_ids().collect();

@@ -1,9 +1,12 @@
-"""Verify the native bundle layout and check that only native themes are bundled."""
+"""Verify the native bundle, shared fonts, and bundled themes."""
 
 import argparse
 from pathlib import Path, PurePosixPath
 import struct
 import zipfile
+
+FONT_NAMES = ("NotoSansSC-Regular.ttf", "NotoSerifSC-SemiBold.ttf")
+FONT_SOURCE = Path(__file__).resolve().parents[1] / "assets" / "fonts"
 
 
 def verify_binary(binary, name, macos):
@@ -40,9 +43,24 @@ def verify(archive_path, release_tag=None):
             path = PurePosixPath(name)
             if path.is_absolute() or ".." in path.parts or "\\" in name:
                 raise ValueError(f"Invalid archive path {name}")
+        font_paths = {f"{resources}/assets/fonts/{name}" for name in FONT_NAMES}
+        if {name for name in entries if name.startswith(f"{root}/") and
+                PurePosixPath(name).suffix.lower() in {".ttf", ".otf"}} != font_paths:
+            raise ValueError("The bundle must contain exactly one shared copy of each fallback font")
+        fonts = {}
+        for name in FONT_NAMES:
+            data = (FONT_SOURCE / name).read_bytes()
+            if archive.read(f"{resources}/assets/fonts/{name}") != data:
+                raise ValueError(f"Shared font contents differ from the source: {name}")
+            fonts[name] = data
         for name in ("resume-one-app", "resume-one", "resume-one-theme-migrate"):
-            with archive.open(f"{executables}/{name}{suffix}") as binary:
+            member = f"{executables}/{name}{suffix}"
+            with archive.open(member) as binary:
                 verify_binary(binary, name, macos)
+            executable = archive.read(member)
+            for font_name, data in fonts.items():
+                if data in executable:
+                    raise ValueError(f"{name} embeds a duplicate of {font_name}")
         for name in ("README.md", "docs/user-manual.md", "docs/cli-manual.md", "resume-one-theme-spec-v2.md"):
             archive.getinfo(f"{resources}/{name}")
 
@@ -59,7 +77,7 @@ def verify(archive_path, release_tag=None):
             raise ValueError(f"Expected 20 native themes, got {len(native)}")
         if {name for name in entries if name.startswith(theme_root)} != set(native):
             raise ValueError("Only native themes may be included in the release archive")
-        print(f"Verified {archive_path.name}, 3 executables and 20 native themes.")
+        print(f"Verified {archive_path.name}, 3 executables, 2 shared fonts and 20 native themes.")
 
 
 def main():

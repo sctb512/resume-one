@@ -1,5 +1,8 @@
 //! Bounded local font installation and native system-family resolution.
 //! No font paths or font bytes are written into resumes or themes.
+mod bundled;
+pub use bundled::{check_bundled_fonts, sans_font_bytes, serif_font_bytes};
+
 use font_kit::{
     family_name::FamilyName,
     handle::Handle,
@@ -386,8 +389,14 @@ fn register(key: (String, u16, bool), bytes: Vec<u8>) -> Result<u16, String> {
         return Ok(*id);
     }
     let builtin = match font.family.as_str() {
-        "Noto Sans SC" => Some(crate::layout::SANS_FONT_BYTES),
-        "Noto Serif SC" => Some(crate::layout::SERIF_FONT_BYTES),
+        "Noto Sans SC" => {
+            check_bundled_fonts()?;
+            Some(sans_font_bytes())
+        }
+        "Noto Serif SC" => {
+            check_bundled_fonts()?;
+            Some(serif_font_bytes())
+        }
         _ => None,
     };
     if builtin.is_some_and(|data| data != font.bytes.as_slice())
@@ -507,7 +516,7 @@ mod tests {
     use super::*;
     #[test]
     fn collection_extraction_rebases_offsets_and_preserves_glyphs() {
-        let original = crate::layout::SANS_FONT_BYTES;
+        let original = sans_font_bytes();
         let mut collection = b"ttcf\0\x01\0\0\0\0\0\x01\0\0\0\x10".to_vec();
         collection.extend_from_slice(original);
         let count = u16::from_be_bytes([original[4], original[5]]) as usize;
@@ -602,11 +611,7 @@ mod tests {
     }
     #[test]
     fn registered_font_has_real_metrics_and_embedding_flags() {
-        let id = register(
-            ("test-font".into(), 400, false),
-            crate::layout::SANS_FONT_BYTES.to_vec(),
-        )
-        .unwrap();
+        let id = register(("test-font".into(), 400, false), sans_font_bytes().to_vec()).unwrap();
         let font = get(id);
         assert!(font.pdf_embed && font.editable_embed && font.subset_allowed);
         assert!(

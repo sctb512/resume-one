@@ -10,6 +10,7 @@ FONT_SOURCE = Path(__file__).resolve().parents[1] / "assets" / "fonts"
 ARCHIVES = {
     "Resume-One-macOS-arm64-unsigned.zip": ("macOS", 0x0100000C),
     "Resume-One-macOS-x64-unsigned.zip": ("macOS", 0x01000007),
+    "Resume-One-macOS-universal-unsigned.zip": ("macOS", None),
     "Resume-One-Windows-arm64-unsigned.zip": ("Windows", 0xAA64),
     "Resume-One-Windows-x64-unsigned.zip": ("Windows", 0x8664),
 }
@@ -18,6 +19,21 @@ ARCHIVES = {
 def verify_binary(binary, name, macos, machine):
     header = binary.read(64)
     if macos:
+        if machine is None:
+            if header[:8] != struct.pack(">II", 0xCAFEBABE, 2):
+                raise ValueError(f"{name} is not a two-slice Mach-O")
+            machines = set()
+            for index in range(2):
+                cpu, _, offset, size, _ = struct.unpack_from(">IIIII", header, 8 + index * 20)
+                if offset < 48 or size < 32:
+                    raise ValueError(f"{name} has an invalid Mach-O slice")
+                binary.seek(offset)
+                if binary.read(8) != struct.pack("<II", 0xFEEDFACF, cpu):
+                    raise ValueError(f"{name} has a malformed Mach-O slice")
+                machines.add(cpu)
+            if machines != {0x0100000C, 0x01000007}:
+                raise ValueError(f"{name} is missing a required architecture")
+            return
         if header[:8] != struct.pack("<II", 0xFEEDFACF, machine):
             raise ValueError(f"{name} does not have the expected Mach-O architecture")
         return

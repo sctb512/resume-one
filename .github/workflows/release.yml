@@ -106,9 +106,34 @@ jobs:
           if-no-files-found: error
           compression-level: 0
 
-  publish:
+  macos_universal:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: native
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          pattern: resume-one-macOS-*
+          merge-multiple: true
+          path: dist
+      - name: Build and verify the universal archive
+        run: |
+          bash packaging/macos/universal.sh dist/Resume-One-macOS-arm64-unsigned.zip \
+            dist/Resume-One-macOS-x64-unsigned.zip "$PWD/dist/Resume-One-macOS-universal-unsigned.zip"
+          python3 packaging/verify-release.py dist/Resume-One-macOS-universal-unsigned.zip --release-tag "$RESUME_ONE_RELEASE_TAG"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: resume-one-macOS-universal
+          path: dist/Resume-One-macOS-universal-unsigned.zip
+          if-no-files-found: error
+          compression-level: 0
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: macos_universal
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -129,6 +154,7 @@ jobs:
           archives=(
             Resume-One-macOS-arm64-unsigned.zip
             Resume-One-macOS-x64-unsigned.zip
+            Resume-One-macOS-universal-unsigned.zip
             Resume-One-Windows-x64-unsigned.zip
             Resume-One-Windows-arm64-unsigned.zip
           )

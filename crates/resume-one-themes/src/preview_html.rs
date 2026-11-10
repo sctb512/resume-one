@@ -11,7 +11,14 @@ use crate::ThemeError;
 
 const POLICY: &str = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'";
 
-pub(crate) fn prepare(html: &str, stylesheets: &Value, limit: usize) -> Result<String, ThemeError> {
+const PAPER_STYLE: &str = include_str!("original-paper.css");
+
+pub(crate) fn prepare(
+    html: &str,
+    stylesheets: &Value,
+    theme_id: &str,
+    limit: usize,
+) -> Result<String, ThemeError> {
     let mut options = ParseOpts::default();
     options.tree_builder.scripting_enabled = false;
     let dom = parse_document(RcDom::default(), options).one(html);
@@ -67,7 +74,7 @@ pub(crate) fn prepare(html: &str, stylesheets: &Value, limit: usize) -> Result<S
                         }
                         "srcset" | "srcdoc" | "action" | "formaction" | "target" | "ping"
                         | "poster" | "background" | "autofocus" | "contenteditable" => false,
-                        _ => !key.starts_with("on"),
+                        _ => !key.starts_with("on") && !key.starts_with("data-jianli-"),
                     }
                 });
             }
@@ -89,6 +96,12 @@ pub(crate) fn prepare(html: &str, stylesheets: &Value, limit: usize) -> Result<S
     let head = root.children.borrow().iter().find(|node| {
         matches!(&node.data, NodeData::Element { name, .. } if name.local == local_name!("head"))
     }).expect("HTML parser creates a head").clone();
+    if let NodeData::Element { attrs, .. } = &root.data {
+        attrs.borrow_mut().push(html5ever::Attribute {
+            name: QualName::new(None, ns!(), "data-jianli-theme".into()),
+            value: theme_id.into(),
+        });
+    }
     let policy = markup5ever_rcdom::Node::new(NodeData::Element {
         name: QualName::new(None, ns!(html), local_name!("meta")),
         attrs: std::cell::RefCell::new(vec![
@@ -106,6 +119,9 @@ pub(crate) fn prepare(html: &str, stylesheets: &Value, limit: usize) -> Result<S
     });
     policy.parent.set(Some(Rc::downgrade(&head)));
     head.children.borrow_mut().insert(0, policy);
+    let paper_style = embedded_style(PAPER_STYLE, Some("screen"));
+    paper_style.parent.set(Some(Rc::downgrade(&head)));
+    head.children.borrow_mut().push(paper_style);
     let mut bytes = b"<!doctype html>".to_vec();
     html5ever::serialize(
         &mut bytes,
@@ -164,11 +180,12 @@ mod tests {
         let doc = prepare(
             html,
             &json!({"https://theme.test/local.css": ".resume{color:red} </style><script>leak()</script>"}),
-            4096,
+            "original-test",
+            16384,
         ).unwrap();
         for expected in [
             "Content-Security-Policy",
-            "<html lang=\"zh\">",
+            "<html lang=\"zh\" data-jianli-theme=\"original-test\">",
             "<body class=\"resume\">",
             "<h1>林清和</h1>",
             "<style media=\"print\">",

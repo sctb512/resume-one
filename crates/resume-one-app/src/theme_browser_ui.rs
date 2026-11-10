@@ -339,7 +339,16 @@ impl ResumeOne {
                     thumbnail_theme
                         .as_ref()
                         .and_then(|t| t.manifest.normalized["description"].as_str())
-                        .unwrap_or(&entry.id),
+                        .unwrap_or_else(|| {
+                            if entry
+                                .manifest
+                                .ends_with(resume_one_themes::ORIGINAL_THEME_SUFFIX)
+                            {
+                                ""
+                            } else {
+                                &entry.id
+                            }
+                        }),
                 );
                 let row = div()
                     .id(("theme", index))
@@ -384,17 +393,19 @@ impl ResumeOne {
                                     .font_family(crate::chrome::SERIF)
                                     .text_size(px(15.))
                                     .text_color(color(if selected { p.accent } else { p.ink }))
-                                    .truncate()
+                                    .line_clamp(2)
                                     .child(entry.name.clone()),
                             )
-                            .child(
-                                div()
-                                    .text_size(px(12.))
-                                    .line_height(px(17.))
-                                    .line_clamp(2)
-                                    .text_color(color(p.muted))
-                                    .child(description),
-                            ),
+                            .when(!description.is_empty(), |label| {
+                                label.child(
+                                    div()
+                                        .text_size(px(12.))
+                                        .line_height(px(17.))
+                                        .line_clamp(2)
+                                        .text_color(color(p.muted))
+                                        .child(description),
+                                )
+                            }),
                     )
                     .on_hover(cx.listener(move |this, entering: &bool, window, cx| {
                         let identity = this.online.identity(&id);

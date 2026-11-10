@@ -118,7 +118,7 @@ impl FormPalette {
     }
 }
 
-fn field_order(section: &str, key: &str) -> usize {
+pub(super) fn field_order(section: &str, key: &str) -> usize {
     let order: &[&str] = match section {
         "basics" => &[
             "name",
@@ -200,7 +200,7 @@ fn full_width_field(section: &str, key: &str) -> bool {
         )
 }
 
-fn form_field_label(section: &str, key: &str) -> &'static str {
+pub(super) fn form_field_label(section: &str, key: &str) -> &'static str {
     match (section, key) {
         ("basics", "name") => "姓名",
         ("work", "name") => "公司 / 团队",

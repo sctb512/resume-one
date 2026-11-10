@@ -21,8 +21,24 @@ const TIMEOUT: Duration = Duration::from_secs(12);
 
 pub fn print_original(theme: &OriginalTheme, resume: &Value) -> Result<Vec<u8>, ThemeError> {
     let rendered = theme.render_html(resume)?;
-    let mut browser = Browser::open(&rendered.html, &theme.stylesheets)?;
+    let mut browser = Browser::open(&rendered.html, &theme.stylesheets, Some(&theme.id))?;
     let response = browser.call("Page.printToPDF", print_options(&rendered))?;
+    decode(&response)
+}
+
+/// A small local rendering of the same screen HTML used in the desktop.
+pub fn thumbnail_original(theme: &OriginalTheme, resume: &Value) -> Result<Vec<u8>, ThemeError> {
+    let html = theme.render_preview_html(resume)?;
+    let mut browser = Browser::open(&html, &Value::Null, None)?;
+    let response = browser.call(
+        "Page.captureScreenshot",
+        json!({
+            "format": "png", "fromSurface": true,
+            "clip": {
+                "x": 0, "y": 0, "width": VIEWPORT_WIDTH, "height": VIEWPORT_HEIGHT, "scale": 0.19
+            }
+        }),
+    )?;
     decode(&response)
 }
 
@@ -201,7 +217,11 @@ struct Browser {
 }
 
 impl Browser {
-    fn open(html: &str, stylesheets: &Value) -> Result<Self, ThemeError> {
+    fn open(
+        html: &str,
+        stylesheets: &Value,
+        print_theme: Option<&str>,
+    ) -> Result<Self, ThemeError> {
         let deadline = Instant::now() + TIMEOUT;
         let mut process = PainterProcess::launch()?;
         let port = process.port(deadline)?;
@@ -259,6 +279,9 @@ impl Browser {
         // The only evaluated browser script is this fixed painter. The rendered
         // HTML is a string, parsed inertly, then active markup is removed.
         let input = serde_json::to_string(html).expect("HTML encodes as a JS string");
+        let print_theme = serde_json::to_string(&print_theme).expect("theme ID");
+        let print_css =
+            serde_json::to_string(include_str!("original-print.css")).expect("print CSS");
         let expression = format!(
             r#"(() => {{
             const parsed = new DOMParser().parseFromString({input}, "text/html");
@@ -297,6 +320,14 @@ impl Browser {
             policy.httpEquiv = "Content-Security-Policy";
             policy.content = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'";
             parsed.head.prepend(policy);
+            const printTheme = {print_theme};
+            if (printTheme) {{
+                parsed.documentElement.dataset.jianliTheme = printTheme;
+                const style = parsed.createElement("style");
+                style.media = "print";
+                style.textContent = {print_css};
+                parsed.head.append(style);
+            }}
             document.documentElement.replaceWith(document.adoptNode(parsed.documentElement));
         }})()"#
         );

@@ -1,0 +1,118 @@
+/* Screen-only fit for the upstream HTML, inside Jianli's A4-width surface.
+   Keep theme colors, typographic character and column order. PDF keeps its
+   upstream print rules. */
+html[data-jianli-theme] {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  background: #fff;
+}
+[data-jianli-theme] body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+[data-jianli-theme] img { max-width: 100%; }
+[data-jianli-theme] .floating-nav, [data-jianli-theme] .floating-nav-trigger,
+[data-jianli-theme] .skip-link { display: none !important; }
+
+[data-jianli-theme="original-academic-cv-lite"] body > div:first-child {
+  box-sizing: border-box;
+  width: 100%;
+  padding-inline: 54px;
+}
+[data-jianli-theme="original-colophon"] .page {
+  max-width: none;
+  padding: 54px 52px 62px;
+}
+[data-jianli-theme="original-elegant"] .container-fluid { padding: 36px 40px; }
+[data-jianli-theme="original-elegant"] .main > section {
+  float: none !important;
+  position: static !important;
+  width: 100%;
+}
+[data-jianli-theme="original-elegant"] .profile-card-wrapper { margin-bottom: 18px; }
+[data-jianli-theme="original-elegant"] .profile-pic:not(:has(img)),
+[data-jianli-theme="original-kendall"] #photo:not(:has(img)),
+[data-jianli-theme="original-macchiato"] .profile-pic:not(:has(img)) { display: none; }
+[data-jianli-theme="original-elegant"] .card { min-height: 0; box-shadow: none; }
+
+[data-jianli-theme="original-even"] {
+  color-scheme: light;
+  --color-background: var(--color-background-light);
+  --color-dimmed: var(--color-dimmed-light);
+  --color-primary: var(--color-primary-light);
+  --color-secondary: var(--color-secondary-light);
+  --color-accent: var(--color-accent-light);
+}
+[data-jianli-theme="original-even"] .masthead { min-height: 0; }
+[data-jianli-theme="original-executive-slate"] body > div:first-child {
+  grid-template-columns: minmax(0, 29%) minmax(0, 1fr);
+  box-shadow: none;
+  min-height: 1123px;
+}
+[data-jianli-theme="original-executive-slate"] body > div:first-child > :is(aside,main) {
+  min-width: 0;
+  padding-inline: 29px;
+}
+[data-jianli-theme="original-executive-slate"] aside .resume-date-range { color: #e2e8f0; }
+[data-jianli-theme="original-flat"] .container,
+[data-jianli-theme="original-pumpkin"] .container {
+  width: 100%;
+  max-width: 100%;
+  padding-inline: 42px;
+}
+[data-jianli-theme="original-flat"] #content h3 { color: #946900; }
+[data-jianli-theme="original-kendall"] body { background: #fff; border-top: 4px solid #334960; }
+[data-jianli-theme="original-kendall"] body > .container {
+  width: auto;
+  max-width: none;
+  margin: 38px 42px;
+}
+[data-jianli-theme="original-kendall"] #photo-header:not(:has(img)) { margin-top: 0; }
+[data-jianli-theme="original-lucide"] #resume {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 1123px;
+  height: auto;
+  grid-template-columns: minmax(0, 28%) minmax(0, 1fr);
+  padding: 32px;
+}
+[data-jianli-theme="original-lucide"] #resume > .sidebar { grid-column: 1; margin: 0 16px 0 0; min-width: 0; }
+[data-jianli-theme="original-lucide"] #resume > .content { grid-column: 2; padding: 0; min-width: 0; }
+[data-jianli-theme="original-lucide"] .section-picture:not(:has(img)) { display: none; }
+[data-jianli-theme="original-lucide"] .card-container { box-sizing: border-box; }
+[data-jianli-theme="original-lucide"] .section-header,
+[data-jianli-theme="original-lucide"] .section-information {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr);
+}
+[data-jianli-theme="original-macchiato"] #resume {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-height: 1123px;
+  margin: 0;
+  padding-inline: 43px;
+  box-shadow: none;
+}
+[data-jianli-theme="original-minyma"] body { padding: 38px 48px 52px; background: #fff; }
+[data-jianli-theme="original-minyma"] body > div:first-child { width: auto; padding-inline: 0; }
+[data-jianli-theme="original-minyma"] body > div:first-child > :not(:first-child) { margin-top: 1.85rem; }
+[data-jianli-theme="original-minyma"] header h2 { font-weight: 400; }
+[data-jianli-theme="original-paper-plus-plus"],
+[data-jianli-theme="original-paper-plus-plus"] body { padding-top: 0; background: #fff; }
+[data-jianli-theme="original-paper-plus-plus"] .resume-wrapper,
+[data-jianli-theme="original-paper-plus-plus"] .paper {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+}
+[data-jianli-theme="original-paper-plus-plus"] .content-wrapper { padding-inline: 44px; }
+[data-jianli-theme="original-pro"] .pro {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: 52px;
+}

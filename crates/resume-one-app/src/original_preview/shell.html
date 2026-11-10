@@ -4,35 +4,132 @@
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-src 'self' about:; img-src data:; font-src data:; base-uri 'none'; form-action 'none'">
 <style>
-  html { scrollbar-width: thin; }
+  html { scrollbar-width: thin; color-scheme: light; }
   body { margin: 0; background: var(--canvas, #f5f4f2); }
   main { padding: 24px 22px 58px; }
+  #paper {
+    position: relative;
+    margin-inline: auto;
+    background: white;
+    box-shadow: 0 2px 12px #0002;
+  }
   iframe {
     display: block;
     width: 794px;
     height: 1123px;
     border: 0;
-    margin-inline: auto;
+    position: absolute;
+    inset: 0;
+    transform-origin: top left;
     background: white;
-    box-shadow: 0 2px 12px #0002;
+  }
+  #paper-hit {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+  }
+  #paper-hit[hidden], #paper.selecting #paper-hit { display: none; }
+  #edit-panel {
+    box-sizing: border-box;
+    position: absolute;
+    z-index: 2;
+    inset-inline: 12px;
+    width: calc(100% - 24px);
+    max-width: 640px;
+    max-height: min(390px, 72vh);
+    margin-inline: auto;
+    overflow: auto;
+    border: 1px solid #22322a24;
+    border-radius: 11px;
+    background: #fcfbf7;
+    color: #20302a;
+    box-shadow: 0 16px 44px #17221b29, 0 3px 10px #17221b14;
+    font: 13px/1.5 -apple-system, "Microsoft YaHei", system-ui, sans-serif;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity .12s ease, transform .16s ease, visibility .12s;
+  }
+  #edit-panel.shown { opacity: 1; visibility: visible; transform: translateY(0); }
+  #edit-panel header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid #22322a18;
+  }
+  #edit-panel h2 { margin: 0; font-size: 15px; font-weight: 650; }
+  #edit-panel button {
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: inherit;
+    font-size: 19px;
+    line-height: 26px;
+    width: 28px;
+    cursor: pointer;
+  }
+  #edit-panel button:hover { background: #22322a0d; }
+  #edit-panel .fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 174px), 1fr));
+    gap: 10px 14px;
+    padding: 14px 16px;
+  }
+  #edit-panel label { display: grid; gap: 4px; color: #4c5d53; min-width: 0; }
+  #edit-panel .wide { grid-column: 1 / -1; }
+  #edit-panel :is(input,textarea) {
+    box-sizing: border-box;
+    border: 1px solid #22322a29;
+    border-radius: 6px;
+    padding: 6px 8px;
+    width: 100%;
+    background: #fffefa;
+    color: #20302a;
+    font: inherit;
+  }
+  #edit-panel :is(input,textarea):focus-visible { outline: 2px solid #52756b; outline-offset: 1px; }
+  #edit-panel textarea { resize: vertical; min-height: 4em; }
+  #edit-panel .error { margin: 0 16px 12px; color: #913c36; }
+  #edit-panel .error:empty { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #edit-panel { transition: none; }
   }
 </style>
 </head>
 <body>
-<main aria-label="原版简历预览"></main>
+<main aria-label="原版简历预览">
+  <div id="paper">
+    <div id="paper-hit" aria-hidden="true" hidden></div>
+    <section id="edit-panel" aria-labelledby="edit-title" inert>
+      <header><h2 id="edit-title"></h2><button type="button" aria-label="关闭编辑">×</button></header>
+      <div class="fields"></div>
+      <p class="error" role="status"></p>
+    </section>
+  </div>
+</main>
 <script>
-  const stage = document.querySelector("main");
+  const PAPER_WIDTH = 794, PAPER_HEIGHT = 1123;
+  const paper = document.querySelector("#paper");
   let pending = null;
   let current = null;
   let observer = null;
+  let height = PAPER_HEIGHT;
   const resize = () => {
-    const zoom = Math.min(1, Math.max(.45, (document.documentElement.clientWidth - 44) / 794));
-    stage.style.zoom = zoom;
+    const width = Math.max(1, Math.min(756, document.documentElement.clientWidth - 44));
+    const scale = width / PAPER_WIDTH;
+    paper.style.width = width + "px";
+    paper.style.height = height * scale + "px";
+    if (current) current.style.transform = `scale(${scale})`;
   };
   addEventListener("resize", resize);
+
+  /* EDITING */
   resize();
 
   function forwardShortcut(event) {
+    if (event.isComposing) return;
     const modifier = event.metaKey || event.ctrlKey;
     const key = event.key.toLowerCase();
     let action;
@@ -46,6 +143,7 @@
     }
     if (action) {
       event.preventDefault();
+      closeEdit();
       window.ipc.postMessage(action);
     }
   }
@@ -58,11 +156,15 @@
   };
   window.jianliReset = () => {
     window.jianliCancel();
+    closeEdit();
     observer?.disconnect();
+    current?.remove();
     current = null;
-    stage.replaceChildren();
+    editHit.hidden = true;
+    height = PAPER_HEIGHT;
+    resize();
   };
-  window.jianliRender = (html, token) => {
+  window.jianliRender = (html, token, theme, targets) => {
     window.jianliCancel();
     const next = document.createElement("iframe");
     pending = next;
@@ -70,37 +172,37 @@
     // The parent may read dimensions and bridge keyboard commands. The theme
     // itself cannot execute scripts, submit forms or open new windows.
     next.setAttribute("sandbox", "allow-same-origin");
-    next.style.cssText = "position:absolute; visibility:hidden; top:0";
+    next.style.visibility = "hidden";
     next.addEventListener("load", () => {
       if (pending !== next) return;
       const scroll = document.scrollingElement.scrollTop;
       observer?.disconnect();
       const page = next.contentDocument;
+      current?.remove();
+      current = next;
+      height = PAPER_HEIGHT;
       if (page?.body) {
         const measure = () => {
           if (next !== current) return;
-          const height = Math.ceil(Math.max(page.body.scrollHeight, page.documentElement.scrollHeight));
-          const size = Math.max(1123, Math.min(16000, height));
-          next.style.height = size + "px";
+          const content = Math.ceil(Math.max(page.body.scrollHeight, page.documentElement.scrollHeight));
+          height = Math.max(PAPER_HEIGHT, Math.min(16000, content));
+          next.style.height = height + "px";
+          resize();
         };
         page.addEventListener("keydown", forwardShortcut, true);
         observer = new ResizeObserver(measure);
         observer.observe(page.body);
-        current = next;
         measure();
-      } else {
-        current = next;
+        installEditing(page, targets, token, theme);
       }
-      const height = next.style.height;
-      next.style.cssText = "";
-      if (height) next.style.height = height;
-      stage.replaceChildren(next);
+      next.style.visibility = "";
+      resize();
       document.scrollingElement.scrollTop = scroll;
       pending = null;
       window.ipc.postMessage("painted:" + token);
     }, { once: true });
     next.srcdoc = html;
-    stage.append(next);
+    paper.prepend(next);
   };
   window.ipc.postMessage("ready");
 </script>

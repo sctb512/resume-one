@@ -108,6 +108,35 @@ impl OriginalTheme {
             .ok_or_else(|| ThemeError::new("ORIGINAL_THEME_INPUT", "basics 须为对象"))?;
         basics.entry("location").or_insert_with(|| json!({}));
         basics.entry("profiles").or_insert_with(|| json!([]));
+        alias(basics, "website", "url");
+        alias(basics, "picture", "image");
+        // Some pinned upstream templates predate the current JSON Resume
+        // keys. Fill their historical names only on the isolated render copy.
+        for section in [
+            "work",
+            "volunteer",
+            "education",
+            "projects",
+            "publications",
+            "certificates",
+        ] {
+            for item in input
+                .get_mut(section)
+                .and_then(Value::as_array_mut)
+                .into_iter()
+                .flatten()
+            {
+                let Some(item) = item.as_object_mut() else {
+                    continue;
+                };
+                alias(item, "website", "url");
+                match section {
+                    "work" => alias(item, "company", "name"),
+                    "education" => alias(item, "gpa", "score"),
+                    _ => {}
+                }
+            }
+        }
 
         context.with(|ctx| {
             let input = ctx.json_parse(input.to_string()).map_err(js_error)?;
@@ -135,7 +164,15 @@ impl OriginalTheme {
     /// Prepare a static document for the desktop's live browser surface.
     pub fn render_preview_html(&self, resume: &Value) -> Result<String, ThemeError> {
         let rendered = self.render_html(resume)?;
-        crate::preview_html::prepare(&rendered.html, &self.stylesheets, MAX_HTML_BYTES)
+        crate::preview_html::prepare(&rendered.html, &self.stylesheets, &self.id, MAX_HTML_BYTES)
+    }
+}
+
+fn alias(object: &mut serde_json::Map<String, Value>, legacy: &str, current: &str) {
+    if !object.contains_key(legacy)
+        && let Some(value) = object.get(current).cloned()
+    {
+        object.insert(legacy.into(), value);
     }
 }
 
@@ -179,5 +216,21 @@ pub(crate) mod tests {
             theme.render_html(&json!({})).err().unwrap().code,
             "ORIGINAL_THEME_RENDER"
         );
+    }
+
+    #[test]
+    fn old_template_keys_use_current_resume_fields_without_rewriting_the_resume() {
+        let theme = OriginalTheme::parse(&fixture(
+            r#"globalThis.__resumeOneTheme = {
+          render(r) { return r.work.map(w => w.company).join("|") + "|" + r.basics.website; }
+        }"#,
+        ))
+        .unwrap();
+        let data = json!({"basics":{"url":"https://example.test"},"work":[{"name":"标准字段"},{"name":"标准","company":"旧字段"}]});
+        assert_eq!(
+            theme.render_html(&data).unwrap().html,
+            "标准字段|旧字段|https://example.test"
+        );
+        assert!(data["work"][0].get("company").is_none());
     }
 }

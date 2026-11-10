@@ -1,0 +1,24 @@
+/* Preserve print styles except where a responsive web breakpoint or a
+   removed remote image would clip or displace content on paper. */
+[data-jianli-theme="original-executive-slate"] body > div:first-child {
+  grid-template-columns: minmax(0, 29%) minmax(0, 1fr);
+}
+[data-jianli-theme="original-executive-slate"] body > div:first-child > :is(aside,main) {
+  min-width: 0;
+  padding-inline: 26px;
+  overflow-wrap: anywhere;
+}
+[data-jianli-theme="original-executive-slate"] .resume-section {
+  break-inside: auto;
+}
+[data-jianli-theme="original-executive-slate"] aside .resume-date-range { color: #e2e8f0; }
+[data-jianli-theme="original-elegant"] .profile-card-wrapper .card {
+  min-height: 0;
+}
+[data-jianli-theme="original-elegant"] .profile-pic:not(:has(img)) { display: none; }
+[data-jianli-theme="original-kendall"] #photo-header { margin-top: 0; }
+[data-jianli-theme="original-lucide"] #resume {
+  width: 100%;
+  height: auto;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}

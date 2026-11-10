@@ -6,6 +6,8 @@ use crate::{ResumeOne, color, model::BuiltinTheme};
 
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 mod desktop;
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+mod editing;
 
 #[derive(Clone, PartialEq, Eq)]
 struct Key {
@@ -16,9 +18,10 @@ struct Key {
 
 impl Key {
     fn new(view: &ResumeOne, theme: &BuiltinTheme) -> Option<Self> {
+        let original = theme.original.as_ref()?;
         Some(Self {
             theme: theme.identity.clone(),
-            theme_revision: theme.original.as_ref()?.render_revision.clone(),
+            theme_revision: original.render_revision.clone(),
             resume_revision: view.model.document.revision.clone(),
         })
     }
@@ -33,19 +36,98 @@ pub(super) struct OriginalPreviewState {
     #[cfg(any(target_os = "macos", target_os = "windows"))]
     ready: bool,
     painted: Option<Key>,
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    painted_token: Option<u64>,
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    edit_session: Option<(u64, usize)>,
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    edit_revision: Option<String>,
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    edit_enabled: bool,
     sent: Option<(u64, Key)>,
     sequence: u64,
     canvas: Option<resume_one_core::theme_style::Rgb>,
     last_declarative: Option<BuiltinTheme>,
     error: Option<String>,
+    thumbnails: VecDeque<(Key, Option<Arc<gpui::Image>>)>,
+    thumbnail_pending: bool,
+    thumbnail_epoch: u64,
 }
 
 impl ResumeOne {
+    pub(super) fn original_thumbnail(&self, theme: &BuiltinTheme) -> Option<Arc<gpui::Image>> {
+        let key = Key::new(self, theme)?;
+        self.original_preview
+            .thumbnails
+            .iter()
+            .find_map(|(cached, image)| {
+                (cached.theme == key.theme && cached.theme_revision == key.theme_revision)
+                    .then(|| image.clone())
+                    .flatten()
+            })
+    }
+
+    fn request_original_thumbnail(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.original_preview.thumbnail_pending || !self.model.preview_ready {
+            return;
+        }
+        let offset = f32::from(self.theme_scroll.offset().y);
+        let height =
+            f32::from(self.theme_scroll.bounds().size.height).max(self.viewport_height - 210.);
+        let candidates = if self.online.online {
+            let Some(catalog) = self.online.catalog.as_ref() else {
+                return;
+            };
+            let entries = catalog.entries();
+            crate::theme_browser_ui::thumbnail_window(offset, height, entries.len())
+                .filter_map(|index| self.online.thumbnail_theme(&entries[index].id))
+                .collect::<Vec<_>>()
+        } else {
+            let themes = &self.model.themes;
+            themes[crate::theme_browser_ui::thumbnail_window(offset, height, themes.len())].to_vec()
+        };
+        let Some((key, original)) = candidates.iter().find_map(|theme| {
+            let key = Key::new(self, theme)?;
+            let original = theme.original.clone()?;
+            (!self
+                .original_preview
+                .thumbnails
+                .iter()
+                .any(|(cached, _)| cached == &key))
+            .then_some((key, original))
+        }) else {
+            return;
+        };
+        let resume = self.model.document.value.clone();
+        let epoch = self.original_preview.thumbnail_epoch;
+        self.original_preview.thumbnail_pending = true;
+        let job = cx.background_executor().spawn(async move {
+            resume_one_themes::thumbnail_original(&original, &resume)
+                .ok()
+                .map(|bytes| Arc::new(gpui::Image::from_bytes(gpui::ImageFormat::Png, bytes)))
+        });
+        cx.spawn_in(window, async move |this, cx| {
+            let image = job.await;
+            this.update_in(cx, |this, _, cx| {
+                let state = &mut this.original_preview;
+                state.thumbnail_pending = false;
+                if state.thumbnail_epoch == epoch {
+                    state.thumbnails.push_front((key, image));
+                    state.thumbnails.truncate(48);
+                }
+                cx.notify();
+            })
+            .ok();
+        })
+        .detach();
+    }
+
     pub(super) fn request_original_preview(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if self.source_mode || !self.model.preview_ready {
             self.original_preview.cancel_pending(None);
             return;
         }
+        self.request_original_thumbnail(window, cx);
         let displayed = self.display_theme();
         let (Some(theme), Some(key)) = (displayed.original.clone(), Key::new(self, displayed))
         else {
@@ -72,8 +154,13 @@ impl ResumeOne {
             return;
         };
         self.ensure_original_surface(window, cx);
+        let editable = self.structure_enabled()
+            && !self.insertion_active()
+            && self.original_surface_visible(self.recovery_pending)
+            && self.model.applied_theme().identity == key.theme;
         let state = &mut self.original_preview;
         state.cancel_pending(Some(&key));
+        state.set_edit_enabled(editable);
         if let Some(index) = state
             .recent
             .iter()
@@ -81,7 +168,12 @@ impl ResumeOne {
         {
             let entry = state.recent.remove(index).expect("entry was found");
             if let Ok(html) = &entry.1 {
-                state.present(&key, html, self.shell.style.colors.canvas);
+                state.present(
+                    &key,
+                    html,
+                    &self.model.document.value,
+                    self.shell.style.colors.canvas,
+                );
             }
             state.recent.push_front(entry);
         } else if !state.running && state.error.is_none() {
@@ -134,6 +226,10 @@ impl ResumeOne {
                             "ready" => {
                                 state.ready = true;
                                 state.painted = None;
+                                state.painted_token = None;
+                                state.edit_enabled = false;
+                                state.edit_revision = None;
+                                state.edit_session = None;
                                 state.sent = None;
                                 state.canvas = None;
                                 cx.notify();
@@ -156,6 +252,9 @@ impl ResumeOne {
                             "dismiss" => {
                                 this.dismiss_inline(&crate::inline_ui::DismissInline, window, cx)
                             }
+                            message if message.starts_with('{') => {
+                                this.edit_original_field(message, window, cx);
+                            }
                             _ => {
                                 if let Some((token, key)) = state.sent.as_ref()
                                     && message
@@ -164,6 +263,7 @@ impl ResumeOne {
                                         == Some(*token)
                                 {
                                     state.painted = Some(key.clone());
+                                    state.painted_token = Some(*token);
                                     state.sent = None;
                                     cx.notify();
                                 }
@@ -264,13 +364,24 @@ impl OriginalPreviewState {
         self.hide();
         self.painted = None;
         self.sent = None;
+        self.thumbnail_epoch = self.thumbnail_epoch.wrapping_add(1);
+        self.thumbnails.clear();
         #[cfg(any(target_os = "macos", target_os = "windows"))]
-        if let Some(desktop) = self.desktop.as_ref().filter(|_| self.ready) {
-            let _ = desktop.evaluate("jianliReset()");
+        {
+            self.painted_token = None;
+            self.edit_revision = None;
+            self.edit_session = None;
+            self.set_edit_enabled(false);
+            if let Some(desktop) = self.desktop.as_ref().filter(|_| self.ready) {
+                let _ = desktop.evaluate("jianliReset()");
+            }
         }
     }
 
     fn cancel_pending(&mut self, keep: Option<&Key>) {
+        if keep.is_none() {
+            self.set_edit_enabled(false);
+        }
         if self.sent.as_ref().is_some_and(|(_, key)| Some(key) != keep) {
             self.sent = None;
             #[cfg(any(target_os = "macos", target_os = "windows"))]
@@ -278,6 +389,20 @@ impl OriginalPreviewState {
                 let _ = desktop.evaluate("jianliCancel()");
             }
         }
+    }
+
+    fn set_edit_enabled(&mut self, enabled: bool) {
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        if self.edit_enabled != enabled
+            && let Some(desktop) = self.desktop.as_ref().filter(|_| self.ready)
+            && desktop
+                .evaluate(&format!("jianliEditEnabled({enabled})"))
+                .is_ok()
+        {
+            self.edit_enabled = enabled;
+        }
+        #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+        let _ = enabled;
     }
 
     pub(super) fn hide(&self) {
@@ -288,7 +413,13 @@ impl OriginalPreviewState {
     }
 
     #[cfg(any(target_os = "macos", target_os = "windows"))]
-    fn present(&mut self, key: &Key, html: &str, canvas: resume_one_core::theme_style::Rgb) {
+    fn present(
+        &mut self,
+        key: &Key,
+        html: &str,
+        resume: &serde_json::Value,
+        canvas: resume_one_core::theme_style::Rgb,
+    ) {
         let Some(desktop) = self.desktop.as_ref().filter(|_| self.ready) else {
             return;
         };
@@ -308,7 +439,11 @@ impl OriginalPreviewState {
         self.sequence += 1;
         let html = serde_json::to_string(html).expect("encode HTML as a JS string");
         let token = self.sequence;
-        if let Err(error) = desktop.evaluate(&format!("jianliRender({html}, {token})")) {
+        let identity = serde_json::to_string(&key.theme).expect("theme identity");
+        let targets = editing::targets(resume);
+        if let Err(error) = desktop.evaluate(&format!(
+            "jianliRender({html}, {token}, {identity}, {targets})"
+        )) {
             self.error = Some(error);
         } else {
             self.sent = Some((token, key.clone()));
@@ -316,5 +451,12 @@ impl OriginalPreviewState {
     }
 
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
-    fn present(&mut self, _: &Key, _: &str, _: resume_one_core::theme_style::Rgb) {}
+    fn present(
+        &mut self,
+        _: &Key,
+        _: &str,
+        _: &serde_json::Value,
+        _: resume_one_core::theme_style::Rgb,
+    ) {
+    }
 }

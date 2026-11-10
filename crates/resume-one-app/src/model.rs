@@ -67,7 +67,23 @@ impl BuiltinTheme {
             .collect();
         manifest.normalized["license"] = serde_json::json!(theme.license);
         manifest.normalized["version"] = serde_json::json!(theme.version);
-        manifest.normalized["description"] = serde_json::json!(theme.package);
+        let description = match theme.id.as_str() {
+            "original-academic-cv-lite" => "居中页眉 · 学术履历",
+            "original-colophon" => "编辑风格 · 栏目侧标",
+            "original-elegant" => "独立页眉 · 细线分区",
+            "original-even" => "浅灰页眉 · 双列阅读",
+            "original-executive-slate" => "石蓝侧栏 · 商务双列",
+            "original-flat" => "赭金标题 · 栏目侧标",
+            "original-kendall" => "居中页眉 · 蓝绿双列",
+            "original-lucide" => "亮蓝侧栏 · 清晰层级",
+            "original-macchiato" => "墨绿细线 · 左栏信息",
+            "original-minyma" => "居中姓名 · 黑白留白",
+            "original-paper-plus-plus" => "纸本表格 · 左侧栏目",
+            "original-pro" => "衬线姓名 · 细线分隔",
+            "original-pumpkin" => "墨黑页眉 · 金色点缀",
+            _ => "",
+        };
+        manifest.normalized["description"] = serde_json::json!(description);
         manifest.normalized["provenance"] = serde_json::json!({
             "upstreamUrl": theme.upstream, "upstreamRevision": theme.version, "upstreamAuthor": theme.author
         });

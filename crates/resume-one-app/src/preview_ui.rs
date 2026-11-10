@@ -1257,12 +1257,12 @@ impl ResumeOne {
             .bg(color(style.colors.paper))
             .shadow_sm();
         if let Some(theme) = theme {
-            if theme.original.is_some() {
-                thumb = thumb
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .child(crate::chrome::icon("file", style.colors.accent));
+            if let Some(image) = self.original_thumbnail(theme) {
+                thumb = thumb.child(
+                    gpui::img(image)
+                        .size_full()
+                        .object_fit(gpui::ObjectFit::Contain),
+                );
             } else if let Ok(data) = self.preview.resolve(&self.model, theme) {
                 let scale = 48. / (data.layout.width_mm * PT_PER_MM);
                 thumb = thumb.child(page_canvas(data, 0, scale));

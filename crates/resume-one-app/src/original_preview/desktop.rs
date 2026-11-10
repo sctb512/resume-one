@@ -18,8 +18,9 @@ impl Desktop {
         window: &Window,
         sender: mpsc::UnboundedSender<String>,
     ) -> Result<Rc<Self>, String> {
+        let html = include_str!("shell.html").replace("/* EDITING */", include_str!("editing.js"));
         let webview = WebViewBuilder::new()
-            .with_html(include_str!("shell.html"))
+            .with_html(html)
             .with_incognito(true)
             .with_focused(false)
             .with_visible(false)
@@ -32,7 +33,7 @@ impl Desktop {
             .with_drag_drop_handler(|_| true)
             .with_ipc_handler(move |request| {
                 let message: &String = request.body();
-                if message.len() <= 64 {
+                if message.len() <= 96 * 1024 {
                     let _ = sender.unbounded_send(message.clone());
                 }
             })

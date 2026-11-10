@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; frame-src 'self' about:; img-src data:; font-src data:; base-uri 'none'; form-action 'none'">
+<style>
+  html { scrollbar-width: thin; }
+  body { margin: 0; background: var(--canvas, #f5f4f2); }
+  main { padding: 24px 22px 58px; }
+  iframe {
+    display: block;
+    width: 794px;
+    height: 1123px;
+    border: 0;
+    margin-inline: auto;
+    background: white;
+    box-shadow: 0 2px 12px #0002;
+  }
+</style>
+</head>
+<body>
+<main aria-label="原版简历预览"></main>
+<script>
+  const stage = document.querySelector("main");
+  let pending = null;
+  let current = null;
+  let observer = null;
+  const resize = () => {
+    const zoom = Math.min(1, Math.max(.45, (document.documentElement.clientWidth - 44) / 794));
+    stage.style.zoom = zoom;
+  };
+  addEventListener("resize", resize);
+  resize();
+
+  function forwardShortcut(event) {
+    const modifier = event.metaKey || event.ctrlKey;
+    const key = event.key.toLowerCase();
+    let action;
+    if (modifier && !event.altKey) {
+      if (key === "/") action = "source";
+      if (key === "s") action = event.shiftKey ? "save-as" : "save";
+      if (key === "z") action = event.shiftKey ? "redo" : "undo";
+      if (key === "y") action = "redo";
+    } else if (key === "escape") {
+      action = "dismiss";
+    }
+    if (action) {
+      event.preventDefault();
+      window.ipc.postMessage(action);
+    }
+  }
+  addEventListener("keydown", forwardShortcut, true);
+
+  window.jianliCanvas = color => document.body.style.setProperty("--canvas", color);
+  window.jianliCancel = () => {
+    pending?.remove();
+    pending = null;
+  };
+  window.jianliReset = () => {
+    window.jianliCancel();
+    observer?.disconnect();
+    current = null;
+    stage.replaceChildren();
+  };
+  window.jianliRender = (html, token) => {
+    window.jianliCancel();
+    const next = document.createElement("iframe");
+    pending = next;
+    next.title = "简历";
+    // The parent may read dimensions and bridge keyboard commands. The theme
+    // itself cannot execute scripts, submit forms or open new windows.
+    next.setAttribute("sandbox", "allow-same-origin");
+    next.style.cssText = "position:absolute; visibility:hidden; top:0";
+    next.addEventListener("load", () => {
+      if (pending !== next) return;
+      const scroll = document.scrollingElement.scrollTop;
+      observer?.disconnect();
+      const page = next.contentDocument;
+      if (page?.body) {
+        const measure = () => {
+          if (next !== current) return;
+          const height = Math.ceil(Math.max(page.body.scrollHeight, page.documentElement.scrollHeight));
+          const size = Math.max(1123, Math.min(16000, height));
+          next.style.height = size + "px";
+        };
+        page.addEventListener("keydown", forwardShortcut, true);
+        observer = new ResizeObserver(measure);
+        observer.observe(page.body);
+        current = next;
+        measure();
+      } else {
+        current = next;
+      }
+      const height = next.style.height;
+      next.style.cssText = "";
+      if (height) next.style.height = height;
+      stage.replaceChildren(next);
+      document.scrollingElement.scrollTop = scroll;
+      pending = null;
+      window.ipc.postMessage("painted:" + token);
+    }, { once: true });
+    next.srcdoc = html;
+    stage.append(next);
+  };
+  window.ipc.postMessage("ready");
+</script>
+</body>
+</html>

@@ -1258,9 +1258,11 @@ impl ResumeOne {
             .shadow_sm();
         if let Some(theme) = theme {
             if theme.original.is_some() {
-                if let Some(image) = self.original_thumbnail(theme) {
-                    thumb = thumb.child(image);
-                }
+                thumb = thumb
+                    .flex()
+                    .items_center()
+                    .justify_center()
+                    .child(crate::chrome::icon("file", style.colors.accent));
             } else if let Ok(data) = self.preview.resolve(&self.model, theme) {
                 let scale = 48. / (data.layout.width_mm * PT_PER_MM);
                 thumb = thumb.child(page_canvas(data, 0, scale));

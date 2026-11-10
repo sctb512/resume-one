@@ -4,10 +4,11 @@ mod browser;
 mod cache;
 mod client;
 mod original;
+mod preview_html;
 mod release;
 mod source;
 
-pub use browser::{OriginalPreview, preview_original, print_original};
+pub use browser::print_original;
 pub use cache::ThemeCache;
 pub use client::{CatalogResult, GithubClient, HttpResponse, Transport, UreqTransport};
 pub use original::{ORIGINAL_THEME_SUFFIX, OriginalTheme};

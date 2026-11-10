@@ -40,7 +40,7 @@ CLI 的 `set-field` 已支持标准文本字段修改、清空、Schema 校验�
 
 在线源与 CLI `themes` 命令共用 GitHub commit 固定、索引及哈希校验、256 MiB 有界缓存和离线回退。桌面预发布版初始配置为公开主题仓库 `sctb512/resume-one-themes` 的 `main/originals/index.json`，已保存的在线源列表优先。默认匿名读取 GitHub，无需登录。使用方式见[用户手册](./docs/user-manual.md)。
 
-「在线」默认提供「迁移版社区主题」和「原版 JSON Resume」，由 [主题仓库](https://github.com/sctb512/resume-one-themes) 分发。迁移版包含 67 套声明式适配，随包提供字体和许可文件。原版复用已验证的上游模板，在本机用当前简历渲染并支持 PDF，需要 Chrome、Edge 或 Chromium。可在「管理」中设置来源的展示名称，或右键下载主题供离线使用。包格式见[原版主题包规范](./spec/json-resume-original-theme.md)。
+「在线」默认提供「迁移版社区主题」和「原版 JSON Resume」，由 [主题仓库](https://github.com/sctb512/resume-one-themes) 分发。67 套声明式适配通过在线源分发，随包提供字体和许可文件。默认本地列表展示原生主题及用户主动保存的主题。原版复用已验证的上游模板，在应用内用当前简历实时渲染 HTML。macOS 使用系统 WebKit，Windows 使用 WebView2 Runtime。原版 PDF 导出使用 Chrome、Edge 或 Chromium。可在「管理」中设置来源的展示名称，或右键下载主题供离线使用。包格式见[原版主题包规范](./spec/json-resume-original-theme.md)。
 
 仓库正在按功能逐项实现和验收。已完成共享的、**不执行代码**的声明式主题 v1/v2 校验、v1 内存适配与可读性约束下的主题视觉 token 解析，以及 JSON Resume 内容校验、字节级 revision、带 revision 守卫的原子 JSON Patch（含预演）、标准模块/条目的 Schema 安全增删、独立的本地文档 CLI，以及 PDF、可编辑 DOCX、纯文本和 Markdown 导出。仓库现有 [20 套原生声明式主题文件](./assets/themes/)；桌面应用首次运行会将其安全安装到默认本地主题目录，后续仅对字节哈希与旧内置版完全一致的文件自动升级，用户改动不覆盖。支持更换唯一的本地目录、恢复默认目录、右键定位实际文件，以及左侧悬停试穿和点击选中。原生 JSON 编辑器已支持快捷键切换、实时更新有效预览、Schema 错误提示、格式化与撤销、带版本冲突保护的保存和私有恢复草稿；切换时主题栏连续收放，中央视图交接，而右侧模块栏始终固定。预览页和 JSON 视图右栏均已可增删标准模块与条目，并与 JSON 草稿和撤销链路同步。独立的主题迁移 CLI 已支持 v1→v2 升级，以及对第三方 npm/HTML/CSS/JS 主题目录做**低置信度静态提取**；后者只把十六进制或不透明整数 RGB 配色及包元数据写入候选，并在报告中列出有界的字体声明与布局线索，不是视觉等效迁移，必须人工重建布局并验收许可。
 

@@ -131,6 +131,12 @@ impl OriginalTheme {
             Ok(RenderedHtml { html, print })
         })
     }
+
+    /// Prepare a static document for the desktop's live browser surface.
+    pub fn render_preview_html(&self, resume: &Value) -> Result<String, ThemeError> {
+        let rendered = self.render_html(resume)?;
+        crate::preview_html::prepare(&rendered.html, &self.stylesheets, MAX_HTML_BYTES)
+    }
 }
 
 #[cfg(test)]

@@ -511,9 +511,6 @@ impl ThemeStore {
         let mut warnings = Self::seed_defaults(directory)?;
         let mut themes = Vec::new();
         for path in Self::theme_paths(directory)? {
-            if hide_legacy && crate::legacy_community::is_previous_default(&path) {
-                continue;
-            }
             let identity = format!(
                 "local:{}",
                 path.canonicalize()
@@ -544,6 +541,9 @@ impl ThemeStore {
                     continue;
                 }
             };
+            if hide_legacy && crate::legacy_community::is_previous_default(&path, &manifest) {
+                continue;
+            }
             if let Err(error) = resume_one_core::layout::check_theme(&manifest) {
                 warnings.push(format!("{}：{error}", path.display()));
                 continue;
@@ -1072,6 +1072,47 @@ mod tests {
         assert_eq!(original.path.as_deref(), Some(file.as_path()));
         assert_eq!(original.manifest.modules.len(), crate::SECTION_LABELS.len());
         assert_eq!(themes.len(), BUILTIN_THEMES.len() + 1);
+    }
+
+    #[test]
+    fn legacy_migrations_are_hidden_only_at_their_default_seed_paths() {
+        let root = tempfile::tempdir().unwrap();
+        let directory = root.path();
+        let id = "community-colophon";
+        let mut theme: Value = serde_json::from_str(BUILTIN_THEMES[0]).unwrap();
+        theme["id"] = json!(id);
+        theme["provenance"] = json!({
+            "upstreamUrl": "https://example.com/colophon",
+            "upstreamRevision": "1.0.0",
+            "upstreamAuthor": "Example",
+            "upstreamLicense": "MIT",
+            "migratedBy": "resume-one-theme-migrate --adapt",
+            "fidelity": "adapted",
+        });
+        let write = |name| {
+            let package = directory.join(name);
+            fs::create_dir(&package).unwrap();
+            let file = package.join("theme.json");
+            fs::write(&file, serde_json::to_vec(&theme).unwrap()).unwrap();
+            file
+        };
+        let old = write(id);
+        let downloaded = write("000000000000-community-colophon-000000000000");
+        for (hide_legacy, expected) in [(true, 1), (false, 2)] {
+            let (themes, warnings) = ThemeStore::scan(directory, hide_legacy).unwrap();
+            assert!(warnings.is_empty(), "{warnings:?}");
+            let copies: Vec<_> = themes
+                .iter()
+                .filter(|theme| theme.manifest.id == id)
+                .collect();
+            assert_eq!(copies.len(), expected);
+            assert!(
+                copies
+                    .iter()
+                    .any(|theme| theme.path.as_ref() == Some(&downloaded))
+            );
+        }
+        assert!(old.is_file());
     }
 
     #[test]

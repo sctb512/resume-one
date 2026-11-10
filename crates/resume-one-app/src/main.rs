@@ -714,14 +714,17 @@ impl ResumeOne {
             }))
     }
 
-    fn preview_surface(&self, cx: &mut Context<Self>) -> impl IntoElement {
+    fn preview_surface(&self, show_original: bool, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.active_style();
+        let theme = self.display_theme();
+        let original = self.model.preview_ready && theme.original.is_some();
         div()
             .id("resume-preview")
             .debug_selector(|| "resume-preview".to_string())
             .w_full()
             .h_full()
-            .overflow_scroll()
+            .when(original, |view| view.flex().flex_col())
+            .when(!original, |view| view.overflow_scroll())
             .track_scroll(&self.preview_scroll)
             .on_scroll_wheel(cx.listener(|this, _, _, cx| this.preview_scrolled(cx)))
             .bg(color(self.shell_style().colors.canvas))
@@ -732,7 +735,10 @@ impl ResumeOne {
                     .bg(color(p.panel)).text_size(px(12.)).text_color(color(p.ink))
                     .child("JSON 尚有错误 · 当前显示上次有效内容，只读。请按 ⌘/ 或 Ctrl+/ 返回修复。"))
             })
-            .child(
+            .when(original, |view| {
+                view.child(div().flex_1().min_h_0().w_full().child(self.original_surface(show_original, cx)))
+            })
+            .when(!original, |preview| preview.child(
                 div()
                     .w_full()
                     .min_w(px(style.page.width_mm * 3.0 * self.preview_scale + 44.0))
@@ -741,12 +747,7 @@ impl ResumeOne {
                     .flex()
                     .justify_center()
                     .when(self.model.preview_ready, |view| {
-                        let theme = self.display_theme();
-                        if theme.original.is_some() {
-                            view.child(self.original_paper(theme, cx))
-                        } else {
-                            view.child(self.resume_pages(theme, true, cx))
-                        }
+                        view.child(self.resume_pages(theme, true, cx))
                     })
                     .when(!self.model.preview_ready, |view| {
                         view.child(
@@ -763,7 +764,7 @@ impl ResumeOne {
                                 .child("简历尚未通过校验，请切换到 JSON 编辑修复。"),
                         )
                     }),
-            )
+            ))
     }
 
     fn module_sidebar(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
@@ -1156,6 +1157,10 @@ impl Render for ResumeOne {
             window.request_animation_frame();
         }
         let dialogs = gpui_component::Root::render_dialog_layer(window, cx);
+        let show_original = self.original_surface_visible(dialogs.is_some());
+        if !show_original {
+            self.original_preview.hide();
+        }
         let progress = self.sidebar_progress;
         let preview_alpha = 1.0 - self.view_blend;
         let json_alpha = self.view_blend;
@@ -1253,7 +1258,7 @@ impl Render for ResumeOne {
                                                 .absolute()
                                                 .size_full()
                                                 .opacity(preview_alpha)
-                                                .child(self.preview_surface(cx)),
+                                                .child(self.preview_surface(show_original, cx)),
                                         )
                                     })
                                     .when(progress > 0.0 || self.source_mode, |surface| {

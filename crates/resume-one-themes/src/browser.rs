@@ -1,4 +1,4 @@
-//! Chromium is a disposable, non-interactive HTML painter, separate from QuickJS.
+//! Isolated Chromium PDF export for original themes.
 use std::{
     fs, io,
     net::{Ipv4Addr, SocketAddr, TcpStream},
@@ -17,46 +17,7 @@ use crate::{OriginalTheme, ThemeError, original::RenderedHtml};
 
 const VIEWPORT_WIDTH: u32 = 794;
 const VIEWPORT_HEIGHT: u32 = 1123;
-const MAX_PREVIEW_HEIGHT: u32 = 16_000;
 const TIMEOUT: Duration = Duration::from_secs(12);
-
-pub struct OriginalPreview {
-    pub strips: Vec<(u32, Vec<u8>)>,
-    pub width: u32,
-}
-
-pub fn preview_original(
-    theme: &OriginalTheme,
-    resume: &Value,
-) -> Result<OriginalPreview, ThemeError> {
-    let rendered = theme.render_html(resume)?;
-    let mut browser = Browser::open(&rendered.html, &theme.stylesheets)?;
-    let bounds = browser.call("Page.getLayoutMetrics", json!({}))?;
-    let height = bounds["cssContentSize"]["height"]
-        .as_f64()
-        .filter(|height| height.is_finite() && *height <= f64::from(MAX_PREVIEW_HEIGHT))
-        .ok_or_else(|| {
-            ThemeError::new(
-                "ORIGINAL_PREVIEW_SIZE",
-                "原版主题预览超过 16000 像素，请使用 PDF 查看完整内容",
-            )
-        })?
-        .ceil() as u32;
-    let height = height.max(VIEWPORT_HEIGHT);
-    let mut strips = Vec::new();
-    for y in (0..height).step_by(VIEWPORT_HEIGHT as usize) {
-        let strip_height = (height - y).min(VIEWPORT_HEIGHT);
-        let response = browser.call("Page.captureScreenshot", json!({
-            "format": "png", "captureBeyondViewport": true,
-            "clip": {"x": 0, "y": y, "width": VIEWPORT_WIDTH, "height": strip_height, "scale": 1}
-        }))?;
-        strips.push((strip_height, decode(&response)?));
-    }
-    Ok(OriginalPreview {
-        strips,
-        width: VIEWPORT_WIDTH,
-    })
-}
 
 pub fn print_original(theme: &OriginalTheme, resume: &Value) -> Result<Vec<u8>, ThemeError> {
     let rendered = theme.render_html(resume)?;
@@ -401,7 +362,7 @@ mod tests {
 
     #[test]
     #[ignore = "requires a local Chromium-family browser"]
-    fn browser_paints_and_prints_without_loading_external_resources() {
+    fn browser_prints_without_loading_external_resources() {
         use std::net::TcpListener;
 
         let trap = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
@@ -422,10 +383,6 @@ mod tests {
         );
         let theme = OriginalTheme::parse(&crate::original::tests::fixture(&render)).unwrap();
         let resume = json!({"basics":{"name":"Private fixture"}});
-        let preview = preview_original(&theme, &resume).unwrap();
-        assert_eq!(preview.width, VIEWPORT_WIDTH);
-        assert_eq!(preview.strips[0].0, VIEWPORT_HEIGHT);
-        assert!(preview.strips[0].1.starts_with(b"\x89PNG\r\n\x1a\n"));
         assert!(
             print_original(&theme, &resume)
                 .unwrap()
@@ -435,8 +392,8 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires local Chromium and the theme repository checkout"]
-    fn original_catalog_paints_every_pinned_theme() {
+    #[ignore = "requires the theme repository checkout"]
+    fn original_catalog_renders_each_theme_with_current_resume() {
         let index = PathBuf::from(
             std::env::var_os("RESUME_ONE_ORIGINAL_CATALOG").expect("path to original index"),
         );
@@ -452,10 +409,18 @@ mod tests {
         for entry in catalog.entries() {
             let bytes = fs::read(index.parent().unwrap().join(&entry.manifest)).unwrap();
             let verified = crate::VerifiedTheme::parse(entry, &bytes).unwrap();
-            let preview = preview_original(verified.original().unwrap(), &resume)
+            let theme = verified.original().unwrap();
+            let before = theme
+                .render_preview_html(&resume)
                 .unwrap_or_else(|error| panic!("{}: {error}", entry.id));
-            assert_eq!(preview.width, VIEWPORT_WIDTH);
-            assert!(preview.strips[0].1.starts_with(b"\x89PNG\r\n\x1a\n"));
+            let mut edited = resume.clone();
+            edited["basics"]["name"] = json!("JianliLivePreview");
+            let after = theme
+                .render_preview_html(&edited)
+                .unwrap_or_else(|error| panic!("{}: {error}", entry.id));
+            assert!(before.contains("林清和"), "{}", entry.id);
+            assert!(after.contains("JianliLivePreview"), "{}", entry.id);
+            assert!(!after.contains("林清和"), "{}", entry.id);
         }
     }
 

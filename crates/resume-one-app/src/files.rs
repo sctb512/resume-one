@@ -235,6 +235,7 @@ impl ResumeOne {
         self.theme_hover_candidate = None;
         self.online.cancel_interaction();
         self.preview_scroll.set_offset(gpui::point(px(0.), px(0.)));
+        self.original_preview.reset_document();
         self.model.new_document();
         self.reset_editor_for_new_document(window, cx);
         self.source_mode = false;
@@ -539,6 +540,7 @@ impl ResumeOne {
         self.preview_scroll
             .set_offset(gpui::point(px(0.0), px(0.0)));
         let path = opened.path.clone();
+        self.original_preview.reset_document();
         self.model.apply_opened(opened);
         self.remember_file(&path);
         self.reset_editor_for_document(window, cx);

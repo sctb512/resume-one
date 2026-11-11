@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "projects": "代表作品"
+    }
+  },
+  "en": {
+    "name": "Dune",
+    "description": "Warm paper, selected work first",
+    "sections": {
+      "projects": "Selected Work"
+    }
+  }
+}

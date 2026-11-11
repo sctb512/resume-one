@@ -76,7 +76,7 @@ try {
     }
     Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination $bundle -Force
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json') -Destination (Join-Path $bundle 'assets') -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json'), (Join-Path $repoRoot 'assets\example.en.resume.json') -Destination (Join-Path $bundle 'assets') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\gpui-component\LICENSE-APACHE') -Destination (Join-Path $bundle 'vendor\gpui-component') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\fonts\OFL-*.txt') -Destination (Join-Path $bundle 'assets\fonts') -Force
     $fontFiles = @(
@@ -87,7 +87,7 @@ try {
     Copy-Item -Path (Join-Path $repoRoot 'docs\*.md') -Destination (Join-Path $bundle 'docs') -Force
     Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
-    Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json') -Destination (Join-Path $bundle 'assets\themes') -Force
+    Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json'), (Join-Path $repoRoot 'assets\themes\*.localizations.txt') -Destination (Join-Path $bundle 'assets\themes') -Force
     if ($env:RESUME_ONE_RELEASE_TAG) {
         Set-Content -LiteralPath (Join-Path $bundle 'release-tag.txt') -Value $env:RESUME_ONE_RELEASE_TAG -Encoding ascii
     }

@@ -9,6 +9,7 @@ use std::{
 };
 
 use base64::{Engine, engine::general_purpose::STANDARD};
+use resume_one_core::render::Language;
 use serde_json::{Value, json};
 use tempfile::TempDir;
 use tungstenite::{Message, WebSocket, client::client_with_config, protocol::WebSocketConfig};
@@ -20,15 +21,37 @@ const VIEWPORT_HEIGHT: u32 = 1123;
 const TIMEOUT: Duration = Duration::from_secs(12);
 
 pub fn print_original(theme: &OriginalTheme, resume: &Value) -> Result<Vec<u8>, ThemeError> {
+    print_localized_original(theme, resume, Language::En)
+}
+
+pub fn print_localized_original(
+    theme: &OriginalTheme,
+    resume: &Value,
+    language: Language,
+) -> Result<Vec<u8>, ThemeError> {
     let rendered = theme.render_html(resume)?;
-    let mut browser = Browser::open(&rendered.html, &theme.stylesheets, Some(&theme.id))?;
+    let html = crate::preview_html::localize_headings(
+        &rendered.html,
+        resume,
+        language,
+        crate::original::MAX_HTML_BYTES,
+    )?;
+    let mut browser = Browser::open(&html, &theme.stylesheets, Some(&theme.id))?;
     let response = browser.call("Page.printToPDF", print_options(&rendered))?;
     decode(&response)
 }
 
 /// A small local rendering of the same screen HTML used in the desktop.
 pub fn thumbnail_original(theme: &OriginalTheme, resume: &Value) -> Result<Vec<u8>, ThemeError> {
-    let html = theme.render_preview_html(resume)?;
+    thumbnail_localized_original(theme, resume, Language::En)
+}
+
+pub fn thumbnail_localized_original(
+    theme: &OriginalTheme,
+    resume: &Value,
+    language: Language,
+) -> Result<Vec<u8>, ThemeError> {
+    let html = theme.render_localized_preview_html(resume, language)?;
     let mut browser = Browser::open(&html, &Value::Null, None)?;
     let response = browser.call(
         "Page.captureScreenshot",

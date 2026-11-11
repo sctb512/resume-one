@@ -1015,9 +1015,7 @@ mod tests {
             "sidebar-left",
             "sidebar-right",
         ] {
-            let mut theme =
-                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                    .unwrap();
+            let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
             theme.normalized["page"]["marginsMm"]["top"] = serde_json::json!(26.99);
             theme.normalized["composition"] = serde_json::json!({"preset":preset});
             if preset == "split-header" {
@@ -1068,9 +1066,7 @@ mod tests {
     fn empty_first_card_cannot_insert_a_spacer_that_breaks_heading_keep_chain() {
         let content = project(&parse_resume(br#"{"work":[{},{"name":"VISIBLE"}]}"#).unwrap());
         for avoid_split in [true, false] {
-            let mut theme =
-                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                    .unwrap();
+            let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
             theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","items":"cards","entryHeader":[{"role":"body","parts":[{"field":"name"}]}]});
             let mut style = ThemeStyle::from_manifest(&theme);
             style.page.keep_heading_with_first_item = true;
@@ -1094,8 +1090,7 @@ mod tests {
         let content = project(
             &parse_resume(br#"{"work":[{"position":"SMALL","summary":"BIGNEXT"}]}"#).unwrap(),
         );
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["typography"]["body"] =
             serde_json::json!({"family":"cjk-sans","weight":400,"sizePt":42,"lineHeight":1});
         theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[{"role":"body","parts":[{"field":"position"}],"style":{"sizePt":7,"lineHeight":1},"spaceAfterPt":5}]});
@@ -1120,8 +1115,7 @@ mod tests {
     #[test]
     fn entry_header_uses_editable_rows_and_preserves_first_row_spacing_and_field_order() {
         let content=project(&parse_resume(br#"{"work":[{"position":"POSITION & <value>","name":"ORGANIZATION","location":"HIDDEN_LOCATION","summary":"BODY"}]}"#).unwrap());
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
             {"role":"itemTitle","parts":[{"field":"position"}],"style":{"sizePt":14,"color":"#123456"},"spaceBeforePt":7,"spaceAfterPt":3},
             {"role":"body","parts":[{"field":"name","prefix":"At "}],"style":{"color":"#345678"}}
@@ -1149,10 +1143,9 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let bytes = include_bytes!("../tests/fixtures/theme-italic-font.ttf");
         std::fs::write(root.path().join("font.ttf"), bytes).unwrap();
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                .unwrap()
-                .normalized;
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES)
+            .unwrap()
+            .normalized;
         theme["assets"] = serde_json::json!({"fonts":[{"id":"header-italic","path":"font.ttf","sha256":"b294f4c5f3de886047ba99bc78854ee2e59dbb2eb47729f0ae8f5526c77fcae2","license":"OFL-1.1"}]});
         theme["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[{"role":"body","parts":[{"field":"name"}],"style":{"family":"asset:header-italic","fontStyle":"italic","weight":400}}]});
         std::fs::write(root.path().join("test.theme.json"), theme.to_string()).unwrap();
@@ -1192,9 +1185,7 @@ mod tests {
             "sidebar-right",
         ] {
             for heading in ["plain", "line", "accent-line", "filled"] {
-                let mut theme =
-                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                        .unwrap();
+                let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                 theme.normalized["composition"] = serde_json::json!({"preset":preset});
                 if preset.starts_with("sidebar") {
                     theme.normalized["composition"]["placements"] =
@@ -1236,9 +1227,7 @@ mod tests {
             "sidebar-right",
         ] {
             for date in ["inline", "left", "right"] {
-                let mut theme =
-                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                        .unwrap();
+                let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                 theme.normalized["composition"] = serde_json::json!({"preset":preset});
                 if preset.starts_with("sidebar") {
                     theme.normalized["composition"]["placements"] =
@@ -1287,8 +1276,7 @@ mod tests {
 
     #[test]
     fn heading_alignment_uses_editable_paragraphs_without_moving_body_or_rules() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         for heading in ["plain", "line", "accent-line", "filled"] {
             theme.normalized["sections"]["work"] = serde_json::json!({"heading":heading});
             let left_style = ThemeStyle::from_manifest(&theme);
@@ -1352,8 +1340,7 @@ mod tests {
             include_bytes!("../tests/fixtures/theme-font.ttf").to_vec(),
         )
         .unwrap();
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.asset_fonts.insert("fixture".into(), id);
         theme.normalized["typography"]["body"] = serde_json::json!({
             "family":"asset:fixture", "weight":400, "color":"#123456", "trackingEm":0.12
@@ -1391,8 +1378,7 @@ mod tests {
             include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
         )
         .unwrap();
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.asset_fonts.insert("italic-fixture".into(), id);
         for role in [
             "body",
@@ -1453,8 +1439,7 @@ mod tests {
 
     #[test]
     fn independent_label_summary_and_side_date_are_editable_styled_runs() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["typography"]["label"] = serde_json::json!({"sizePt":14,"family":"cjk-serif","weight":600,"textTransform":"lowercase"});
         theme.normalized["typography"]["summary"] =
             serde_json::json!({"sizePt":12,"lineHeight":1.8});
@@ -1485,8 +1470,7 @@ mod tests {
 
     #[test]
     fn tracks_and_transforms_editable_text_in_paragraphs_date_tabs_and_chips() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         for role in ["name", "sectionTitle", "meta"] {
             theme.normalized["typography"][role]["trackingEm"] = serde_json::json!(0.1);
             theme.normalized["typography"][role]["textTransform"] = serde_json::json!("uppercase");
@@ -1884,9 +1868,13 @@ mod tests {
         let content = project(&parse_resume(br#"{"basics":{"name":"Name"}}"#).unwrap());
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/themes");
         let mut count = 0;
-        for entry in std::fs::read_dir(root).unwrap() {
-            let source = std::fs::read(entry.unwrap().path()).unwrap();
-            let theme = crate::parse_theme(&source).unwrap();
+        for entry in std::fs::read_dir(&root).unwrap() {
+            let path = entry.unwrap().path();
+            if !path.to_string_lossy().ends_with(".theme.json") {
+                continue;
+            }
+            let theme =
+                crate::load_theme(&root, std::path::Path::new(path.file_name().unwrap())).unwrap();
             assert!(
                 docx_rs::read_docx(&render_with_theme(&content, Language::Zh, &theme).unwrap())
                     .unwrap()
@@ -1959,8 +1947,7 @@ mod tests {
 
     #[test]
     fn rejects_unsupported_theme_instead_of_flattening() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["composition"] = serde_json::json!({"preset":"sidebar-left"});
         let content = project(&parse_resume(b"{}").unwrap());
         assert!(
@@ -1974,8 +1961,7 @@ mod tests {
     #[test]
     fn header_summary_owns_the_editable_rule_without_inheriting_center_alignment() {
         let content = project(&parse_resume(br#"{"basics":{"name":"Identity","summary":"Summary body","email":"contact@example.com"}}"#).unwrap());
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         for header in ["stacked", "centered", "split"] {
             theme.normalized["composition"] = serde_json::json!({"preset":"single-column", "header":header, "summaryRegion":"header"});
             theme.normalized["layout"] = serde_json::json!("classic");

@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "projects": "代表项目"
+    }
+  },
+  "en": {
+    "name": "Dusk",
+    "description": "Copper timeline, projects first",
+    "sections": {
+      "projects": "Selected Projects"
+    }
+  }
+}

@@ -257,8 +257,7 @@ mod tests {
 
     #[test]
     fn personal_palette_overrides_exact_role_colors_without_mutating_the_author_theme() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let groups: &[(&str, &[&str])] = &[
             ("ink", &["body", "name", "itemTitle", "summary"]),
             ("muted", &["meta", "sideDate"]),
@@ -296,8 +295,7 @@ mod tests {
 
     #[test]
     fn palette_override_does_not_insert_missing_typography_or_null_roles() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme
             .normalized
             .as_object_mut()
@@ -314,8 +312,7 @@ mod tests {
 
     #[test]
     fn explicit_family_override_uses_real_upright_faces_and_reset_restores_theme_italic() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let id = crate::fonts::register_asset(
             include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
         )
@@ -365,8 +362,7 @@ mod tests {
 
     #[test]
     fn body_override_updates_explicit_item_title_without_persisting_it() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["typography"]["itemTitle"] =
             json!({"family":"cjk-serif","weight":600,"sizePt":13});
         let before = theme.normalized.clone();
@@ -443,8 +439,7 @@ mod tests {
     }
     #[test]
     fn body_font_override_keeps_explicit_dependent_role_geometry_and_missing_roles_inherited() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         for role in ["label", "summary", "sideDate"] {
             theme.normalized["typography"][role] = json!({"family":"cjk-serif","weight":600,"sizePt":12,"trackingEm":0.1,"textTransform":"uppercase"});
         }
@@ -466,8 +461,7 @@ mod tests {
             );
         }
         assert_eq!(theme.normalized, source);
-        let empty =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let empty = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let inherited = appearance.apply(&empty);
         for role in ["label", "summary", "sideDate"] {
             assert!(inherited.normalized["typography"][role].is_null());

@@ -2,15 +2,152 @@
   "formatVersion": 2,
   "id": "qingci",
   "name": "青瓷",
-  "description": "居中页眉、青瓷色细线与舒展的行距。",
-  "version": "1.1.0",
+  "description": "青瓷细线 · 左侧时间轴",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "modern",
-  "colors": { "accent": "#3B6E70", "seal": "#9A695A", "paper": "#F8FCFC", "canvas": "#EFF6F5" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 7, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
-  "typography": { "body": { "sizePt": 10.1, "lineHeight": 1.48 }, "name": { "sizePt": 28 }, "sectionTitle": { "sizePt": 13 }, "meta": { "sizePt": 8.8 } },
-  "sections": { "work": { "heading": "line" }, "projects": { "heading": "line" }, "education": { "heading": "line" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "rules",
+  "colors": {
+    "accent": "#275C55",
+    "seal": "#8B5142",
+    "paper": "#FFFFFF",
+    "canvas": "#E9F0ED"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 16,
+      "right": 18,
+      "bottom": 16,
+      "left": 18
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 29,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12.6,
+      "weight": 400,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "stacked",
+    "contact": "stacked",
+    "moduleOrder": [
+      "work",
+      "education",
+      "projects"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "accent-line",
+      "items": "timeline",
+      "date": "left"
+    },
+    "volunteer": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "left"
+    },
+    "education": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "left"
+    },
+    "awards": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "left"
+    },
+    "certificates": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "left"
+    },
+    "skills": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "accent-line",
+      "items": "timeline",
+      "date": "left"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/moderncv/moderncv",
+    "fidelity": "inspired"
+  }
 }

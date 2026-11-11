@@ -26,7 +26,8 @@ fn field(section: &str, key: &str, value: &Value, index: Option<usize>) -> Value
 pub(super) fn targets(resume: &Value) -> Value {
     let mut targets = Vec::new();
     let mut remaining_bytes: usize = 1024 * 1024;
-    for &(section, title) in crate::SECTION_LABELS {
+    for &(section, _) in crate::SECTION_LABELS {
+        let title = crate::label(section);
         let item = &resume[section];
         let items: &[Value] = if section == "basics" && item.is_object() {
             std::slice::from_ref(item)
@@ -117,7 +118,9 @@ fn draft(before: &str, message: &Value) -> Option<Result<String, String>> {
         .and_then(|i| usize::try_from(i).ok());
     let value = message["value"].as_str()?.to_owned();
     if value.len() > MAX_FIELD_BYTES {
-        return Some(Err("字段过长，请在 JSON 视图中编辑。".into()));
+        return Some(Err(
+            crate::i18n::tr("字段过长，请在 JSON 视图中编辑。").into()
+        ));
     }
     let bytes = before.as_bytes();
     let result = match (section, item, index) {
@@ -154,7 +157,7 @@ fn draft(before: &str, message: &Value) -> Option<Result<String, String>> {
             issues
                 .first()
                 .map(|issue| format!("{} · {}", issue.path, issue.message))
-                .unwrap_or_else(|| "请检查字段值".into())
+                .unwrap_or_else(|| crate::i18n::tr("请检查字段值").into())
         })?;
         Ok(String::from_utf8(source).expect("JSON is UTF-8"))
     }))

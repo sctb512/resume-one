@@ -8,8 +8,19 @@ pub enum Language {
     En,
 }
 
-pub(crate) fn title(id: &str, language: Language) -> &'static str {
+impl Language {
+    pub fn tag(self) -> &'static str {
+        match self {
+            Self::Zh => "zh-CN",
+            Self::En => "en",
+        }
+    }
+}
+
+pub fn title(id: &str, language: Language) -> &'static str {
     match (id, language) {
+        ("basics", Language::Zh) => "基本信息",
+        ("basics", Language::En) => "Basics",
         ("work", Language::Zh) => "工作经历",
         ("volunteer", Language::Zh) => "志愿经历",
         ("education", Language::Zh) => "教育经历",

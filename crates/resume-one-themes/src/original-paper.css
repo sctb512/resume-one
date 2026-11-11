@@ -116,3 +116,10 @@ html[data-jianli-theme] {
   margin: 0;
   padding-inline: 52px;
 }
+
+[data-jianli-theme="original-flat"] #header,
+[data-jianli-theme="original-pumpkin"] #header { padding-block: 32px; margin-block-end: 20px; }
+[data-jianli-theme="original-flat"] section,
+[data-jianli-theme="original-pumpkin"] section { margin-block-start: 22px; }
+[data-jianli-theme="original-even"] body { gap: 1.5em; margin-block-end: 1.5em; }
+[data-jianli-theme="original-even"] .masthead { padding-block: 2em; }

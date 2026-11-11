@@ -2,14 +2,155 @@
   "formatVersion": 2,
   "id": "yanshan",
   "name": "砚山",
-  "description": "冷蓝无衬线、大块模块标题与左侧日期。",
-  "version": "1.1.0",
+  "description": "美式 Letter · 教育优先",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "minimal",
-  "colors": { "accent": "#394F61", "seal": "#87584F", "paper": "#F9FAFC", "canvas": "#F0F2F5" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6.5, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
-  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.44 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 29 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12.5 } },
-  "sections": { "work": { "heading": "filled", "date": "left" }, "projects": { "heading": "filled", "date": "left" }, "education": { "heading": "line", "date": "left" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "rules",
+  "colors": {
+    "accent": "#343D48",
+    "seal": "#814639",
+    "paper": "#FFFFFF",
+    "canvas": "#EDF0F2"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "Letter",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 4.6,
+    "marginsMm": {
+      "top": 14,
+      "right": 15,
+      "bottom": 14,
+      "left": 15
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.2,
+      "lineHeight": 1.34,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 29,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 10.5,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12,
+      "weight": 400,
+      "lineHeight": 1.25,
+      "textTransform": "uppercase",
+      "trackingEm": 0.065
+    },
+    "itemTitle": {
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.0,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 8.8,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "inline",
+    "moduleOrder": [
+      "education",
+      "work",
+      "projects",
+      "skills"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    },
+    "education": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/dnl-blkv/mcdowell-cv",
+    "fidelity": "inspired"
+  }
 }

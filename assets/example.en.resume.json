@@ -1,0 +1,53 @@
+{
+  "basics": {
+    "name": "Alex Morgan",
+    "label": "Product Designer",
+    "email": "hello@example.com",
+    "url": "https://example.com",
+    "location": { "city": "Toronto", "countryCode": "CA" },
+    "summary": "I design thoughtful tools that make complex work feel clear. I use research to connect product strategy to the details people use every day."
+  },
+  "work": [
+    {
+      "name": "Fieldwork Studio",
+      "position": "Senior Product Designer",
+      "location": "Toronto",
+      "startDate": "2022-01",
+      "summary": "Led the design of desktop productivity tools from discovery through release.",
+      "highlights": [
+        "Redesigned editing workflows around the document to bring frequent actions within reach.",
+        "Built a cross-platform design system for components, motion and keyboard interaction."
+      ]
+    },
+    {
+      "name": "Ridgeline Design",
+      "position": "Product Designer",
+      "startDate": "2019-07",
+      "endDate": "2021-12",
+      "highlights": ["Used interviews and usability testing to improve navigation and key workflows."]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Paper Notes",
+      "roles": ["Product Design", "Prototyping"],
+      "startDate": "2024-03",
+      "endDate": "2024-09",
+      "description": "A local-first notebook with generous spacing and simple interactions for focused reading and writing."
+    }
+  ],
+  "education": [
+    {
+      "institution": "Example University",
+      "area": "Visual Communication",
+      "studyType": "Bachelor of Design",
+      "startDate": "2015-09",
+      "endDate": "2019-06"
+    }
+  ],
+  "skills": [
+    { "name": "Design methods", "keywords": ["User research", "Information architecture", "Interaction design"] },
+    { "name": "Design tools", "keywords": ["Figma", "Prototyping", "Design systems"] }
+  ],
+  "languages": [{ "language": "French", "fluency": "Professional working proficiency" }]
+}

@@ -1,3 +1,4 @@
+use crate::i18n::tr;
 use gpui::{App, Context, KeyBinding, Window, actions};
 use resume_one_core::structure::{StructureEdit, apply_structure};
 
@@ -177,7 +178,12 @@ impl ResumeOne {
             return;
         }
         if !editor.buffer.issues().is_empty() {
-            self.editor_warning("无法修改结构", "请先修复 JSON 或 Schema 错误", window, cx);
+            self.editor_warning(
+                tr("无法修改结构"),
+                tr("请先修复 JSON 或 Schema 错误"),
+                window,
+                cx,
+            );
             return;
         }
         let before = editor.buffer.source().to_owned();
@@ -196,7 +202,7 @@ impl ResumeOne {
         let result = match apply_structure(&self.model.document, &edit) {
             Ok(document) => document,
             Err(error) => {
-                self.editor_warning("无法修改结构", &error.message, window, cx);
+                self.editor_warning(tr("无法修改结构"), &error.message, window, cx);
                 return;
             }
         };

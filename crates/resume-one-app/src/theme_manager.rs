@@ -1,9 +1,10 @@
+use crate::i18n::tr;
 use gpui::{
     App, Context, Entity, Focusable as _, IntoElement, KeyBinding, Render, ScrollHandle,
     Subscription, WeakEntity, Window, actions, div, prelude::*, px,
 };
 use gpui_component::{
-    Disableable as _, Sizable as _, WindowExt as _,
+    Disableable as _, Selectable as _, Sizable as _, WindowExt as _,
     button::{Button, ButtonCustomVariant, ButtonVariant, ButtonVariants as _},
     dialog::DialogButtonProps,
     input::{Input, InputState},
@@ -12,6 +13,7 @@ use resume_one_themes::GithubSource;
 
 use crate::{
     ResumeOne, color,
+    i18n::Preference,
     theme_local::{ChooseThemeDirectory, ResetThemeDirectory},
 };
 
@@ -75,6 +77,32 @@ impl ThemeManager {
         }
         self.editing = None;
         self.error = None;
+        cx.notify();
+    }
+
+    fn change_language(&mut self, preference: Preference, cx: &mut Context<Self>) {
+        let Some(owner) = self.owner.upgrade() else {
+            return;
+        };
+        let result = owner.update(cx, |app, cx| {
+            let store = app.theme_store.as_mut().ok_or(tr("主题设置不可用"))?;
+            store.save_ui_language(preference)?;
+            preference.apply();
+            if app.model.document_path.is_none() {
+                app.model.document_label = if app.model.is_example {
+                    tr("示例简历").into()
+                } else {
+                    tr("未命名简历").into()
+                };
+            }
+            crate::files::localize_menus(cx);
+            cx.notify();
+            cx.refresh_windows();
+            Ok::<_, String>(())
+        });
+        self.error = result
+            .err()
+            .map(|error| format!("{}\n{error}", tr("语言设置未保存")));
         cx.notify();
     }
 
@@ -163,13 +191,13 @@ impl ThemeManager {
             let store = owner
                 .theme_store
                 .as_mut()
-                .ok_or("主题设置不可用".to_string())?;
+                .ok_or(tr("主题设置不可用").to_string())?;
             let mut sources = store.sources.clone();
             if let Some(key) = editing {
                 let position = sources
                     .iter()
                     .position(|item| item.key() == key)
-                    .ok_or("来源已改变，请重新选择".to_string())?;
+                    .ok_or(tr("来源已改变，请重新选择").to_string())?;
                 sources[position] = source;
             } else {
                 sources.push(source);
@@ -196,7 +224,7 @@ impl ThemeManager {
             let store = owner
                 .theme_store
                 .as_mut()
-                .ok_or("主题设置不可用".to_string())?;
+                .ok_or(tr("主题设置不可用").to_string())?;
             let sources = store
                 .sources
                 .iter()
@@ -240,7 +268,7 @@ impl Render for ThemeManager {
             .theme_store
             .as_ref()
             .map(|store| store.directory.display().to_string())
-            .unwrap_or_else(|| "主题目录不可用".into());
+            .unwrap_or_else(|| tr("主题目录不可用").into());
         let sources = app
             .theme_store
             .as_ref()
@@ -265,7 +293,7 @@ impl Render for ThemeManager {
                 div()
                     .text_size(px(12.0))
                     .text_color(color(style.colors.muted))
-                    .child("尚未添加来源"),
+                    .child(tr("尚未添加来源")),
             );
         }
         for (index, source) in sources.into_iter().enumerate() {
@@ -295,7 +323,7 @@ impl Render for ThemeManager {
                                     div()
                                         .text_size(px(13.0))
                                         .truncate()
-                                        .child(source.display_name().to_owned()),
+                                        .child(crate::i18n::source_name(&source).to_owned()),
                                 )
                                 .child(
                                     div()
@@ -314,7 +342,7 @@ impl Render for ThemeManager {
                             Button::new(("edit-source", index))
                                 .small()
                                 .custom(quiet)
-                                .label("修改")
+                                .label(tr("修改"))
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.edit(&edit, window, cx)
                                 })),
@@ -323,7 +351,7 @@ impl Render for ThemeManager {
                             Button::new(("remove-source", index))
                                 .small()
                                 .custom(quiet)
-                                .label("移除")
+                                .label(tr("移除"))
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.remove(&key, window, cx)
                                 })),
@@ -354,18 +382,19 @@ impl Render for ThemeManager {
                 div()
                     .flex()
                     .gap_3()
-                    .child(field(0, "GitHub 仓库 · owner/repository"))
-                    .child(field(1, "分支、标签或 commit")),
+                    .child(field(0, tr("GitHub 仓库 · owner/repository")))
+                    .child(field(1, tr("分支、标签或 commit"))),
             )
             .child(
                 div()
                     .flex()
                     .gap_3()
-                    .child(field(2, "清单路径"))
-                    .child(field(3, "展示名称（可选）")),
+                    .child(field(2, tr("清单路径")))
+                    .child(field(3, tr("展示名称（可选）"))),
             );
         let choose_owner = owner.downgrade();
         let reset_owner = owner.downgrade();
+        let preference = app.theme_store.as_ref().map(|store| store.ui_language);
         div()
             .id("theme-manager")
             .debug_selector(|| "theme-manager".into())
@@ -386,9 +415,48 @@ impl Render for ThemeManager {
             .child(
                 div()
                     .flex()
+                    .flex_wrap()
+                    .items_center()
+                    .justify_between()
+                    .gap_2()
+                    .child(div().text_size(px(13.0)).child(tr("界面语言")))
+                    .child(
+                        div().flex().gap_2().children(
+                            [
+                                (Preference::Auto, tr("跟随系统")),
+                                (Preference::Chinese, "简体中文"),
+                                (Preference::English, "English"),
+                            ]
+                            .map(|(choice, label)| {
+                                Button::new(gpui::SharedString::from(format!(
+                                    "ui-language-{}",
+                                    choice.setting()
+                                )))
+                                .debug_selector(move || format!("ui-language-{}", choice.setting()))
+                                .small()
+                                .custom(if preference == Some(choice) {
+                                    primary
+                                } else {
+                                    quiet
+                                })
+                                .disabled(preference.is_none())
+                                .selected(preference == Some(choice))
+                                .label(label)
+                                .on_click(cx.listener(
+                                    move |this, _, _, cx| {
+                                        this.change_language(choice, cx);
+                                    },
+                                ))
+                            }),
+                        ),
+                    ),
+            )
+            .child(
+                div()
+                    .flex()
                     .flex_col()
                     .gap_2()
-                    .child(div().text_size(px(13.0)).child("本地主题目录"))
+                    .child(div().text_size(px(13.0)).child(tr("本地主题目录")))
                     .child(
                         div()
                             .text_size(px(11.0))
@@ -404,7 +472,7 @@ impl Render for ThemeManager {
                                     .disabled(directory_locked)
                                     .small()
                                     .custom(quiet)
-                                    .label("更换目录…")
+                                    .label(tr("更换目录…"))
                                     .on_click(move |_, window, cx| {
                                         if let Some(owner) = choose_owner.upgrade() {
                                             owner.update(cx, |owner, cx| {
@@ -422,7 +490,7 @@ impl Render for ThemeManager {
                                     .disabled(directory_locked)
                                     .small()
                                     .custom(quiet)
-                                    .label("恢复默认目录")
+                                    .label(tr("恢复默认目录"))
                                     .on_click(move |_, window, cx| {
                                         if let Some(owner) = reset_owner.upgrade() {
                                             owner.update(cx, |owner, cx| {
@@ -445,7 +513,7 @@ impl Render for ThemeManager {
                     .flex()
                     .flex_col()
                     .gap_3()
-                    .child(div().text_size(px(13.0)).child("在线主题源"))
+                    .child(div().text_size(px(13.0)).child(tr("在线主题源")))
                     .child(list)
                     .child(form)
                     .child(
@@ -458,9 +526,9 @@ impl Render for ThemeManager {
                                     .small()
                                     .custom(primary)
                                     .label(if self.editing.is_some() {
-                                        "保存修改"
+                                        tr("保存修改")
                                     } else {
-                                        "添加来源"
+                                        tr("添加来源")
                                     })
                                     .on_click(
                                         cx.listener(|this, _, window, cx| this.save(window, cx)),
@@ -471,7 +539,7 @@ impl Render for ThemeManager {
                                     Button::new("cancel-theme-source")
                                         .small()
                                         .custom(quiet)
-                                        .label("取消修改")
+                                        .label(tr("取消修改"))
                                         .on_click(cx.listener(|this, _, window, cx| {
                                             this.reset_draft(window, cx)
                                         })),
@@ -528,13 +596,13 @@ impl ResumeOne {
         self.focus_current(window, cx);
         window.open_dialog(cx, move |dialog, _, _| {
             dialog
-                .title("主题管理")
+                .title(tr("主题管理"))
                 .width(px(620.0))
                 .border_color(border)
                 .close_button(false)
                 .button_props(
                     DialogButtonProps::default()
-                        .ok_text("完成")
+                        .ok_text(tr("完成"))
                         .ok_variant(ButtonVariant::Custom(quiet)),
                 )
                 .footer(|ok, _, window, cx| vec![ok(window, cx)])

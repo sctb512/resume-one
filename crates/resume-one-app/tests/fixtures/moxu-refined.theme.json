@@ -1,0 +1,16 @@
+{
+  "formatVersion": 2,
+  "id": "moxu",
+  "name": "墨序",
+  "description": "无衬线分栏页眉、左侧时间与墨青细线。",
+  "version": "1.2.0",
+  "license": "Apache-2.0",
+  "layout": "rules",
+  "colors": { "accent": "#344E55", "seal": "#344E55", "paper": "#FFFFFF", "canvas": "#F1F3F2" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 5, "marginsMm": { "top": 15, "right": 16, "bottom": 15, "left": 16 } },
+  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.39 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 26 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12 } },
+  "composition": { "preset": "split-header", "header": "split", "contact": "stacked" },
+  "sections": { "work": { "heading": "line", "date": "left" }, "projects": { "heading": "line", "date": "left" }, "education": { "heading": "line", "date": "left" }, "skills": { "heading": "line" } },
+  "provenance": { "fidelity": "native" }
+}

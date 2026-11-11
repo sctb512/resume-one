@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Green Grain",
+    "description": "Green right rail and serif name"
+  }
+}

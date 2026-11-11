@@ -5843,6 +5843,7 @@ dependencies = [
  "resume-one-themes",
  "resume-one-updater",
  "serde_json",
+ "sys-locale",
  "tempfile",
  "windows-sys 0.61.2",
  "wry",

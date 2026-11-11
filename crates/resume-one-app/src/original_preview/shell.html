@@ -164,11 +164,15 @@
     height = PAPER_HEIGHT;
     resize();
   };
-  window.jianliRender = (html, token, theme, targets) => {
+  window.jianliRender = (html, token, theme, targets, locale = "zh-CN") => {
+    document.documentElement.lang = locale;
+    const english = locale === "en";
+    document.querySelector("main").setAttribute("aria-label", english ? "Original résumé preview" : "原版简历预览");
+    document.querySelector("#edit-panel button").setAttribute("aria-label", english ? "Close editor" : "关闭编辑");
     window.jianliCancel();
     const next = document.createElement("iframe");
     pending = next;
-    next.title = "简历";
+    next.title = english ? "Résumé" : "简历";
     // The parent may read dimensions and bridge keyboard commands. The theme
     // itself cannot execute scripts, submit forms or open new windows.
     next.setAttribute("sandbox", "allow-same-origin");

@@ -1,3 +1,4 @@
+use crate::i18n::tr;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -250,18 +251,18 @@ impl ResumeOne {
 
     pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
         if let Err(error) = self.change_appearance(self.model.appearance.clone(), window, cx) {
-            self.editor_warning("外观设置未保存", &error, window, cx);
+            self.editor_warning(tr("外观设置未保存"), &error, window, cx);
             return false;
         }
         if self.export_busy {
-            self.editor_warning("导出中", "请等待导出完成再关闭窗口", window, cx);
+            self.editor_warning(tr("导出中"), tr("请等待导出完成再关闭窗口"), window, cx);
             return false;
         }
         let Some(editor) = &self.editor else {
             return true;
         };
         if editor.saving {
-            self.editor_warning("保存中", "请等待保存完成再关闭窗口", window, cx);
+            self.editor_warning(tr("保存中"), tr("请等待保存完成再关闭窗口"), window, cx);
             return false;
         }
         if !editor.buffer.is_dirty() {
@@ -269,9 +270,9 @@ impl ResumeOne {
         }
         let choice = window.prompt(
             PromptLevel::Warning,
-            "简历有未保存的更改",
-            Some("可以先按 ⌘S 或 Ctrl+S 保存。"),
-            &["继续编辑", "丢弃更改并关闭"],
+            tr("简历有未保存的更改"),
+            Some(tr("可以先按 ⌘S 或 Ctrl+S 保存。")),
+            &[tr("继续编辑"), tr("丢弃更改并关闭")],
             cx,
         );
         cx.spawn_in(window, async move |this, cx| {
@@ -286,7 +287,7 @@ impl ResumeOne {
                                 window.remove_window();
                             }
                             Err(message) => {
-                                this.editor_warning("无法丢弃草稿", &message, window, cx)
+                                this.editor_warning(tr("无法丢弃草稿"), &message, window, cx)
                             }
                         }
                     }
@@ -336,7 +337,7 @@ impl ResumeOne {
         let formatted = match editor.buffer.formatted() {
             Ok(value) => value,
             Err(issue) => {
-                self.editor_warning("无法格式化", &issue.message, window, cx);
+                self.editor_warning(tr("无法格式化"), &issue.message, window, cx);
                 return;
             }
         };
@@ -375,7 +376,7 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning("无法保存", &issues[0].message, window, cx);
+                self.editor_warning(tr("无法保存"), &issues[0].message, window, cx);
                 return;
             }
         };
@@ -397,7 +398,7 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning("无法另存为", &issues[0].message, window, cx);
+                self.editor_warning(tr("无法另存为"), &issues[0].message, window, cx);
                 return;
             }
         };
@@ -434,7 +435,7 @@ impl ResumeOne {
                         if let Some(editor) = &mut this.editor {
                             editor.saving = false;
                         }
-                        this.editor_warning("无法另存为", &error.to_string(), window, cx);
+                        this.editor_warning(tr("无法另存为"), &error.to_string(), window, cx);
                         cx.notify();
                     })
                     .ok();
@@ -448,7 +449,12 @@ impl ResumeOne {
                 }
                 if let Some(path) = path {
                     if path.extension().and_then(|ext| ext.to_str()) != Some("json") {
-                        this.editor_warning("无法另存为", "请选择 .json 文件名", window, cx);
+                        this.editor_warning(
+                            tr("无法另存为"),
+                            tr("请选择 .json 文件名"),
+                            window,
+                            cx,
+                        );
                     } else {
                         this.commit_save(path, true, snapshot, window, cx);
                     }
@@ -518,7 +524,7 @@ impl ResumeOne {
                     if let Some((store, generation)) = old
                         && let Err(message) = store.clear_if_newer(generation)
                     {
-                        self.editor_warning("草稿整理失败", &message, window, cx);
+                        self.editor_warning(tr("草稿整理失败"), &message, window, cx);
                     }
                     let path = path.canonicalize().unwrap_or(path);
                     self.model.document_label = path
@@ -548,7 +554,7 @@ impl ResumeOne {
                     self.model.document_label
                 ));
             }
-            Err(error) => self.editor_warning("保存失败", &error.message, window, cx),
+            Err(error) => self.editor_warning(tr("保存失败"), &error.message, window, cx),
         }
         cx.notify();
     }
@@ -557,14 +563,14 @@ impl ResumeOne {
             let root = match drafts_root() {
                 Ok(root) => root,
                 Err(message) => {
-                    self.editor_warning("无法进入编辑", &message, window, cx);
+                    self.editor_warning(tr("无法进入编辑"), &message, window, cx);
                     return false;
                 }
             };
             let buffer = match ResumeBuffer::new(self.model.opened_source.clone()) {
                 Ok(buffer) => buffer,
                 Err(issue) => {
-                    self.editor_warning("无法进入编辑", &issue.message, window, cx);
+                    self.editor_warning(tr("无法进入编辑"), &issue.message, window, cx);
                     return false;
                 }
             };
@@ -660,7 +666,7 @@ impl ResumeOne {
                 cx.notify();
             }
             Ok(None) => {}
-            Err(message) => self.editor_warning("无法读取恢复草稿", &message, window, cx),
+            Err(message) => self.editor_warning(tr("无法读取恢复草稿"), &message, window, cx),
         }
     }
 
@@ -690,7 +696,7 @@ impl ResumeOne {
                 true
             }
             Err(issue) => {
-                self.editor_warning("无法恢复草稿", &issue.message, window, cx);
+                self.editor_warning(tr("无法恢复草稿"), &issue.message, window, cx);
                 false
             }
         }
@@ -722,7 +728,7 @@ impl ResumeOne {
             let editor = self.editor.as_mut().unwrap();
             editor.generation += 1;
             if let Err(message) = editor.store.clear_if_newer(editor.generation) {
-                self.editor_warning("无法丢弃草稿", &message, window, cx);
+                self.editor_warning(tr("无法丢弃草稿"), &message, window, cx);
                 return;
             }
             let display = editor.last_display.clone();
@@ -764,11 +770,11 @@ impl ResumeOne {
                     .min_w_0()
                     .text_size(px(12.))
                     .text_color(color(p.ink))
-                    .child("发现未保存的草稿，恢复或丢弃后继续编辑"),
+                    .child(tr("发现未保存的草稿，恢复或丢弃后继续编辑")),
             );
         for (restore, id, title) in [
-            (true, "recover-draft", "恢复草稿"),
-            (false, "discard-draft", "丢弃草稿"),
+            (true, "recover-draft", tr("恢复草稿")),
+            (false, "discard-draft", tr("丢弃草稿")),
         ] {
             let click_owner = editor.input.clone();
             let key_owner = editor.input.clone();
@@ -928,7 +934,13 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let answer = window.prompt(PromptLevel::Warning, title, Some(message), &["确定"], cx);
+        let answer = window.prompt(
+            PromptLevel::Warning,
+            title,
+            Some(message),
+            &[tr("确定")],
+            cx,
+        );
         cx.spawn(async move |_, _| {
             let _ = answer.await;
         })
@@ -947,9 +959,9 @@ impl ResumeOne {
                 format!("{} · {}", issue.path, issue.message)
             }
         } else if editor.saving {
-            "保存中…".into()
+            tr("保存中…").into()
         } else if editor.buffer.is_dirty() {
-            "未保存".into()
+            tr("未保存").into()
         } else {
             "".into()
         };
@@ -1079,7 +1091,7 @@ mod tests {
             assert_eq!(editor.store.load().unwrap().unwrap().source, edited);
         });
         assert_eq!(std::fs::read(&path).unwrap(), original);
-        cx.simulate_prompt_answer("确定");
+        cx.simulate_prompt_answer(tr("确定"));
         cx.run_until_parked();
         drop(guard);
         cx.update(|window, cx| {

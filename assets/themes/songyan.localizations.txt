@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "work": "实践经历"
+    }
+  },
+  "en": {
+    "name": "Pine Script",
+    "description": "Classic serif, education first",
+    "sections": {
+      "work": "Experience"
+    }
+  }
+}

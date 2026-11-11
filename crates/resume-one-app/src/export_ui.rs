@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::i18n::tr;
 use gpui::{App, Context, IntoElement, KeyBinding, Window, actions, div, prelude::*, px};
 use resume_one_core::ThemeManifest;
 use resume_one_core::export::{write_export, write_export_unnamed};
@@ -57,7 +58,7 @@ impl ExportKind {
         match self {
             Self::Pdf => "PDF",
             Self::Docx => "DOCX",
-            Self::Text => "纯文本",
+            Self::Text => tr("纯文本"),
             Self::Markdown => "Markdown",
         }
     }
@@ -79,7 +80,8 @@ fn render(snapshot: &ExportSnapshot) -> Result<Vec<u8>, String> {
     let language = snapshot.language;
     match snapshot.kind {
         ExportKind::Pdf if let Some((theme, resume)) = &snapshot.original => {
-            resume_one_themes::print_original(theme, resume).map_err(|error| error.to_string())
+            resume_one_themes::print_localized_original(theme, resume, language)
+                .map_err(|error| error.to_string())
         }
         ExportKind::Docx if snapshot.original.is_some() => {
             resume_one_core::docx::render(&snapshot.content, language)
@@ -103,6 +105,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         self.export_language = Language::Zh;
+        self.model.presentation_language = Language::Zh;
         cx.notify();
     }
 
@@ -113,6 +116,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         self.export_language = Language::En;
+        self.model.presentation_language = Language::En;
         cx.notify();
     }
 
@@ -183,10 +187,10 @@ impl ResumeOne {
                 }),
             );
         for (index, (kind, hint)) in [
-            (ExportKind::Pdf, "固定版式，适合投递"),
-            (ExportKind::Docx, "可在 Word 中继续编辑"),
-            (ExportKind::Text, "适合粘贴到招聘系统"),
-            (ExportKind::Markdown, "保留标题与列表结构"),
+            (ExportKind::Pdf, tr("固定版式，适合投递")),
+            (ExportKind::Docx, tr("可在 Word 中继续编辑")),
+            (ExportKind::Text, tr("适合粘贴到招聘系统")),
+            (ExportKind::Markdown, tr("保留标题与列表结构")),
         ]
         .into_iter()
         .enumerate()
@@ -236,10 +240,10 @@ impl ResumeOne {
                     div()
                         .text_size(px(12.))
                         .text_color(crate::color(p.muted))
-                        .child("导出标题"),
+                        .child(tr("预览与导出标题")),
                 )
                 .child(div().flex().gap_1().children(
-                    [(Language::Zh, "中文"), (Language::En, "EN")].map(|(language, label)| {
+                    [(Language::Zh, "中文"), (Language::En, "English")].map(|(language, label)| {
                         div()
                             .id(match language {
                                 Language::Zh => "export-language-zh",
@@ -266,6 +270,7 @@ impl ResumeOne {
                             .child(label)
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 this.export_language = language;
+                                this.model.presentation_language = language;
                                 cx.notify();
                             }))
                     }),
@@ -319,11 +324,16 @@ impl ResumeOne {
             .as_ref()
             .and_then(|editor| editor.buffer.issues().first())
         {
-            self.editor_warning("无法导出", &issue.message, window, cx);
+            self.editor_warning(tr("无法导出"), &issue.message, window, cx);
             return;
         }
         if !self.model.preview_ready {
-            self.editor_warning("无法导出", "请先修复 JSON 和 Schema 错误", window, cx);
+            self.editor_warning(
+                tr("无法导出"),
+                tr("请先修复 JSON 和 Schema 错误"),
+                window,
+                cx,
+            );
             return;
         }
         let snapshot = ExportSnapshot {
@@ -366,7 +376,7 @@ impl ResumeOne {
                 Ok(Err(error)) => {
                     this.update_in(cx, |this, window, cx| {
                         this.export_busy = false;
-                        this.editor_warning("无法选择导出位置", &error.to_string(), window, cx);
+                        this.editor_warning(tr("无法选择导出位置"), &error.to_string(), window, cx);
                     })
                     .ok();
                     return;
@@ -398,7 +408,7 @@ impl ResumeOne {
         {
             self.export_busy = false;
             self.editor_warning(
-                "无法导出",
+                tr("无法导出"),
                 &format!("文件名必须以 .{} 结尾", snapshot.kind.extension()),
                 window,
                 cx,

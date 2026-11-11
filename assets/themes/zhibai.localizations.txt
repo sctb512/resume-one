@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "work": "职业经历"
+    }
+  },
+  "en": {
+    "name": "White Space",
+    "description": "Centered name and fine rules",
+    "sections": {
+      "work": "Experience"
+    }
+  }
+}

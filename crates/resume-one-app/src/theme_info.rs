@@ -1,4 +1,5 @@
 //! Quiet attribution entry shared by local and already-verified online themes.
+use crate::i18n::tr;
 use gpui::{Context, Window, div, prelude::*, px};
 use gpui_component::{
     WindowExt as _,
@@ -28,15 +29,15 @@ impl Attribution {
                 .unwrap_or(fallback)
                 .to_owned()
         };
-        let license = text(&theme.normalized["license"], "未声明");
+        let license = text(&theme.normalized["license"], tr("未声明"));
         let upstream_license = text(&p["upstreamLicense"], &license);
         let restriction = if [license.as_str(), upstream_license.as_str()]
             .iter()
             .any(|s| s.contains("CC-BY-NC-SA-4.0"))
         {
-            Some(
+            Some(tr(
                 "此主题采用 CC BY-NC-SA 4.0：署名、非商业性使用、相同方式共享。改编主题仍保留该协议；软件的 Apache 许可不替代它。商业使用或分发前须另行确认授权。",
-            )
+            ))
         } else {
             None
         };
@@ -45,11 +46,11 @@ impl Attribution {
             .filter(|url| url.starts_with("https://") && !url.chars().any(char::is_control))
             .map(str::to_owned);
         Self {
-            author: text(&p["upstreamAuthor"], "未声明"),
+            author: text(&p["upstreamAuthor"], tr("未声明")),
             license,
             upstream_license,
             url,
-            revision: text(&p["upstreamRevision"], "未声明"),
+            revision: text(&p["upstreamRevision"], tr("未声明")),
             restriction,
         }
     }
@@ -87,6 +88,9 @@ impl ResumeOne {
             .hover(color(style.colors.canvas).into())
             .active(color(style.colors.chrome).into());
         let close_owner = cx.entity().downgrade();
+        let name = theme
+            .localized_name(&crate::i18n::theme_locale())
+            .to_owned();
         let version = theme.normalized["version"]
             .as_str()
             .unwrap_or("1")
@@ -109,12 +113,12 @@ impl ResumeOne {
                         .child(format!("{} · {}", theme.id, version)),
                 );
             let mut fields = vec![
-                ("原作者", &info.author),
-                ("主题协议", &info.license),
-                ("原始版本", &info.revision),
+                (tr("原作者"), &info.author),
+                (tr("主题协议"), &info.license),
+                (tr("原始版本"), &info.revision),
             ];
             if info.license != info.upstream_license {
-                fields.insert(2, ("上游协议", &info.upstream_license));
+                fields.insert(2, (tr("上游协议"), &info.upstream_license));
             }
             for (label, value) in fields {
                 details = details.child(
@@ -123,7 +127,7 @@ impl ResumeOne {
                         .gap(px(16.))
                         .child(
                             div()
-                                .w(px(72.))
+                                .w(px(110.))
                                 .flex_none()
                                 .text_color(color(style.colors.muted))
                                 .child(label),
@@ -140,7 +144,7 @@ impl ResumeOne {
                         .debug_selector(|| "theme-upstream-link".into())
                         .cursor_pointer()
                         .text_color(color(style.colors.accent))
-                        .child("查看原始项目 ↗")
+                        .child(tr("查看原始项目 ↗"))
                         .on_click(move |_, _, cx| cx.open_url(&link)),
                 );
             }
@@ -156,18 +160,17 @@ impl ResumeOne {
                         .child(restriction),
                 );
             }
-            details =
-                details.child(div().text_color(color(style.colors.muted)).child(
-                    "以主题文件与来源项目中注明的协议为准；社区内置包附完整许可与改编说明。",
-                ));
+            details = details.child(div().text_color(color(style.colors.muted)).child(tr(
+                "以主题文件与来源项目中注明的协议为准；社区内置包附完整许可与改编说明。",
+            )));
             dialog
-                .title(format!("{} · 主题说明", theme.name))
+                .title(format!("{name} · {}", tr("主题说明")))
                 .width(px(620.))
                 .border_color(color(style.colors.border))
                 .close_button(false)
                 .button_props(
                     DialogButtonProps::default()
-                        .ok_text("完成")
+                        .ok_text(tr("完成"))
                         .ok_variant(ButtonVariant::Custom(quiet)),
                 )
                 .footer(|ok, _, window, cx| vec![ok(window, cx)])

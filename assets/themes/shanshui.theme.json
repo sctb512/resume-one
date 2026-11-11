@@ -2,15 +2,166 @@
   "formatVersion": 2,
   "id": "shanshui",
   "name": "山水",
-  "description": "宽阔边距、居中书卷页眉与山青细线。",
-  "version": "1.1.0",
+  "description": "通栏页眉 · 教育居左",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "classic",
-  "colors": { "accent": "#476B65", "seal": "#9A5C49", "paper": "#FBFAF5", "canvas": "#F0EFE9" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 8.5, "marginsMm": { "top": 21, "right": 21, "bottom": 21, "left": 21 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
-  "typography": { "body": { "sizePt": 10.3, "lineHeight": 1.55 }, "name": { "sizePt": 31 }, "sectionTitle": { "sizePt": 13.5 }, "meta": { "sizePt": 8.9 } },
-  "sections": { "work": { "heading": "line", "date": "right" }, "projects": { "heading": "line", "date": "right" }, "education": { "heading": "line", "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "minimal",
+  "colors": {
+    "accent": "#314957",
+    "seal": "#824A3F",
+    "paper": "#FFFFFF",
+    "canvas": "#EBEFF0",
+    "sidebar": "#F4F6F5"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "Letter",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 4.6,
+    "marginsMm": {
+      "top": 17,
+      "right": 15,
+      "bottom": 17,
+      "left": 15
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.2,
+      "lineHeight": 1.34,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 34,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 10.5,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12,
+      "weight": 400,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 10.5,
+      "weight": 600,
+      "lineHeight": 1.34,
+      "family": "cjk-serif"
+    },
+    "meta": {
+      "sizePt": 9.0,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 8.8,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "header": "centered",
+    "contact": "inline",
+    "moduleOrder": [
+      "education",
+      "skills",
+      "projects",
+      "work",
+      "publications"
+    ],
+    "sidebarWidthPct": 33,
+    "gapMm": 6,
+    "sidebarTypographyScale": 0.96,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "certificates": "sidebar",
+      "interests": "sidebar",
+      "education": "sidebar",
+      "awards": "sidebar"
+    }
+  },
+  "sections": {
+    "work": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "education": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "awards": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/deedy/Deedy-Resume",
+    "fidelity": "inspired"
+  }
 }

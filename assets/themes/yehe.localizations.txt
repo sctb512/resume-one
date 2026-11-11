@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Night Lotus",
+    "description": "Lilac left rail and serif name"
+  }
+}

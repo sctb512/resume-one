@@ -2,14 +2,166 @@
   "formatVersion": 2,
   "id": "qinghe",
   "name": "青禾",
-  "description": "青绿色强调线、右侧时间与温润平衡的文字层级。",
-  "version": "1.1.0",
+  "description": "浅禾绿右栏 · 衬线姓名",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "layout": "classic",
-  "colors": { "accent": "#52756B", "seal": "#A14F40", "paper": "#FFFEFA", "canvas": "#F6F3ED" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6 },
-  "typography": { "body": { "lineHeight": 1.45 }, "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 }, "meta": { "sizePt": 8.7 } },
-  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "colors": {
+    "accent": "#3A5B37",
+    "seal": "#8B5240",
+    "paper": "#FFFFFF",
+    "canvas": "#EDF0E6",
+    "sidebar": "#EFF3E8"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 17,
+      "right": 17,
+      "bottom": 17,
+      "left": 17
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 32,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.6,
+      "weight": 600,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 600,
+      "lineHeight": 1.34,
+      "family": "cjk-serif"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "sidebar-right",
+    "header": "stacked",
+    "contact": "stacked",
+    "moduleOrder": [
+      "work",
+      "education",
+      "projects",
+      "skills"
+    ],
+    "sidebarWidthPct": 30,
+    "gapMm": 6,
+    "sidebarTypographyScale": 0.96,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "certificates": "sidebar",
+      "interests": "sidebar"
+    },
+    "headerRegion": "main",
+    "contactRegion": "sidebar",
+    "summaryRegion": "main"
+  },
+  "sections": {
+    "work": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "volunteer": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "education": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "awards": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "chips",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "plain",
+      "items": "stack",
+      "date": "inline"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://resume.io/",
+    "fidelity": "inspired"
+  }
 }

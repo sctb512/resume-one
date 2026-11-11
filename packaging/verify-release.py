@@ -6,7 +6,8 @@ import struct
 import zipfile
 
 FONT_NAMES = ("NotoSansSC-Regular.ttf", "NotoSerifSC-SemiBold.ttf")
-FONT_SOURCE = Path(__file__).resolve().parents[1] / "assets" / "fonts"
+ASSET_SOURCE = Path(__file__).resolve().parents[1] / "assets"
+FONT_SOURCE = ASSET_SOURCE / "fonts"
 ARCHIVES = {
     "Resume-One-macOS-arm64-unsigned.zip": ("macOS", 0x0100000C),
     "Resume-One-macOS-x64-unsigned.zip": ("macOS", 0x01000007),
@@ -86,6 +87,9 @@ def verify(archive_path, release_tag=None):
                     raise ValueError(f"{name} embeds a duplicate of {font_name}")
         for name in ("README.md", "docs/user-manual.md", "docs/cli-manual.md", "resume-one-theme-spec-v2.md"):
             archive.getinfo(f"{resources}/{name}")
+        for name in ("example.resume.json", "example.en.resume.json"):
+            if archive.read(f"{resources}/assets/{name}") != (ASSET_SOURCE / name).read_bytes():
+                raise ValueError(f"The bundled résumé sample differs from the source: {name}")
 
         if release_tag is not None:
             marker = archive.read(f"{resources}/release-tag.txt").decode("ascii").strip()
@@ -98,8 +102,9 @@ def verify(archive_path, release_tag=None):
                   and "/" not in name.removeprefix(theme_root)]
         if len(native) != 20:
             raise ValueError(f"Expected 20 native themes, got {len(native)}")
-        if {name for name in entries if name.startswith(theme_root)} != set(native):
-            raise ValueError("Only native themes may be included in the release archive")
+        translations = {name.removesuffix(".theme.json") + ".localizations.txt" for name in native}
+        if {name for name in entries if name.startswith(theme_root)} != set(native) | translations:
+            raise ValueError("The release must contain only native themes and their translations")
         print(f"Verified {archive_path.name}, 3 executables, 2 shared fonts and 20 native themes.")
 
 

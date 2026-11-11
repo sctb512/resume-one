@@ -451,6 +451,13 @@ impl VerifiedTheme {
                 }
                 files.insert(name.clone(), content.into());
             }
+            let manifest = if let Some(locales) = files.get(resume_one_core::THEME_LOCALES_FILE) {
+                manifest
+                    .with_package_localizations(locales)
+                    .map_err(|issues| ThemeError::new("THEME_RESOURCE", format!("{issues:?}")))?
+            } else {
+                manifest
+            };
             let manifest = load_theme_fonts(manifest, |path| {
                 files
                     .get(path)

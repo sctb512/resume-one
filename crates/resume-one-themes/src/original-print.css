@@ -22,3 +22,21 @@
   height: auto;
   grid-template-columns: repeat(10, minmax(0, 1fr));
 }
+
+/* Use paper spacing for wrappers whose web spacing causes orphaned sections. */
+[data-jianli-theme="original-flat"] body,
+[data-jianli-theme="original-pumpkin"] body { margin-block-end: 20px; }
+[data-jianli-theme="original-flat"] #header,
+[data-jianli-theme="original-pumpkin"] #header {
+  padding-block: 30px;
+  margin-block-end: 18px;
+}
+[data-jianli-theme="original-flat"] section,
+[data-jianli-theme="original-pumpkin"] section { margin-block-start: 21px; }
+[data-jianli-theme="original-even"] body { gap: 1.4em; margin-block-end: 1.2em; }
+[data-jianli-theme="original-even"] .masthead { padding-block: 2em; }
+[data-jianli-theme="original-macchiato"] #resume { height: auto; min-height: 0; }
+[data-jianli-theme="original-minyma"] body { padding: 24px 36px 28px; }
+[data-jianli-theme="original-minyma"] body > div:first-child { width: auto; padding-inline: 0; }
+[data-jianli-theme="original-minyma"] body > div:first-child > :not(:first-child) { margin-top: 1.4rem; }
+[data-jianli-theme="original-minyma"] header { padding-block: 1rem; }

@@ -6,6 +6,7 @@ mod color_sampler;
 mod editor_ui;
 mod export_ui;
 mod files;
+mod i18n;
 mod inline_ui;
 mod legacy_community;
 mod model;
@@ -23,6 +24,7 @@ mod update_ui;
 mod workspace;
 mod workspace_ui;
 
+use crate::i18n::tr;
 use std::time::Instant;
 use std::{cell::RefCell, rc::Rc};
 
@@ -55,10 +57,7 @@ fn color(value: Rgb) -> gpui::Rgba {
 }
 
 fn label(id: &str) -> &str {
-    SECTION_LABELS
-        .iter()
-        .find(|(key, _)| *key == id)
-        .map_or(id, |(_, label)| label)
+    resume_one_core::render::title(id, i18n::language())
 }
 
 struct ResumeOne {
@@ -115,6 +114,7 @@ impl ResumeOne {
             open: model.folder.is_some(),
             ..Default::default()
         };
+        let export_language = model.presentation_language;
         Self {
             appearance_editor: None,
             shell: chrome::Shell::new(&model.selected_style()),
@@ -144,7 +144,7 @@ impl ResumeOne {
             export_busy: false,
             export_menu_open: false,
             export_choice: 0,
-            export_language: resume_one_core::render::Language::Zh,
+            export_language,
             theme_store: None,
             theme_manager_open: false,
             updates: update_ui::UpdateUi::default(),
@@ -256,6 +256,7 @@ impl ResumeOne {
             f32::from(self.theme_scroll.bounds().size.height).max(self.viewport_height - 210.),
             self.model.themes.len(),
         );
+        let locale = i18n::theme_locale();
         for (index, theme) in self
             .model
             .themes
@@ -313,7 +314,7 @@ impl ResumeOne {
                                 .text_size(px(15.0))
                                 .truncate()
                                 .text_color(if selected { accent } else { color(palette.ink) })
-                                .child(theme.manifest.name.clone()),
+                                .child(theme.manifest.localized_name(&locale).to_owned()),
                         )
                         .child(
                             div()
@@ -322,9 +323,7 @@ impl ResumeOne {
                                 .line_clamp(2)
                                 .text_color(color(palette.muted))
                                 .child(chrome::theme_description(
-                                    theme.manifest.normalized["description"]
-                                        .as_str()
-                                        .unwrap_or(&theme.manifest.id),
+                                    theme.manifest.localized_description(&locale),
                                 )),
                         ),
                 )
@@ -356,7 +355,7 @@ impl ResumeOne {
                     let info_identity = identity.clone();
                     menu.action_context(menu_focus.clone())
                         .item(
-                            PopupMenuItem::new("显示主题文件")
+                            PopupMenuItem::new(tr("显示主题文件"))
                                 .disabled(!can_reveal)
                                 .on_click(move |_, window, cx| {
                                     if let Some(owner) = owner.upgrade() {
@@ -374,7 +373,7 @@ impl ResumeOne {
                                 }),
                         )
                         .item(
-                            PopupMenuItem::new("主题说明").on_click(move |_, window, cx| {
+                            PopupMenuItem::new(tr("主题说明")).on_click(move |_, window, cx| {
                                 if let Some(owner) = info_owner.upgrade() {
                                     owner.update(cx, |this, cx| {
                                         if let Some(theme) = this
@@ -442,7 +441,7 @@ impl ResumeOne {
                                     .font_family(chrome::SERIF)
                                     .text_size(px(18.))
                                     .text_color(color(palette.ink))
-                                    .child("主题"),
+                                    .child(tr("主题")),
                             )
                             .child(
                                 div()
@@ -452,7 +451,7 @@ impl ResumeOne {
                                     .text_size(px(12.))
                                     .text_color(accent)
                                     .py_2()
-                                    .child("管理")
+                                    .child(tr("管理"))
                                     .on_click(cx.listener(|this, _, window, cx| {
                                         this.manage_themes(&theme_manager::ManageThemes, window, cx)
                                     })),
@@ -660,7 +659,7 @@ impl ResumeOne {
             .cursor_pointer()
             .text_size(px(12.0))
             .text_color(color(self.active_style().colors.accent))
-            .child("+ 在此插入条目")
+            .child(tr("+ 在此插入条目"))
             .on_click(cx.listener(move |this, _, window, cx| {
                 this.apply_visual_structure(
                     StructureEdit::InsertItem {
@@ -683,7 +682,11 @@ impl ResumeOne {
         let id = id.to_owned();
         let selector = format!("source-remove-item-{id}-{index}");
         let title = if heading.is_empty() {
-            format!("条目 {}", index + 1)
+            if i18n::is_english() {
+                format!("Item {}", index + 1)
+            } else {
+                format!("条目 {}", index + 1)
+            }
         } else {
             heading.to_owned()
         };
@@ -733,7 +736,7 @@ impl ResumeOne {
                 view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
                     .mx_4().mt_3().px_4().py_2().rounded_md()
                     .bg(color(p.panel)).text_size(px(12.)).text_color(color(p.ink))
-                    .child("JSON 尚有错误 · 当前显示上次有效内容，只读。请按 ⌘/ 或 Ctrl+/ 返回修复。"))
+                    .child(tr("JSON 尚有错误 · 当前显示上次有效内容，只读。请按 ⌘/ 或 Ctrl+/ 返回修复。")))
             })
             .when(original, |view| {
                 view.child(div().flex_1().min_h_0().w_full().child(self.original_surface(show_original, cx)))
@@ -761,7 +764,7 @@ impl ResumeOne {
                                 .shadow_lg()
                                 .text_size(px(14.0))
                                 .text_color(color(style.colors.muted))
-                                .child("简历尚未通过校验，请切换到 JSON 编辑修复。"),
+                                .child(tr("简历尚未通过校验，请切换到 JSON 编辑修复。")),
                         )
                     }),
             ))
@@ -801,7 +804,7 @@ impl ResumeOne {
         } else {
             Vec::new()
         };
-        for (id, title) in SECTION_LABELS {
+        for (id, _) in SECTION_LABELS {
             let existing = sections.iter().find(|section| section.id == *id);
             let present = existing.is_some();
             let offered = self
@@ -867,13 +870,7 @@ impl ResumeOne {
                     .text_size(px(13.0))
                     .text_color(color(palette.ink))
                     .child(chrome::icon(icon_id, palette.accent))
-                    .child(
-                        div()
-                            .flex_1()
-                            .min_w_0()
-                            .truncate()
-                            .child((*title).to_string()),
-                    )
+                    .child(div().flex_1().min_w_0().truncate().child(label(icon_id)))
                     .child(controls)
                     .on_click(cx.listener(move |this, _, window, cx| {
                         if !this.structure_enabled() {
@@ -999,7 +996,7 @@ impl ResumeOne {
                             .font_family(chrome::SERIF)
                             .text_size(px(18.))
                             .text_color(color(palette.ink))
-                            .child("模块"),
+                            .child(tr("模块")),
                     )
                     .child(
                         div()
@@ -1020,7 +1017,7 @@ impl ResumeOne {
                             .rounded(px(5.))
                             .hover(|view| view.bg(color(palette.soft)))
                             .focus(|view| view.bg(color(palette.soft)))
-                            .child("外观")
+                            .child(tr("外观"))
                             .on_click(
                                 cx.listener(|this, _, window, cx| this.show_appearance(window, cx)),
                             )
@@ -1045,18 +1042,18 @@ impl ResumeOne {
                     .text_size(px(12.))
                     .text_color(color(palette.muted))
                     .child(if self.recovery_pending {
-                        "请先恢复或丢弃草稿，再编辑模块"
+                        tr("请先恢复或丢弃草稿，再编辑模块")
                     } else if !enabled {
-                        "请先修复 JSON，结构操作暂不可用"
+                        tr("请先修复 JSON，结构操作暂不可用")
                     } else if original && !self.source_mode {
-                        "在模块栏调整结构 · ⌘/ 或 Ctrl+/ 编辑内容"
+                        tr("在模块栏调整结构 · ⌘/ 或 Ctrl+/ 编辑内容")
                     } else if self.insertion_before.is_some() {
-                        "选择要添加的模块 · Esc 取消"
+                        tr("选择要添加的模块 · Esc 取消")
                     } else if self.selected_module.is_some() || self.selected_item_module.is_some()
                     {
-                        "选择文档中的插入位置 · Esc 取消"
+                        tr("选择文档中的插入位置 · Esc 取消")
                     } else {
-                        "点击文档中的＋，或先选模块"
+                        tr("点击文档中的＋，或先选模块")
                     }),
             )
             .into_any_element()
@@ -1324,7 +1321,7 @@ fn show_startup_error(message: String) {
                     ..Default::default()
                 },
                 |window, cx| {
-                    window.set_window_title("简里 · 无法启动");
+                    window.set_window_title(tr("简里 · 无法启动"));
                     cx.new(|_| StartupError(message))
                 },
             )
@@ -1343,17 +1340,18 @@ fn main() {
         return;
     }
     let path = std::env::args_os().nth(1);
-    // Build the initial document from embedded data. Selected resume files and
-    // restored browsing scopes may block in the OS and must wait for a window.
-    let mut model = match AppModel::load(None) {
-        Ok(model) => model,
+    let mut theme_store = match theme_local::ThemeStore::system() {
+        Ok(store) => store,
         Err(message) => {
             eprintln!("{message}");
             std::process::exit(1);
         }
     };
-    let mut theme_store = match theme_local::ThemeStore::system() {
-        Ok(store) => store,
+    let ui_language = theme_store.ui_language.apply();
+    // Build the initial document from embedded data. Selected resume files and
+    // restored browsing scopes may block in the OS and must wait for a window.
+    let mut model = match AppModel::load_with_language(None, ui_language) {
+        Ok(model) => model,
         Err(message) => {
             eprintln!("{message}");
             std::process::exit(1);

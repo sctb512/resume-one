@@ -265,6 +265,7 @@ pub struct ThemeStyle {
     pub column_gap_mm: f32,
     pub sidebar_modules: Vec<String>,
     pub section_titles: BTreeMap<String, String>,
+    localized_section_titles: [BTreeMap<String, String>; 2],
     pub(crate) entry_headers: BTreeMap<String, Vec<crate::entry_header::HeaderLine>>,
     pub sections: BTreeMap<String, SectionStyle>,
 }
@@ -396,8 +397,9 @@ impl ThemeStyle {
 
     /// Author-supplied plain display text never changes a section's identity.
     pub fn section_title(&self, id: &str, language: Language) -> &str {
-        self.section_titles
+        self.localized_section_titles[if language == Language::Zh { 0 } else { 1 }]
             .get(id)
+            .or_else(|| self.section_titles.get(id))
             .map(String::as_str)
             .unwrap_or_else(|| title(id, language))
     }
@@ -622,6 +624,17 @@ impl ThemeStyle {
                 .map(|(id, _)| id.clone())
                 .collect(),
             entry_headers: BTreeMap::new(),
+            localized_section_titles: [Language::Zh, Language::En].map(|language| {
+                theme
+                    .modules
+                    .iter()
+                    .filter_map(|id| {
+                        theme
+                            .localized_text(language.tag(), &format!("/sections/{id}"))
+                            .map(|text| (id.clone(), text.to_owned()))
+                    })
+                    .collect()
+            }),
             section_titles: manifest
                 .get("sections")
                 .and_then(Value::as_object)
@@ -715,8 +728,7 @@ mod tests {
 
     #[test]
     fn first_line_position_is_strict_opt_in_and_survives_lane_styles() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         assert_eq!(
             ThemeStyle::from_manifest(&theme).page.first_line_position,
             FirstLinePosition::Baseline
@@ -745,8 +757,7 @@ mod tests {
 
     #[test]
     fn authored_display_title_is_preserved_in_both_languages_and_column_styles() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let original = ThemeStyle::from_manifest(&theme);
         assert_eq!(original.section_title("work", Language::En), "Work");
         assert_eq!(original.section_title("work", Language::Zh), "工作经历");
@@ -765,8 +776,7 @@ mod tests {
 
     #[test]
     fn exact_role_colors_inherit_without_recoloring_document_or_application_palette() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let before = ThemeStyle::from_manifest(&theme);
         theme.normalized["typography"]["body"]["color"] = serde_json::json!("#DADADA");
         theme.normalized["typography"]["meta"]["color"] = serde_json::json!("#445566");
@@ -793,8 +803,7 @@ mod tests {
 
     #[test]
     fn real_slant_is_inherited_only_by_dependent_roles() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["typography"]["body"]["fontStyle"] = serde_json::json!("italic");
         theme.normalized["typography"]["meta"]["fontStyle"] = serde_json::json!("italic");
         let style = ThemeStyle::from_manifest(&theme);
@@ -827,8 +836,7 @@ mod tests {
 
     #[test]
     fn dependent_roles_inherit_all_base_properties_and_override_independently() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["typography"]["body"]["trackingEm"] = serde_json::json!(0.03);
         theme.normalized["typography"]["body"]["textTransform"] = serde_json::json!("uppercase");
         let inherited = ThemeStyle::from_manifest(&theme);
@@ -865,8 +873,7 @@ mod tests {
 
     #[test]
     fn header_and_contact_defaults_are_independent_partial_overrides() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         for (composition, expected) in [
             (serde_json::json!({}), (false, false, false)),
             (
@@ -966,8 +973,7 @@ mod tests {
 
     #[test]
     fn item_title_inherits_body_unless_explicitly_overridden() {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let inherited = ThemeStyle::from_manifest(&theme);
         assert_eq!(
             inherited.typography.item_title.family,

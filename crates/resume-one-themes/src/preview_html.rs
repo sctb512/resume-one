@@ -5,6 +5,7 @@ use html5ever::{
     ParseOpts, QualName, local_name, namespace_url, ns, parse_document, tendril::TendrilSink,
 };
 use markup5ever_rcdom::{Handle, NodeData, RcDom, SerializableHandle};
+use resume_one_core::render::{Language, title};
 use serde_json::Value;
 
 use crate::ThemeError;
@@ -12,6 +13,125 @@ use crate::ThemeError;
 const POLICY: &str = "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'";
 
 const PAPER_STYLE: &str = include_str!("original-paper.css");
+
+/// Translate recognized upstream section labels while preserving the HTML
+/// structure and every literal field value from the user's résumé.
+pub(crate) fn localize_headings(
+    html: &str,
+    resume: &Value,
+    language: Language,
+    limit: usize,
+) -> Result<String, ThemeError> {
+    if language == Language::En {
+        return Ok(html.to_owned());
+    }
+    let mut source_text = std::collections::HashSet::new();
+    let mut fields = vec![resume];
+    while let Some(field) = fields.pop() {
+        match field {
+            Value::String(text) => {
+                source_text.insert(text.trim());
+            }
+            Value::Object(object) => fields.extend(object.values()),
+            Value::Array(array) => fields.extend(array),
+            _ => {}
+        }
+    }
+    let dom = parse_document(RcDom::default(), ParseOpts::default()).one(html);
+    let mut pending = vec![dom.document.clone()];
+    while let Some(node) = pending.pop() {
+        let children = node.children.borrow();
+        pending.extend(children.iter().cloned());
+        let NodeData::Element { name, attrs, .. } = &node.data else {
+            continue;
+        };
+        if name.local == local_name!("html") {
+            let mut attrs = attrs.borrow_mut();
+            attrs.retain(|attr| attr.name.local != local_name!("lang"));
+            attrs.push(html5ever::Attribute {
+                name: QualName::new(None, ns!(), local_name!("lang")),
+                value: "zh-CN".into(),
+            });
+        }
+        let heading = matches!(name.local.as_ref(), "h2" | "h3" | "h4")
+            || attrs
+                .borrow()
+                .iter()
+                .any(|attr| match attr.name.local.as_ref() {
+                    "role" => attr.value.as_ref() == "heading",
+                    "class" => attr.value.split_ascii_whitespace().any(|class| {
+                        matches!(
+                            class,
+                            "section-title" | "section-name" | "section-heading" | "section-header"
+                        )
+                    }),
+                    _ => false,
+                });
+        if !heading {
+            continue;
+        }
+        for child in children.iter() {
+            let NodeData::Text { contents } = &child.data else {
+                continue;
+            };
+            let mut text = contents.borrow_mut();
+            let label = text.trim();
+            if source_text.contains(label) {
+                continue;
+            }
+            if let Some(translation) = chinese_heading(label) {
+                *text = translation.into();
+            }
+        }
+    }
+    let mut bytes = Vec::new();
+    html5ever::serialize(
+        &mut bytes,
+        &SerializableHandle::from(dom.document.clone()),
+        Default::default(),
+    )
+    .expect("serialize localized HTML to memory");
+    if bytes.len() > limit {
+        return Err(too_large());
+    }
+    Ok(String::from_utf8(bytes).expect("UTF-8 HTML serializer"))
+}
+
+fn chinese_heading(label: &str) -> Option<&'static str> {
+    let id = match label.trim_end_matches(':').trim().to_lowercase().as_str() {
+        "summary" | "professional summary" | "about" | "about me" | "profile" => {
+            return Some("简介");
+        }
+        "contact" | "contact details" | "contact information" => return Some("联系方式"),
+        "work"
+        | "experience"
+        | "work experience"
+        | "professional experience"
+        | "employment"
+        | "employment history"
+        | "experiences professionnelles" => "work",
+        "education" | "academic background" | "formation" => "education",
+        "projects"
+        | "projects experience"
+        | "project experience"
+        | "notable projects"
+        | "research projects"
+        | "open source projects"
+        | "projets" => "projects",
+        "skills" | "technical skills" | "competences" | "compétences" => "skills",
+        "volunteer" | "volunteering" | "volunteer experience" | "volunteer work" | "bénévolat" => {
+            "volunteer"
+        }
+        "awards" | "awards & honors" | "awards and honors" | "honors" | "honours" => "awards",
+        "certificates" | "certifications" => "certificates",
+        "publications" => "publications",
+        "languages" | "langues" => "languages",
+        "interests" | "research interests" => "interests",
+        "references" => "references",
+        _ => return None,
+    };
+    Some(title(id, Language::Zh))
+}
 
 pub(crate) fn prepare(
     html: &str,
@@ -173,6 +293,23 @@ fn embedded_style(css: &str, media: Option<&str>) -> Handle {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn original_heading_localization_preserves_values_and_markup() {
+        let html = r#"<html lang="en"><body><h1>Alex Morgan</h1><h2><svg></svg> Experience</h2><h3>Skills</h3><div class="section-title">Education</div></body></html>"#;
+        let data = json!({"work":[{"name":"Skills"}]});
+        assert_eq!(
+            localize_headings(html, &data, Language::En, 16384).unwrap(),
+            html
+        );
+        let zh = localize_headings(html, &data, Language::Zh, 16384).unwrap();
+        assert!(zh.contains(r#"<html lang="zh-CN">"#));
+        assert!(zh.contains("<h1>Alex Morgan</h1>"));
+        assert!(zh.contains("<h2><svg></svg>工作经历</h2>"));
+        assert!(zh.contains("<h3>Skills</h3>"));
+        assert!(zh.contains(r#"<div class="section-title">教育经历</div>"#));
+        assert_eq!(data["work"][0]["name"], "Skills");
+    }
 
     #[test]
     fn keeps_document_layout_and_blocks_active_or_external_markup() {

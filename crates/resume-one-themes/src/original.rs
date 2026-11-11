@@ -14,7 +14,7 @@ use serde_json::{Value, json};
 use crate::{MAX_FILE_BYTES, ThemeError};
 
 pub const ORIGINAL_THEME_SUFFIX: &str = ".original.theme.json";
-const MAX_HTML_BYTES: usize = 4 * 1024 * 1024;
+pub(crate) const MAX_HTML_BYTES: usize = 4 * 1024 * 1024;
 
 #[derive(Debug)]
 pub struct OriginalTheme {
@@ -163,8 +163,22 @@ impl OriginalTheme {
 
     /// Prepare a static document for the desktop's live browser surface.
     pub fn render_preview_html(&self, resume: &Value) -> Result<String, ThemeError> {
+        self.render_localized_preview_html(resume, resume_one_core::render::Language::En)
+    }
+
+    pub fn render_localized_preview_html(
+        &self,
+        resume: &Value,
+        language: resume_one_core::render::Language,
+    ) -> Result<String, ThemeError> {
         let rendered = self.render_html(resume)?;
-        crate::preview_html::prepare(&rendered.html, &self.stylesheets, &self.id, MAX_HTML_BYTES)
+        let html = crate::preview_html::localize_headings(
+            &rendered.html,
+            resume,
+            language,
+            MAX_HTML_BYTES,
+        )?;
+        crate::preview_html::prepare(&html, &self.stylesheets, &self.id, MAX_HTML_BYTES)
     }
 }
 

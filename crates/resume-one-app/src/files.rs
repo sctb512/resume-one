@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use crate::i18n::tr;
 use gpui::{
     App, Context, IntoElement, KeyBinding, Menu, MenuItem, PathPromptOptions, PromptLevel,
     ScrollStrategy, UniformListScrollHandle, Window, actions, div, prelude::*, px, uniform_list,
@@ -69,44 +70,48 @@ fn register_bindings(cx: &mut App) {
 
 pub(super) fn register(cx: &mut App) {
     register_bindings(cx);
+    localize_menus(cx);
+}
+
+pub(super) fn localize_menus(cx: &mut App) {
     cx.set_menus(vec![
         Menu {
             name: "Resume One".into(),
             items: vec![
-                MenuItem::action("检查更新…", CheckUpdates),
+                MenuItem::action(tr("检查更新…"), CheckUpdates),
                 MenuItem::separator(),
-                MenuItem::action("退出 Resume One", Quit),
+                MenuItem::action(tr("退出 Resume One"), Quit),
             ],
         },
         Menu {
-            name: "文件".into(),
+            name: tr("文件").into(),
             items: vec![
-                MenuItem::action("打开 JSON…", OpenFile),
-                MenuItem::action("打开目录…", OpenDirectory),
-                MenuItem::action("新建简历", NewResume),
+                MenuItem::action(tr("打开 JSON…"), OpenFile),
+                MenuItem::action(tr("打开目录…"), OpenDirectory),
+                MenuItem::action(tr("新建简历"), NewResume),
                 MenuItem::separator(),
-                MenuItem::action("保存", Save),
-                MenuItem::action("另存为…", SaveAs),
+                MenuItem::action(tr("保存"), Save),
+                MenuItem::action(tr("另存为…"), SaveAs),
                 MenuItem::separator(),
-                MenuItem::action("导出 PDF…", ExportPdf),
-                MenuItem::action("导出 DOCX…", ExportDocx),
-                MenuItem::action("导出纯文本…", ExportText),
-                MenuItem::action("导出 Markdown…", ExportMarkdown),
+                MenuItem::action(tr("导出 PDF…"), ExportPdf),
+                MenuItem::action(tr("导出 DOCX…"), ExportDocx),
+                MenuItem::action(tr("导出纯文本…"), ExportText),
+                MenuItem::action(tr("导出 Markdown…"), ExportMarkdown),
                 MenuItem::separator(),
-                MenuItem::action("切换文件", ToggleFiles),
-                MenuItem::action("刷新目录", RefreshFolder),
+                MenuItem::action(tr("切换文件"), ToggleFiles),
+                MenuItem::action(tr("刷新目录"), RefreshFolder),
             ],
         },
         Menu {
-            name: "视图".into(),
-            items: vec![MenuItem::action("切换源码与预览", ToggleSource)],
+            name: tr("视图").into(),
+            items: vec![MenuItem::action(tr("切换源码与预览"), ToggleSource)],
         },
         Menu {
-            name: "主题".into(),
+            name: tr("主题").into(),
             items: vec![
-                MenuItem::action("外观设置…", ShowAppearance),
+                MenuItem::action(tr("外观设置…"), ShowAppearance),
                 MenuItem::separator(),
-                MenuItem::action("管理主题…", ManageThemes),
+                MenuItem::action(tr("管理主题…"), ManageThemes),
             ],
         },
     ]);
@@ -180,7 +185,7 @@ impl ResumeOne {
         let has_draft = match self.editor.as_ref().unwrap().store.load() {
             Ok(draft) => draft.is_some(),
             Err(message) => {
-                self.editor_warning("无法读取恢复草稿", &message, window, cx);
+                self.editor_warning(tr("无法读取恢复草稿"), &message, window, cx);
                 return;
             }
         };
@@ -188,9 +193,9 @@ impl ResumeOne {
             self.files.busy = true;
             let choice = window.prompt(
                 PromptLevel::Warning,
-                "当前简历有未保存的更改",
-                Some("可取消后先保存；新建不会覆盖当前磁盘文件。"),
-                &["继续编辑", "丢弃更改并新建"],
+                tr("当前简历有未保存的更改"),
+                Some(tr("可取消后先保存；新建不会覆盖当前磁盘文件。")),
+                &[tr("继续编辑"), tr("丢弃更改并新建")],
                 cx,
             );
             cx.spawn_in(window, async move |this, cx| {
@@ -217,7 +222,7 @@ impl ResumeOne {
         if let Some(editor) = &mut self.editor {
             editor.generation += 1;
             if let Err(message) = editor.store.clear_if_newer(editor.generation) {
-                self.editor_warning("无法丢弃草稿", &message, window, cx);
+                self.editor_warning(tr("无法丢弃草稿"), &message, window, cx);
                 return false;
             }
         }
@@ -237,10 +242,12 @@ impl ResumeOne {
         self.preview_scroll.set_offset(gpui::point(px(0.), px(0.)));
         self.original_preview.reset_document();
         self.model.new_document();
+        self.model.presentation_language = crate::i18n::language();
+        self.export_language = self.model.presentation_language;
         self.reset_editor_for_new_document(window, cx);
         self.source_mode = false;
         self.begin_mode_transition();
-        window.set_window_title("未命名简历 — Resume One · 简里");
+        window.set_window_title(tr("未命名简历 — Resume One · 简里"));
         self.open_inline("basics", None, window, cx);
         self.focus_inline_first(window, cx);
         cx.notify();
@@ -279,9 +286,9 @@ impl ResumeOne {
             multiple: false,
             prompt: Some(
                 if directory {
-                    "打开目录"
+                    tr("打开目录")
                 } else {
-                    "打开 JSON"
+                    tr("打开 JSON")
                 }
                 .into(),
             ),
@@ -290,7 +297,7 @@ impl ResumeOne {
             let choice = match choice.await {
                 Ok(Ok(paths)) => Ok(paths.and_then(|paths| paths.into_iter().next())),
                 Ok(Err(error)) => Err(format!("无法打开选择窗口：{error}")),
-                Err(_) => Err("选择窗口已关闭，请重试。".into()),
+                Err(_) => Err(tr("选择窗口已关闭，请重试。").into()),
             };
             this.update_in(cx, |this, window, cx| {
                 this.files.busy = false;
@@ -333,8 +340,8 @@ impl ResumeOne {
         }
         if self.files.reads_in_flight >= 2 {
             self.editor_warning(
-                "读取尚未结束",
-                "仍有两次系统读取尚未结束，请稍后再试。",
+                tr("读取尚未结束"),
+                tr("仍有两次系统读取尚未结束，请稍后再试。"),
                 window,
                 cx,
             );
@@ -426,7 +433,7 @@ impl ResumeOne {
             .bg(color(palette.panel))
             .text_size(px(12.))
             .text_color(color(palette.muted))
-            .child("正在等待读取文件或目录…")
+            .child(tr("正在等待读取文件或目录…"))
             .child(
                 div()
                     .id("cancel-file-loading")
@@ -439,7 +446,7 @@ impl ResumeOne {
                     .py_2()
                     .rounded_md()
                     .text_color(color(palette.accent))
-                    .child("取消")
+                    .child(tr("取消"))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.cancel_read(cx);
                         this.focus_current(window, cx);
@@ -478,9 +485,9 @@ impl ResumeOne {
             Some(Err(error)) => {
                 let answer = window.prompt(
                     PromptLevel::Warning,
-                    "无法打开",
+                    tr("无法打开"),
                     Some(&error),
-                    &["确定"],
+                    &[tr("确定")],
                     cx,
                 );
                 cx.spawn(async move |_, _| {
@@ -507,9 +514,9 @@ impl ResumeOne {
         {
             let choice = window.prompt(
                 PromptLevel::Warning,
-                "当前简历有未保存的更改",
-                Some("可以先按 ⌘S 或 Ctrl+S 保存。"),
-                &["继续编辑", "丢弃更改并打开"],
+                tr("当前简历有未保存的更改"),
+                Some(tr("可以先按 ⌘S 或 Ctrl+S 保存。")),
+                &[tr("继续编辑"), tr("丢弃更改并打开")],
                 cx,
             );
             cx.spawn_in(window, async move |this, cx| {
@@ -542,6 +549,12 @@ impl ResumeOne {
         let path = opened.path.clone();
         self.original_preview.reset_document();
         self.model.apply_opened(opened);
+        self.model.presentation_language = crate::i18n::document_language(
+            &self.model.document_label,
+            &self.model.document,
+            crate::i18n::language(),
+        );
+        self.export_language = self.model.presentation_language;
         self.remember_file(&path);
         self.reset_editor_for_document(window, cx);
         if !self.model.preview_ready && !self.source_mode {
@@ -764,7 +777,7 @@ impl ResumeOne {
                     .hover(|row| row.bg(color(colors.canvas)))
                     .flex()
                     .justify_between()
-                    .child("打开 JSON…")
+                    .child(tr("打开 JSON…"))
                     .child(format!("{shortcut}O"))
                     .on_click(
                         cx.listener(|this, _, window, cx| this.open_file(&OpenFile, window, cx)),
@@ -783,7 +796,7 @@ impl ResumeOne {
                     .hover(|row| row.bg(color(colors.canvas)))
                     .flex()
                     .justify_between()
-                    .child("打开目录…")
+                    .child(tr("打开目录…"))
                     .child(format!("{shortcut}⇧O"))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.open_directory(&OpenDirectory, window, cx)
@@ -803,7 +816,7 @@ impl ResumeOne {
                     .hover(|row| row.bg(color(colors.canvas)))
                     .flex()
                     .justify_between()
-                    .child("新建简历")
+                    .child(tr("新建简历"))
                     .child(format!("{shortcut}N"))
                     .on_click(
                         cx.listener(|this, _, window, cx| this.new_resume(&NewResume, window, cx)),
@@ -868,7 +881,7 @@ impl ResumeOne {
                             .id("refresh-folder")
                             .cursor_pointer()
                             .text_size(px(12.0))
-                            .child("刷新")
+                            .child(tr("刷新"))
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.refresh_folder(&RefreshFolder, window, cx)
                             })),
@@ -880,7 +893,7 @@ impl ResumeOne {
                         .px_3()
                         .py_4()
                         .text_color(color(colors.muted))
-                        .child("此目录没有 JSON 文件"),
+                        .child(tr("此目录没有 JSON 文件")),
                 );
             } else {
                 menu = menu.child(
@@ -944,7 +957,7 @@ impl ResumeOne {
                     .border_color(color(colors.border))
                     .text_size(px(11.0))
                     .text_color(color(colors.muted))
-                    .child("最近打开"),
+                    .child(tr("最近打开")),
             );
             let recent_count = recent.len();
             menu = menu.child(

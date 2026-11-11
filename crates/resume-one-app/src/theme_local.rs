@@ -14,7 +14,7 @@ use resume_one_themes::{
 use serde_json::{Value, json};
 
 use crate::ResumeOne;
-use crate::model::{BUILTIN_THEMES, BuiltinTheme};
+use crate::model::{BUILTIN_LOCALES, BUILTIN_THEMES, BuiltinTheme};
 
 actions!(resume_one, [ChooseThemeDirectory, ResetThemeDirectory]);
 
@@ -25,6 +25,7 @@ pub(super) struct ThemeStore {
     pub warnings: Vec<String>,
     pub sources: Vec<GithubSource>,
     pub appearance: Appearance,
+    pub ui_language: crate::i18n::Preference,
     recent_files: Vec<PathBuf>,
     last_folder: Option<PathBuf>,
 }
@@ -214,6 +215,90 @@ const REFINED_V1_1_SHA256: &[(&str, &str)] = &[
     ),
 ];
 
+// Exact shipped 1.1 and 1.2 files. User-edited themes are preserved.
+const PRE_REDESIGN_SHA256: &[(&str, &str)] = &[
+    (
+        "danzhu",
+        "ca120964a471158a7f02e6edc0edb0b06206867967afbe5238d9a07082d4610f",
+    ),
+    (
+        "fenglan",
+        "64b2ac521adeb13d9b5dcd849696e050cadbcf15a228eaeb8182d2ab076f34e6",
+    ),
+    (
+        "huanghun",
+        "9d7be6dc68da30e435fdfa606911e4e6f7a223175ebfa41206640a5242f65aea",
+    ),
+    (
+        "linquan",
+        "bb0fe52d4f534d99e6ebc8b24bdaf016db0775fac95f9e05284b4a469fdb8a6a",
+    ),
+    (
+        "mingsha",
+        "4dcc876f72d001ea914d4eeb54589c9551ccc7062f010954c3ae06e07394e751",
+    ),
+    (
+        "moxu",
+        "1f374471fdf7c6ae77ec1743fff2e9f4f134bd14e13ea5aafb56780eff4a4bb7",
+    ),
+    (
+        "qingci",
+        "2df89654cfd615822986323ff484ed9514b2eb3fb0f6b8dc6dda4052fa261dd0",
+    ),
+    (
+        "qinghe",
+        "59c7d7589cd2b31a66cdcdaa422fcbd886631b9d2f89f889f77db4f179c0ddf2",
+    ),
+    (
+        "shanshui",
+        "6cde50c496b6fcd45a7ec728344e3b464c7d3f6ce94d10cb68df3954b047d524",
+    ),
+    (
+        "songyan",
+        "2cc31e9b39f44ea272f799706675cdfa64e4298d8e46ae917ef199e13b675ef0",
+    ),
+    (
+        "xiaguang",
+        "834a93ad1fcc19df09876fb96f0d7b9ee12a12f296cf10ce509e8e4945da0de2",
+    ),
+    (
+        "xingye",
+        "c614a8d8b8caa2a7f47b132ec3de5be3706eb335c6c474bcbf81decfdf257c47",
+    ),
+    (
+        "xuanmu",
+        "362d922e259fa7add917d582d7529b9058805a5e2bd24db5abb1d8b6e70ec11e",
+    ),
+    (
+        "yanshan",
+        "145b446f14e1c8a587265e413d5312afb4dd9c128f57d5eb58155c5bc8bbfd1b",
+    ),
+    (
+        "yehe",
+        "593973df6012b448150ce74d3f3cf3ded9d5f830bf6ba82e86139acd50714fc5",
+    ),
+    (
+        "yuebai",
+        "f3e59c7780af46573cfbf3181e0851b63b0cba0a88ebd912d378ec029a16af0b",
+    ),
+    (
+        "zhegui",
+        "64cf2af899dd537f114c58cb5010bd30d911626928ba9aa7d6bfee16298c36f7",
+    ),
+    (
+        "zhibai",
+        "f77acb8e4daad81ff84063e4e40a87e32bf93022f8fd5c0bbaee27ab4d23967f",
+    ),
+    (
+        "zhimo",
+        "0ca1cecd3a28bc9bc876ffcc901a74799f9e752b3cb6f7af0d08deb9c95c1ebd",
+    ),
+    (
+        "zhuqing",
+        "a6bd35d4928e37d108ef12fb19d679a30dd612d0e7e4d83f5caaa4205556227e",
+    ),
+];
+
 fn recent_files_from(settings: &Value) -> Vec<PathBuf> {
     let mut files = Vec::new();
     if let Some(items) = settings.get("recentFiles").and_then(Value::as_array) {
@@ -317,6 +402,7 @@ impl ThemeStore {
             warnings,
             sources,
             appearance,
+            ui_language: crate::i18n::Preference::from_setting(settings["uiLanguage"].as_str()),
             recent_files,
             last_folder,
         };
@@ -372,6 +458,14 @@ impl ThemeStore {
         Ok(())
     }
 
+    pub fn save_ui_language(&mut self, preference: crate::i18n::Preference) -> Result<(), String> {
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        settings["uiLanguage"] = json!(preference.setting());
+        self.write_settings(&settings)?;
+        self.ui_language = preference;
+        Ok(())
+    }
+
     pub fn save_appearance(&mut self, appearance: Appearance) -> Result<(), String> {
         let value = appearance.as_json();
         Appearance::from_json(&value)?;
@@ -421,50 +515,69 @@ impl ThemeStore {
     fn seed_defaults(directory: &Path) -> Result<Vec<String>, String> {
         fs::create_dir_all(directory).map_err(|error| format!("无法创建主题目录：{error}"))?;
         let mut warnings = Vec::new();
-        for source in BUILTIN_THEMES {
+        for (source, locales) in BUILTIN_THEMES.iter().zip(BUILTIN_LOCALES) {
             let manifest = parse_theme(source.as_bytes())
                 .map_err(|issues| format!("内置主题无效：{issues:?}"))?;
             let target = directory.join(format!("{}.theme.json", manifest.id));
+            let mut overwrite = false;
+            let mut write_layout = true;
             match fs::symlink_metadata(&target) {
-                Ok(metadata) => {
-                    if metadata.file_type().is_file() && metadata.len() <= 1024 * 1024 {
-                        let bytes = match fs::read(&target) {
-                            Ok(bytes) => bytes,
-                            Err(error) => {
-                                warnings.push(format!("无法读取已有主题 {}：{error}", manifest.id));
-                                continue;
-                            }
-                        };
+                Ok(metadata) if metadata.file_type().is_file() && metadata.len() <= 1024 * 1024 => {
+                    let bytes = match fs::read(&target) {
+                        Ok(bytes) => bytes,
+                        Err(error) => {
+                            warnings.push(format!("无法读取已有主题 {}：{error}", manifest.id));
+                            continue;
+                        }
+                    };
+                    write_layout = bytes != source.as_bytes();
+                    if write_layout {
                         let existing_hash = sha256(&bytes);
-                        if LEGACY_BUNDLED_SHA256
+                        overwrite = LEGACY_BUNDLED_SHA256
                             .iter()
                             .chain(REFINED_PREVERSION_SHA256)
                             .chain(REFINED_V1_1_SHA256)
+                            .chain(PRE_REDESIGN_SHA256)
                             .any(|(id, known_hash)| {
                                 *id == manifest.id && existing_hash == *known_hash
-                            })
-                            && let Err(error) =
-                                write_export_unnamed(&target, source.as_bytes(), true)
-                        {
-                            warnings.push(format!(
-                                "无法升级内置主题 {}：{}",
-                                manifest.id, error.message
-                            ));
+                            });
+                        if !overwrite {
+                            continue;
                         }
                     }
-                    continue;
                 }
+                Ok(_) => continue,
                 Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
                 Err(error) => {
                     warnings.push(format!("无法检查已有主题 {}：{error}", manifest.id));
                     continue;
                 }
             }
-            if let Err(error) = write_export_unnamed(&target, source.as_bytes(), false)
-                && error.code != "FILE_EXISTS"
+            if write_layout
+                && let Err(error) = write_export_unnamed(&target, source.as_bytes(), overwrite)
             {
+                if overwrite {
+                    warnings.push(format!(
+                        "无法升级内置主题 {}：{}",
+                        manifest.id, error.message
+                    ));
+                    continue;
+                }
+                if error.code == "FILE_EXISTS" {
+                    continue;
+                }
                 return Err(format!(
                     "无法安装默认主题 {}：{}",
+                    manifest.id, error.message
+                ));
+            }
+            // Separate resources keep built-in layouts readable by previous releases after rollback.
+            let translation = directory.join(format!("{}.localizations.txt", manifest.id));
+            if let Err(error) = write_export_unnamed(&translation, locales, false)
+                && error.code != "FILE_EXISTS"
+            {
+                warnings.push(format!(
+                    "无法安装主题译文 {}：{}",
                     manifest.id, error.message
                 ));
             }
@@ -749,7 +862,7 @@ mod tests {
             assert!(ids.contains(parse_theme(source.as_bytes()).unwrap().id.as_str()));
         }
         let refined_preversion =
-            BUILTIN_THEMES[0].replace("\"version\": \"1.1.0\"", "\"version\": \"1.0.0\"");
+            include_str!("../tests/fixtures/zhibai-refined-preversion.theme.json");
         let expected_refined_hash = REFINED_PREVERSION_SHA256
             .iter()
             .find(|(id, _)| *id == "zhibai")
@@ -802,24 +915,22 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let directory = root.path().join("themes");
         fs::create_dir(&directory).unwrap();
-        for (id, old_description, new_description, composition) in [
+        for (id, current, old_description, new_description, composition) in [
             (
                 "danzhu",
+                include_str!("../tests/fixtures/danzhu-refined.theme.json"),
                 "无衬线大标题、左侧时间与朱砂细线，现代而克制。",
                 "朱砂无衬线分栏页眉、左侧时间与细线，现代而克制。",
                 "  \"composition\": { \"preset\": \"split-header\", \"header\": \"split\", \"contact\": \"inline\" },\n",
             ),
             (
                 "moxu",
+                include_str!("../tests/fixtures/moxu-refined.theme.json"),
                 "无衬线信息层级、左侧时间与墨青细线。",
                 "无衬线分栏页眉、左侧时间与墨青细线。",
                 "  \"composition\": { \"preset\": \"split-header\", \"header\": \"split\", \"contact\": \"stacked\" },\n",
             ),
         ] {
-            let current = BUILTIN_THEMES
-                .iter()
-                .find(|source| parse_theme(source.as_bytes()).unwrap().id == id)
-                .unwrap();
             let old = current
                 .replace(new_description, old_description)
                 .replace("\"version\": \"1.2.0\"", "\"version\": \"1.1.0\"")
@@ -830,7 +941,12 @@ mod tests {
                 .unwrap()
                 .1;
             assert_eq!(sha256(old.as_bytes()), expected);
-            fs::write(directory.join(format!("{id}.theme.json")), old).unwrap();
+            assert!(
+                PRE_REDESIGN_SHA256
+                    .iter()
+                    .any(|(known_id, hash)| *known_id == id && *hash == sha256(current.as_bytes()))
+            );
+            fs::write(directory.join(format!("{id}.theme.json")), current).unwrap();
         }
         let mut store =
             ThemeStore::new(root.path().join("settings.json"), directory.clone()).unwrap();

@@ -560,8 +560,7 @@ mod tests {
         assert!(!data.bytes.starts_with(b"ttcf"));
         let source = br#"{"basics":{"name":"Ada","summary":"English \u7b80\u91cc"}}"#;
         let content = crate::semantic::project(&crate::resume::parse_resume(source).unwrap());
-        let theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let mut appearance = Appearance::default();
         appearance.body_font = Some(FontChoice::Font("font:Arial".into()));
         appearance.heading_font = appearance.body_font.clone();

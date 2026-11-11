@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Moon Paper",
+    "description": "Airy header and quiet right rail"
+  }
+}

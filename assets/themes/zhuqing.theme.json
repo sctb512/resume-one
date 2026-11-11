@@ -2,15 +2,154 @@
   "formatVersion": 2,
   "id": "zhuqing",
   "name": "竹青",
-  "description": "居中书卷页眉、逐行联系方式与舒缓行距。",
-  "version": "1.1.0",
+  "description": "A4 单栏 · 日期居左",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "classic",
-  "colors": { "accent": "#3D6450", "seal": "#9B6048", "paper": "#F9FBF7", "canvas": "#EEF3EA" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 8, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "stacked" },
-  "typography": { "body": { "sizePt": 10.1, "lineHeight": 1.55 }, "name": { "sizePt": 29 }, "sectionTitle": { "sizePt": 13.5 } },
-  "sections": { "work": { "heading": "line" }, "projects": { "heading": "line" }, "education": { "heading": "line" }, "skills": { "heading": "line" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "rules",
+  "colors": {
+    "accent": "#205947",
+    "seal": "#84513C",
+    "paper": "#FFFFFF",
+    "canvas": "#EAF0EC"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 17,
+      "right": 19,
+      "bottom": 16,
+      "left": 19
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 30,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12.6,
+      "weight": 400,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "stacked",
+    "contact": "inline",
+    "moduleOrder": [
+      "work",
+      "education",
+      "languages",
+      "skills",
+      "projects"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    },
+    "education": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    },
+    "awards": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "stack",
+      "date": "left"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://europass.europa.eu/en/create-europass-cv",
+    "fidelity": "inspired"
+  }
 }

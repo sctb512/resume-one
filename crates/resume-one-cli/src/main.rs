@@ -740,6 +740,10 @@ fn execute(command: Command) -> Result<Value, AppError> {
                     "--theme 仅适用于 PDF / DOCX 导出",
                 ));
             }
+            let language = match lang {
+                ExportLanguage::Zh => Language::Zh,
+                ExportLanguage::En => Language::En,
+            };
             if let Some(path) = theme.as_deref().filter(|path| {
                 path.file_name().is_some_and(|name| {
                     name.to_string_lossy()
@@ -758,8 +762,9 @@ fn execute(command: Command) -> Result<Value, AppError> {
                 let document = load(&file)?;
                 let theme = resume_one_themes::OriginalTheme::load(path)
                     .map_err(|error| AppError::new(3, error.code, error.message).file(path))?;
-                let bytes = resume_one_themes::print_original(&theme, &document.value)
-                    .map_err(|error| AppError::new(6, error.code, error.message).file(&out))?;
+                let bytes =
+                    resume_one_themes::print_localized_original(&theme, &document.value, language)
+                        .map_err(|error| AppError::new(6, error.code, error.message).file(&out))?;
                 write_export(&file, &out, &bytes, overwrite)
                     .map_err(|error| AppError::new(6, error.code, error.message).file(&out))?;
                 return Ok(
@@ -768,10 +773,6 @@ fn execute(command: Command) -> Result<Value, AppError> {
             }
             let document = load(&file)?;
             let content = project(&document);
-            let language = match lang {
-                ExportLanguage::Zh => Language::Zh,
-                ExportLanguage::En => Language::En,
-            };
             let mut effective_theme = theme.as_deref().map(load_export_theme).transpose()?;
             if let Some(path) = appearance {
                 absolute(&path)?;

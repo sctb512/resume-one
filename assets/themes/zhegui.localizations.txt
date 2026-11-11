@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Laurel",
+    "description": "Compact early-career layout"
+  }
+}

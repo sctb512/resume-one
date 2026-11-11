@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::i18n::tr;
 use gpui::{Context, IntoElement, Window, div, prelude::*, px};
 use gpui_component::menu::{ContextMenuExt, PopupMenuItem};
 use resume_one_themes::{GithubClient, GithubSource, ThemeCache, VerifiedTheme};
@@ -84,7 +85,7 @@ impl ResumeOne {
         self.cancel_insertion();
         if online && self.online.provider.is_none() {
             let result = dirs::cache_dir()
-                .ok_or_else(|| "无法定位主题缓存目录".to_owned())
+                .ok_or_else(|| tr("无法定位主题缓存目录").to_owned())
                 .and_then(|root| {
                     ThemeCache::new(&root.join("Resume One").join("theme-cache"))
                         .map_err(|error| error.to_string())
@@ -114,7 +115,7 @@ impl ResumeOne {
                 this.update_in(cx, |this, window, cx| {
                     let effects = this.online.complete(&job, result);
                     if let Some(error) = effects.download_error {
-                        this.editor_warning("无法下载主题", &error, window, cx);
+                        this.editor_warning(tr("无法下载主题"), &error, window, cx);
                     }
                     if let Some(theme) = effects.apply {
                         this.apply_online_theme(theme);
@@ -173,7 +174,7 @@ impl ResumeOne {
                     }
                     Err(error) => {
                         this.online.diagnostic(error.clone());
-                        this.editor_warning("无法下载主题", &error, window, cx);
+                        this.editor_warning(tr("无法下载主题"), &error, window, cx);
                     }
                 }
                 cx.notify();
@@ -193,7 +194,7 @@ impl ResumeOne {
             .mb_2()
             .border_b_1()
             .border_color(color(p.line));
-        for (online, title) in [(false, "本地"), (true, "在线")] {
+        for (online, title) in [(false, tr("本地")), (true, tr("在线"))] {
             let selector = if online {
                 "themes-online"
             } else {
@@ -232,8 +233,8 @@ impl ResumeOne {
                 .online
                 .sources
                 .get(self.online.source_index)
-                .map(|source| source.display_name().to_owned())
-                .unwrap_or_else(|| "选择来源".into());
+                .map(|source| crate::i18n::source_name(source).to_owned())
+                .unwrap_or_else(|| tr("选择来源").into());
             nav = nav.child(
                 div()
                     .id("theme-source-picker")
@@ -274,7 +275,7 @@ impl ResumeOne {
                             .truncate()
                             .cursor_pointer()
                             .hover(|row| row.bg(color(style.colors.paper)))
-                            .child(source.display_name().to_owned())
+                            .child(crate::i18n::source_name(source).to_owned())
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.online.select_source(index);
                                 this.theme_scroll.set_offset(gpui::point(px(0.), px(0.)));
@@ -323,6 +324,7 @@ impl ResumeOne {
                 cx.notify();
             }));
         if let Some(catalog) = &self.online.catalog {
+            let locale = crate::i18n::theme_locale();
             for (index, entry) in catalog.entries().iter().enumerate() {
                 let identity = self
                     .online
@@ -338,7 +340,7 @@ impl ResumeOne {
                 let description = crate::chrome::theme_description(
                     thumbnail_theme
                         .as_ref()
-                        .and_then(|t| t.manifest.normalized["description"].as_str())
+                        .map(|t| t.manifest.localized_description(&locale))
                         .unwrap_or_else(|| {
                             if entry
                                 .manifest
@@ -394,7 +396,10 @@ impl ResumeOne {
                                     .text_size(px(15.))
                                     .text_color(color(if selected { p.accent } else { p.ink }))
                                     .line_clamp(2)
-                                    .child(entry.name.clone()),
+                                    .child(thumbnail_theme.as_ref().map_or_else(
+                                        || entry.name.clone(),
+                                        |theme| theme.manifest.localized_name(&locale).to_owned(),
+                                    )),
                             )
                             .when(!description.is_empty(), |label| {
                                 label.child(
@@ -463,7 +468,7 @@ impl ResumeOne {
                         let id = download_id.clone();
                         let identity = identity.clone();
                         menu.item(
-                            PopupMenuItem::new("下载到本地")
+                            PopupMenuItem::new(tr("下载到本地"))
                                 .disabled(download_disabled)
                                 .on_click(move |_, window, cx| {
                                     if let Some(owner) = owner.upgrade() {
@@ -729,6 +734,14 @@ mod tests {
         assert_eq!(
             std::fs::read_dir(root.path().join("defaults"))
                 .unwrap()
+                .filter(|entry| {
+                    entry
+                        .as_ref()
+                        .unwrap()
+                        .path()
+                        .to_string_lossy()
+                        .ends_with(".theme.json")
+                })
                 .count(),
             crate::model::BUILTIN_THEMES.len()
         );

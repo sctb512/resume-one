@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Celadon",
+    "description": "Celadon rules and timeline"
+  }
+}

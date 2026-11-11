@@ -41,7 +41,7 @@ const THEME_ORDER: [&str; 6] = [
 ];
 
 fn theme_source() -> Value {
-    serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap()
+    serde_json::from_slice(include_bytes!("fixtures/legacy-native.theme.json")).unwrap()
 }
 
 fn theme(preset: &str, order: Option<Value>) -> ThemeManifest {

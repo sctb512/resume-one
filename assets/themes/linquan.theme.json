@@ -2,14 +2,165 @@
   "formatVersion": 2,
   "id": "linquan",
   "name": "林泉",
-  "description": "大衬线姓名、左侧时间列与林绿强调线。",
-  "version": "1.1.0",
+  "description": "松绿右栏 · 技能标签",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "classic",
-  "colors": { "accent": "#3B6255", "seal": "#9F5D4B", "paper": "#FFFFFF", "canvas": "#EFF5F0" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6.5, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
-  "typography": { "body": { "lineHeight": 1.42 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13.5 } },
-  "sections": { "work": { "heading": "accent-line", "date": "left" }, "projects": { "heading": "accent-line", "date": "left" }, "education": { "heading": "accent-line", "date": "left" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "modern",
+  "colors": {
+    "accent": "#285749",
+    "seal": "#824F40",
+    "paper": "#FFFFFF",
+    "canvas": "#E8F0EA",
+    "sidebar": "#EDF4EE"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 16,
+      "right": 16,
+      "bottom": 16,
+      "left": 16
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 31,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.6,
+      "weight": 600,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "sidebar-right",
+    "header": "split",
+    "contact": "stacked",
+    "moduleOrder": [
+      "work",
+      "projects",
+      "skills",
+      "education"
+    ],
+    "sidebarWidthPct": 33,
+    "gapMm": 6,
+    "sidebarTypographyScale": 0.96,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "certificates": "sidebar",
+      "interests": "sidebar",
+      "awards": "sidebar"
+    },
+    "contactRegion": "sidebar"
+  },
+  "sections": {
+    "work": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "education": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "chips",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/liantze/AltaCV",
+    "fidelity": "inspired"
+  }
 }

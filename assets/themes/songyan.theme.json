@@ -2,14 +2,155 @@
   "formatVersion": 2,
   "id": "songyan",
   "name": "松烟",
-  "description": "松绿强调线、紧凑商务节奏与右侧日期。",
-  "version": "1.1.0",
+  "description": "经典衬线 · 教育优先",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "rules",
-  "colors": { "accent": "#3F5650", "seal": "#83594C", "paper": "#FFFFFF", "canvas": "#F0F3F1" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 5.5, "marginsMm": { "top": 16, "right": 17, "bottom": 16, "left": 17 } },
-  "typography": { "body": { "lineHeight": 1.38 }, "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 12.5 } },
-  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" }, "skills": { "heading": "line" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "classic",
+  "colors": {
+    "accent": "#222B27",
+    "seal": "#814437",
+    "paper": "#FFFFFF",
+    "canvas": "#F0EFE8"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "Letter",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 4.6,
+    "marginsMm": {
+      "top": 17,
+      "right": 18,
+      "bottom": 15,
+      "left": 18
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-serif",
+      "sizePt": 10.2,
+      "lineHeight": 1.34,
+      "weight": 600
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 28,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 10.5,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12,
+      "weight": 600,
+      "lineHeight": 1.25,
+      "textTransform": "uppercase",
+      "trackingEm": 0.065
+    },
+    "itemTitle": {
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.0,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 8.8,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "inline",
+    "moduleOrder": [
+      "education",
+      "work",
+      "volunteer",
+      "skills"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "education": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://careerservices.fas.harvard.edu/resources/bullet-point-resume-template/",
+    "fidelity": "inspired"
+  }
 }

@@ -1,4 +1,5 @@
 //! Screen-space layout only; drawers never change the print layout.
+use crate::i18n::tr;
 use gpui::{
     Animation, AnimationExt, Context, IntoElement, MouseButton, Window, div, prelude::*, px,
 };
@@ -90,8 +91,8 @@ impl ResumeOne {
     pub(super) fn drawer_button(&self, drawer: Drawer, cx: &mut Context<Self>) -> impl IntoElement {
         let p = chrome::Palette::new(self.shell_style());
         let (id, title) = match drawer {
-            Drawer::Themes => ("show-themes", "主题"),
-            Drawer::Modules => ("show-modules", "模块"),
+            Drawer::Themes => ("show-themes", tr("主题")),
+            Drawer::Modules => ("show-modules", tr("模块")),
         };
         div()
             .id(id)

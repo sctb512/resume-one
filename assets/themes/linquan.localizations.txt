@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "projects": "精选项目"
+    }
+  },
+  "en": {
+    "name": "Forest Spring",
+    "description": "Pine-green rail and skill tags",
+    "sections": {
+      "projects": "Selected Projects"
+    }
+  }
+}

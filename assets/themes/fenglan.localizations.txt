@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Orchid Breeze",
+    "description": "Pale blue rail with summary"
+  }
+}

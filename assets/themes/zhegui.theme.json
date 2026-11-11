@@ -2,15 +2,153 @@
   "formatVersion": 2,
   "id": "zhegui",
   "name": "折桂",
-  "description": "古铜色底、居中大标题与米纸上的规整细线。",
-  "version": "1.1.0",
+  "description": "深青栏目 · 紧凑校招",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "layout": "rules",
-  "colors": { "accent": "#71663F", "seal": "#8A624D", "paper": "#FCFAF3", "canvas": "#F5F1E5" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 7.5, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
-  "typography": { "body": { "lineHeight": 1.48 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13.5 } },
-  "sections": { "work": { "heading": "filled" }, "projects": { "heading": "line" }, "education": { "heading": "line" } },
-  "provenance": { "fidelity": "native" }
+  "colors": {
+    "accent": "#2B5C58",
+    "seal": "#8C503B",
+    "paper": "#FFFFFF",
+    "canvas": "#EAF0ED"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 4.6,
+    "marginsMm": {
+      "top": 15,
+      "right": 17,
+      "bottom": 15,
+      "left": 17
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.2,
+      "lineHeight": 1.34,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 29,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 10.5,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12,
+      "weight": 400,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.0,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 8.8,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "stacked",
+    "contact": "inline",
+    "moduleOrder": [
+      "education",
+      "work",
+      "projects",
+      "skills"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    },
+    "education": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "filled",
+      "items": "compact",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/billryan/resume",
+    "fidelity": "inspired"
+  }
 }

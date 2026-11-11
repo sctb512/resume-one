@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "First Light",
+    "description": "Copper rules and split header"
+  }
+}

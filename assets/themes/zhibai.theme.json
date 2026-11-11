@@ -2,14 +2,147 @@
   "formatVersion": 2,
   "id": "zhibai",
   "name": "知白",
-  "description": "无饰留白、无衬线层级与右侧日期。",
-  "version": "1.1.0",
+  "description": "居中姓名 · 细线单栏",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "minimal",
-  "colors": { "accent": "#4E5757", "seal": "#8C5B4C", "paper": "#FFFFFF", "canvas": "#F7F7F5" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 8, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
-  "typography": { "body": { "sizePt": 9.7, "lineHeight": 1.52 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 31 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 11.5 }, "meta": { "sizePt": 8.4 } },
-  "sections": { "work": { "date": "right" }, "projects": { "date": "right" }, "education": { "date": "right" }, "awards": { "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "rules",
+  "colors": {
+    "accent": "#384543",
+    "seal": "#934837",
+    "paper": "#FFFFFF",
+    "canvas": "#EEEFEA"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 17,
+      "right": 20,
+      "bottom": 17,
+      "left": 20
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 32,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.6,
+      "weight": 600,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 600,
+      "lineHeight": 1.34,
+      "family": "cjk-serif"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "inline"
+  },
+  "sections": {
+    "work": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    },
+    "education": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "stack",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/jakegut/resume",
+    "fidelity": "inspired"
+  }
 }

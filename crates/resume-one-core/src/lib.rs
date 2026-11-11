@@ -33,8 +33,12 @@ pub mod theme_style;
 
 const MAX_THEME_BYTES: usize = 1_048_576;
 pub const MAX_FONT_BYTES: usize = 8_388_608;
+pub const THEME_LOCALES_FILE: &str = "localizations.txt";
 const V1_SCHEMA: &str = include_str!("../../../resume-one-theme-v1.schema.json");
 const V2_SCHEMA: &str = include_str!("../../../resume-one-theme-v2.schema.json");
+
+#[cfg(test)]
+const LEGACY_THEME_TEST_BYTES: &[u8] = include_bytes!("../tests/fixtures/legacy-native.theme.json");
 
 static V1_VALIDATOR: OnceLock<Validator> = OnceLock::new();
 static V2_VALIDATOR: OnceLock<Validator> = OnceLock::new();
@@ -61,6 +65,55 @@ pub struct ThemeManifest {
 }
 
 impl ThemeManifest {
+    /// Attach verified package translations to a legacy manifest in memory.
+    /// Inline translations, when present, are the theme author's source of truth.
+    pub fn with_package_localizations(mut self, bytes: &[u8]) -> Result<Self, Vec<Diagnostic>> {
+        if self.normalized.get("localizations").is_some() {
+            return Ok(self);
+        }
+        let localized: Value = serde_json::from_slice(bytes).map_err(|error| {
+            vec![diagnostic(
+                "THEME_LOCALES",
+                "/localizations",
+                error.to_string(),
+            )]
+        })?;
+        self.normalized["localizations"] = localized;
+        if let Some(error) = validator(2).iter_errors(&self.normalized).next() {
+            return Err(vec![diagnostic(
+                "THEME_LOCALES",
+                error.instance_path().to_string(),
+                error.to_string(),
+            )]);
+        }
+        Ok(self)
+    }
+
+    /// Match a full locale, then its less specific parent tags, field by field.
+    pub(crate) fn localized_text(&self, locale: &str, path: &str) -> Option<&str> {
+        let tag = locale.to_ascii_lowercase();
+        let mut candidate = tag.as_str();
+        loop {
+            if let Some(text) = self.normalized["localizations"][candidate]
+                .pointer(path)
+                .and_then(Value::as_str)
+            {
+                return Some(text);
+            }
+            candidate = candidate.rsplit_once('-')?.0;
+        }
+    }
+
+    pub fn localized_name(&self, locale: &str) -> &str {
+        self.localized_text(locale, "/name").unwrap_or(&self.name)
+    }
+
+    pub fn localized_description(&self, locale: &str) -> &str {
+        self.localized_text(locale, "/description")
+            .or_else(|| self.normalized["description"].as_str())
+            .unwrap_or_default()
+    }
+
     /// All validated faces, including roles absent from the current resume.
     /// Native engines may cache a family's available weights at first use.
     pub fn font_asset_ids(&self) -> impl Iterator<Item = u16> + '_ {
@@ -195,8 +248,34 @@ pub fn load_theme(root: &Path, relative_path: &Path) -> Result<ThemeManifest, Ve
     }
     let bytes = read_limited(&path, MAX_THEME_BYTES)
         .map_err(|error| vec![diagnostic("THEME_IO", "", error.to_string())])?;
-    let theme = parse_theme(&bytes)?;
+    let mut theme = parse_theme(&bytes)?;
     let theme_dir = path.parent().expect("canonical file has parent");
+    let translations = if parts.len() == 2 {
+        Some(theme_dir.join(THEME_LOCALES_FILE))
+    } else {
+        path.file_name()
+            .and_then(|name| name.to_str())
+            .and_then(|name| name.strip_suffix(".theme.json"))
+            .map(|name| theme_dir.join(format!("{name}.{THEME_LOCALES_FILE}")))
+    };
+    if let Some(translations) = translations {
+        match std::fs::symlink_metadata(&translations) {
+            Ok(metadata) if metadata.file_type().is_file() => {
+                let bytes = read_limited(&translations, MAX_THEME_BYTES)
+                    .map_err(|error| vec![diagnostic("THEME_LOCALES", "", error.to_string())])?;
+                theme = theme.with_package_localizations(&bytes)?;
+            }
+            Ok(_) => {
+                return Err(vec![diagnostic(
+                    "THEME_LOCALES",
+                    "",
+                    "Expected a regular localization file",
+                )]);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(vec![diagnostic("THEME_LOCALES", "", error.to_string())]),
+        }
+    }
     load_theme_fonts(theme, |relative| {
         let font_path = std::fs::canonicalize(theme_dir.join(relative))?;
         if !font_path.starts_with(theme_dir) || !font_path.is_file() {
@@ -956,12 +1035,50 @@ mod tests {
     }
 
     #[test]
+    fn theme_locales_fall_back_by_language_and_do_not_replace_the_theme_identity() {
+        use crate::render::Language;
+        let raw = include_bytes!("../../../assets/themes/zhibai.theme.json");
+        let theme = parse_theme(raw)
+            .unwrap()
+            .with_package_localizations(include_bytes!(
+                "../../../assets/themes/zhibai.localizations.txt"
+            ))
+            .unwrap();
+        assert_eq!(theme.localized_name("EN-us"), "White Space");
+        assert_eq!(theme.localized_name("fr-CA"), "知白");
+        let style = theme_style::ThemeStyle::from_manifest(&theme);
+        assert_eq!(style.section_title("work", Language::En), "Experience");
+        assert_eq!(style.section_title("work", Language::Zh), "职业经历");
+        assert_eq!(style.section_title("skills", Language::En), "Skills");
+
+        let mut legacy: Value = serde_json::from_slice(raw).unwrap();
+        legacy.as_object_mut().unwrap().remove("localizations");
+        let legacy = parse_theme(&serde_json::to_vec(&legacy).unwrap()).unwrap();
+        let adapted = legacy
+            .clone()
+            .with_package_localizations(
+                br#"{"en":{"description":"An adapted theme"},"en-gb":{"name":"Parchment"}}"#,
+            )
+            .unwrap();
+        assert_eq!(adapted.id, legacy.id);
+        assert_eq!(adapted.name, legacy.name);
+        assert_eq!(adapted.localized_name("en-GB"), "Parchment");
+        assert_eq!(adapted.localized_description("en-GB"), "An adapted theme");
+        assert!(
+            legacy
+                .with_package_localizations(br#"{"en":{"sections":{"work":"<b>Work</b>"}}}"#,)
+                .is_err()
+        );
+    }
+
+    #[test]
     fn bundled_themes_are_real_valid_unique_declarative_files() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/themes");
         let mut paths = fs::read_dir(&root)
             .unwrap()
             .map(|entry| entry.unwrap().path())
             .collect::<Vec<_>>();
+        paths.retain(|path| path.to_string_lossy().ends_with(".theme.json"));
         paths.sort();
         assert_eq!(paths.len(), 20, "expected twenty bundled theme files");
         let mut ids = HashSet::new();
@@ -987,10 +1104,14 @@ mod tests {
             assert!(style.colors.ink.contrast(style.colors.paper) >= 4.5);
             assert!(style.colors.accent.contrast(style.colors.paper) >= 4.5);
             assert!(style.colors.muted.contrast(style.colors.paper) >= 4.5);
-            assert!(matches!(
-                style.composition_preset.as_str(),
-                "single-column" | "split-header"
-            ));
+            assert_ne!(theme.localized_name("en-US"), theme.name);
+            assert!(
+                (10.0..=11.0).contains(
+                    &theme.normalized["typography"]["body"]["sizePt"]
+                        .as_f64()
+                        .unwrap()
+                )
+            );
             assert!(theme.normalized.get("assets").is_none());
             layout::check_theme(&theme).unwrap();
             // A palette change alone is not a new built-in design. Keep the
@@ -998,6 +1119,7 @@ mod tests {
             let source = &theme.normalized;
             let structure = [
                 source["layout"].as_str().unwrap(),
+                style.composition_preset.as_str(),
                 source["page"]["size"].as_str().unwrap_or("A4"),
                 source["composition"]["header"]
                     .as_str()

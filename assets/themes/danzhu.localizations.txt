@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "work": "职业经历"
+    }
+  },
+  "en": {
+    "name": "Vermilion",
+    "description": "Vermilion rules and split header",
+    "sections": {
+      "work": "Professional Experience"
+    }
+  }
+}

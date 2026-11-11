@@ -2227,7 +2227,10 @@ mod tests {
                 continue;
             }
             let mut theme = crate::parse_theme(&std::fs::read(path).unwrap()).unwrap();
-            assert!(theme.normalized["page"].get("firstLinePosition").is_none());
+            theme.normalized["page"]
+                .as_object_mut()
+                .unwrap()
+                .remove("firstLinePosition");
             let before = layout_with_theme(&content, Language::En, &theme).unwrap();
             theme.normalized["page"]["firstLinePosition"] = serde_json::json!("baseline");
             let after = layout_with_theme(&content, Language::En, &theme).unwrap();
@@ -2241,8 +2244,7 @@ mod tests {
     fn header_row_clearance_does_not_rely_on_word_summing_adjacent_spacing() {
         let content =
             project(&parse_resume(br#"{"work":[{"position":"SMALL","name":"LARGE"}]}"#).unwrap());
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
             {"role":"body","parts":[{"field":"position"}],"style":{"sizePt":7,"lineHeight":1},"spaceAfterPt":5},
             {"role":"body","parts":[{"field":"name"}],"style":{"sizePt":42,"lineHeight":1},"spaceBeforePt":5}
@@ -2271,9 +2273,7 @@ mod tests {
             let content = project(
                 &parse_resume(serde_json::json!({"work":[item]}).to_string().as_bytes()).unwrap(),
             );
-            let mut theme =
-                crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                    .unwrap();
+            let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
             for role in ["body", "meta"] {
                 theme.normalized["typography"][role] = serde_json::json!({"family":"cjk-sans","weight":400,"sizePt":42,"lineHeight":1});
             }
@@ -2321,9 +2321,7 @@ mod tests {
             "sidebar-right",
         ] {
             for frame in ["stack", "cards", "timeline"] {
-                let mut theme =
-                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                        .unwrap();
+                let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                 theme.normalized["composition"] = serde_json::json!({"preset":preset});
                 if preset.starts_with("sidebar") {
                     theme.normalized["composition"]["placements"] =
@@ -2389,8 +2387,7 @@ mod tests {
         let source = serde_json::json!({"work":[{}, {"position":position,"name":"ORGANIZATION_END","summary":"BODY_END"}]});
         let doc = parse_resume(source.to_string().as_bytes()).unwrap();
         let content = project(&doc);
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["sections"]["work"] = serde_json::json!({"date":"inline","entryHeader":[
             {"role":"itemTitle","parts":[{"field":"position"}],"style":{"color":"#123456"}},
             {"role":"body","parts":[{"field":"name"}]}
@@ -2448,9 +2445,7 @@ mod tests {
             "sidebar-right",
         ] {
             for heading in ["plain", "line", "accent-line", "filled"] {
-                let mut theme =
-                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                        .unwrap();
+                let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                 theme.normalized["composition"] = serde_json::json!({"preset":preset});
                 if preset.starts_with("sidebar") {
                     theme.normalized["composition"]["placements"] =
@@ -2526,10 +2521,7 @@ mod tests {
         ] {
             for heading in ["plain", "line", "accent-line", "filled"] {
                 for date in ["inline", "left", "right"] {
-                    let mut theme = crate::parse_theme(include_bytes!(
-                        "../../../assets/themes/zhibai.theme.json"
-                    ))
-                    .unwrap();
+                    let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                     theme.normalized["composition"] = serde_json::json!({"preset":preset});
                     if preset.starts_with("sidebar") {
                         theme.normalized["composition"]["placements"] =
@@ -2610,9 +2602,7 @@ mod tests {
         );
         for preset in ["single-column", "sidebar-left", "sidebar-right"] {
             for heading in ["plain", "line", "accent-line", "filled"] {
-                let mut theme =
-                    crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                        .unwrap();
+                let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
                 theme.normalized["composition"] = serde_json::json!({"preset":preset});
                 if preset != "single-column" {
                     theme.normalized["composition"]["placements"] =
@@ -2682,8 +2672,7 @@ mod tests {
         let document =
             parse_resume("{\"basics\":{\"label\":\"Ada é e\\u0301 简里 Z\"}}".as_bytes()).unwrap();
         let original = document.value.clone();
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let id = crate::fonts::register_asset(
             include_bytes!("../tests/fixtures/theme-italic-font.ttf").to_vec(),
         )
@@ -2721,8 +2710,7 @@ mod tests {
     fn independent_basics_and_side_date_roles_keep_defaults_and_work_in_all_regions() {
         let document=parse_resume(br#"{"basics":{"name":"Ada","label":"ROLE_LABEL","summary":"ROLE_SUMMARY","email":"contact@example.com"},"work":[{"name":"ROLE_ITEM","location":"ROLE_DETAIL","startDate":"2020-01","summary":"ROLE_BODY"}],"skills":[{"name":"ROLE_SKILL"}]}"#).unwrap();
         let content = project(&document);
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let before = layout_with_theme(&content, Language::En, &theme).unwrap();
         for role in ["label", "summary", "sideDate"] {
             theme.normalized["typography"][role] = serde_json::json!({});
@@ -2910,8 +2898,7 @@ mod tests {
         let document = parse_resume(source).unwrap();
         let content = project(&document);
         let mut raw: serde_json::Value =
-            serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                .unwrap();
+            serde_json::from_slice(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         raw["typography"]["name"]["trackingEm"] = serde_json::json!(0.25);
         raw["typography"]["name"]["textTransform"] = serde_json::json!("uppercase");
         raw["typography"]["sectionTitle"]["trackingEm"] = serde_json::json!(0.25);
@@ -2983,8 +2970,7 @@ mod tests {
         let content = project(
             &parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"Company"}]}"#).unwrap(),
         );
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         let original = layout_with_theme(&content, Language::En, &theme).unwrap();
         for name in ["body", "name", "sectionTitle", "meta"] {
             theme.normalized["typography"][name]["trackingEm"] = serde_json::json!(0);
@@ -3001,8 +2987,7 @@ mod tests {
         let content = project(&parse_resume(br#"{"basics":{"name":"Identity","summary":"Summary body","email":"contact@example.com"},"work":[{"name":"Company"}]}"#).unwrap());
         for header in ["stacked", "centered", "split"] {
             let mut source: serde_json::Value =
-                serde_json::from_slice(include_bytes!("../../../assets/themes/zhibai.theme.json"))
-                    .unwrap();
+                serde_json::from_slice(crate::LEGACY_THEME_TEST_BYTES).unwrap();
             source["composition"] = serde_json::json!({"preset":"single-column", "header":header, "summaryRegion":"header"});
             source["layout"] = serde_json::json!("classic");
             let theme = crate::parse_theme(&serde_json::to_vec(&source).unwrap()).unwrap();
@@ -3892,6 +3877,9 @@ mod tests {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/themes");
         for entry in std::fs::read_dir(root).unwrap() {
             let path = entry.unwrap().path();
+            if !path.to_string_lossy().ends_with(".theme.json") {
+                continue;
+            }
             let theme = crate::parse_theme(&std::fs::read(&path).unwrap()).unwrap();
             let style = ThemeStyle::from_manifest(&theme);
             let measure = PageWriter::new(

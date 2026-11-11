@@ -1,5 +1,6 @@
 use std::{borrow::Cow, cell::RefCell, collections::VecDeque, sync::Arc};
 
+use crate::i18n::tr;
 use gpui::{
     App, Bounds, Context, Font, FontWeight, IntoElement, Pixels, Point, Rgba, ShapedLine, TextRun,
     canvas, div, fill, point, prelude::*, px, size,
@@ -951,6 +952,7 @@ struct Cache {
     revision: String,
     theme_epoch: u64,
     theme_identity: String,
+    language: Language,
     result: Result<Arc<PreviewData>, String>,
 }
 
@@ -1005,41 +1007,40 @@ impl PreviewState {
         cache.retain(|item| {
             item.revision == model.document.revision && item.theme_epoch == model.theme_epoch
         });
-        if let Some(cache) = cache
-            .iter()
-            .find(|item| item.theme_identity == theme.identity)
-        {
+        if let Some(cache) = cache.iter().find(|item| {
+            item.theme_identity == theme.identity && item.language == model.presentation_language
+        }) {
             return cache.result.clone();
         }
         let effective = model.display_appearance().apply(&theme.manifest);
-        let result = layout::layout_with_theme(&model.content, Language::Zh, &effective).and_then(
-            |layout| {
-                let mut pending: std::collections::BTreeSet<_> =
-                    effective.font_asset_ids().collect();
-                for element in layout.pages.iter().flatten() {
-                    if let LayoutElement::Text(text) = element
-                        && let FontKind::Local(id) = text.font
-                    {
-                        pending.insert(id);
+        let result =
+            layout::layout_with_theme(&model.content, model.presentation_language, &effective)
+                .and_then(|layout| {
+                    let mut pending: std::collections::BTreeSet<_> =
+                        effective.font_asset_ids().collect();
+                    for element in layout.pages.iter().flatten() {
+                        if let LayoutElement::Text(text) = element
+                            && let FontKind::Local(id) = text.font
+                        {
+                            pending.insert(id);
+                        }
                     }
-                }
-                pending.retain(|id| !self.registered_fonts.borrow().contains(id));
-                if !pending.is_empty() {
-                    self.text_system
-                        .add_fonts(
-                            pending
-                                .iter()
-                                .copied()
-                                .map(resume_one_core::fonts::bytes)
-                                .collect(),
-                        )
-                        .map_err(|e| format!("无法载入所选字体：{e}"))?;
-                    self.registered_fonts.borrow_mut().extend(pending);
-                }
-                let regions = regions(&layout);
-                Ok(Arc::new(PreviewData { layout, regions }))
-            },
-        );
+                    pending.retain(|id| !self.registered_fonts.borrow().contains(id));
+                    if !pending.is_empty() {
+                        self.text_system
+                            .add_fonts(
+                                pending
+                                    .iter()
+                                    .copied()
+                                    .map(resume_one_core::fonts::bytes)
+                                    .collect(),
+                            )
+                            .map_err(|e| format!("无法载入所选字体：{e}"))?;
+                        self.registered_fonts.borrow_mut().extend(pending);
+                    }
+                    let regions = regions(&layout);
+                    Ok(Arc::new(PreviewData { layout, regions }))
+                });
         // Up to 32 online manifests plus the applied/hovered theme must fit
         // together; otherwise the sidebar and main page evict each other every frame.
         if cache.len() >= 40 {
@@ -1049,6 +1050,7 @@ impl PreviewState {
             revision: model.document.revision.clone(),
             theme_epoch: model.theme_epoch,
             theme_identity: theme.identity.clone(),
+            language: model.presentation_language,
             result: result.clone(),
         });
         result
@@ -1519,7 +1521,7 @@ impl ResumeOne {
                     div()
                         .text_size(px(13.))
                         .text_color(color(style.colors.accent))
-                        .child("填写基本信息"),
+                        .child(tr("填写基本信息")),
                 )
             })
             .when(valid && editable, |hit| {

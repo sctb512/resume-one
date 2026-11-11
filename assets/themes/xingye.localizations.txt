@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "projects": "技术项目"
+    }
+  },
+  "en": {
+    "name": "Star Field",
+    "description": "Navy rules, projects first",
+    "sections": {
+      "projects": "Engineering Projects"
+    }
+  }
+}

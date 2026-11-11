@@ -2,15 +2,161 @@
   "formatVersion": 2,
   "id": "yehe",
   "name": "夜河",
-  "description": "深青纸面、居中页眉与柔和高亮线。",
-  "version": "1.1.0",
+  "description": "淡紫左栏 · 衬线姓名",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "minimal",
-  "colors": { "accent": "#A8CAC2", "seal": "#D3A47F", "paper": "#1A282C", "canvas": "#111B1E" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 7, "marginsMm": { "top": 18, "right": 18, "bottom": 18, "left": 18 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
-  "typography": { "body": { "lineHeight": 1.46 }, "name": { "sizePt": 30 }, "sectionTitle": { "sizePt": 13.5 }, "meta": { "sizePt": 8.7 } },
-  "sections": { "work": { "heading": "accent-line", "date": "right" }, "projects": { "heading": "accent-line", "date": "right" }, "education": { "heading": "accent-line", "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "classic",
+  "colors": {
+    "accent": "#633E5C",
+    "seal": "#944A58",
+    "paper": "#FFFFFF",
+    "canvas": "#F2EBF0",
+    "sidebar": "#F4EDF3"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 18,
+      "right": 18,
+      "bottom": 17,
+      "left": 18
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 33,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.6,
+      "weight": 600,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 600,
+      "lineHeight": 1.34,
+      "family": "cjk-serif"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "sidebar-left",
+    "header": "stacked",
+    "contact": "stacked",
+    "sidebarWidthPct": 31,
+    "gapMm": 6,
+    "sidebarTypographyScale": 0.96,
+    "placements": {
+      "skills": "sidebar",
+      "languages": "sidebar",
+      "certificates": "sidebar",
+      "interests": "sidebar",
+      "education": "sidebar"
+    },
+    "headerRegion": "main",
+    "contactRegion": "sidebar",
+    "summaryRegion": "main"
+  },
+  "sections": {
+    "work": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "education": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "awards": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "plain",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://resume.io/",
+    "fidelity": "inspired"
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "formatVersion": 2,
+  "id": "danzhu",
+  "name": "丹朱",
+  "description": "朱砂无衬线分栏页眉、左侧时间与细线，现代而克制。",
+  "version": "1.2.0",
+  "license": "Apache-2.0",
+  "layout": "modern",
+  "colors": { "accent": "#974D43", "seal": "#974D43", "paper": "#FFFCF9", "canvas": "#F8F1EC" },
+  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
+  "page": { "size": "A4", "sectionGapMm": 6, "marginsMm": { "top": 17, "right": 17, "bottom": 17, "left": 17 } },
+  "typography": { "body": { "lineHeight": 1.42 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 29 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12.5 } },
+  "composition": { "preset": "split-header", "header": "split", "contact": "inline" },
+  "sections": { "work": { "heading": "accent-line", "date": "left" }, "projects": { "heading": "accent-line", "date": "left" }, "education": { "heading": "accent-line", "date": "left" } },
+  "provenance": { "fidelity": "native" }
+}

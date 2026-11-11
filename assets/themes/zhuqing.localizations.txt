@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Bamboo",
+    "description": "A4 with a left date column"
+  }
+}

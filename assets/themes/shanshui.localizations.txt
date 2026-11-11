@@ -1,0 +1,6 @@
+{
+  "en": {
+    "name": "Mountain & Water",
+    "description": "Centered header and left rail"
+  }
+}

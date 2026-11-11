@@ -1,4 +1,5 @@
 //! Desktop visual tokens taken from the approved v3 workspace, not print tokens.
+use crate::i18n::tr;
 use gpui::{
     Context, FontWeight, IntoElement, MouseButton, PathBuilder, canvas, div, point, prelude::*, px,
 };
@@ -274,16 +275,16 @@ impl ResumeOne {
         let export_ink = readable_on(style.colors.paper, style.colors.accent);
         let dirty = self.editor.as_ref().is_some_and(|e| e.buffer.is_dirty());
         let status = if self.editor.as_ref().is_some_and(|e| e.saving) {
-            "保存中…"
+            tr("保存中…")
         } else if self.model.document_path.is_none() && self.model.is_example && !dirty {
-            "示例预览"
+            tr("示例预览")
         } else if dirty || self.model.document_path.is_none() {
-            "未保存"
+            tr("未保存")
         } else {
-            "已保存"
+            tr("已保存")
         };
         let filename = if self.model.is_example {
-            "示例简历"
+            tr("示例简历")
         } else {
             &self.model.document_label
         };
@@ -445,9 +446,9 @@ impl ResumeOne {
                     .hover(|v| v.bg(color(p.soft)))
                     .child(icon("open", p.ink))
                     .child(if self.files.busy {
-                        "打开中…"
+                        tr("打开中…")
                     } else {
-                        "打开"
+                        tr("打开")
                     })
                     .child(icon("chevron", p.muted))
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
@@ -490,9 +491,9 @@ impl ResumeOne {
                     .hover(|v| v.bg(color(style.colors.accent.mix(style.colors.ink, 0.12))))
                     .child(icon("export", export_ink))
                     .child(if self.export_busy {
-                        "导出中…"
+                        tr("导出中…")
                     } else {
-                        "导出"
+                        tr("导出")
                     })
                     .child(icon("chevron", export_ink))
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())

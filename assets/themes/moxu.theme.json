@@ -2,15 +2,155 @@
   "formatVersion": 2,
   "id": "moxu",
   "name": "墨序",
-  "description": "无衬线分栏页眉、左侧时间与墨青细线。",
-  "version": "1.2.0",
+  "description": "紧凑单栏 · 工程履历",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "layout": "rules",
-  "colors": { "accent": "#344E55", "seal": "#344E55", "paper": "#FFFFFF", "canvas": "#F1F3F2" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 5, "marginsMm": { "top": 15, "right": 16, "bottom": 15, "left": 16 } },
-  "typography": { "body": { "sizePt": 9.8, "lineHeight": 1.39 }, "name": { "family": "cjk-sans", "weight": 400, "sizePt": 26 }, "sectionTitle": { "family": "cjk-sans", "weight": 400, "sizePt": 12 } },
-  "composition": { "preset": "split-header", "header": "split", "contact": "stacked" },
-  "sections": { "work": { "heading": "line", "date": "left" }, "projects": { "heading": "line", "date": "left" }, "education": { "heading": "line", "date": "left" }, "skills": { "heading": "line" } },
-  "provenance": { "fidelity": "native" }
+  "colors": {
+    "accent": "#223945",
+    "seal": "#794742",
+    "paper": "#FFFFFF",
+    "canvas": "#EEF1F2"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "Letter",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 4.6,
+    "marginsMm": {
+      "top": 13,
+      "right": 17,
+      "bottom": 14,
+      "left": 17
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.2,
+      "lineHeight": 1.34,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 29,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 10.5,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12,
+      "weight": 600,
+      "lineHeight": 1.25,
+      "textTransform": "uppercase",
+      "trackingEm": 0.065
+    },
+    "itemTitle": {
+      "sizePt": 10.5,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.0,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 8.8,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "inline",
+    "moduleOrder": [
+      "work",
+      "skills",
+      "projects",
+      "education"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    },
+    "education": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "compact",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://github.com/sb2nov/resume",
+    "fidelity": "inspired"
+  }
 }

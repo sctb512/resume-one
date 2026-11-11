@@ -1,3 +1,4 @@
+use crate::i18n::tr;
 use gpui::{
     AnyElement, App, AvailableSpace, Bounds, Context, Entity, IntoElement, Pixels, Window, canvas,
     div, prelude::*, px, size,
@@ -16,8 +17,25 @@ use resume_one_core::{
 use crate::{ResumeOne, color, label};
 
 fn action_label(action: &SourceAction) -> String {
+    if crate::i18n::is_english() {
+        return match action {
+            SourceAction::ModuleGap { .. } => tr("新增模块…").into(),
+            SourceAction::Edit(StructureEdit::RemoveSection { id }) => {
+                format!("Remove {}", label(id))
+            }
+            SourceAction::Edit(StructureEdit::InsertItem { id, index }) => {
+                format!("{} · Insert before item {}", label(id), index + 1)
+            }
+            SourceAction::Edit(StructureEdit::RemoveItem { id, index }) => {
+                format!("{} · Remove item {}", label(id), index + 1)
+            }
+            SourceAction::Edit(StructureEdit::InsertSection { id, .. }) => {
+                format!("Add {}", label(id))
+            }
+        };
+    }
     match action {
-        SourceAction::ModuleGap { .. } => "新增模块…".into(),
+        SourceAction::ModuleGap { .. } => tr("新增模块…").into(),
         SourceAction::Edit(StructureEdit::RemoveSection { id }) => format!("移除{}模块", label(id)),
         SourceAction::Edit(StructureEdit::InsertItem { id, index }) => {
             format!("{} · 在第 {} 项前插入", label(id), index + 1)

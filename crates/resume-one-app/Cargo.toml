@@ -13,6 +13,7 @@ path = "src/main.rs"
 gpui.workspace = true
 gpui-component = "=0.5.1"
 dirs = "=5.0.1"
+sys-locale = "0.3.2"
 serde_json.workspace = true
 resume-one-core = { path = "../resume-one-core" }
 resume-one-themes = { path = "../resume-one-themes" }

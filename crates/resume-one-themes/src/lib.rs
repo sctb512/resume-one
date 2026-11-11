@@ -8,7 +8,9 @@ mod preview_html;
 mod release;
 mod source;
 
-pub use browser::{print_original, thumbnail_original};
+pub use browser::{
+    print_localized_original, print_original, thumbnail_localized_original, thumbnail_original,
+};
 pub use cache::ThemeCache;
 pub use client::{CatalogResult, GithubClient, HttpResponse, Transport, UreqTransport};
 pub use original::{ORIGINAL_THEME_SUFFIX, OriginalTheme};

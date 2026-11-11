@@ -2,14 +2,161 @@
   "formatVersion": 2,
   "id": "mingsha",
   "name": "明砂",
-  "description": "暖砂纸面、稳重色底标题与右侧日期。",
-  "version": "1.1.0",
+  "description": "暖白纸面 · 作品优先",
+  "version": "1.3.0",
   "license": "Apache-2.0",
-  "layout": "modern",
-  "colors": { "accent": "#75504A", "seal": "#A76450", "paper": "#FBF6F0", "canvas": "#F3EAE2" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 6.5, "marginsMm": { "top": 17, "right": 17, "bottom": 17, "left": 17 } },
-  "typography": { "body": { "lineHeight": 1.43 }, "name": { "sizePt": 27 }, "sectionTitle": { "sizePt": 13 } },
-  "sections": { "work": { "heading": "filled", "date": "right" }, "projects": { "heading": "filled", "date": "right" }, "education": { "heading": "line", "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "layout": "classic",
+  "colors": {
+    "accent": "#63513F",
+    "seal": "#855241",
+    "paper": "#FFFCF5",
+    "canvas": "#F3EBDB"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "A4",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 22,
+      "right": 24,
+      "bottom": 18,
+      "left": 24
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-serif",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 600
+    },
+    "name": {
+      "family": "cjk-serif",
+      "weight": 600,
+      "sizePt": 34,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-serif",
+      "sizePt": 12.6,
+      "weight": 600,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 600,
+      "lineHeight": 1.34,
+      "family": "cjk-serif"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "single-column",
+    "header": "centered",
+    "contact": "inline",
+    "moduleOrder": [
+      "projects",
+      "work",
+      "publications",
+      "education"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "volunteer": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "education": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "awards": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "certificates": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "publications": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "skills": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    },
+    "projects": {
+      "heading": "line",
+      "items": "stack",
+      "date": "inline",
+      "headingAlign": "center"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://resume.io/",
+    "fidelity": "inspired"
+  }
 }

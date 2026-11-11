@@ -160,7 +160,8 @@ function sendField(field, value) {
   const message = JSON.stringify({kind:"edit", token:editToken, session, section:edited.section,
     item:edited.index, field:field.key, index:field.index, value});
   if (new TextEncoder().encode(message).length > 90 * 1024) {
-    editError.textContent = "字段过长，请在 JSON 视图中编辑。";
+    editError.textContent = document.documentElement.lang === "en"
+      ? "This field is too long. Edit it in JSON view." : "字段过长，请在 JSON 视图中编辑。";
     return;
   }
   window.ipc.postMessage(message);
@@ -201,7 +202,7 @@ function openEdit(region, point, keyboard = false) {
     input.readOnly = field.readOnly;
     input.maxLength = 48 * 1024;
     input.dataset.field = fieldId(field);
-    if (field.readOnly) input.placeholder = "在 JSON 视图中编辑";
+    if (field.readOnly) input.placeholder = document.documentElement.lang === "en" ? "Edit in JSON view" : "在 JSON 视图中编辑";
     label.append(input);
     editFields.append(label);
     const queue = () => {

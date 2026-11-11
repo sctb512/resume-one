@@ -1,4 +1,5 @@
 //! A docked appearance inspector; the document is never covered by these controls.
+use crate::i18n::tr;
 use crate::{ResumeOne, chrome, color};
 use gpui::{
     Context, Entity, Focusable as _, IntoElement, PathPromptOptions, Render, ScrollHandle,
@@ -42,14 +43,14 @@ pub(super) struct AppearanceEditor {
 
 fn color_label(key: &str) -> &'static str {
     match key {
-        "accent" => "强调色",
-        "paper" => "纸张",
-        "canvas" => "工作区",
-        "ink" => "正文",
-        "muted" => "辅助文字",
-        "border" => "分隔线",
-        "seal" => "印色",
-        _ => "颜色",
+        "accent" => tr("强调色"),
+        "paper" => tr("纸张"),
+        "canvas" => tr("工作区"),
+        "ink" => tr("正文"),
+        "muted" => tr("辅助文字"),
+        "border" => tr("分隔线"),
+        "seal" => tr("印色"),
+        _ => tr("颜色"),
     }
 }
 
@@ -95,7 +96,7 @@ impl AppearanceEditor {
                 })
             })
             .collect();
-        let font_search = cx.new(|cx| InputState::new(window, cx).placeholder("搜索字体名称"));
+        let font_search = cx.new(|cx| InputState::new(window, cx).placeholder(tr("搜索字体名称")));
         subscriptions.push(cx.subscribe(&font_search, |this, _, event, cx| {
             if matches!(event, InputEvent::Change) {
                 this.clear_trial(cx);
@@ -215,9 +216,9 @@ impl AppearanceEditor {
     fn font_choices(&self, cx: &gpui::App) -> Vec<(String, Option<FontChoice>)> {
         let query = self.font_search.read(cx).value().trim().to_lowercase();
         let mut choices = vec![
-            ("跟随主题".into(), None),
-            ("Noto Sans SC · 内置".into(), Some(FontChoice::Sans)),
-            ("Noto Serif SC · 内置".into(), Some(FontChoice::Serif)),
+            (tr("跟随主题").into(), None),
+            (tr("Noto Sans SC · 内置").into(), Some(FontChoice::Sans)),
+            (tr("Noto Serif SC · 内置").into(), Some(FontChoice::Serif)),
         ];
         choices.extend(
             self.font_names
@@ -333,7 +334,7 @@ impl AppearanceEditor {
             files: true,
             directories: false,
             multiple: true,
-            prompt: Some("安装字体到简里".into()),
+            prompt: Some(tr("安装字体到简里").into()),
         });
         self.font_busy = true;
         self.error = None;
@@ -375,8 +376,8 @@ impl AppearanceEditor {
                     task.await
                 }
                 Ok(Ok(None)) => Ok((Vec::new(), None, Vec::new())),
-                Ok(Ok(Some(_))) => Err("一次最多安装 16 个字体文件".into()),
-                _ => Err("无法读取字体选择结果，请重试".into()),
+                Ok(Ok(Some(_))) => Err(tr("一次最多安装 16 个字体文件").into()),
+                _ => Err(tr("无法读取字体选择结果，请重试").into()),
             };
             this.update_in(cx, |this, window, cx| {
                 this.font_busy = false;
@@ -529,9 +530,9 @@ impl AppearanceEditor {
                             .font_family(chrome::SERIF)
                             .text_size(px(18.))
                             .child(if heading {
-                                "标题字体"
+                                tr("标题字体")
                             } else {
-                                "正文字体"
+                                tr("正文字体")
                             }),
                     )
                     .child(
@@ -549,7 +550,7 @@ impl AppearanceEditor {
                             .rounded(px(5.))
                             .hover(|v| v.bg(color(p.soft)))
                             .text_size(px(12.))
-                            .child("返回")
+                            .child(tr("返回"))
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.close_font_browser(heading, window, cx);
                             }))
@@ -652,7 +653,7 @@ impl AppearanceEditor {
                         .px_4()
                         .py_3()
                         .text_size(px(12.))
-                        .child("未找到匹配字体"),
+                        .child(tr("未找到匹配字体")),
                 )
             })
             .when(self.font_busy, |v| {
@@ -661,7 +662,7 @@ impl AppearanceEditor {
                         .px_4()
                         .py_2()
                         .text_size(px(12.))
-                        .child("正在读取字体…"),
+                        .child(tr("正在读取字体…")),
                 )
             })
             .when_some(
@@ -704,7 +705,7 @@ impl AppearanceEditor {
                         .tab_stop(true)
                         .hover(|v| v.bg(color(p.soft)))
                         .text_size(px(12.))
-                        .child("安装字体…")
+                        .child(tr("安装字体…"))
                         .on_click(cx.listener(|this, _, window, cx| this.install_fonts(window, cx)))
                         .on_key_down(cx.listener(|this, event, window, cx| {
                             if chrome::activation_key(event) {
@@ -762,15 +763,15 @@ impl Render for AppearanceEditor {
             .overflow_y_scroll()
             .track_scroll(&self.scroll);
         for (heading, title, current) in [
-            (false, "正文与辅助文字", appearance.body_font.clone()),
-            (true, "姓名与模块标题", appearance.heading_font.clone()),
+            (false, tr("正文与辅助文字"), appearance.body_font.clone()),
+            (true, tr("姓名与模块标题"), appearance.heading_font.clone()),
         ] {
             let selector = format!(
                 "appearance-font-{}",
                 if heading { "heading" } else { "body" }
             );
             let name = match current {
-                None => "跟随主题".to_owned(),
+                None => tr("跟随主题").to_owned(),
                 Some(FontChoice::Sans) => "Noto Sans SC".into(),
                 Some(FontChoice::Serif) => "Noto Serif SC".into(),
                 Some(FontChoice::Font(name)) => name.trim_start_matches("font:").to_owned(),
@@ -850,7 +851,7 @@ impl Render for AppearanceEditor {
                     div()
                         .font_family(chrome::SERIF)
                         .text_size(px(15.))
-                        .child("配色"),
+                        .child(tr("配色")),
                 )
                 .child(
                     div()
@@ -864,7 +865,7 @@ impl Render for AppearanceEditor {
                         .text_size(px(12.))
                         .text_color(color(p.accent))
                         .cursor_pointer()
-                        .child("跟随主题")
+                        .child(tr("跟随主题"))
                         .on_click(cx.listener(|this, _, window, cx| this.reset_colors(window, cx)))
                         .on_key_down(cx.listener(|this, event, window, cx| {
                             if chrome::activation_key(event) {
@@ -927,7 +928,7 @@ impl Render for AppearanceEditor {
                         div()
                             .font_family(chrome::SERIF)
                             .text_size(px(18.))
-                            .child("外观"),
+                            .child(tr("外观")),
                     )
                     .child(
                         div()
@@ -946,7 +947,7 @@ impl Render for AppearanceEditor {
                             .focus(|view| view.bg(color(p.soft)))
                             .text_size(px(12.))
                             .text_color(color(p.accent))
-                            .child("完成")
+                            .child(tr("完成"))
                             .on_click(cx.listener(|this, _, window, cx| {
                                 if let Some(owner) = this.owner.upgrade() {
                                     owner.update(cx, |app, cx| app.finish_appearance(window, cx));
@@ -994,7 +995,7 @@ impl Render for AppearanceEditor {
                     .py_3()
                     .text_size(px(12.))
                     .text_color(color(p.muted))
-                    .child("悬停试用 · 点击确认\n字体与配色仅保存在本机"),
+                    .child(tr("悬停试用 · 点击确认\n字体与配色仅保存在本机")),
             )
             .into_any_element()
     }
@@ -1033,7 +1034,7 @@ impl ResumeOne {
 
     pub(super) fn finish_appearance(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if let Err(error) = self.change_appearance(self.model.appearance.clone(), window, cx) {
-            self.editor_warning("外观设置未保存", &error, window, cx);
+            self.editor_warning(tr("外观设置未保存"), &error, window, cx);
         }
         self.appearance_editor = None;
         self.focus_current(window, cx);
@@ -1058,7 +1059,7 @@ impl ResumeOne {
         resume_one_core::layout::check_theme(
             &appearance.apply(&self.model.applied_theme().manifest),
         )?;
-        let store = self.theme_store.as_mut().ok_or("本地外观设置不可用")?;
+        let store = self.theme_store.as_mut().ok_or(tr("本地外观设置不可用"))?;
         let result = if store.appearance == appearance {
             Ok(())
         } else {

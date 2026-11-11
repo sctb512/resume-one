@@ -4,6 +4,7 @@ use std::{
 };
 
 use resume_one_core::appearance::Appearance;
+use resume_one_core::render::Language;
 use resume_one_core::resume::{ResumeDocument, parse_resume};
 use resume_one_core::semantic::{ResumeContent, project};
 use resume_one_core::theme_style::ThemeStyle;
@@ -12,29 +13,24 @@ use resume_one_themes::{OriginalTheme, VerifiedTheme};
 
 use crate::workspace::{LocalFolder, OpenedFile};
 
-pub(crate) const BUILTIN_THEMES: &[&str] = &[
-    include_str!("../../../assets/themes/zhibai.theme.json"),
-    include_str!("../../../assets/themes/moxu.theme.json"),
-    include_str!("../../../assets/themes/songyan.theme.json"),
-    include_str!("../../../assets/themes/qingci.theme.json"),
-    include_str!("../../../assets/themes/yuebai.theme.json"),
-    include_str!("../../../assets/themes/danzhu.theme.json"),
-    include_str!("../../../assets/themes/zhimo.theme.json"),
-    include_str!("../../../assets/themes/shanshui.theme.json"),
-    include_str!("../../../assets/themes/linquan.theme.json"),
-    include_str!("../../../assets/themes/xuanmu.theme.json"),
-    include_str!("../../../assets/themes/yehe.theme.json"),
-    include_str!("../../../assets/themes/fenglan.theme.json"),
-    include_str!("../../../assets/themes/huanghun.theme.json"),
-    include_str!("../../../assets/themes/xiaguang.theme.json"),
-    include_str!("../../../assets/themes/mingsha.theme.json"),
-    include_str!("../../../assets/themes/yanshan.theme.json"),
-    include_str!("../../../assets/themes/zhuqing.theme.json"),
-    include_str!("../../../assets/themes/qinghe.theme.json"),
-    include_str!("../../../assets/themes/zhegui.theme.json"),
-    include_str!("../../../assets/themes/xingye.theme.json"),
+macro_rules! built_in_themes {
+    ($($id:literal),+ $(,)?) => {
+        pub(crate) const BUILTIN_THEMES: &[&str] = &[$(
+            include_str!(concat!("../../../assets/themes/", $id, ".theme.json"))
+        ),+];
+        pub(crate) const BUILTIN_LOCALES: &[&[u8]] = &[$(
+            include_bytes!(concat!("../../../assets/themes/", $id, ".localizations.txt"))
+        ),+];
+    };
+}
+
+built_in_themes![
+    "zhibai", "moxu", "songyan", "qingci", "yuebai", "danzhu", "zhimo", "shanshui", "linquan",
+    "xuanmu", "yehe", "fenglan", "huanghun", "xiaguang", "mingsha", "yanshan", "zhuqing", "qinghe",
+    "zhegui", "xingye",
 ];
 
+const EXAMPLE_RESUME_EN: &[u8] = include_bytes!("../../../assets/example.en.resume.json");
 const EXAMPLE_RESUME: &[u8] = include_bytes!("../../../assets/example.resume.json");
 
 #[derive(Clone)]
@@ -61,6 +57,11 @@ impl BuiltinTheme {
             .clone();
         manifest.id = theme.id.clone();
         manifest.name = theme.name.clone();
+        manifest
+            .normalized
+            .as_object_mut()
+            .unwrap()
+            .remove("localizations");
         manifest.modules = crate::SECTION_LABELS
             .iter()
             .map(|(id, _)| (*id).to_owned())
@@ -84,6 +85,8 @@ impl BuiltinTheme {
             _ => "",
         };
         manifest.normalized["description"] = serde_json::json!(description);
+        manifest.normalized["localizations"]["en"]["description"] =
+            serde_json::json!(crate::i18n::english(description));
         manifest.normalized["provenance"] = serde_json::json!({
             "upstreamUrl": theme.upstream, "upstreamRevision": theme.version, "upstreamAuthor": theme.author
         });
@@ -118,6 +121,7 @@ pub struct AppModel {
     appearance_preview: Option<Appearance>,
     pub document: ResumeDocument,
     pub content: ResumeContent,
+    pub presentation_language: Language,
     pub opened_source: Vec<u8>,
     pub preview_ready: bool,
     pub document_label: String,
@@ -131,9 +135,17 @@ pub struct AppModel {
 }
 
 impl AppModel {
+    #[cfg(test)]
     pub fn load(path: Option<&Path>) -> Result<Self, String> {
-        let example =
-            parse_resume(EXAMPLE_RESUME).map_err(|issues| format!("内置示例无效：{issues:?}"))?;
+        Self::load_with_language(path, Language::Zh)
+    }
+
+    pub fn load_with_language(path: Option<&Path>, language: Language) -> Result<Self, String> {
+        let bytes = match language {
+            Language::Zh => EXAMPLE_RESUME,
+            Language::En => EXAMPLE_RESUME_EN,
+        };
+        let example = parse_resume(bytes).map_err(|issues| format!("内置示例无效：{issues:?}"))?;
         let opened = path
             .filter(|path| !path.is_dir())
             .map(OpenedFile::read)
@@ -157,11 +169,15 @@ impl AppModel {
             .as_deref()
             .and_then(Path::file_name)
             .map(|name| name.to_string_lossy().into_owned())
-            .unwrap_or_else(|| "示例简历".to_string());
+            .unwrap_or_else(|| crate::i18n::tr("示例简历").to_string());
+        let presentation_language =
+            crate::i18n::document_language(&document_label, &document, language);
         let themes = BUILTIN_THEMES
             .iter()
-            .map(|source| {
+            .zip(BUILTIN_LOCALES)
+            .map(|(source, locales)| {
                 let manifest = parse_theme(source.as_bytes())
+                    .and_then(|theme| theme.with_package_localizations(locales))
                     .map_err(|issues| format!("内置主题无效：{issues:?}"))?;
                 let style = ThemeStyle::from_manifest(&manifest);
                 Ok(BuiltinTheme {
@@ -179,6 +195,7 @@ impl AppModel {
             appearance_preview: None,
             document,
             content,
+            presentation_language,
             opened_source,
             preview_ready,
             document_label,
@@ -268,7 +285,7 @@ impl AppModel {
         self.document = document;
         self.preview_ready = true;
         self.document_path = None;
-        self.document_label = "未命名简历".into();
+        self.document_label = crate::i18n::tr("未命名简历").into();
         self.is_example = false;
     }
 

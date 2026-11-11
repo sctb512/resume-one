@@ -2,15 +2,153 @@
   "formatVersion": 2,
   "id": "xiaguang",
   "name": "霞光",
-  "description": "居中大字、赭粉色底模块与柔和创意气质。",
-  "version": "1.1.0",
+  "description": "暖铜细线 · 分栏页眉",
+  "version": "1.3.0",
   "license": "Apache-2.0",
   "layout": "modern",
-  "colors": { "accent": "#955C58", "seal": "#955C58", "paper": "#FFF9F7", "canvas": "#F9EFEC" },
-  "modules": ["basics", "work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"],
-  "page": { "size": "A4", "sectionGapMm": 7.5, "marginsMm": { "top": 19, "right": 19, "bottom": 19, "left": 19 } },
-  "composition": { "preset": "single-column", "header": "centered", "contact": "inline" },
-  "typography": { "body": { "lineHeight": 1.5 }, "name": { "sizePt": 31 }, "sectionTitle": { "sizePt": 14 } },
-  "sections": { "work": { "heading": "filled", "date": "right" }, "projects": { "heading": "filled", "date": "right" }, "education": { "heading": "plain", "date": "right" } },
-  "provenance": { "fidelity": "native" }
+  "colors": {
+    "accent": "#8F4832",
+    "seal": "#8F4832",
+    "paper": "#FFFFFF",
+    "canvas": "#F4ECE5"
+  },
+  "modules": [
+    "basics",
+    "work",
+    "volunteer",
+    "education",
+    "awards",
+    "certificates",
+    "publications",
+    "skills",
+    "languages",
+    "interests",
+    "references",
+    "projects"
+  ],
+  "page": {
+    "size": "Letter",
+    "firstLinePosition": "line-box",
+    "sectionGapMm": 6.1,
+    "marginsMm": {
+      "top": 17,
+      "right": 17,
+      "bottom": 17,
+      "left": 17
+    },
+    "avoidSplitItems": true,
+    "keepHeadingWithFirstItem": true
+  },
+  "typography": {
+    "body": {
+      "family": "cjk-sans",
+      "sizePt": 10.5,
+      "lineHeight": 1.46,
+      "weight": 400
+    },
+    "name": {
+      "family": "cjk-sans",
+      "weight": 400,
+      "sizePt": 35,
+      "lineHeight": 1.16
+    },
+    "label": {
+      "sizePt": 11.2,
+      "lineHeight": 1.3,
+      "weight": 400,
+      "family": "cjk-sans"
+    },
+    "sectionTitle": {
+      "family": "cjk-sans",
+      "sizePt": 12.6,
+      "weight": 400,
+      "lineHeight": 1.25
+    },
+    "itemTitle": {
+      "sizePt": 11,
+      "weight": 400,
+      "lineHeight": 1.34,
+      "family": "cjk-sans"
+    },
+    "meta": {
+      "sizePt": 9.4,
+      "lineHeight": 1.38
+    },
+    "sideDate": {
+      "sizePt": 9.3,
+      "lineHeight": 1.35
+    }
+  },
+  "composition": {
+    "preset": "split-header",
+    "header": "split",
+    "contact": "stacked",
+    "moduleOrder": [
+      "work",
+      "education",
+      "projects",
+      "skills"
+    ]
+  },
+  "sections": {
+    "work": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "volunteer": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "education": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "awards": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "certificates": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "publications": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    },
+    "skills": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "languages": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "interests": {
+      "heading": "accent-line",
+      "items": "compact",
+      "date": "inline"
+    },
+    "references": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "inline"
+    },
+    "projects": {
+      "heading": "accent-line",
+      "items": "stack",
+      "date": "right"
+    }
+  },
+  "provenance": {
+    "upstreamUrl": "https://resume.io/",
+    "fidelity": "inspired"
+  }
 }

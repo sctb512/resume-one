@@ -5,6 +5,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use crate::i18n::tr;
 use gpui::{
     App, Bounds, Context, Entity, EntityInputHandler as _, Focusable as _, IntoElement, KeyBinding,
     Pixels, Point, ScrollHandle, Subscription, Window, actions, anchored, deferred, div,
@@ -202,9 +203,9 @@ fn full_width_field(section: &str, key: &str) -> bool {
 
 pub(super) fn form_field_label(section: &str, key: &str) -> &'static str {
     match (section, key) {
-        ("basics", "name") => "姓名",
-        ("work", "name") => "公司 / 团队",
-        ("education", "institution") => "学校",
+        ("basics", "name") => tr("姓名"),
+        ("work", "name") => tr("公司 / 团队"),
+        ("education", "institution") => tr("学校"),
         _ => field_label(key),
     }
 }
@@ -220,48 +221,48 @@ pub(super) fn register(cx: &mut App) {
 
 fn field_label(key: &str) -> &'static str {
     match key {
-        "name" => "名称",
-        "label" => "职业标题",
-        "image" => "头像地址",
-        "email" => "邮箱",
-        "phone" => "电话",
-        "url" => "链接",
-        "summary" => "概述",
-        "location" => "地点",
-        "description" => "描述",
-        "position" => "职位",
-        "startDate" => "开始日期",
-        "endDate" => "结束日期",
-        "organization" => "机构",
-        "institution" => "学校",
-        "area" => "专业",
-        "studyType" => "学位",
-        "score" => "成绩",
-        "title" => "标题",
-        "date" => "日期",
-        "awarder" => "颁发机构",
-        "issuer" => "发证机构",
-        "publisher" => "出版方",
-        "releaseDate" => "发表日期",
-        "level" => "熟练程度",
-        "language" => "语言",
-        "fluency" => "掌握程度",
-        "reference" => "推荐内容",
-        "entity" => "所属机构",
-        "type" => "类型",
-        "highlights" => "成果要点",
-        "keywords" => "关键词",
-        "courses" => "课程",
-        "roles" => "项目角色",
-        "location.address" => "详细地址",
-        "location.postalCode" => "邮政编码",
-        "location.city" => "城市",
-        "location.countryCode" => "国家代码",
-        "location.region" => "省份 / 地区",
-        "profiles.network" => "平台",
-        "profiles.username" => "账号",
-        "profiles.url" => "链接",
-        _ => "内容",
+        "name" => tr("名称"),
+        "label" => tr("职业标题"),
+        "image" => tr("头像地址"),
+        "email" => tr("邮箱"),
+        "phone" => tr("电话"),
+        "url" => tr("链接"),
+        "summary" => tr("概述"),
+        "location" => tr("地点"),
+        "description" => tr("描述"),
+        "position" => tr("职位"),
+        "startDate" => tr("开始日期"),
+        "endDate" => tr("结束日期"),
+        "organization" => tr("机构"),
+        "institution" => tr("学校"),
+        "area" => tr("专业"),
+        "studyType" => tr("学位"),
+        "score" => tr("成绩"),
+        "title" => tr("标题"),
+        "date" => tr("日期"),
+        "awarder" => tr("颁发机构"),
+        "issuer" => tr("发证机构"),
+        "publisher" => tr("出版方"),
+        "releaseDate" => tr("发表日期"),
+        "level" => tr("熟练程度"),
+        "language" => tr("语言"),
+        "fluency" => tr("掌握程度"),
+        "reference" => tr("推荐内容"),
+        "entity" => tr("所属机构"),
+        "type" => tr("类型"),
+        "highlights" => tr("成果要点"),
+        "keywords" => tr("关键词"),
+        "courses" => tr("课程"),
+        "roles" => tr("项目角色"),
+        "location.address" => tr("详细地址"),
+        "location.postalCode" => tr("邮政编码"),
+        "location.city" => tr("城市"),
+        "location.countryCode" => tr("国家代码"),
+        "location.region" => tr("省份 / 地区"),
+        "profiles.network" => tr("平台"),
+        "profiles.username" => tr("账号"),
+        "profiles.url" => tr("链接"),
+        _ => tr("内容"),
     }
 }
 
@@ -1147,7 +1148,13 @@ impl ResumeOne {
             .filter(|text| !text.trim().is_empty())
             .unwrap_or_else(|| {
                 form.index
-                    .map(|index| format!("第 {} 项", index + 1))
+                    .map(|index| {
+                        if crate::i18n::is_english() {
+                            format!("Item {}", index + 1)
+                        } else {
+                            format!("第 {} 项", index + 1)
+                        }
+                    })
                     .unwrap_or_default()
             });
         let (scroll, alpha) = if retiring {
@@ -1302,7 +1309,7 @@ impl ResumeOne {
                     div()
                         .text_size(px(12.0))
                         .text_color(color(palette.muted))
-                        .child("社交账号"),
+                        .child(tr("社交账号")),
                 )
                 .child(self.inline_profile_add(0, retiring, cx));
             for index in 0..form.profile_count {
@@ -1322,7 +1329,11 @@ impl ResumeOne {
                             .items_center()
                             .text_size(px(12.0))
                             .text_color(color(palette.muted))
-                            .child(format!("账号 {}", index + 1))
+                            .child(if crate::i18n::is_english() {
+                                format!("Profile {}", index + 1)
+                            } else {
+                                format!("账号 {}", index + 1)
+                            })
                             .child(
                                 div()
                                     .id(gpui::SharedString::from(selector.clone()))

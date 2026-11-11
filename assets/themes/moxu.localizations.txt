@@ -1,0 +1,16 @@
+{
+  "zh": {
+    "sections": {
+      "work": "工作经历",
+      "skills": "技术技能"
+    }
+  },
+  "en": {
+    "name": "Ink Ledger",
+    "description": "Compact engineering résumé",
+    "sections": {
+      "work": "Experience",
+      "skills": "Technical Skills"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 use std::{collections::VecDeque, sync::Arc};
 
+#[cfg(not(any(target_os = "macos", target_os = "windows")))]
+use crate::i18n::tr;
 use gpui::{AnyElement, Context, IntoElement, Window, div, prelude::*, px};
 
 use crate::{ResumeOne, color, model::BuiltinTheme};
@@ -14,6 +16,8 @@ struct Key {
     theme: String,
     theme_revision: String,
     resume_revision: String,
+    language: resume_one_core::render::Language,
+    ui_language: resume_one_core::render::Language,
 }
 
 impl Key {
@@ -23,6 +27,8 @@ impl Key {
             theme: theme.identity.clone(),
             theme_revision: original.render_revision.clone(),
             resume_revision: view.model.document.revision.clone(),
+            language: view.model.presentation_language,
+            ui_language: crate::i18n::language(),
         })
     }
 }
@@ -61,7 +67,9 @@ impl ResumeOne {
             .thumbnails
             .iter()
             .find_map(|(cached, image)| {
-                (cached.theme == key.theme && cached.theme_revision == key.theme_revision)
+                (cached.theme == key.theme
+                    && cached.theme_revision == key.theme_revision
+                    && cached.language == key.language)
                     .then(|| image.clone())
                     .flatten()
             })
@@ -99,10 +107,11 @@ impl ResumeOne {
             return;
         };
         let resume = self.model.document.value.clone();
+        let language = key.language;
         let epoch = self.original_preview.thumbnail_epoch;
         self.original_preview.thumbnail_pending = true;
         let job = cx.background_executor().spawn(async move {
-            resume_one_themes::thumbnail_original(&original, &resume)
+            resume_one_themes::thumbnail_localized_original(&original, &resume, language)
                 .ok()
                 .map(|bytes| Arc::new(gpui::Image::from_bytes(gpui::ImageFormat::Png, bytes)))
         });
@@ -179,9 +188,10 @@ impl ResumeOne {
         } else if !state.running && state.error.is_none() {
             state.running = true;
             let resume = self.model.document.value.clone();
+            let language = key.language;
             let job = cx.background_executor().spawn(async move {
                 theme
-                    .render_preview_html(&resume)
+                    .render_localized_preview_html(&resume, language)
                     .map(Arc::<str>::from)
                     .map_err(|error| error.message)
             });
@@ -281,7 +291,7 @@ impl ResumeOne {
 
     #[cfg(not(any(target_os = "macos", target_os = "windows")))]
     fn ensure_original_surface(&mut self, _: &mut Window, _: &mut Context<Self>) {
-        self.original_preview.error = Some("当前平台没有可用的原版主题预览组件".into());
+        self.original_preview.error = Some(tr("当前平台没有可用的原版主题预览组件").into());
     }
 
     pub(super) fn original_surface_visible(&self, modal: bool) -> bool {
@@ -441,8 +451,9 @@ impl OriginalPreviewState {
         let token = self.sequence;
         let identity = serde_json::to_string(&key.theme).expect("theme identity");
         let targets = editing::targets(resume);
+        let locale = key.ui_language.tag();
         if let Err(error) = desktop.evaluate(&format!(
-            "jianliRender({html}, {token}, {identity}, {targets})"
+            "jianliRender({html}, {token}, {identity}, {targets}, '{locale}')"
         )) {
             self.error = Some(error);
         } else {

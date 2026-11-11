@@ -1,0 +1,14 @@
+{
+  "zh": {
+    "sections": {
+      "work": "职业经历"
+    }
+  },
+  "en": {
+    "name": "Ebony",
+    "description": "Editorial serif, centered headings",
+    "sections": {
+      "work": "Professional Experience"
+    }
+  }
+}

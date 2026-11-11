@@ -136,8 +136,7 @@ mod tests {
     use serde_json::json;
 
     fn theme(lines: Value) -> ThemeManifest {
-        let mut theme =
-            crate::parse_theme(include_bytes!("../../../assets/themes/zhibai.theme.json")).unwrap();
+        let mut theme = crate::parse_theme(crate::LEGACY_THEME_TEST_BYTES).unwrap();
         theme.normalized["sections"]["work"]["entryHeader"] = lines;
         theme.normalized["sections"]["work"]["date"] = json!("inline");
         crate::parse_theme(theme.normalized.to_string().as_bytes()).unwrap()

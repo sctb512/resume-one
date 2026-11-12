@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::i18n::tr;
 use gpui::{Context, IntoElement, Window, div, prelude::*, px};
-use gpui_component::input::{Input, InputEvent, InputState};
+use gpui_component::input::{Input, InputEvent, InputPalette, InputState};
 use gpui_component::menu::{ContextMenuExt, PopupMenuItem};
 use resume_one_themes::{GithubClient, GithubSource, ThemeCache, VerifiedTheme};
 
@@ -398,6 +398,10 @@ impl ResumeOne {
             }
         }
         if let Some(search) = &self.theme_search {
+            let background = p.panel.mix(p.ink, 0.035);
+            let selection = background.mix(style.colors.accent, 0.16);
+            let focus = crate::chrome::readable_on(p.accent, background);
+            let foreground = crate::chrome::readable_on(p.ink, selection);
             nav = nav.child(
                 div()
                     .px_2()
@@ -411,7 +415,20 @@ impl ResumeOne {
                             .text_color(color(p.muted))
                             .child(tr("搜索主题")),
                     )
-                    .child(Input::new(search).w_full()),
+                    .child(
+                        Input::new(search)
+                            .w_full()
+                            .rounded_md()
+                            .palette(InputPalette {
+                                background: color(background).into(),
+                                border: color(p.line).into(),
+                                focus: color(focus).into(),
+                                foreground: color(foreground).into(),
+                                placeholder: color(crate::chrome::readable_on(p.muted, background))
+                                    .into(),
+                                selection: color(selection).into(),
+                            }),
+                    ),
             );
         }
         nav

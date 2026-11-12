@@ -260,6 +260,7 @@ impl LastLayout {
 /// InputState to keep editing state of the [`super::Input`].
 pub struct InputState {
     pub(super) focus_handle: FocusHandle,
+    pub(super) palette: Option<super::InputPalette>,
     pub(super) mode: InputMode,
     pub(super) text: Rope,
     pub(super) text_wrapper: TextWrapper,
@@ -370,6 +371,7 @@ impl InputState {
 
         Self {
             focus_handle: focus_handle.clone(),
+            palette: None,
             text: "".into(),
             text_wrapper: TextWrapper::new(text_style.font(), window.rem_size(), None),
             blink_cursor,

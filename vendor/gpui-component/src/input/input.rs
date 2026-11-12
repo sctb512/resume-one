@@ -1,6 +1,6 @@
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
-    AnyElement, App, DefiniteLength, Edges, EdgesRefinement, Entity, InteractiveElement as _,
+    AnyElement, App, DefiniteLength, Edges, EdgesRefinement, Entity, Hsla, InteractiveElement as _,
     IntoElement, IsZero, MouseButton, ParentElement as _, Rems, RenderOnce, StyleRefinement,
     Styled, Window, div, px, relative,
 };
@@ -17,6 +17,17 @@ use crate::{Sizable, StyleSized};
 
 use super::InputState;
 
+/// Colors for an input embedded in a surface with its own palette.
+#[derive(Clone, Copy, PartialEq)]
+pub struct InputPalette {
+    pub background: Hsla,
+    pub border: Hsla,
+    pub focus: Hsla,
+    pub foreground: Hsla,
+    pub placeholder: Hsla,
+    pub selection: Hsla,
+}
+
 /// A text input element bind to an [`InputState`].
 #[derive(IntoElement)]
 pub struct Input {
@@ -32,6 +43,7 @@ pub struct Input {
     disabled: bool,
     bordered: bool,
     focus_bordered: bool,
+    palette: Option<InputPalette>,
     tab_index: isize,
     selected: bool,
 }
@@ -70,6 +82,7 @@ impl Input {
             disabled: false,
             bordered: true,
             focus_bordered: true,
+            palette: None,
             tab_index: 0,
             selected: false,
         }
@@ -112,6 +125,11 @@ impl Input {
     /// Set focus border for the input, default is true.
     pub fn focus_bordered(mut self, bordered: bool) -> Self {
         self.focus_bordered = bordered;
+        self
+    }
+
+    pub fn palette(mut self, palette: InputPalette) -> Self {
+        self.palette = Some(palette);
         self
     }
 
@@ -242,9 +260,13 @@ impl RenderOnce for Input {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
         const LINE_HEIGHT: Rems = Rems(1.25);
 
-        self.state.update(cx, |state, _| {
+        self.state.update(cx, |state, cx| {
             state.disabled = self.disabled;
             state.size = self.size;
+            if state.palette != self.palette {
+                state.palette = self.palette;
+                cx.notify();
+            }
         });
 
         let state = self.state.read(cx);
@@ -255,7 +277,9 @@ impl RenderOnce for Input {
             _ => px(6.),
         };
 
-        let bg = if state.disabled {
+        let bg = if let Some(palette) = self.palette {
+            palette.background
+        } else if state.disabled {
             cx.theme().muted
         } else {
             if state.mode.is_code_editor() {
@@ -368,12 +392,19 @@ impl RenderOnce for Input {
                 this.bg(bg)
                     .rounded(cx.theme().radius)
                     .when(self.bordered, |this| {
-                        this.border_color(cx.theme().input)
-                            .border_1()
-                            .when(cx.theme().shadow, |this| this.shadow_xs())
-                            .when(focused && self.focus_bordered, |this| {
-                                this.focused_border(cx)
+                        let this = this.border_1();
+                        let show_focus = focused && self.focus_bordered;
+                        if let Some(palette) = self.palette {
+                            this.border_color(if show_focus {
+                                palette.focus
+                            } else {
+                                palette.border
                             })
+                        } else {
+                            this.border_color(cx.theme().input)
+                                .when(cx.theme().shadow, |this| this.shadow_xs())
+                                .when(show_focus, |this| this.focused_border(cx))
+                        }
                     })
             })
             .items_center()

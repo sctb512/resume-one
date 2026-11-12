@@ -953,18 +953,20 @@ impl Element for TextElement {
 
         let mut bounds = bounds;
 
+        let foreground = state
+            .palette
+            .map_or(cx.theme().foreground, |p| p.foreground);
         let (display_text, text_color) = if is_empty {
             (
                 &Rope::from(placeholder.as_str()),
-                cx.theme().muted_foreground,
+                state
+                    .palette
+                    .map_or(cx.theme().muted_foreground, |p| p.placeholder),
             )
         } else if state.masked {
-            (
-                &Rope::from("*".repeat(text.chars().count())),
-                cx.theme().foreground,
-            )
+            (&Rope::from("*".repeat(text.chars().count())), foreground)
         } else {
-            (&text, cx.theme().foreground)
+            (&text, foreground)
         };
 
         let text_style = window.text_style();
@@ -1303,6 +1305,7 @@ impl Element for TextElement {
 
         let mut mask_offset_y = px(0.);
         let state = self.state.read(cx);
+        let palette = state.palette;
         if state.masked && state.text.len() > 0 {
             // Move down offset for vertical centering the *****
             if cfg!(target_os = "macos") {
@@ -1345,17 +1348,18 @@ impl Element for TextElement {
 
         // Paint selections
         if window.is_window_active() {
-            let secondary_selection = cx.theme().selection.saturation(0.1);
+            let selection = palette.map_or(cx.theme().selection, |p| p.selection);
+            let secondary_selection = selection.saturation(0.1);
             for (path, is_active) in prepaint.search_match_paths.iter() {
                 window.paint_path(path.clone(), secondary_selection);
 
                 if *is_active {
-                    window.paint_path(path.clone(), cx.theme().selection);
+                    window.paint_path(path.clone(), selection);
                 }
             }
 
             if let Some(path) = prepaint.selection_path.take() {
-                window.paint_path(path, cx.theme().selection);
+                window.paint_path(path, selection);
             }
 
             // Paint hover highlight
@@ -1412,7 +1416,8 @@ impl Element for TextElement {
         // Paint blinking cursor
         if focused && show_cursor {
             if let Some(cursor_bounds) = prepaint.cursor_bounds_with_scroll() {
-                window.paint_quad(fill(cursor_bounds, cx.theme().caret));
+                let caret = palette.map_or(cx.theme().caret, |p| p.foreground);
+                window.paint_quad(fill(cursor_bounds, caret));
             }
         }
 

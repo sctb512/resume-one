@@ -87,6 +87,7 @@ struct ResumeOne {
     spotlight_dimmed: Vec<&'static str>,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
+    exported_file: Option<std::path::PathBuf>,
     export_menu_open: bool,
     export_choice: usize,
     export_language: resume_one_core::render::Language,
@@ -95,6 +96,8 @@ struct ResumeOne {
     updates: update_ui::UpdateUi,
     online: theme_online::OnlineThemes,
     theme_scroll: ScrollHandle,
+    theme_search: Option<gpui::Entity<gpui_component::input::InputState>>,
+    theme_query: String,
     hovered_section: Option<(String, usize)>,
     hovered_item: Option<(String, usize, usize)>,
     insertion_before: Option<Option<String>>,
@@ -142,6 +145,7 @@ impl ResumeOne {
             spotlight_dimmed: Vec::new(),
             editor: None,
             export_busy: false,
+            exported_file: None,
             export_menu_open: false,
             export_choice: 0,
             export_language,
@@ -150,6 +154,8 @@ impl ResumeOne {
             updates: update_ui::UpdateUi::default(),
             online: theme_online::OnlineThemes::default(),
             theme_scroll: ScrollHandle::new(),
+            theme_search: None,
+            theme_query: String::new(),
             hovered_section: None,
             hovered_item: None,
             insertion_before: None,
@@ -251,16 +257,18 @@ impl ResumeOne {
                 });
                 cx.notify();
             }));
+        let locale = i18n::theme_locale();
+        let matches = self.local_theme_results();
         let visible = theme_browser_ui::thumbnail_window(
             f32::from(self.theme_scroll.offset().y),
             f32::from(self.theme_scroll.bounds().size.height).max(self.viewport_height - 210.),
-            self.model.themes.len(),
+            matches.len(),
         );
-        let locale = i18n::theme_locale();
-        for (index, theme) in self
-            .model
-            .themes
-            .iter()
+        if !self.online.online && matches.is_empty() {
+            list = list.child(self.theme_list_status(tr("没有匹配的主题")));
+        }
+        for (row_index, (index, theme)) in matches
+            .into_iter()
             .enumerate()
             .filter(|_| !self.online.online)
         {
@@ -300,7 +308,7 @@ impl ResumeOne {
                             .bg(accent),
                     )
                 })
-                .child(self.theme_thumbnail(visible.contains(&index).then_some(theme)))
+                .child(self.theme_thumbnail(visible.contains(&row_index).then_some(theme)))
                 .child(
                     div()
                         .flex_1()
@@ -804,7 +812,16 @@ impl ResumeOne {
         } else {
             Vec::new()
         };
-        for (id, _) in SECTION_LABELS {
+        let mut previous_group = None;
+        for (id, _) in SECTION_LABELS
+            .iter()
+            .filter(|(id, _)| sections.iter().any(|section| section.id == *id))
+            .chain(
+                SECTION_LABELS
+                    .iter()
+                    .filter(|(id, _)| !sections.iter().any(|section| section.id == *id)),
+            )
+        {
             let existing = sections.iter().find(|section| section.id == *id);
             let present = existing.is_some();
             let offered = self
@@ -816,6 +833,21 @@ impl ResumeOne {
                 .any(|module| module == id);
             if !present && !offered {
                 continue;
+            }
+            if previous_group != Some(present) {
+                previous_group = Some(present);
+                list = list.child(
+                    div()
+                        .pt_2()
+                        .pb_1()
+                        .text_size(px(11.))
+                        .text_color(color(palette.muted))
+                        .child(if present {
+                            tr("已有模块")
+                        } else {
+                            tr("可添加模块")
+                        }),
+                );
             }
             let count = existing.map_or(0, |section| section.count);
             let icon_id = *id;
@@ -850,7 +882,7 @@ impl ResumeOne {
                     .id(gpui::SharedString::from(selector.clone()))
                     .debug_selector(move || selector.clone())
                     .flex()
-                    .min_h(px(58.))
+                    .min_h(px(44.))
                     .flex_none()
                     .gap(px(10.))
                     .items_center()
@@ -887,6 +919,11 @@ impl ResumeOne {
                                     return;
                                 }
                                 this.selected_module = None;
+                                if this.source_mode {
+                                    this.jump_to_source(&row_id, None, window, cx);
+                                } else {
+                                    this.jump_to_preview(&row_id, None);
+                                }
                                 this.selected_item_module = if row_id == "basics"
                                     || this.selected_item_module.as_deref() == Some(row_id.as_str())
                                 {
@@ -920,6 +957,7 @@ impl ResumeOne {
                             }
                             this.clear_inline();
                             this.hovered_theme = None;
+                            this.jump_to_preview(&row_id, None);
                             this.selected_item_module = (row_id != "basics"
                                 && this.selected_item_module.as_deref() != Some(&row_id))
                             .then_some(row_id.clone());
@@ -1032,36 +1070,106 @@ impl ResumeOne {
             .child(list)
             .child(
                 div()
-                    .h(px(47.))
+                    .min_h(px(47.))
                     .flex_none()
                     .flex()
                     .items_center()
                     .px_4()
+                    .py_2()
                     .border_t_1()
                     .border_color(color(palette.line))
                     .text_size(px(12.))
                     .text_color(color(palette.muted))
-                    .child(if self.recovery_pending {
-                        tr("请先恢复或丢弃草稿，再编辑模块")
-                    } else if !enabled {
-                        tr("请先修复 JSON，结构操作暂不可用")
-                    } else if original && !self.source_mode {
-                        tr("在模块栏调整结构 · ⌘/ 或 Ctrl+/ 编辑内容")
-                    } else if self.insertion_before.is_some() {
-                        tr("选择要添加的模块 · Esc 取消")
-                    } else if self.selected_module.is_some() || self.selected_item_module.is_some()
-                    {
-                        tr("选择文档中的插入位置 · Esc 取消")
-                    } else {
-                        tr("点击文档中的＋，或先选模块")
-                    }),
+                    .child(div().w_full().min_w_0().whitespace_normal().child(
+                        if self.recovery_pending {
+                            tr("请先恢复或丢弃草稿，再编辑模块")
+                        } else if !enabled {
+                            tr("请先修复 JSON，结构操作暂不可用")
+                        } else if original && !self.source_mode {
+                            tr("在模块栏调整结构 · ⌘/ 或 Ctrl+/ 编辑内容")
+                        } else if self.insertion_before.is_some() {
+                            tr("选择要添加的模块 · Esc 取消")
+                        } else if self.selected_module.is_some()
+                            || self.selected_item_module.is_some()
+                        {
+                            tr("选择文档中的插入位置 · Esc 取消")
+                        } else {
+                            tr("点击文档中的＋，或先选模块")
+                        },
+                    )),
             )
             .into_any_element()
+    }
+
+    fn sample_actions(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let p = chrome::Palette::new(self.shell_style());
+        let mut actions = div()
+            .id("sample-actions")
+            .debug_selector(|| "sample-actions".into())
+            .absolute()
+            .left_0()
+            .right_0()
+            .top_0()
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .justify_center()
+            .gap_2()
+            .px_3()
+            .text_size(px(11.))
+            .child(
+                div()
+                    .text_color(color(p.muted))
+                    .child(tr("试改示例，或开始自己的简历")),
+            );
+        for (id, caption) in [
+            ("sample-new", tr("新建简历")),
+            ("sample-open", tr("打开 JSON…")),
+        ] {
+            actions = actions.child(
+                div()
+                    .id(id)
+                    .debug_selector(move || id.into())
+                    .tab_index(0)
+                    .tab_stop(true)
+                    .cursor_pointer()
+                    .px_2()
+                    .h(px(22.))
+                    .flex()
+                    .items_center()
+                    .rounded(px(5.))
+                    .border_1()
+                    .border_color(color(p.line))
+                    .text_color(color(p.ink))
+                    .hover(|row| row.bg(color(p.soft)))
+                    .focus(|row| row.bg(color(p.soft)))
+                    .child(caption)
+                    .on_click(
+                        cx.listener(move |this, _, window, cx| this.sample_action(id, window, cx)),
+                    )
+                    .on_key_down(cx.listener(move |this, event, window, cx| {
+                        if chrome::activation_key(event) {
+                            cx.stop_propagation();
+                            this.sample_action(id, window, cx);
+                        }
+                    })),
+            );
+        }
+        actions
+    }
+
+    fn sample_action(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
+        if id == "sample-new" {
+            self.new_resume(&files::NewResume, window, cx);
+        } else {
+            self.open_file(&files::OpenFile, window, cx);
+        }
     }
 }
 
 impl Render for ResumeOne {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        self.ensure_theme_search(window, cx);
         self.viewport_height = f32::from(window.viewport_size().height);
         let layout = workspace_ui::Layout::for_width(f32::from(window.viewport_size().width));
         if self.layout != layout {
@@ -1241,6 +1349,10 @@ impl Render for ResumeOne {
                             .when(self.recovery_pending, |surface| {
                                 surface.child(self.recovery_notice(cx))
                             })
+                            .when(
+                                self.exported_file.is_some() && self.export_notice_in_flow(),
+                                |surface| surface.child(self.export_notice(cx)),
+                            )
                             .child(
                                 div()
                                     .relative()
@@ -1272,7 +1384,21 @@ impl Render for ResumeOne {
                                     // click while the outgoing view is still visible.
                                     .when(self.mode_transition.is_some(), |surface| {
                                         surface.child(div().absolute().size_full().occlude())
-                                    }),
+                                    })
+                                    .when(
+                                        self.model.is_example
+                                            && !self.source_mode
+                                            && !self.recovery_pending
+                                            && !self.files.loading
+                                            && self.mode_transition.is_none()
+                                            && self.model.applied_theme().original.is_none()
+                                            && self.preview_scroll.offset().y >= -px(2.)
+                                            && self
+                                                .editor
+                                                .as_ref()
+                                                .is_none_or(|editor| !editor.buffer.is_dirty()),
+                                        |surface| surface.child(self.sample_actions(cx)),
+                                    ),
                             ),
                     )
                     .when(
@@ -1287,6 +1413,21 @@ impl Render for ResumeOne {
             .when(self.export_menu_open, |view| {
                 view.child(self.export_popup(cx))
             })
+            .when(
+                self.exported_file.is_some()
+                    && !self.export_notice_in_flow()
+                    && self.drawer.is_none(),
+                |view| {
+                    view.child(
+                        div()
+                            .absolute()
+                            .right_3()
+                            .bottom_3()
+                            .w(px(210.))
+                            .child(self.export_notice(cx)),
+                    )
+                },
+            )
             .children(dialogs)
     }
 }

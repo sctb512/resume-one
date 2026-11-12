@@ -1244,6 +1244,59 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
 }
 
 impl ResumeOne {
+    pub(super) fn preview_reading_target(&self) -> Option<(String, Option<usize>)> {
+        if self.model.applied_theme().original.is_some() {
+            return self.original_preview.reading_target.clone();
+        }
+        let data = self
+            .preview
+            .resolve(&self.model, self.model.applied_theme())
+            .ok()?;
+        let top = -f32::from(self.preview_scroll.offset().y);
+        if top < 24. {
+            return None;
+        }
+        let region = data
+            .regions
+            .iter()
+            .filter(|region| region.text)
+            .min_by(|left, right| {
+                let distance = |region: &Region| (self.region_top(&data, region) - top - 32.).abs();
+                distance(left).total_cmp(&distance(right))
+            })?;
+        Some((region.target.section.into(), region.target.index))
+    }
+
+    fn region_top(&self, data: &PreviewData, region: &Region) -> f32 {
+        24. + region.page as f32 * (data.layout.height_mm * PX_PER_MM * self.preview_scale + 24.)
+            + region.top * PX_PER_PT * self.preview_scale
+    }
+
+    pub(super) fn jump_to_preview(&mut self, id: &str, index: Option<usize>) {
+        if self.model.applied_theme().original.is_some() {
+            self.original_preview.jump_to(id, index);
+            return;
+        }
+        let Ok(data) = self
+            .preview
+            .resolve(&self.model, self.model.applied_theme())
+        else {
+            return;
+        };
+        let matching = data
+            .regions
+            .iter()
+            .filter(|region| region.target.section == id);
+        let region = matching
+            .clone()
+            .find(|region| region.target.index == index)
+            .or_else(|| matching.into_iter().next());
+        if let Some(region) = region {
+            let offset = (self.region_top(&data, region) - 36.).max(0.);
+            self.preview_scroll.set_offset(point(px(0.), px(-offset)));
+        }
+    }
+
     pub(super) fn theme_thumbnail(&self, theme: Option<&BuiltinTheme>) -> gpui::AnyElement {
         let style = theme
             .map(|t| self.model.effective_style(t))

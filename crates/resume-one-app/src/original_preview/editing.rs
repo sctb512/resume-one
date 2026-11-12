@@ -35,7 +35,7 @@ pub(super) fn targets(resume: &Value) -> Value {
             item.as_array().map(Vec::as_slice).unwrap_or_default()
         };
         for (index, item) in items.iter().enumerate().take(MAX_TARGETS - targets.len()) {
-            let mut fields: Vec<_> = text_fields(section).iter().copied().collect();
+            let mut fields = text_fields(section).to_vec();
             fields.sort_by_key(|key| inline_ui::field_order(section, key));
             let mut fields: Vec<_> = fields
                 .into_iter()

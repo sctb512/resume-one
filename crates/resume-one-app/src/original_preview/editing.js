@@ -25,6 +25,7 @@ const entryBlocks = "article,.item,.section-item,.pro-entry,.entry,.detail-item,
 let editEnabled = false, editTheme = "", editToken = 0, session = 0;
 let regions = [], edited = null, candidate = null, timer, suppressUntil = 0;
 let suppressedTarget = null;
+let pendingJump = null, lastReading = "";
 const pendingFields = new Map();
 
 function sectionFor(element) {
@@ -295,9 +296,40 @@ editPanel.addEventListener("pointerleave", () => {
   closeEdit();
 });
 editPanel.querySelector("button").addEventListener("click", closeEdit);
+function reportReading() {
+  if (!current) return;
+  const frame = current.getBoundingClientRect();
+  const scale = frame.width / PAPER_WIDTH;
+  const top = (36 - frame.top) / scale;
+  const region = regions.reduce((best, item) =>
+    !best || Math.abs(item.top - top) < Math.abs(best.top - top) ? item : best, null);
+  const reading = JSON.stringify(region && scrollY > 24
+    ? [region.target.section, region.target.index ?? null] : null);
+  if (reading !== lastReading) window.ipc.postMessage("reading:" + reading);
+  lastReading = reading;
+}
+
+function applyJump() {
+  if (!current || !pendingJump) return;
+  const [section, index] = pendingJump;
+  const matches = regions.filter(region => region.target.section === section);
+  const region = matches.find(item => (item.target.index ?? null) === index) || matches[0];
+  if (region) {
+    const frame = current.getBoundingClientRect();
+    window.scrollTo(0, scrollY + frame.top + region.top * frame.width / PAPER_WIDTH - 36);
+  }
+}
+
+window.jianliJump = (section, index) => {
+  pendingJump = [section, index];
+  applyJump();
+  if (current && !pending) pendingJump = null;
+};
+
 addEventListener("scroll", () => {
   suppressUntil = performance.now() + 140;
   closeEdit();
+  reportReading();
 }, {passive:true});
 window.jianliEditEnabled = enabled => {
   editEnabled = enabled;

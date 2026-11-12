@@ -88,6 +88,57 @@ fn value_end(bytes: &[u8], mut index: usize) -> usize {
     index
 }
 
+/// Locate the value for a JSON Pointer in valid source, using UTF-8 byte offsets.
+pub fn pointer_range(source: &str, pointer: &str) -> Option<std::ops::Range<usize>> {
+    if source.len() > MAX_RESUME_BYTES {
+        return None;
+    }
+    let value: Value = serde_json::from_str(source).ok()?;
+    value.pointer(pointer)?;
+    let bytes = source.as_bytes();
+    let mut start = 0;
+    whitespace(bytes, &mut start);
+    for token in pointer.split('/').skip(1) {
+        let token = token.replace("~1", "/").replace("~0", "~");
+        let object = bytes[start] == b'{';
+        let wanted = if object {
+            0
+        } else {
+            token.parse::<usize>().ok()?
+        };
+        let mut cursor = start + 1;
+        let mut found = None;
+        for index in 0.. {
+            whitespace(bytes, &mut cursor);
+            if matches!(bytes[cursor], b'}' | b']') {
+                break;
+            }
+            let matches = if object {
+                let end = string_end(bytes, cursor);
+                let key = serde_json::from_str::<String>(&source[cursor..end]).ok()?;
+                cursor = end;
+                whitespace(bytes, &mut cursor);
+                cursor += 1;
+                whitespace(bytes, &mut cursor);
+                key == token
+            } else {
+                index == wanted
+            };
+            if matches {
+                // Match serde_json's treatment of duplicate object keys.
+                found = Some(cursor);
+            }
+            cursor = value_end(bytes, cursor);
+            whitespace(bytes, &mut cursor);
+            if bytes[cursor] == b',' {
+                cursor += 1;
+            }
+        }
+        start = found?;
+    }
+    Some(start..value_end(bytes, start))
+}
+
 /// Syntax must be valid and the root an object. Ambiguous duplicate root keys
 /// are rejected, including escaped spellings of an otherwise identical key.
 /// Schema validation remains the caller's responsibility.
@@ -232,6 +283,15 @@ pub fn anchors(source: &str) -> Option<Vec<Anchor>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn finds_the_exact_value_with_escaped_keys_and_array_indices() {
+        let source = r#"{"x/~":[null,{"name":"林🙂"}],"x\u002f~":[null,{"name":42}]}"#;
+        let range = pointer_range(source, "/x~1~0/1/name").unwrap();
+        assert_eq!(&source[range], "42");
+        assert!(pointer_range(source, "/x~1~0/01/name").is_none());
+        assert!(pointer_range("{", "/x").is_none());
+    }
 
     #[test]
     fn bounds_control_count_independently_from_source_byte_limit() {

@@ -9,7 +9,7 @@ use gpui::{
 use gpui_component::{
     Theme,
     highlighter::{HighlightTheme, SyntaxColors},
-    input::{Input, InputEvent, InputState},
+    input::{Input, InputEvent, InputState, Position},
 };
 use resume_one_core::draft::{DraftStore, RecoveryDraft};
 use resume_one_core::editor::ResumeBuffer;
@@ -22,6 +22,53 @@ use crate::{ResumeOne, color};
 
 actions!(resume_one, [ToggleSource, FormatJson, Save, SaveAs]);
 
+pub(super) fn diagnostic_message(issue: &resume_one_core::Diagnostic) -> String {
+    let hint = match issue.code {
+        "INVALID_JSON" => tr("JSON 语法有误"),
+        "RESUME_TOO_LARGE" => tr("简历文件超过 16 MiB 上限"),
+        "RESUME_SCHEMA" if issue.message.contains("的 type 规则") => {
+            match resume_one_core::resume::expected_type(&issue.path) {
+                Some("string") if issue.path == "/basics/name" => tr("姓名应为文本"),
+                Some("string") => tr("此处应为文本"),
+                Some("array") => tr("此处应为数组"),
+                Some("object") => tr("此处应为对象"),
+                _ => tr("此字段的值不符合 JSON Resume 规范"),
+            }
+        }
+        _ => tr("此字段的值不符合 JSON Resume 规范"),
+    };
+    if issue.path.is_empty() {
+        hint.into()
+    } else {
+        format!("{hint} · {}", issue.path)
+    }
+}
+
+fn source_position(source: &str, offset: usize) -> Position {
+    let prefix = &source[..offset];
+    Position::new(
+        prefix.bytes().filter(|&b| b == b'\n').count() as u32,
+        prefix.rsplit('\n').next().unwrap_or("").chars().count() as u32,
+    )
+}
+
+fn diagnostic_position(source: &str, issue: &resume_one_core::Diagnostic) -> Option<Position> {
+    if issue.code == "INVALID_JSON" {
+        let error = serde_json::from_str::<serde_json::Value>(source).err()?;
+        let row = error.line().saturating_sub(1);
+        let line = source.split('\n').nth(row)?;
+        let byte = error.column().saturating_sub(1).min(line.len());
+        return Some(Position::new(
+            row as u32,
+            line.char_indices()
+                .take_while(|(index, _)| *index < byte)
+                .count() as u32,
+        ));
+    }
+    let range = resume_one_core::source_map::pointer_range(source, &issue.path)?;
+    Some(source_position(source, range.start))
+}
+
 pub(super) struct EditorUi {
     pub input: Entity<InputState>,
     pub buffer: ResumeBuffer,
@@ -30,6 +77,7 @@ pub(super) struct EditorUi {
     pub store: DraftStore,
     pub generation: u64,
     pub saving: bool,
+    close_after_save: bool,
     pub journal_error: Option<String>,
     recovery: Option<RecoveryDraft>,
     pub source_anchors: Arc<Vec<resume_one_core::source_map::Anchor>>,
@@ -271,12 +319,16 @@ impl ResumeOne {
         let choice = window.prompt(
             PromptLevel::Warning,
             tr("简历有未保存的更改"),
-            Some(tr("可以先按 ⌘S 或 Ctrl+S 保存。")),
-            &[tr("继续编辑"), tr("丢弃更改并关闭")],
+            None,
+            &[tr("保存并关闭"), tr("继续编辑"), tr("丢弃更改并关闭")],
             cx,
         );
         cx.spawn_in(window, async move |this, cx| {
-            if choice.await.ok() == Some(1) {
+            let choice = choice.await.ok();
+            if choice == Some(0) {
+                this.update_in(cx, |this, window, cx| this.start_save(true, window, cx))
+                    .ok();
+            } else if choice == Some(2) {
                 this.update_in(cx, |this, window, cx| {
                     if let Some(editor) = &mut this.editor {
                         editor.generation += 1;
@@ -337,7 +389,7 @@ impl ResumeOne {
         let formatted = match editor.buffer.formatted() {
             Ok(value) => value,
             Err(issue) => {
-                self.editor_warning(tr("无法格式化"), &issue.message, window, cx);
+                self.editor_warning(tr("无法格式化"), &diagnostic_message(&issue), window, cx);
                 return;
             }
         };
@@ -358,6 +410,10 @@ impl ResumeOne {
     }
 
     pub(super) fn save_json(&mut self, _: &Save, window: &mut Window, cx: &mut Context<Self>) {
+        self.start_save(false, window, cx);
+    }
+
+    fn start_save(&mut self, close_after: bool, window: &mut Window, cx: &mut Context<Self>) {
         if self.recovery_pending
             || self.files.busy
             || self.theme_manager_open
@@ -376,18 +432,25 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning(tr("无法保存"), &issues[0].message, window, cx);
+                self.editor_warning(tr("无法保存"), &diagnostic_message(&issues[0]), window, cx);
                 return;
             }
         };
         if let Some(path) = self.model.document_path.clone() {
+            if let Some(editor) = &mut self.editor {
+                editor.close_after_save = close_after;
+            }
             self.commit_save(path, false, snapshot, window, cx);
         } else {
-            self.save_json_as(&SaveAs, window, cx);
+            self.start_save_as(close_after, window, cx);
         }
     }
 
     pub(super) fn save_json_as(&mut self, _: &SaveAs, window: &mut Window, cx: &mut Context<Self>) {
+        self.start_save_as(false, window, cx);
+    }
+
+    fn start_save_as(&mut self, close_after: bool, window: &mut Window, cx: &mut Context<Self>) {
         if self.theme_manager_open || self.recovery_pending || self.files.busy {
             return;
         }
@@ -398,7 +461,12 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning(tr("无法另存为"), &issues[0].message, window, cx);
+                self.editor_warning(
+                    tr("无法另存为"),
+                    &diagnostic_message(&issues[0]),
+                    window,
+                    cx,
+                );
                 return;
             }
         };
@@ -456,6 +524,9 @@ impl ResumeOne {
                             cx,
                         );
                     } else {
+                        if let Some(editor) = &mut this.editor {
+                            editor.close_after_save = close_after;
+                        }
                         this.commit_save(path, true, snapshot, window, cx);
                     }
                 }
@@ -508,9 +579,10 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if let Some(editor) = &mut self.editor {
+        let close_after = self.editor.as_mut().is_some_and(|editor| {
             editor.saving = false;
-        }
+            std::mem::take(&mut editor.close_after_save)
+        });
         match result {
             Ok(_) => {
                 self.model.is_example = false;
@@ -553,6 +625,14 @@ impl ResumeOne {
                     "{} — Resume One · 简里",
                     self.model.document_label
                 ));
+                if close_after
+                    && self
+                        .editor
+                        .as_ref()
+                        .is_some_and(|editor| !editor.buffer.is_dirty())
+                {
+                    window.remove_window();
+                }
             }
             Err(error) => self.editor_warning(tr("保存失败"), &error.message, window, cx),
         }
@@ -604,6 +684,7 @@ impl ResumeOne {
                 store,
                 generation: 0,
                 saving: false,
+                close_after_save: false,
                 journal_error: None,
                 recovery: None,
                 _subscription: subscription,
@@ -628,14 +709,52 @@ impl ResumeOne {
         {
             return;
         }
+        let preview_target = self
+            .inline
+            .form
+            .as_ref()
+            .map(|form| (form.section.clone(), form.index))
+            .or_else(|| {
+                self.hovered_item
+                    .as_ref()
+                    .map(|(id, index, _)| (id.clone(), Some(*index)))
+            })
+            .or_else(|| {
+                self.hovered_section
+                    .as_ref()
+                    .map(|(id, _)| (id.clone(), None))
+            })
+            .or_else(|| self.preview_reading_target());
         self.files.open = false;
         self.clear_inline();
         self.cancel_insertion();
         self.hovered_theme = None;
         self.online.cancel_interaction();
         if self.source_mode {
+            let target = self.editor.as_ref().and_then(|editor| {
+                use resume_one_core::source_map::SourceAction;
+                use resume_one_core::structure::StructureEdit;
+                let caret = editor.input.read(cx).cursor();
+                editor.source_anchors.iter().rev().find_map(|anchor| {
+                    if anchor.offset > caret {
+                        return None;
+                    }
+                    match &anchor.action {
+                        SourceAction::Edit(StructureEdit::RemoveItem { id, index }) => {
+                            Some((id.clone(), Some(*index)))
+                        }
+                        SourceAction::Edit(StructureEdit::RemoveSection { id }) => {
+                            Some((id.clone(), None))
+                        }
+                        _ => None,
+                    }
+                })
+            });
             self.source_mode = false;
             self.begin_mode_transition();
+            if let Some((id, index)) = target {
+                self.jump_to_preview(&id, index);
+            }
             window.focus(&self.focus);
             cx.notify();
             return;
@@ -650,8 +769,48 @@ impl ResumeOne {
             && let Some(editor) = &self.editor
         {
             editor.input.update(cx, |state, cx| state.focus(window, cx));
+            if let Some((id, index)) = preview_target {
+                self.jump_to_source(&id, index, window, cx);
+            }
         }
         cx.notify();
+    }
+
+    pub(super) fn jump_to_source(
+        &mut self,
+        id: &str,
+        index: Option<usize>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        use resume_one_core::source_map::SourceAction;
+        use resume_one_core::structure::StructureEdit;
+        let Some(editor) = &self.editor else { return };
+        let anchor = editor
+            .source_anchors
+            .iter()
+            .find(|anchor| match (&anchor.action, index) {
+                (SourceAction::Edit(StructureEdit::RemoveSection { id: candidate }), None) => {
+                    candidate == id
+                }
+                (
+                    SourceAction::Edit(StructureEdit::RemoveItem {
+                        id: candidate,
+                        index,
+                    }),
+                    Some(item),
+                ) => candidate == id && *index == item,
+                _ => false,
+            });
+        if let Some(anchor) = anchor {
+            let offset = anchor.offset;
+            editor.input.update(cx, |input, cx| {
+                let source = input.value();
+                if !input.is_composing() && source.is_char_boundary(offset) {
+                    input.set_cursor_position(source_position(&source, offset), window, cx);
+                }
+            });
+        }
     }
 
     fn load_recovery(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -953,11 +1112,7 @@ impl ResumeOne {
         let status = if let Some(error) = &editor.journal_error {
             format!("草稿备份失败：{error}")
         } else if let Some(issue) = editor.buffer.issues().first() {
-            if issue.path.is_empty() {
-                issue.message.clone()
-            } else {
-                format!("{} · {}", issue.path, issue.message)
-            }
+            diagnostic_message(issue)
         } else if editor.saving {
             tr("保存中…").into()
         } else if editor.buffer.is_dirty() {
@@ -965,6 +1120,7 @@ impl ResumeOne {
         } else {
             "".into()
         };
+        let issue = editor.buffer.issues().first().cloned();
         div()
             .id("resume-json-editor")
             .debug_selector(|| "resume-json-editor".into())
@@ -981,6 +1137,7 @@ impl ResumeOne {
             .child(
                 div()
                     .relative()
+                    .font_family(Theme::global(cx).mono_font_family.clone())
                     .w_full()
                     .max_w(px(930.))
                     .flex_1()
@@ -1010,7 +1167,9 @@ impl ResumeOne {
             .when(!status.is_empty(), |view| {
                 view.child(
                     div()
-                        .h(px(24.0))
+                        .id("source-status")
+                        .debug_selector(|| "source-status".into())
+                        .min_h(px(24.0))
                         .flex_none()
                         .px_2()
                         .text_size(px(12.0))
@@ -1019,15 +1178,72 @@ impl ResumeOne {
                         } else {
                             color(style.colors.seal)
                         })
-                        .child(status),
+                        .child(status)
+                        .when_some(issue, |view, issue| {
+                            let keyboard_issue = issue.clone();
+                            view.tab_index(0)
+                                .tab_stop(true)
+                                .cursor_pointer()
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.locate_source_issue(&issue, window, cx)
+                                }))
+                                .on_key_down(cx.listener(move |this, event, window, cx| {
+                                    if crate::chrome::activation_key(event) {
+                                        cx.stop_propagation();
+                                        this.locate_source_issue(&keyboard_issue, window, cx);
+                                    }
+                                }))
+                        }),
                 )
             })
+    }
+
+    fn locate_source_issue(
+        &mut self,
+        issue: &resume_one_core::Diagnostic,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(editor) = &self.editor else { return };
+        editor.input.update(cx, |input, cx| {
+            if !input.is_composing()
+                && let Some(position) = diagnostic_position(&input.value(), issue)
+            {
+                input.set_cursor_position(position, window, cx);
+            }
+        });
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::automatic_pair;
+    use super::{automatic_pair, diagnostic_position};
+
+    #[test]
+    fn diagnostic_navigation_uses_displayed_unicode_columns() {
+        let source = "{\n  \"basics\":{\"label\":\"林🙂\",\"name\":42}\n}";
+        let issue = resume_one_core::resume::parse_resume(source.as_bytes())
+            .unwrap_err()
+            .remove(0);
+        let position = diagnostic_position(source, &issue).unwrap();
+        assert_eq!(position.line, 1);
+        assert_eq!(
+            source
+                .lines()
+                .nth(1)
+                .unwrap()
+                .chars()
+                .skip(position.character as usize)
+                .take(2)
+                .collect::<String>(),
+            "42"
+        );
+        let invalid = "{\n  \"basics\":?\n}";
+        let issue = resume_one_core::resume::parse_resume(invalid.as_bytes())
+            .unwrap_err()
+            .remove(0);
+        assert_eq!(diagnostic_position(invalid, &issue).unwrap().line, 1);
+    }
 
     #[gpui::test]
     fn busy_save_keeps_draft_and_clears_saving_then_retry_updates_baseline(

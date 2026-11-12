@@ -186,9 +186,14 @@ impl ResumeOne {
                     }
                 }),
             );
+        let docx_hint = if self.model.applied_theme().original.is_some() {
+            tr("可在 Word 中编辑，使用简里排版")
+        } else {
+            tr("可在 Word 中继续编辑")
+        };
         for (index, (kind, hint)) in [
             (ExportKind::Pdf, tr("固定版式，适合投递")),
-            (ExportKind::Docx, tr("可在 Word 中继续编辑")),
+            (ExportKind::Docx, docx_hint),
             (ExportKind::Text, tr("适合粘贴到招聘系统")),
             (ExportKind::Markdown, tr("保留标题与列表结构")),
         ]
@@ -234,8 +239,9 @@ impl ResumeOne {
                 .border_t_1()
                 .border_color(crate::color(p.line))
                 .flex()
-                .items_center()
-                .justify_between()
+                .flex_col()
+                .gap_2()
+                .items_start()
                 .child(
                     div()
                         .text_size(px(12.))
@@ -324,7 +330,12 @@ impl ResumeOne {
             .as_ref()
             .and_then(|editor| editor.buffer.issues().first())
         {
-            self.editor_warning(tr("无法导出"), &issue.message, window, cx);
+            self.editor_warning(
+                tr("无法导出"),
+                &crate::editor_ui::diagnostic_message(issue),
+                window,
+                cx,
+            );
             return;
         }
         if !self.model.preview_ready {
@@ -370,6 +381,7 @@ impl ResumeOne {
         let suggested = format!("{stem}.{}", kind.extension());
         let choice = cx.prompt_for_new_path(&directory, Some(&suggested));
         self.export_busy = true;
+        self.exported_file = None;
         cx.spawn_in(window, async move |this, cx| {
             let path = match choice.await {
                 Ok(Ok(path)) => path,
@@ -437,20 +449,108 @@ impl ResumeOne {
             } else {
                 write_export_unnamed(&path, &bytes, overwrite)
             };
-            result.map_err(|error| error.message)
+            result.map(|_| path).map_err(|error| error.message)
         });
         cx.spawn_in(window, async move |this, cx| {
             let result = task.await;
             this.update_in(cx, |this, window, cx| {
                 this.export_busy = false;
-                if let Err(message) = result {
-                    this.editor_warning(&format!("{label} 导出失败"), &message, window, cx);
+                match result {
+                    Ok(path) => this.exported_file = Some(path),
+                    Err(message) => this.editor_warning(
+                        &format!("{label} · {}", tr("导出失败")),
+                        &message,
+                        window,
+                        cx,
+                    ),
                 }
                 cx.notify();
             })
             .ok();
         })
         .detach();
+    }
+
+    pub(super) fn export_notice_in_flow(&self) -> bool {
+        self.model.applied_theme().original.is_some()
+            && !self.source_mode
+            && !self.layout.modules_docked()
+            && self.appearance_editor.is_none()
+    }
+
+    pub(super) fn export_notice(&self, cx: &mut Context<Self>) -> impl IntoElement {
+        let p = crate::chrome::Palette::new(self.shell_style());
+        let filename = self
+            .exported_file
+            .as_ref()
+            .and_then(|path| path.file_name())
+            .unwrap_or_default()
+            .to_string_lossy()
+            .into_owned();
+        let mut notice = div()
+            .id("export-complete")
+            .debug_selector(|| "export-complete".into())
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .gap_2()
+            .max_w(px(620.))
+            .px_3()
+            .py_2()
+            .rounded(px(8.))
+            .bg(crate::color(p.panel))
+            .border_1()
+            .border_color(crate::color(p.line))
+            .shadow_md()
+            .occlude()
+            .child(
+                div()
+                    .min_w_0()
+                    .truncate()
+                    .child(format!("{} · {filename}", tr("已导出"))),
+            );
+        for (id, title) in [
+            ("open-export", tr("打开文件")),
+            ("reveal-export", tr("在文件夹中显示")),
+            ("close-export-notice", tr("关闭")),
+        ] {
+            notice = notice.child(
+                div()
+                    .id(id)
+                    .debug_selector(move || id.into())
+                    .tab_stop(true)
+                    .tab_index(0)
+                    .flex_none()
+                    .px_2()
+                    .py_1()
+                    .rounded(px(4.))
+                    .cursor_pointer()
+                    .text_color(crate::color(p.accent))
+                    .hover(|row| row.bg(crate::color(p.soft)))
+                    .focus(|row| row.bg(crate::color(p.soft)))
+                    .child(title)
+                    .on_click(cx.listener(move |this, _, _, cx| this.export_notice_action(id, cx)))
+                    .on_key_down(cx.listener(move |this, event, _, cx| {
+                        if crate::chrome::activation_key(event) {
+                            cx.stop_propagation();
+                            this.export_notice_action(id, cx);
+                        }
+                    })),
+            );
+        }
+        div().w_full().flex_none().child(notice)
+    }
+
+    fn export_notice_action(&mut self, action: &str, cx: &mut Context<Self>) {
+        let Some(path) = self.exported_file.take() else {
+            return;
+        };
+        match action {
+            "open-export" => cx.open_with_system(&path),
+            "reveal-export" => cx.reveal_path(&path),
+            _ => {}
+        }
+        cx.notify();
     }
 }
 

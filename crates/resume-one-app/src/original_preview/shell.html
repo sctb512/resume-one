@@ -160,6 +160,8 @@
     observer?.disconnect();
     current?.remove();
     current = null;
+    pendingJump = null;
+    lastReading = "";
     editHit.hidden = true;
     height = PAPER_HEIGHT;
     resize();
@@ -202,6 +204,8 @@
       next.style.visibility = "";
       resize();
       document.scrollingElement.scrollTop = scroll;
+      applyJump();
+      pendingJump = null;
       pending = null;
       window.ipc.postMessage("painted:" + token);
     }, { once: true });

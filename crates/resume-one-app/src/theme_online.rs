@@ -310,6 +310,7 @@ pub(super) struct OnlineThemes {
     pub sources: Vec<GithubSource>,
     pub source_index: usize,
     pub catalog: Option<Arc<Catalog>>,
+    pub catalog_failed: bool,
     pub provider: Option<Arc<dyn Provider>>,
     pub preview: Option<BuiltinTheme>,
     pub diagnostics: VecDeque<String>,
@@ -365,6 +366,7 @@ impl OnlineThemes {
         self.generation = self.generation.wrapping_add(1);
         self.queue.clear();
         self.catalog = None;
+        self.catalog_failed = false;
         self.ready.clear();
         self.lru.clear();
         self.failed.clear();
@@ -561,6 +563,7 @@ impl OnlineThemes {
                 self.requeue();
             }
             Reply::Catalog(Err(error)) => {
+                self.catalog_failed = true;
                 self.diagnostic(format!("{}：{error}", job.source.repository()))
             }
             Reply::Theme(Err(error)) => {

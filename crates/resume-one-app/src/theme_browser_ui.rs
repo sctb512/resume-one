@@ -2,10 +2,23 @@ use std::sync::Arc;
 
 use crate::i18n::tr;
 use gpui::{Context, IntoElement, Window, div, prelude::*, px};
+use gpui_component::input::{Input, InputEvent, InputState};
 use gpui_component::menu::{ContextMenuExt, PopupMenuItem};
 use resume_one_themes::{GithubClient, GithubSource, ThemeCache, VerifiedTheme};
 
 use crate::{ResumeOne, color, model::BuiltinTheme, theme_online::Provider};
+
+pub(super) fn layout_label(style: &resume_one_core::theme_style::ThemeStyle) -> &'static str {
+    if style.layout.contains("sidebar") {
+        tr("侧栏排版")
+    } else if style.split_header {
+        tr("分栏页眉")
+    } else if style.centered_header {
+        tr("居中页眉")
+    } else {
+        tr("单栏排版")
+    }
+}
 
 /// Keep all lightweight rows for a stable scroll range, but only measure
 /// previews within two rows of the viewport. This stays below the 40-layout
@@ -21,6 +34,103 @@ pub(super) fn thumbnail_window(offset: f32, height: f32, total: usize) -> std::o
 }
 
 impl ResumeOne {
+    pub(super) fn ensure_theme_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_search.is_some() || !cx.has_global::<gpui_component::Theme>() {
+            return;
+        }
+        let search = cx.new(|cx| {
+            InputState::new(window, cx).validate(|value, _| !value.contains(['\r', '\n']))
+        });
+        cx.subscribe_in(&search, window, |this, input, event, window, cx| {
+            if matches!(event, InputEvent::Change) {
+                this.theme_query = input.read(cx).value().trim().to_lowercase();
+                this.theme_scroll.set_offset(gpui::point(px(0.), px(0.)));
+                this.hovered_theme = None;
+                this.theme_hover_generation += 1;
+                this.theme_hover_candidate = None;
+                this.online.clear_hover();
+                this.prefetch_theme_results(window, cx);
+                cx.notify();
+            }
+        })
+        .detach();
+        self.theme_search = Some(search);
+    }
+
+    pub(super) fn theme_matches(&self, labels: &[&str]) -> bool {
+        self.theme_query.is_empty()
+            || labels
+                .iter()
+                .any(|label| label.to_lowercase().contains(&self.theme_query))
+    }
+
+    pub(super) fn local_theme_results(&self) -> Vec<(usize, &BuiltinTheme)> {
+        let locale = crate::i18n::theme_locale();
+        self.model
+            .themes
+            .iter()
+            .enumerate()
+            .filter(|(_, theme)| {
+                self.theme_matches(&[
+                    &theme.manifest.id,
+                    theme.manifest.localized_name(&locale),
+                    theme.manifest.localized_description(&locale),
+                    layout_label(&theme.style),
+                ])
+            })
+            .collect()
+    }
+
+    pub(super) fn online_results(&self) -> Vec<(usize, &resume_one_themes::ThemeEntry)> {
+        self.online
+            .catalog
+            .iter()
+            .flat_map(|catalog| catalog.entries().iter().enumerate())
+            .filter(|(_, entry)| {
+                let locale = crate::i18n::theme_locale();
+                let theme = (!self.theme_query.is_empty())
+                    .then(|| self.online.thumbnail_theme(&entry.id))
+                    .flatten();
+                self.theme_matches(&[
+                    &entry.id,
+                    &entry.name,
+                    theme
+                        .as_ref()
+                        .map_or("", |theme| theme.manifest.localized_name(&locale)),
+                    theme
+                        .as_ref()
+                        .map_or("", |theme| layout_label(&theme.style)),
+                ])
+            })
+            .collect()
+    }
+
+    fn prefetch_theme_results(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.online.online {
+            return;
+        }
+        let row = ((-f32::from(self.theme_scroll.offset().y)
+            + f32::from(self.theme_scroll.bounds().size.height) / 2.)
+            / crate::chrome::THEME_ROW_HEIGHT)
+            .floor()
+            .max(0.) as usize;
+        let results = self.online_results();
+        if let Some(&(index, _)) = results.get(row.min(results.len().saturating_sub(1))) {
+            self.online.scroll_to(index);
+        }
+        self.pump_online(window, cx);
+    }
+
+    pub(super) fn theme_list_status(&self, message: &'static str) -> impl IntoElement {
+        let palette = crate::chrome::Palette::new(self.shell_style());
+        div()
+            .px_2()
+            .py_3()
+            .text_size(px(12.))
+            .text_color(color(palette.muted))
+            .child(message)
+    }
+
     pub(super) fn hover_local_theme(
         &mut self,
         index: usize,
@@ -287,6 +397,23 @@ impl ResumeOne {
                 nav = nav.child(sources);
             }
         }
+        if let Some(search) = &self.theme_search {
+            nav = nav.child(
+                div()
+                    .px_2()
+                    .pb_2()
+                    .flex()
+                    .flex_col()
+                    .gap_1()
+                    .child(
+                        div()
+                            .text_size(px(11.))
+                            .text_color(color(p.muted))
+                            .child(tr("搜索主题")),
+                    )
+                    .child(Input::new(search).w_full()),
+            );
+        }
         nav
     }
 
@@ -310,22 +437,29 @@ impl ResumeOne {
                 window.defer(cx, move |window, cx| {
                     if let Some(owner) = owner.upgrade() {
                         owner.update(cx, |this, cx| {
-                            let center = ((-f32::from(this.theme_scroll.offset().y)
-                                + f32::from(this.theme_scroll.bounds().size.height) / 2.)
-                                / crate::chrome::THEME_ROW_HEIGHT)
-                                .floor()
-                                .max(0.) as usize;
-                            this.online.scroll_to(center);
-                            this.pump_online(window, cx);
+                            this.prefetch_theme_results(window, cx);
                             cx.notify();
                         });
                     }
                 });
                 cx.notify();
             }));
-        if let Some(catalog) = &self.online.catalog {
+        if self.online.catalog.is_none() {
+            let message = if self.online.sources.is_empty() {
+                tr("暂无在线来源")
+            } else if self.online.catalog_failed || self.online.provider.is_none() {
+                tr("无法加载主题目录 · 重新选择来源可重试")
+            } else {
+                tr("正在读取主题目录…")
+            };
+            list = list.child(self.theme_list_status(message));
+        } else {
             let locale = crate::i18n::theme_locale();
-            for (index, entry) in catalog.entries().iter().enumerate() {
+            let results = self.online_results();
+            if results.is_empty() {
+                list = list.child(self.theme_list_status(tr("没有匹配的主题")));
+            }
+            for (index, entry) in results {
                 let identity = self
                     .online
                     .identity(&entry.id)
@@ -337,21 +471,10 @@ impl ResumeOne {
                 let owner = cx.entity().downgrade();
                 let download_disabled = self.online.download_pending() || self.files.busy;
                 let thumbnail_theme = self.online.thumbnail_theme(&entry.id);
-                let description = crate::chrome::theme_description(
-                    thumbnail_theme
-                        .as_ref()
-                        .map(|t| t.manifest.localized_description(&locale))
-                        .unwrap_or_else(|| {
-                            if entry
-                                .manifest
-                                .ends_with(resume_one_themes::ORIGINAL_THEME_SUFFIX)
-                            {
-                                ""
-                            } else {
-                                &entry.id
-                            }
-                        }),
-                );
+                let description = thumbnail_theme
+                    .as_ref()
+                    .filter(|theme| theme.original.is_none())
+                    .map_or("", |theme| layout_label(&theme.style));
                 let row = div()
                     .id(("theme", index))
                     .debug_selector(move || format!("theme-{index}"))

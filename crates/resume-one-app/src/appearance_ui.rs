@@ -38,6 +38,7 @@ pub(super) struct AppearanceEditor {
     font_highlight: usize,
     font_focus: [gpui::FocusHandle; 2],
     palette: palette::PaletteState,
+    show_more_colors: bool,
     trial: trial::TrialState,
 }
 
@@ -140,6 +141,7 @@ impl AppearanceEditor {
             font_highlight: 0,
             font_focus: [cx.focus_handle(), cx.focus_handle()],
             palette: palette::PaletteState::new(cx),
+            show_more_colors: false,
             trial: trial::TrialState::default(),
         }
     }
@@ -195,6 +197,14 @@ impl AppearanceEditor {
             appearance.body_font = choice;
         }
         self.apply(appearance, window, cx);
+    }
+
+    fn toggle_more_colors(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.show_more_colors = !self.show_more_colors;
+        if !self.show_more_colors && self.palette.target.is_some_and(|target| target > 0) {
+            self.palette_escape(window, cx);
+        }
+        cx.notify();
     }
 
     fn reset_colors(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -876,15 +886,37 @@ impl Render for AppearanceEditor {
                 ),
         );
         let c = style.colors;
-        for (index, (key, value)) in COLOR_KEYS
-            .iter()
-            .zip([
-                c.accent, c.paper, c.canvas, c.ink, c.muted, c.border, c.seal,
-            ])
-            .enumerate()
-        {
-            let _ = key;
-            content = content.child(self.color_row(index, value, p, cx));
+        content = content.child(self.color_row(0, c.accent, p, cx));
+        content = content.child(
+            div()
+                .id("toggle-more-colors")
+                .debug_selector(|| "toggle-more-colors".into())
+                .tab_index(0)
+                .tab_stop(true)
+                .cursor_pointer()
+                .py_2()
+                .text_size(px(12.))
+                .text_color(color(p.accent))
+                .child(if self.show_more_colors {
+                    tr("收起其他颜色")
+                } else {
+                    tr("更多颜色")
+                })
+                .on_click(cx.listener(|this, _, window, cx| this.toggle_more_colors(window, cx)))
+                .on_key_down(cx.listener(|this, event, window, cx| {
+                    if chrome::activation_key(event) {
+                        cx.stop_propagation();
+                        this.toggle_more_colors(window, cx);
+                    }
+                })),
+        );
+        if self.show_more_colors {
+            for (index, value) in [c.paper, c.canvas, c.ink, c.muted, c.border, c.seal]
+                .into_iter()
+                .enumerate()
+            {
+                content = content.child(self.color_row(index + 1, value, p, cx));
+            }
         }
         div()
             .id("appearance-panel")
@@ -1703,6 +1735,10 @@ mod tests {
         assert!(cx.debug_bounds("drawer-overlay").is_none());
         let editor = cx.update(|_, cx| owner.read(cx).appearance_editor.as_ref().unwrap().clone());
         cx.update(|window, cx| {
+            editor.update(cx, |panel, cx| panel.toggle_more_colors(window, cx));
+            window.refresh();
+        });
+        cx.update(|window, cx| {
             window.focus(&editor.read(cx).palette.focus[6]);
         });
         cx.run_until_parked();
@@ -1953,6 +1989,9 @@ mod tests {
         cx.simulate_resize(gpui::size(px(1280.), px(820.)));
         cx.update(|window, cx| owner.update(cx, |app, cx| app.show_appearance(window, cx)));
         let original_source = cx.update(|_, cx| owner.read(cx).model.document.source.clone());
+        let more = cx.debug_bounds("toggle-more-colors").unwrap();
+        cx.simulate_click(more.center(), gpui::Modifiers::none());
+        cx.update(|window, _| window.refresh());
         for index in 0..crate::model::BUILTIN_THEMES.len() {
             cx.update(|window, cx| {
                 owner.update(cx, |app, cx| {

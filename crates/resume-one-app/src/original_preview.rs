@@ -35,6 +35,7 @@ impl Key {
 
 #[derive(Default)]
 pub(super) struct OriginalPreviewState {
+    pub reading_target: Option<(String, Option<usize>)>,
     running: bool,
     recent: VecDeque<(Key, Result<Arc<str>, String>)>,
     #[cfg(any(target_os = "macos", target_os = "windows"))]
@@ -83,16 +84,15 @@ impl ResumeOne {
         let height =
             f32::from(self.theme_scroll.bounds().size.height).max(self.viewport_height - 210.);
         let candidates = if self.online.online {
-            let Some(catalog) = self.online.catalog.as_ref() else {
-                return;
-            };
-            let entries = catalog.entries();
+            let entries = self.online_results();
             crate::theme_browser_ui::thumbnail_window(offset, height, entries.len())
-                .filter_map(|index| self.online.thumbnail_theme(&entries[index].id))
+                .filter_map(|index| self.online.thumbnail_theme(&entries[index].1.id))
                 .collect::<Vec<_>>()
         } else {
-            let themes = &self.model.themes;
-            themes[crate::theme_browser_ui::thumbnail_window(offset, height, themes.len())].to_vec()
+            let themes = self.local_theme_results();
+            crate::theme_browser_ui::thumbnail_window(offset, height, themes.len())
+                .map(|index| themes[index].1.clone())
+                .collect::<Vec<_>>()
         };
         let Some((key, original)) = candidates.iter().find_map(|theme| {
             let key = Key::new(self, theme)?;
@@ -247,6 +247,17 @@ impl ResumeOne {
                             "source" => {
                                 this.toggle_source(&crate::editor_ui::ToggleSource, window, cx)
                             }
+                            message if message.starts_with("reading:") => {
+                                state.reading_target =
+                                    serde_json::from_str::<Option<(String, Option<usize>)>>(
+                                        &message[8..],
+                                    )
+                                    .ok()
+                                    .flatten()
+                                    .filter(|(id, _)| {
+                                        crate::SECTION_LABELS.iter().any(|(key, _)| id == key)
+                                    });
+                            }
                             "save" => this.save_json(&crate::editor_ui::Save, window, cx),
                             "save-as" => this.save_json_as(&crate::editor_ui::SaveAs, window, cx),
                             "undo" => this.undo_visual_edit(
@@ -370,7 +381,18 @@ impl ResumeOne {
 }
 
 impl OriginalPreviewState {
+    pub(super) fn jump_to(&mut self, section: &str, index: Option<usize>) {
+        self.reading_target = Some((section.into(), index));
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        if let Some(desktop) = self.desktop.as_ref().filter(|_| self.ready) {
+            let section = serde_json::to_string(section).expect("encode section");
+            let index = serde_json::to_string(&index).expect("encode item index");
+            let _ = desktop.evaluate(&format!("jianliJump({section}, {index})"));
+        }
+    }
+
     pub(super) fn reset_document(&mut self) {
+        self.reading_target = None;
         self.hide();
         self.painted = None;
         self.sent = None;

@@ -2752,7 +2752,7 @@ mod tests {
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
-        cx.simulate_keystrokes("tab tab tab tab enter");
+        cx.simulate_keystrokes("tab tab tab tab tab enter");
         cx.update(|window, cx| assert!(view.read(cx).inline_focused(window, cx)));
         cx.simulate_keystrokes("escape");
         executor.advance_clock(INLINE_FADE_OUT);

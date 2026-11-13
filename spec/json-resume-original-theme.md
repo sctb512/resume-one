@@ -1,21 +1,21 @@
-# 简里原版 JSON Resume 主题包 v1
+# Original JSON Resume Theme Packages v1
 
-[JSON Resume 主题页](https://jsonresume.org/themes) 是给人浏览的目录。旧 Registry 的 `/api/themes` 目前重定向到 Registry 介绍页，上游对应实现也只返回示例预览链接。它没有提供适合本机渲染的固定版本、依赖和包摘要。简里将原版主题的固定版本放在独立主题仓库的 `originals/`，与已有声明式包分开发布。[上游目录接口源码](https://github.com/jsonresume/jsonresume.org/blob/master/apps/registry/pages/api/themes.js)
+**English** · [简体中文](./json-resume-original-theme.zh-CN.md)
 
-## 文件与接口
+The [JSON Resume theme directory](https://jsonresume.org/themes) is a browsing catalog. The legacy registry interface was designed around sample preview links. Resume One distributes pinned, packaged upstream themes under `originals/` in the [theme repository](https://github.com/sctb512/resume-one-themes). The packages supply the dependencies and hashes needed for local rendering. See the [upstream catalog interface](https://github.com/jsonresume/jsonresume.org/blob/master/apps/registry/pages/api/themes.js).
 
-`originals/index.json` 沿用[来源索引 v1](./schemas/resume-one-theme-source-v1.schema.json)。原版包路径以 `.original.theme.json` 结尾，每项必须填写整个文件的 SHA-256。客户端将分支解析为 Git commit，再按同一 commit 获取索引和包。索引中的 ID 和名称须与包内值一致。
+## Files and interface
 
-同一索引也支持声明式主题的可选 `files` 对象。键为与清单同目录的 TTF、OTF、TXT 或 MD 文件名，值为文件 SHA-256。含 `files` 的条目也须提供清单自身的 `sha256`。声明的字体路径及摘要须与 `assets.fonts` 一致。字体上限为 8 MiB，文本上限为 1 MiB，完整包上限为 32 MiB。应用按同一 commit 下载全部资源，校验后才渲染或安装。下载到本地时保存一个带 `theme.json` 的完整文件夹。
+`originals/index.json` follows the [source index schema](./schemas/resume-one-theme-source-v1.schema.json). An original package ends in `.original.theme.json` and requires the package's SHA-256 in the index. The client resolves the ref to a commit and loads the index and package from that commit. The IDs and names must match.
 
-本机来源配置由 `repository`、`ref`、`indexPath` 和可选的 `name` 组成。展示名称由用户编辑，缓存身份由前三项决定。
+The same index format accepts a `files` map for declarative packages. Keys are sibling TTF, OTF, TXT, or MD filenames, and values are SHA-256 digests. An entry with `files` must also hash its manifest. Paths and digests must match `assets.fonts` for declared fonts. Fonts are limited to 8 MiB each, text to 1 MiB each, and the package to 32 MiB. Verify all resources fetched at the same commit before rendering or installation. The installed directory includes its `theme.json`.
 
-包遵循 [JSON Schema](./schemas/json-resume-original-theme-v1.schema.json)，UTF-8 文件上限为 1 MiB。`package`、`version`、`author`、`upstream` 和 `license` 对应上游发布。主题仓库另附原始许可及依赖声明。将上游 npm 包和依赖固定后，打包器把模板、样式和静态资源装入单文件。旧包读取的模板和样式可在打包时绑定到静态字节。JS 入口以 `globalThis.__resumeOneTheme` 暴露同步 `render(resume) -> string`，可附 `pdfRenderOptions`。可选的 `stylesheets` 用原始 HTTPS URL 对应已打包的 CSS，渲染器用这些内容替换 HTML 引用，无需网络。
+Local configuration contains `repository`, `ref`, `indexPath`, and an optional user-facing `name`. The first three establish cache identity.
 
-## 执行与显示
+The original package follows its [JSON Schema](./schemas/json-resume-original-theme-v1.schema.json) and has a 1 MiB UTF-8 limit. Its `package`, `version`, `author`, `upstream`, and `license` identify the upstream release. The theme repository carries its license and dependency notices. The packager pins npm inputs and bundles the template, styles and static resources. It can bind old file reads to fixed bytes. `globalThis.__resumeOneTheme` exposes synchronous `render(resume) -> string` and optional `pdfRenderOptions`. An optional `stylesheets` map replaces HTTPS stylesheet references with bundled CSS.
 
-- JSON 文件通过简历 Schema 后，完整对象的副本传给原版渲染器，未知字段保留。为旧模板在副本补齐空的 `basics.location` 和 `basics.profiles`。
-- 每次渲染用独立 QuickJS 实例，限制执行时间、内存、调用栈和 HTML 大小。主题代码无文件、网络、Node 或系统接口。
-- 预览将清理后的 HTML 交给应用内系统 WebView 实时布局，macOS 使用 WebKit，Windows 使用 WebView2。沙箱禁止页面脚本和外部资源请求，保留随包提供的样式与 data URI 资源。原版 PDF 由临时隔离的 Chromium 进程生成。
-- 预览、打印 CSS 与上游包相关。外部字体或图片需要随包提供，系统字体和浏览器引擎版本也会影响结果。原版包不承诺与官网实时部署逐像素一致。
-- 原版主题的模块栏面向标准 JSON Resume 结构。文档内容在 JSON 编辑器修改，纸面没有声明式排版的编辑锚点。可编辑 DOCX 走简里默认排版。
+## Execution and display
+
+The renderer receives a copy of the schema-valid résumé, including extension fields. The copy supplies empty `basics.location` and `basics.profiles` for old templates. Each render uses a separate QuickJS instance with time, memory, stack and HTML limits. The theme has no filesystem, network, Node, or OS API. The system WebView lays out sanitized HTML and retains bundled styles and data URI resources. The preview uses WebKit on macOS and WebView2 on Windows. Original PDF export uses a temporary isolated Chromium process.
+
+Upstream styles, fonts and browser versions affect output. External assets need to ship in the package. Exact visual parity with the website's current deployment is not guaranteed. The sections panel follows standard JSON Resume. JSON editing works even for fields the upstream template hides. Supported rendered sections and items can expose editing forms through the app's original-theme integration. Editable DOCX uses the default Resume One layout.

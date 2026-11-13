@@ -1,22 +1,20 @@
-# Resume One 声明式主题规范 v2
+# Resume One Declarative Theme Specification v2
 
-状态：v2 文件结构及校验规则在 Rust 共享核心中实现；预览、PDF 和 DOCX 已支持单栏/左右侧栏基础视觉参数、四种模块标题、紧凑条目间距及经校验的本地静态字体资源。独立迁移器已支持 v1→v2 候选文件和第三方主题包的低置信度静态配色/元数据、字体声明及布局线索提取。视觉等效的人工移植及其余主题排版仍在开发。配套文件：[JSON Schema](./schemas/resume-one-theme-v2.schema.json)与[结构示例](./examples/resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
+**English** · [简体中文](./resume-one-theme-spec-v2.zh-CN.md)
 
-## 1. 为什么要自定规范
+Resume One v2 themes are UTF-8 JSON files consumed by the shared Rust core. Use them for built-in themes, local packages, and adapted community themes. Preview, PDF, and editable DOCX share normalized layout semantics. See the [JSON Schema](./schemas/resume-one-theme-v2.schema.json) and [structural example](./examples/resume-one-theme-v2.example.json).
 
-主题文件的 `typography` 与 `colors` 是主题默认值，不是用户个人偏好的存储位置。软件提供独立的本机字体/颜色覆盖，在内存快照中应用于预览与导出，不改写主题文件或简历；数据格式、优先级、独立重置与验收约束见[独立外观设置 v1](./appearance-settings.md)。
+## 1. Why a Separate Specification
 
-[JSON Resume 官方 Schema](https://github.com/jsonresume/jsonresume.org/tree/master/packages/schema)规范的是**简历内容**。其[主题开发说明](https://www.jsonresume.org/theme-development)和[当前主题脚手架](https://github.com/jsonresume/jsonresume.org/blob/master/docs/CREATING_A_THEME.md)定义的是 npm 包、`render(resume)` 与 HTML/React 渲染约定，并没有要求社区发布统一的、可安全解释的声明式布局 JSON。旧[官方样板主题](https://github.com/jsonresume/jsonresume-theme-boilerplate)使用 JS、Handlebars 和 CSS，也说明现有主题形态并不统一。[Reactive Resume](https://github.com/reactive-resume/reactive-resume)有自己的模板和样式规则，但它属于另一应用的数据与渲染模型，不能直接视为 JSON Resume 主题通用规范。
+The [JSON Resume schema](https://github.com/jsonresume/jsonresume.org/tree/master/packages/schema) specifies résumé data. Upstream themes use npm packages and HTML or React rendering conventions. The [upstream theme scaffolding](https://github.com/jsonresume/jsonresume.org/blob/master/docs/CREATING_A_THEME.md) uses a rendering interface, and the [older boilerplate](https://github.com/jsonresume/jsonresume-theme-boilerplate) uses JavaScript, Handlebars, and CSS. Reactive Resume also has its own application model. This document defines Resume One's declarative layout format. Applications can load separately distributed upstream packages through the [original-theme package format](./json-resume-original-theme.md).
 
-因此本规范**不是 JSON Resume 官方标准**，也不声称兼容现有 npm 主题包的执行接口。它只规定简里的声明式主题。应用还支持独立的[原版 JSON Resume 主题包](./json-resume-original-theme.md)，该格式使用单独的校验和渲染路径。
-
-阅读顺序：先看下方的最小文件，再按字段表添加布局细节；[JSON Schema](./schemas/resume-one-theme-v2.schema.json)是机器校验基线，本文规定跨字段语义。主题作者不需要懂 Rust、GPUI、CSS 或模板语言。
+The theme supplies typography and color defaults. [Independent appearance settings](./appearance-settings.md) apply personal overrides to an in-memory snapshot for preview and export. Theme files and résumé JSON do not store these overrides. Authors can start with a minimal file and use the schema for structural validation and this document for cross-field semantics.
 
 ```json
 {
   "formatVersion": 2,
   "id": "calm-paper",
-  "name": "静纸",
+  "name": "Calm Paper",
   "version": "1.0.0",
   "license": "MIT",
   "layout": "classic",
@@ -25,51 +23,47 @@
 }
 ```
 
-## 2. 文件与兼容性
+## 2. Files and Compatibility
 
-- 文件名：根目录 `*.theme.json`，或主题子目录中的 `theme.json`。内置、本地、在线下载后的文件形状完全相同；在线 GitHub 清单 `themes/index.json` 只负责列出路径，不是另一种主题格式。
-- v1 `formatVersion: 1` 的 `id/name/description/layout/colors/modules` **继续有效**，其可运行的机器定义见 [v1 JSON Schema](./schemas/resume-one-theme-v1.schema.json)；解析器把 v1 在内存中规范化为 v2 的默认值，不静默改写原文件。
-- v2 仍保留上述字段和含义，只新增版本、来源、纸张、字体、区域、模块呈现与受限资源字段。`layout` 四个旧值继续作为兼容回退样式；有 `composition` 时，v2 布局器优先使用它。
-- `formatVersion` 是解析协议版本；`version` 是单个主题的语义版本。未知协议版本、未知字段或不认识的枚举值应报错，不猜测、不执行。与未来 v3 不兼容时仍可保留文件与来源信息。
-- `resume.json` 只包含 JSON Resume 内容字段。已应用主题 ID、主题目录、来源、预览缓存和迁移映射留在应用本地状态；主题切换不得重写简历。
-- 主题文件是 UTF-8 JSON，不含注释或尾逗号。`id` 在同一源内唯一；跨来源身份为「源 + 固定版本/commit + id」，不能只靠名字。文件名不决定 ID；清单 ID 必须与文件 ID 相同。
-- 在线清单的机器定义见[主题源索引 v1 Schema](./schemas/resume-one-theme-source-v1.schema.json)。清单 `name` 必须与 manifest `name` 一致；`manifest` 为相对清单文件的仓库内路径，不能跳出仓库；`sha256` 如有填写，必须对原始 UTF-8 文件字节计算并在解析前验证。重复 ID 拒绝整份清单。
+Use `*.theme.json` for a standalone theme or `theme.json` in a package directory. Built-in and downloaded declarative themes follow the same format. A GitHub index only locates packages. UTF-8 JSON disallows comments and trailing commas. A theme ID is unique within a source. Online identity includes source, resolved commit, and ID. File name does not determine identity. The index ID and name must match the manifest, and any digest is calculated on the raw file bytes.
 
-## 3. 字段语义
+The [v1 schema](./schemas/resume-one-theme-v1.schema.json) remains supported. Convert v1 values to v2 defaults in memory and preserve on-disk bytes. V2 retains legacy layout values as fallbacks and adds version, provenance, paper, typography, regions, per-section appearance, and bounded resources. An explicit composition takes precedence. `formatVersion` identifies the format and `version` the individual theme's semantic version. Unknown versions, keys, and enum options produce errors. Keep the applied theme and source configuration, cache, and migration mappings separate from `resume.json`.
 
-| 字段 | 作用 | 约束 |
-|---|---|---|
-| `id`, `name`, `version`, `license`, `provenance` | 身份、署名与迁移来源 | 主题 ID 在一个来源内唯一；来源版本固定；不得以不明许可证再分发 |
-| `layout` | v1 兼容回退布局 | `classic/rules/minimal/modern` 四选一 |
-| `colors` | 文档视觉色 | 原有 `accent/seal/paper/canvas` 必需；可加 `ink/muted/border/sidebar`；应用外壳颜色由渲染器从这些 token 派生，主题不可直接改工具栏几何 |
-| `modules` | 右侧可新增模块 | 只允许 JSON Resume 的 12 个标准模块；不改变内容 Schema；已有但主题未列出的数据仍须保留并用保底排版显示 |
-| `page` | 纸张及分页约束 | A4/Letter、毫米边距、首行定位、模块间距、防拆条目和标题跟随首项；同一语义布局供预览与 PDF 使用 |
-| `typography` | 正文、姓名、模块标题、条目标题、职业说明、摘要、独立左右日期、辅助文字 | 受限字体族、磅值、行高、字重、字距与大小写；无 CSS 字符串；CJK 与拉丁字体有明确回退 |
-| `composition` | 纸张区域与页眉 | 单栏、左右侧栏或分割页眉四种预设；侧栏宽度和间距受限；`placements` 只把标准模块放到主栏/侧栏，同一区域内保留 Resume JSON 的模块顺序 |
-| `sections` | 各模块的外观 | 标题、列表/时间线/卡片/标签及日期位置由有限枚举选择；空模块默认不渲染；字段意义和文字由应用统一解释 |
-| `localizations` | 主题名、简介与栏目标题的翻译 | 可选的语言标签映射，见下节 |
-| `decorations` | 有界装饰 | 印章、细线、色带和有限圆角；不能内嵌 HTML/SVG/CSS 或任意绘图命令 |
-| `assets.fonts` | 可选本地字体 | 仅主题包内相对路径的 TTF/OTF，附 SHA-256 与许可证；解包、尺寸和许可另行校验；无网络字体 |
+## 3. Field Semantics
 
-本地主题包的 `assets.fonts` 已接入共享排版器：最多四个静态 TTF/OTF，每文件最多 8 MiB，路径规范化后必须仍位于主题目录内；校验原字节 SHA-256 后解析字面。`typography.*.family: "asset:<id>"` 必须引用已加载资源，声明字重必须与静态字面的实际字重一致。可变字体须由迁移工具先生成明确轴位置的静态字面，WOFF/WOFF2、集合字体和仅有清单而没有资源的调用不静默降级。字面需包含 GPUI 必需的基本拉丁字形 `m`，否则明确拒绝使用。缺少其他文字时仍采用共享布局中的显式中文备用字面。
+| Field | Contract |
+|---|---|
+| `id`, `name`, `version`, `license`, `provenance` | Identity, attribution, and pinned provenance. Review license before redistribution. |
+| `layout` | Required v1 fallback, `classic/rules/minimal/modern`. |
+| `colors` | Require accent, seal, paper, and canvas. Optional ink, muted, border, and sidebar. Derive chrome colors without allowing theme-controlled toolbar geometry. |
+| `modules` | Available insertion candidates from the 12 standard sections. Preserve existing content outside this list and show it with fallback layout. |
+| `page` | A4/Letter, physical margins, first line, section spacing, entry and heading break controls. Preview and PDF share the same physical layout. |
+| `typography` | Font, size in points, line height, weight, tracking and case for body, name, sectionTitle, itemTitle, label, summary, sideDate, and meta. |
+| `composition` | Single column, sidebars, or split header. Placements move standard sections between regions and preserve JSON order within each region. |
+| `sections` | Per-section heading, entry layout, and date placement. Empty sections omit printed headings. |
+| `localizations` | Optional localized names, descriptions, and section headings. |
+| `decorations` | Bounded seal, rule, band, and radius schema. Current rendering rejects unsupported custom decorations. |
+| `assets.fonts` | Limited package-local static fonts with hashes and licenses. |
 
-每个文字角色可独立设置 `trackingEm`（-0.05 至 0.5，默认 0）与 `textTransform`（`none` 默认、`uppercase`、`lowercase`）。字距按该角色字号换算为 pt，仅加在扩展字素簇之间，行尾不额外留一份；组合重音不拆开。变换采用 Unicode 与地区无关的大小写映射，先变换再测量/换行；例如 ß 变成 SS 后按两个字符测量。它们仅影响展示，不改变 JSON、纯文本或 Markdown 内容。预览与 PDF 共用换行、居中/日期对齐、字体回退及字素偏移；可编辑 DOCX 用实际文字和原生字符间距（1/20 pt 取整）表示，最终换行由阅读器完成。省略参数或显式设置默认值保持旧排版。
+### Fonts and Text Roles
 
-`typography.*.color` 可选，仅接受 `#RRGGBB`，用于精确保留原主题某个文字角色的颜色，不接受 CSS、变量、透明度或代码。省略时保留该角色既有的语义配色；label/summary/itemTitle 的颜色继承 body，sideDate 继承 meta，显式值覆盖继承。它只控制文档文字，不重新计算软件外壳、色块、分隔线或页脚颜色，也不改变测量、分页和交互区域。八个角色在预览、PDF 和可编辑 DOCX 中采用同一最终文字颜色，包括分列页眉、色底标题、独立日期和标签文字。与用于界面可读性的全局 `colors` 不同，作者明确指定的文字颜色不做隐式对比校正；作者须确认其在所有使用区域的可读性，主栏/侧栏不能用一个不合适的固定值冒充不同的源颜色。个人配色仍优先：覆盖 ink 时取消临时快照中 body/name/itemTitle/summary 的固定颜色，muted 对应 meta/sideDate，accent 对应 label/sectionTitle；覆盖 paper 时取消全部文字固定色，恢复可读性校正后的语义配色。重置个人配色恢复全部原值，原主题与 JSON 从不改写。未覆盖的固定角色颜色保持原样；旧主题不受影响。
+A package may contain four static TTF or OTF faces, up to 8 MiB each. Canonical paths must stay inside the package. Verify SHA-256 before parsing and match declared weight to the actual face. `asset:<id>` requires a loaded resource and the GPUI Latin glyph `m`. Convert variable fonts into explicit static instances during migration. Reject WOFF, WOFF2, collections, and missing resources. Use the shared explicit CJK fallback for other missing glyphs.
 
-`typography.*.fontStyle` 仅允许 `normal`（默认）或 `italic`，不得填 CSS 或倾斜角度。它必须选择真实静态正体/斜体字面：`asset:` 声明与实际字体标记不符时拒绝；本机 `font:` 查找分别缓存正斜体，未找到请求字面时明确报错，不合成倾斜。当前内置 CJK 备用字面只有正体；缺字仍使用该显式备用字体，不伪造中文斜体。label/summary/itemTitle 继承 body 的正斜体，sideDate 继承 meta，显式 normal 可以取消继承；name/sectionTitle/meta 独立默认正体。预览按实际字面选择原生正斜体，PDF 嵌入同一字面；DOCX 采用对应的常规、粗体、斜体或粗斜体嵌入槽位与文字属性。两个不同字面竞争同一槽位时导出明确拒绝，不能静默漏掉一个字重。本机字体覆盖仍需提供请求的真实字面，不能凭覆盖操作绕过检查。该功能只影响排版，不向 resume.json 写入样式。
+Register package faces in the current process only and keep handles out of theme JSON. Equal content is reusable. Two different faces with the same family and weight cannot coexist because GPUI font cache reuse could desynchronize preview and export. Use independently named faces when the license allows. PDF and DOCX also check embedding permissions. Online declarative packages can include fonts and license files through hashed index entries. See [GitHub Sources and Cache](#8-github-sources-and-cache).
 
-`typography.label` 用于 `basics.label`，`typography.summary` 用于 `basics.summary`；未声明的属性继承 `body`，包括字距和大小写。`typography.sideDate` 仅用于 `sections.*.date: left/right` 的独立日期，继承 `meta`；`inline` 日期仍是辅助信息行的一部分，不会被静默当成可独立着色/排印的片段。这三个角色采用相同的字体、字号、字重、行高、字距与大小写白名单，不接受 HTML/CSS。独立日期的测量参与标题行宽、居中/靠边位置、首行高度、避断和字体资源检查；标签与摘要随其所属基础信息区域排版。侧栏缩放同时作用于所有角色，字号下限仍为 7 pt。空对象与未声明保持旧几何；不得通过给原 JSON 添加样式或复制字段值来实现这些差异。原生字体覆盖作用于这些明确声明的正文附属角色；未声明的角色继续从已覆盖的 body/meta 继承。个人字族覆盖统一使用真实正体，恢复“跟随主题”才恢复主题原有斜体，详见独立外观规范。
+`trackingEm` defaults to 0 and accepts -0.05 to 0.5. Convert to points per role and insert spacing between extended grapheme clusters, with zero extra terminal spacing. `textTransform` accepts `none`, `uppercase`, and `lowercase`. Apply Unicode locale-independent casing before measuring and wrapping, including expansions such as ß to SS. Preview and PDF share measuring, grapheme offsets, wrapping, alignment, and fallback. DOCX uses editable text and native character spacing rounded to 1/20 pt. Raw data, text, and Markdown retain their original casing.
 
-资源只注册到当前进程，不安装到用户或系统字体库，不改写主题或简历。主题与运行期句柄分别保存；相同内容幂等复用，句柄不得写回 JSON。同名字族、相同实际字重但不同内容不能在同一进程中混用，以免 GPUI 字体缓存造成预览与 PDF 不一致；迁移时应使用有许可依据的独立字族命名。PDF/DOCX 继续使用真实字面并检查嵌入权限。在线源目前仍只接受自包含、无需字体资源文件的清单；在线字体包下载及资源清单传输尚未验收，不得把本地字体支持等同于在线字体包支持。
+`color` accepts optional `#RRGGBB` per role. Item title, label, and summary inherit body color. Independent dates inherit meta. Explicit values apply to document text in preview, PDF, and DOCX, and leave chrome, rules, backgrounds, geometry, and interactions unaffected. Theme authors must verify fixed colors on their applicable backgrounds. Personal ink overrides body/name/itemTitle/summary, muted overrides meta/sideDate, and accent overrides label/sectionTitle. A personal paper override removes all fixed text colors from the effective snapshot so readable semantic colors can be recomputed. Reset recovers the authored values.
 
-可编辑 DOCX 的一个字族只提供常规、粗体、斜体和粗斜体槽位，不能用同一槽位区分 300/400/500 等多个静态字重。迁移包需要同时使用这些字面时，应在原许可允许修改并遵守保留字体名称条款的前提下，为每个静态字面分配独立的主字族身份，并在 NOTICE 记录原始、静态中间产物和最终文件的哈希。名称、兼容全名、排印/兼容字族及 PostScript 前缀须保持一致，不能只改一个显示名。此步骤不得改动字形、度量、定位、原有版权/许可文本或嵌入权限；除 name 表和 head 校验和外的表须逐字节相同，整体 SFNT 校验和也须有效。内部数据转换助手目前只接受已获许可的独立静态 TrueType，不接受集合、可变字面和未经单独审查名称程序的 CFF/CFF2。合法命名或技术校验通过不等于法律许可已确认，也不等于原生 Word 验收通过。
+`fontStyle` accepts `normal` (default) and `italic`, resolved to real faces with no synthesized slant. Asset metadata must agree. Resolve system `font:` faces independently by posture and reject missing variants. Item title, label, and summary inherit body posture, while side dates inherit meta and may explicitly reset to normal. Name, section title, and meta default to upright. The bundled CJK fallback uses real upright faces. PDF embeds the corresponding face and DOCX uses its regular/bold/italic/boldItalic slot. Unsupported or conflicting slots produce explicit errors. A personal family selection uses real upright faces in its role group. Theme defaults restore the original posture.
 
-对应的[示例文件](./examples/resume-one-theme-v2.example.json)演示了侧栏、模块放置、字体层级和时间线。它只是**结构示例**；在桌面布局器及 PDF 一致性验收完成前，不得把它列为可完整应用的主题。
+`typography.label` styles `basics.label` and `typography.summary` styles `basics.summary`. The `sideDate` style applies only to independent left and right dates. Inline dates remain part of secondary text. Inherit unspecified properties from body for label and summary and from meta for side dates. Independent date metrics affect title width, alignment, first-line height, page breaks, and font checks. All sidebar typography scales once, with a 7 pt minimum. Empty role objects preserve default geometry. Static weights accept multiples of 100 from 100 to 900 and require matching available faces.
 
-### 主题语言
+DOCX can only embed one face per family in each of its four slots. To preserve multiple weights in one slot, a licensed renaming process may assign independent internal families beforehand. Record original, intermediate, and final hashes in NOTICE and respect reserved font names. Keep naming identifiers and PostScript prefixes coherent. Preserve glyphs, layout metrics, license metadata and embedding flags. Only the name table and head checksum may differ. The conversion helper accepts licensed standalone static TrueType inputs. Collections and variable faces are excluded, and CFF/CFF2 names require separate review. Technical validation does not establish legal clearance or native Word acceptance.
 
-`localizations` 是可选对象。键使用小写的 BCP 47 语言标签（如 `en`、`zh`、`en-gb`），值可包含 `name`、`description` 和 `sections`。栏目键是标准 JSON Resume 模块 ID，值是单行纯文本标题。
+### Theme Localization
+
+`localizations` uses lowercase BCP 47 tags such as `zh`, `en`, and `en-gb`. Each value can contain `name`, `description`, and one-line plain-text `sections` keyed by standard section ID.
 
 ```json
 {
@@ -78,45 +72,35 @@
 }
 ```
 
-目录查找先匹配所请求的标签，再逐段回退到父标签，逐字段查找。主题名和简介的最终回退是原清单字段。简历标题当前可选中文或英语，依次查找 `localizations.<language>.sections.<id>`、`sections.<id>.title` 和简里自带的栏目名。预览、PDF 和 DOCX 使用同一回退顺序，Markdown 和纯文本使用对应语言的简里栏目名。主题 ID、文件名、作者、许可、字段数据与文档版本保持不变。
+Lookup tries the requested tag and then parent tags per field. The original manifest provides fallback catalog name and description. Chinese and English document labels use localized section title, then `sections.<id>.title`, then the app's translated standard labels. Preview/PDF/DOCX share this sequence. Text and Markdown use the app's standard labels in the same language. Original-theme rendering replaces recognizable standard headings in Chinese preview and PDF while retaining authored custom text and résumé content.
 
-为兼容旧版应用，已分发的 v2 主题可在含 `theme.json` 的主题包内附带 `localizations.txt`，内容是上例同形状的 UTF-8 JSON。使用 `.txt` 兼容旧版来源索引。在线索引将文件纳入 `files` 的 SHA-256 校验，离线包将文件与 `theme.json` 一起保存。对于独立的 `<id>.theme.json`，同目录可放 `<id>.localizations.txt`，内置主题采用这种方式。新主题可用内联字段，发布工具拒绝同包重复声明。没有译文的字段继续使用原值。
+A package can include `localizations.txt` with the same UTF-8 JSON shape for compatibility. A standalone theme can use a sibling `<id>.localizations.txt`. Hash online extras in `files` and retain them offline. New themes may use the inline object. Publication rejects duplicate inline and sidecar declarations. Localization leaves identity, filename, license, credits, and résumé data unchanged.
 
-原版 JSON Resume 渲染包沿用上游模板和 CSS。简里中文预览和 PDF 会替换可识别的标准栏目标签，自定义文案和简历内容按源样显示。
+### Defaults
 
-### 省略字段的确定性默认值
-
-| 省略项 | 解释 |
+| Omitted | Default |
 |---|---|
-| `description`, `provenance` | 空描述、无迁移来源；不影响渲染 |
-| `page` | A4，四边 16 mm；`firstLinePosition: baseline`；模块间距 6 mm；条目不跨页；标题跟随首项 |
-| `typography` | 正文 `cjk-sans` 10 pt/400/1.4；姓名 `cjk-serif` 26 pt/600/1.2；模块标题 `cjk-serif` 13 pt/600/1.3；辅助文字 `cjk-sans` 8.5 pt/400/1.3；字距 0 |
-| `composition` | `single-column`、`stacked` 页眉、`inline` 联系方式；全部模块在主栏，顺序按 Resume JSON 顶层顺序 |
-| `sections` | 所有模块 `plain` 标题、`stack` 内容、`inline` 日期；缺失字段不渲染占位符 |
-| `decorations`, `assets` | 无装饰、无外部资源；模块分隔由应用默认样式处理 |
-| `colors.ink/muted/border/sidebar` | 由基础四色计算，且由应用按对比度规则修正；不从远端加载 |
+| `description`, `provenance` | Empty description and no migration metadata. |
+| `page` | A4, four 16 mm margins, baseline origin, 6 mm section gap, keep entries together where possible, and headings with their first entry. |
+| `typography` | Body cjk-sans 10 pt/400/1.4, name cjk-serif 26 pt/600/1.2, section titles cjk-serif 13 pt/600/1.3, meta cjk-sans 8.5 pt/400/1.3, zero tracking. |
+| `composition` | Single column with stacked header and inline contact. Place sections in their original JSON order. |
+| `sections` | Plain headings, stacked entries, inline dates, and no printed placeholders. |
+| `decorations`, `assets` | No custom decorations or resources. |
+| `colors.ink/muted/border/sidebar` | Derive from required colors with contrast correction. |
 
-`layout` 始终必填，供 v1 兼容排版回退；显式 `composition` 优先于它。显式字段只覆盖对应默认值，不影响未提及字段。预览、PDF 和 DOCX 使用同一规范化后的主题语义；DOCX 的分页仍允许与 PDF 不同。
+Explicit values override only their own defaults. `provenance.fidelity` can be `native`, `adapted`, or `inspired`. Use verifiable `upstreamUrl/upstreamRevision/upstreamAuthor/upstreamLicense/migratedBy` for adaptations. Record acceptance in the migration report. Do not surface unsolicited provenance notices in theme rows.
 
-`provenance` 只做元数据，不在主题列表弹出提示：`native` 表示为本规范原创，`adapted` 表示按已注明来源改编，`inspired` 表示仅借鉴视觉方向。迁移版应写 `upstreamUrl/upstreamRevision/upstreamAuthor/upstreamLicense/migratedBy` 中可证实的信息；是否通过验收记录在迁移工具的发布报告中，不用 `fidelity` 冒充审核状态。
+### Paper Origin and First Line Positioning
 
-### 纸张起点与首行定位
+`page.firstLinePosition` accepts `baseline` (legacy default) or `line-box`. In line-box mode the origin is the top of the first ordinary line box, with existing section and entry spacing still in effect. The baseline is offset by `(lineHeight + ascent - descent) × sizePt / 2`. Use real em face metrics with descent positive and advance by each line's actual box height. Main content, sidebar, split header, and continuations have separate origins. Decorated headings and inline pairs reserve their actual line box.
 
-`page.firstLinePosition` 是可选的有限枚举，仅允许 `baseline`（默认）与 `line-box`。省略或显式选择 `baseline` 时，首个普通文字流按旧方式把起点作为基线，既有原生主题的默认几何不变。`line-box` 把起点视为首个行框顶部；已有模块/条目前置间距仍生效，不意味着忽略这些间距。
+`page.marginsMm` represents final physical spacing of 3–35 mm per side. A migrator can combine supported page and container CSS spacing before emitting the values. The app performs no CSS margin calculation on load. DOCX keeps the physical margin and uses native editable lines without an extra ascent spacer. Viewer-specific geometry remains independently testable. [Adaptation protocol](./theme-adaptation-v1.md)
 
-在 `line-box` 模式中，普通文字的基线距当前行框顶部为 `(lineHeight + ascent - descent) × sizePt / 2`。`lineHeight` 是无单位行高，`ascent/descent` 为实际 `FontKind` 字面的 em 度量，下降部使用正值。共享预览与 PDF 用每行的真实字号和行高计算基线，行框推进量等于行框高度。混排不同字号时，基线随当前行的字面改变。主栏、侧栏、分栏页头和续页各有独立的行框起点，装饰标题和并排日期以所占行框计量。
+### Entry Title and Header Lines
 
-`page.marginsMm` 仍只保存最终四边物理留白，范围各为 3–35mm，不是 CSS 或盒子表达式。独立迁移器可把受支持的 `@page` 边距与 html/body/单一文档容器内距组合成该最终值，再显式选择 `line-box`；组合、数值上下文及回退规则见[适配协议](./theme-adaptation-v1.md)。应用加载主题时不重新执行 CSS 组合，不把参数写入 resume.json。
+`typography.itemTitle` styles titles such as role, education entry, or project. It defaults to body style at 1.06 times body size and inherits omitted properties. Explicit personal body overrides also apply to this role.
 
-DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不因 `line-box` 再添加 ascent 空白段落或重复偏移。Word/LibreOffice 自行决定字形定位、换行与分页；此字段保证起点语义，不证明 DOCX、PDF 或原网页逐像素相同，也不表示迁移已通过完整 CSS 或 100% 视觉认证。
-
-### 条目标题字体
-
-`typography.itemTitle` 单独控制工作职位、教育条目、项目名等条目标题，字段与其他文字角色相同。省略时完整继承 body 的字族、字重和行高，仅字号为 body 的 1.06 倍，以保持旧主题的既有几何。显式声明时，未填写的字段仍继承上述值。模块标题继续使用 sectionTitle，正文继续使用 body，日期继续使用 meta；条目标题的测量、侧置日期留白、分页、预览、PDF 与可编辑 DOCX 均使用此角色。本机正文字体覆盖同时作用于显式 itemTitle，重置后恢复主题默认，不修改主题文件或 resume.json。
-
-### 条目页头分行
-
-`sections.<模块>.entryHeader` 为可选的、有界字段分行表，用于原主题将职位、机构、学位、日期分别排印的情况。它只替代该模块每个条目原有的合并标题和辅助信息行；描述、列表、URL、条目索引和原 JSON 不变。不声明时完全保留旧排版。每行使用一个完整文字样式，不支持行内混合字重、任意定位、条件表达式或 CSS。
+An optional `sections.<section>.entryHeader` replaces the default merged entry title and metadata lines. Descriptions, bullets, links, item indexes, and data remain intact. A line has 1–6 parts, and a header has 1–8 lines. No field may appear twice in the same header. Set a required inheritable style role of `itemTitle/body/meta/sideDate` and optionally override individual properties under `style`. A line has a single typography style including actual asset fonts. Header-only fonts must pass the same resource and export checks.
 
 ```json
 "work": {
@@ -130,44 +114,32 @@ DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不
 }
 ```
 
-示例中的字面须在同一主题包中真实声明、加载和校验，不能仅复制引用名。每个页头含 1–8 行，每行含 1–6 个 `parts`；同一字段在整个页头中最多出现一次。`role` 必填，可为 `itemTitle/body/meta/sideDate`，只选择继承的文字角色，不决定空间位置。`style` 使用与 `typography.*` 相同的有界字段，逐属性继承所选角色；包括真实字体、正斜体、固定颜色、字距和大小写。资源检查及导出字体收集包括只在页头使用的字面。
+| Section | Header fields |
+|---|---|
+| work | position, name, dateRange, location |
+| volunteer | position, organization, dateRange |
+| education | institution, studyType, area, score, dateRange |
+| awards | title, awarder, date |
+| certificates | name, issuer, date |
+| publications | name, publisher, releaseDate |
+| projects | name, dateRange, entity, type, roles, keywords |
+| references | name |
 
-| 模块 | 可读取的字段 |
-| --- | --- |
-| `work` | `position`, `name`, `dateRange`, `location` |
-| `volunteer` | `position`, `organization`, `dateRange` |
-| `education` | `institution`, `studyType`, `area`, `score`, `dateRange` |
-| `awards` | `title`, `awarder`, `date` |
-| `certificates` | `name`, `issuer`, `date` |
-| `publications` | `name`, `publisher`, `releaseDate` |
-| `projects` | `name`, `dateRange`, `entity`, `type`, `roles`, `keywords` |
-| `references` | `name` |
+Arrays use the standard semantic join. Empty or missing fields omit the entire part including affixes. Optional `prefix/suffix` default to empty and accept at most 32 Unicode characters each, excluding angle brackets, controls, and newlines. An empty line consumes no height. `spaceBeforePt/spaceAfterPt` apply only to nonempty lines, range from 0 to 48 pt, and default to zero. Adjacent spacing adds in preview and PDF. Actual face metrics can increase minimum clearance between lines and before the first body paragraph, bullet, or link. DOCX reserves sufficient native paragraph spacing without relying on Word to add adjacent values. Negative spacing is excluded.
 
-不接受 `basics/skills/languages/interests` 的页头，也不接受跨模块、私有扩展或描述字段引用。`dateRange` 缺省使用应用已有的区间文字；可在该 `part` 单独设置 `dateFormat: "raw"`（同缺省）或 `"short-en"`，规则见下节。原始单日期字段不改变。`roles/keywords` 使用既有语义投影的数组连接规则。主题作者应显式列出原版需要展示的页头字段：未列出的页头字段不在该主题中自动追加，但仍保存在原 JSON、表单和文本/Markdown 中；这不是删除内容的权限。主题切换不重排模块、条目或数组。
+Keep wrapping, pagination, real font measurement, and hit anchors consistent between preview and PDF. Scale sidebar lines once, to at least 7 pt. Keep headings with the first visible line. DOCX writes separate editable paragraphs and includes the entry's normal external spacing on its first line. Personal body fonts and ink/muted overrides apply by line role, and paper removes all fixed line colors. A reset restores authored styles. The only compatible date placement for entry headers is omitted or `inline`. The `sideDate` role affects style without enabling side positioning. Omitted heading fields stay available in JSON/forms/text outputs. Cross-section reads, custom extension fields, descriptions, mixed inline styles, and arbitrary expressions are outside this format.
 
-`prefix/suffix` 均可省略，默认空串；各最多 32 个 Unicode 字符，不含尖括号、控制字符或换行。字段有非空文字时，输出「前缀＋字段＋后缀」；字段缺失/空值则三者一起省略，不补占位符，也不根据相邻字段自动修正连接词。整行为空时，不占任何高度或间距。`spaceBeforePt/spaceAfterPt` 各为 0–48 pt，默认 0，作用于每个非空行的首尾；预览/PDF 的相邻间距相加，不使用 CSS margin collapse。字号跨度较大且显式间距不足时，排版器按真实字面度量增加最小净空，包含最后一行至首段正文、列表或 URL 的边界；DOCX 的最小段前间距本身也须足够，不能依赖阅读器把相邻段后/段前值相加。不能通过负间距叠字。
+### Bounded English Date Ranges
 
-预览与 PDF 共用这些行的真实字体测量、自动换行、分页和命中区域；侧栏字号按区域比例缩放一次，仍不低于 7 pt。模块标题跟随首个实际可见行，而非空条目占位。DOCX 写入可编辑原生段落及同样的段前/段后间距，首行另加该条目的既有外间距；阅读器独立重排，不承诺像素相同。个人正文字体覆盖也作用于显式行样式并采用真实正体；个人颜色按所选 `role` 的 ink/muted 分组覆盖固定色，重置恢复主题，不能把这些操作写回简历或主题。
+A `dateRange` part may use `dateFormat: "raw"` (default) or `"short-en"`. Other fields cannot set it. Short English accepts valid Gregorian ASCII YYYY, YYYY-MM, or YYYY-MM-DD and displays values like `Jun 2020 - Dec 2024`, with year-only inputs in January. It performs no timezone or clock lookup. A missing end shows only start, and a missing start produces an empty result. The low-level projection preserves an explicit null or empty end as `Present`. The JSON Resume 1.3.1 schema still rejects such invalid date inputs. Noncanonical or impossible dates retain raw values. Timestamps, regional calendars, and custom format strings are outside the contract. The change is limited to opted-in header parts in preview, PDF, and DOCX. [Reference implementation attribution](../licenses/THIRD_PARTY_LICENSES.md)
 
-目前 `entryHeader` 只接受省略或显式 `date: inline`，与左右侧置日期组合时报错；`sideDate` 角色不绕过这一限制。需要「左侧两行＋右侧日期」、出版物混合字面/悬挂缩进、技能定宽标签等原版构件时，必须另行实现并验收，不能借本字段假称已完整迁移。
+### Community Packages and Attribution
 
-### 有界的英文区间日期
+Use the same `<id>/theme.json`, fonts, licenses, and `NOTICE.txt` layout locally and for distributed adaptations. Retain verifiable upstream URL, revision, author, and license. Keep separate font and theme terms. For CC BY-NC-SA 4.0, preserve attribution, noncommercial and share-alike terms, and make them available in the theme notice. Record known adaptation changes without implying endorsement.
 
-`entryHeader[].parts[].dateFormat` 仅允许用于 `field: "dateRange"`，其他字段即使填写 `raw` 也报错。缺省/`raw` 完整保留旧的应用区间文字，不改变现有主题。`short-en` 用于静态移植默认英文 DateRange，按固定公历和英文短月份输出，例如 `2020-06-01` 至 `2024-12` 显示 `Jun 2020 - Dec 2024`；年份输入 `2020` 显示 `Jan 2020`。只解析精确的 ASCII `YYYY`、`YYYY-MM`、`YYYY-MM-DD`，验证月、日及闰年；日期只用于显示月份/年份，不读取本机时区或时钟。连接符为 ASCII ` - `，不改为长横线。
+Preflight the destination and all existing paths. Reject symlinks, nonregular files, and conflicts without overwriting. Write validated resources and license files first, then publish `theme.json` atomically. An interrupted initial installation must not expose a manifest with missing resources. Loading, migration, and catalog acceptance are separate checks.
 
-缺少 `endDate` 时只输出起始日期；没有起始日期时整个区间为空，不创造只有终止时间的区间。底层投影保留「未提供」与「显式 null/空串」的区别，后者表示 `Present`，但**这不放宽 JSON Resume 内容 Schema**：当前官方 1.3.1 校验仍拒绝 null/空串等非法日期，不能绕过校验生成已接受的简历。不可能的日期原样保留而非溢出归一化；不支持时间戳、时区偏移、其他地区/历法、表达式、格式字符串或本地化当前日期标签。这是标准日期子集的确定性移植，不声称实现全部 JavaScript Date/Intl 行为。
-
-格式化结果仅供选择此选项的预览/PDF/DOCX 页头行使用，再应用该行的文字样式及前后缀。原 JSON、源字段、旧辅助信息、纯文本/Markdown 以及未启用此选项的主题均不变。原始 `date/releaseDate` 不套用该格式。实现行为参照固定上游及许可见[第三方许可](../licenses/THIRD_PARTY_LICENSES.md)。
-
-### 社区内置包与署名
-
-社区内置包与用户本地主题使用相同的一级目录结构：`<id>/theme.json`、其字体、`LICENSE.txt`、字体许可和 `NOTICE.txt`。主题元数据保留可证实的上游 URL、固定版本、作者和原协议；NOTICE 说明改编及未保留的细节，不暗示原作者背书。软件许可不替换主题或字体的独立协议。CC BY-NC-SA 4.0 等有限制的内容必须保留署名、非商业与相同方式共享要求，并在主动打开的主题说明中明确展示，不使用常驻列表提示。
-
-安装先验证目标目录不是符号链接，并预检包内所有已有文件；存在不同内容、非普通文件或链接时，保留整个本地包，不补写/覆盖。安装资源及许可后最后原子写入 theme.json；中断的首次安装不能产生资源不齐的可加载主题。下载、改编和入库验收是不同状态，只有确认可加载且经过实际排版检查的改编文件进入内置清单。声明式路径只读取主题配置，不执行上游 JavaScript、HTML 或 CSS，也不读取 resume.json 中的私有样式扩展。
-
-### 当前支持的模块外观
-
-`sections` 仅配置所列标准模块，未列出的模块仍用默认值；不得影响模块/条目顺序、字段值、右侧候选或原始 JSON。
+### Section Appearance
 
 ```json
 "sections": {
@@ -177,158 +149,106 @@ DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不
 }
 ```
 
-| 配置 | 当前渲染语义 |
+| Setting | Rendering |
 |---|---|
-| `title` | 可选的纯文字展示标题，1–120 个 Unicode 字符，至少包含一个非空白字符；不允许尖括号、换行或控制字符。不填则按应用语言显示标准标题；填写后忠实保留作者文字，不自动翻译。仅预览/PDF/DOCX 使用，不重命名模块 ID、右侧候选、JSON、纯文本/Markdown 标题或改变顺序。标题的大小写、字距、换行、对齐和避断仍由同一排版器计算，不接受模板表达式、HTML 或代码 |
-| `heading: plain` | 默认的强调色标题，无额外装饰 |
-| `heading: line` | 标题下方为 `border` 色细线，约 0.6 pt |
-| `heading: accent-line` | 标题下方为 `accent` 色强调线，约 1.2 pt |
-| `heading: filled` | 内容区等宽的 `accent` 色底、默认 `paper` 色字；左右留白 6 pt、上下至少 4 pt；未指定固定文字色时使用可读性修正后的语义颜色。显式 `typography.sectionTitle.color` 仍由作者负责确认对比度 |
-| `headingAlign` | `left` 默认、`center` 或 `right`；只对当前模块标题逐行对齐，按所在主栏/侧栏的内容区计算，色底标题保留两侧 6 pt 内距。装饰线/色块仍占原内容区，正文、日期与模块命中范围不随标题文字移动 |
-| `items: stack` | 默认条目前间距 4 pt、描述段落前间距 3 pt |
-| `items: compact` | 条目前间距 2 pt、描述段落前间距 1 pt；字号、字重、行高和全部内容保持不变 |
-| `date: inline` | 日期与其他辅助信息沿用行内顺序 |
-| `date: left` | 日期在条目标题首行左侧，最多占内容区宽度的 42%，与标题至少相隔 12 pt；标题续行从标题起点对齐；异常长日期先独立靠左成行，再显示标题；其他辅助信息仍按原顺序显示 |
-| `date: right` | 日期在条目标题首行右侧，预留至少 12 pt 间隙；标题占用剩余宽度并换行；异常长日期则在标题后另起右对齐行，其他辅助信息仍按原顺序显示 |
+| `title` | Optional nonblank single-line plain text up to 120 Unicode characters, excluding angles, line breaks, and controls. Applies to visual document headings only. Omission uses the standard label. |
+| `heading: plain` | Accent text with no decoration. |
+| `heading: line` | About 0.6 pt border-colored rule below the heading. |
+| `heading: accent-line` | About 1.2 pt accent rule below the heading. |
+| `heading: filled` | Full-width accent fill, readable paper-colored text by default, 6 pt horizontal and at least 4 pt vertical padding. Authors verify contrast for fixed title color. |
+| `headingAlign` | Left by default, or center/right, per line within the actual column. Fill/rules and hit boundaries retain column width. |
+| `items: stack` / `compact` | 4 pt / 2 pt before entries and 3 pt / 1 pt before descriptions, preserving type and content. |
+| `date: inline` | Date sits in standard metadata order. |
+| `date: left` / `right` | Independent date on the first title line with at least 12 pt separation. Left date uses up to 42% of the column. Wrap titles in remaining space. Overflowing dates get their own aligned line before the title at left or after it at right. |
 
-预览与 PDF 共用标题色块/线条、两侧日期及字形几何，按真实上升部/下降部预留标题与首项之间的空间；装饰不得与首项重叠或拆到另一页。DOCX 用原生段落底色、边框、缩进及左/右制表位表达同一语义；长标题按共享测量拆为多个可编辑段落，超长日期另起左/右对齐段落。实际换行与分页仍允许因 Word 阅读器而不同。空模块不额外生成标题；空条目的交互索引仍保留。在线和本地使用同一能力校验，自定义 `decorations` 仍会明确拒绝，不能静默忽略。
+Shared layout keeps decor clear of the first entry, with actual ascents/descents and break rules. Empty entries retain editing indexes. DOCX expresses these styles with native paragraph borders, shading, indentation, tabs, and separate date paragraphs.
 
-`items: timeline` 在有时间语义的 work/volunteer/education/projects 模块中绘制左侧时间轨；内容左缩进 16 pt，使用主题 border 细轨和 accent 方形节点，日期仍遵守独立的 date 设置。它是单侧时间线，不等同于原主题交错的中央时间线。长条目正常跨页，延续页有轨线而不重复首项节点；命中区域仍包括轨线和留白。DOCX 使用可编辑段落及原生左边框表达轨线，不栅格化条目。
+A timeline fits work, volunteer, education, or projects, with a 16 pt left content indent, border rail, and accent square. On continuation pages retain the rail and do not repeat the opening marker. Cards use full-column 0.6 pt outlines with 8 pt horizontal body padding and a light accent fill only when ink, muted, and accent reach 4.5:1. Long cards can continue across pages. Editable DOCX uses native left borders for timelines and paragraph borders and shading for cards. Chips are limited to skills, languages, and interests. Keep lists, names, proficiency, descriptions, and links in order. Wrap long chips without truncation or font reduction. DOCX uses editable run shading. None of these choices changes text/Markdown content.
 
-`items: cards` 将每条内容放入完整栏宽、0.6 pt 细框的卡片，正文左右各缩进 8 pt。底色从 paper 与 accent 少量混合，只有 ink/muted/accent 仍满足 4.5:1 时才使用浅色染色，否则保留 paper。过长卡片可跨页，各页继续绘制背景与边框，不能截断内容或阻止翻页。DOCX 使用同组原生段落底色和边框，条目之间用无边框间隔分开；Word 自行决定跨页位置。
+### Sidebars and Basic Information Regions
 
-`items: chips` 仅适用于 skills/languages/interests。技能和兴趣关键词按原顺序逐项绘制有背景的文字标签；语言名称也可显示为标签。标签按栏宽换行，超长单项继续换行，不缩小字号或丢字；说明、熟练度、段落、URL 继续完整显示。DOCX 使用可编辑的文字底色，实际行距、换行和标签空白由阅读器排版，不承诺与 PDF 像素一致。上述三种构件不读取或写入简历样式字段，也不改变纯文本/Markdown 的语义内容。
+`composition.preset` can be `sidebar-left` or `sidebar-right`. Each region preserves original module order. `placements` selects sidebar sections and other sections remain in the main column. `sidebarWidthPct` defaults to 30 (20–40) after subtracting `gapMm`, which defaults to 6 mm (0–15 mm). Sidebar content has 6 pt horizontal padding with independently corrected ink, muted, and accent contrast against `colors.sidebar`. PDF and preview wrap and paginate each column independently after the full-width area, restoring the top margin on following pages. Keep one footer per page and full-width form overlays with column-accurate hit regions. Editable DOCX uses a borderless table with gutter cells, natural row height, and separate keep groups. Its sidebar shading follows table height. Check multi-page behavior in Word.
 
-### 当前支持的左右侧栏
+| Field | Default and alternatives |
+|---|---|
+| `headerRegion` | `page`, or `main/sidebar`, places identity and its inline contacts. |
+| `summaryRegion` | `page`, or `main/sidebar/header`. Header places summary after contacts and before the divider. |
+| `contactRegion` | `header` follows identity, or `main/sidebar` to show one independent left-aligned contact block. |
+| `sidebarTypographyScale` | 1, range 0.7–1.2, all sidebar roles and entry header lines, 7 pt final floor. |
 
-`composition.preset: sidebar-left/sidebar-right` 将正文分为主栏和侧栏。页眉与摘要默认保持全宽；`placements` 中声明为 `sidebar` 的标准模块进入侧栏，其余已有模块进入主栏。两栏内部各自保留原 JSON 模块顺序，不改写源数据；跨栏没有唯一的纵向阅读顺序，TXT/Markdown 仍按原 JSON 顺序输出。
+Within a region, render identity, independent contact, summary, then modules. Full-width areas precede columns. Empty fields produce no printed placeholder. Keep distinct hit bounds for basics in separate columns and edit the same `basics` object at each location. Allow left-aligned `summaryRegion: header` in all presets. Other non-default regional or scale settings require a real sidebar with at least one placed section or basics region.
 
-`sidebarWidthPct` 默认 30，范围 20–40，表示扣除栏间距后侧栏所占比例；`gapMm` 默认 6，范围 0–15 mm。侧栏左右各内缩 6 pt 作为底色与文字之间的留白，主栏不加内缩。`colors.sidebar` 决定侧栏底色，侧栏文字/辅助文字/强调色在该底色上独立满足 4.5:1 对比度；不影响主栏和应用外壳的色值。
+### Header and Contact
 
-预览/PDF 两栏从完整的全宽区域之后开始，分别测量、换行和分页；下一页恢复各自正常上边距并预留真实字体升部。一栏先结束不截断另一栏，页脚每页仅出现一次。窄栏长模块标题可换行，不缩小字号或丢弃内容；鼠标命中、增删控件使用实际栏宽，展开的表单仍用文档宽度。DOCX 用可编辑、无固定行高、允许跨页的无边框栏位表格和独立间隔单元格表达；标题/条目的避断页组用栏内小行表示，不把整栏段落串成连续 keepNext，以避免整栏被阅读器推离首页；侧栏底色随 Word 表格行的实际内容高度延展，不保证与 PDF 延伸至页底的色带完全相同。Word 自行重排，两栏跨页行为须另做 Word 实机验收。
+`header: stacked` left-aligns identity and contact. `centered` wraps first and centers each line within the content area. The summary stays left-aligned. `split` divides identity and contact 58%/42%, with a 14 pt left inset for the right-aligned contact column. Use `preset: split-header` with omitted or explicit split header, or set split under single-column. The split requires visible identity and attached contact content on both sides. If taller than a full page, preview and PDF fall back to full-width flow to preserve content. Sidebar placement and spacing options do not configure this split. In DOCX use native centered paragraphs or a fixed-width borderless two-cell table.
 
-### 基础信息的区域分配
+`contact: inline` joins semantic contacts with a middle dot and wraps groups in a narrow split column without a leading separator. `stacked` gives each contact its own wrapping line. Reject `icons` explicitly. Preserve field order, with no placeholders or generated icons.
 
-侧栏预设可独立声明以下有限选项，不引入可执行布局语言：
+## 4. Fixed Rendering Semantics
 
-| 字段 | 默认值及含义 |
-| --- | --- |
-| `headerRegion` | `page`；可为 `main` 或 `sidebar`，放置姓名、职业及随页眉的联系方式 |
-| `summaryRegion` | `page`；可为 `main` 或 `sidebar`，只放置摘要；`header` 表示跟随身份，位于联系方式之后、页眉分隔线之前 |
-| `contactRegion` | `header`，跟随身份；可为 `main` 或 `sidebar`，将联系方式独立放入指定栏，且不在身份中重复 |
-| `sidebarTypographyScale` | `1`，范围 0.7–1.2；仅缩放侧栏全部文字角色及条目页头行的字号，最终不低于 7 pt，不改变字体、字重、行高比例或源文件 |
+The core owns schema parsing, safe text and URLs, built-in labels, field mapping, dates, and missing values. Layout uses selected primitives and data. `basics` provides identity and contacts. Keep unknown JSON extension fields intact even when unsupported visually. `modules` only controls insertion candidates. Theme changes cannot remove or reorder document data. A shared document and manifest produce interactive preview and control-free print layout. The app retains control over interaction and accessibility.
 
-区域内部的固定顺序为身份、独立联系方式、摘要、该区域已有标准模块；空摘要/联系方式不生成占位。每份内容仅渲染一次。`header` 的对齐只作用于身份及随身份的联系方式；独立联系方式左对齐，遵守 `contact` 换行方式。`header: split` 只有联系方式跟随身份且两侧都有内容时才分列。全宽区域始终先于两栏排版，不受 JSON 字段出现位置影响。基础信息落在两栏时，鼠标命中范围分别属于各栏，不合并成覆盖栏间空白的区域；任一位置仍编辑同一份干净 JSON 的 `basics`。
+Keep `keepHeadingWithFirstItem` with the first visible line, never an empty anchor. Apply `avoidSplitItems` only when an entry fits a page. Keep a heading plus its first entry together when they fit together. Otherwise prioritize the heading and the first visible line and allow continuation. Do not reserve a full page twice or measure card/timeline content without subtracting actual padding.
 
-`summaryRegion: header` 在所有预设中可用，摘要始终左对齐，不继承页眉居中。其余非默认区域/缩放仅在侧栏预设可用，非侧栏布局必须报错；侧栏预设至少有一个侧栏模块或基础信息区域。省略这些字段与显式默认值保持原有几何不变。字重枚举为 100–900 的整百静态字重；这不意味着任意系统/内置字体都支持这些字重，资源的真实字重须与声明一致，不得合成或静默替换。
+### DOCX Export
 
-### 当前支持的页眉外观
+DOCX uses the same validated semantics, palette, paper and margins in editable native paragraphs and tables. Preserve explicit line breaks and keep only intra-entry paragraphs together, plus the heading and first entry when requested. Word independently determines line wrapping and page breaks. Map typography to half-point font sizes, standard regular/bold semantics (400/600), and minimum line height from `sizePt × lineHeight`, allowing extra room for actual glyphs. Embed full Noto faces as obfuscated OOXML fonts under OFL. Encode paper color as document background and repeated vector page shapes. No rendered screenshots stand in for editable text. Verify native Word compatibility independently.
 
-```json
-"composition": {
-  "preset": "single-column",
-  "header": "centered",
-  "contact": "stacked"
-}
-```
+Resolve fallback by extended grapheme cluster, for normal and italic runs. Missing glyphs use the same real upright Noto Sans SC face as preview/PDF, with inherited color, size, and spacing and without the failed Latin face's bold or italic style. Leave supported glyphs in the original face. Explicit fallback avoids depending on a viewer's substitutions.
 
-`header: stacked` 为默认左对齐的姓名、职业和联系方式；`header: centered` 将这些内容按左右页边距之间的**内容区**居中，不按整张纸居中。长文本先按可用宽度换行，再逐行居中，不缩小字号、不截断内容。摘要不属于居中页眉，模块标题、正文和交互表单仍按原方式排版。
+## 5. Safety and Validation
 
-`header: split` 或 `preset: split-header` 将身份（姓名、职业）与联系方式分列：左列占内容区 58%，右列占 42%，右列左内距为 14 pt，联系方式逐行靠右。两列各自按字体测量换行和向下排列，页眉结束后摘要与正文恢复全宽；没有任一侧内容时不保留空列，页眉高于单页可用区时预览/PDF 改用全宽流式排列，以保留全部内容。`preset: split-header` 可省略 `header`，若显式声明则只能是 `split`；在 `single-column` 预设下也可单独声明 `header: split`。侧栏宽度、间距和模块位置设置仍不适用于分栏页眉。
+Validate the [theme schema](./schemas/resume-one-theme-v2.schema.json) and then enforce semantics, cross-field constraints, and resource limits. Check sidebar placement, unique resource IDs, canonical package paths, actual font hashes and metadata, and per-item and aggregate I/O/cache budgets. Reject unsupported timeline and chips sections, external resources, executables, HTML, CSS, Handlebars, and arbitrary SVG. An upstream URL is attribution only.
 
-`contact: inline` 将现有语义联系方式按原顺序用 ` · ` 连接；预览/PDF 在分栏页眉的窄列中按完整联系方式分组换行，分隔点不会孤立出现在行首。`contact: stacked` 将每个联系方式独立起行，长项自然换行。不补图标、空字段或占位符，不改变内容与顺序。页眉和联系方式两个选项可独立省略或组合。
+On validation failure keep the current applied theme and show source diagnostics in management. Built-in, local, and online themes render the current data locally and draw their own thumbnails. Hover previews and leaves the applied theme, its available sections, export choices, and file data intact. Click applies the validated theme. Built-ins ship as real files and can be revealed in Finder or Explorer. Copy to a writable theme directory when editing a bundled file.
 
-预览与 PDF 共用测量后的坐标；DOCX 的居中页眉使用可编辑段落，分栏页眉使用无边框定宽双单元格表格，均由阅读器负责重排。基础信息继续共用文档宽度内的编辑表单，不随姓名字数收窄。`contact: icons` 目前明确拒绝，不能静默按其他版式渲染。省略 `composition` 或显式声明默认值保持原有布局；正文侧栏规则见上节。
+## 6. Migration
 
-## 4. 渲染器的固定语义
+### High-Fidelity Acceptance
 
-1. 布局器负责解析 JSON Resume、字段安全转义、本地化模块标题、日期格式、URL 安全校验和缺失字段处理。主题只能选择预置排版构件及参数，不能提供模板语言、表达式、回调或脚本。
-2. `basics` 永远是身份和联系方式的数据来源；主题可选择页眉摆法，不可把姓名、邮箱等复制到主题文件。其他模块用标准 ID 和固定字段映射；未知 Resume JSON 扩展字段原样保存，未有专门构件时不伪造展示。
-3. `modules` 控制新增候选，不控制删除现有内容。切主题或从远端更新主题时，任何内容不得被自动移除。
-4. 同一 `ResumeDocument + ThemeManifest` 生成交互预览和无控件打印布局。PDF 以无控件布局为准；DOCX 和纯文本使用同一语义内容顺序，但 Word 的字体替换与重排可能使它们**不能承诺逐像素等同**于 PDF。
-5. 主题的 `colors` 同时导出应用外壳的语义色，但正文可读性、焦点和高对比模式由应用最终裁决；主题不得降低可访问性约束。
+Pin upstream revision, fonts, and public fixtures. Compare at identical language, content, paper, scale, and output mode. Capture screen and print rules separately and record any screen-to-paper mapping. Check a shared paper baseline for preview and PDF and review editable DOCX reflow separately.
 
-预览/PDF 的分页约束须协调执行：`keepHeadingWithFirstItem` 保持模块标题与首项的实际起始文字同页，空 Anchor 不能作为验收依据；`avoidSplitItems` 仅在完整条目可放入一页时预留整项。两项同时开启时，若“标题＋整项”可放入一页，则整体避断；若整项超长，或条目本身能独占一页但加上标题后装不下，优先保持标题与条目开头同页，允许条目连续跨页。不能连续两次按整页预留而产生标题孤页。卡片/时间线的测量使用扣除内距后的真实宽度，标题级与条目级不得重复预留同一预算。正文没有标题、只有日期或正文时，同样按首个可见文字行计算。
+- Compare columns, section and field grouping, order, headers, grids, and decorations without changing source data.
+- Compare actual families/weights/axes, size, line height, tracking, case, alignment, spacing, and rules using 96 CSS px/in and 72 pt/in.
+- Compare composited colors, transparency and gradients. Record any document color change introduced for readability.
+- Check each page across six public fixtures for wrapping, break points, orphans, overflow, missing glyphs and absent fields. Pixel difference is a diagnostic and cannot substitute for review of structure and typography. Platform anti-aliasing alone does not establish a layout defect.
 
-### 当前 DOCX 导出契约
+Review against the source before publishing a high-fidelity claim. Where a primitive is missing, extend the bounded renderer and run verification again. Adaptation status and NOTICE disclosures are provenance records and cannot establish a fidelity percentage.
 
-DOCX 与预览/PDF 读取同一规范化主题和经过对比度修正的视觉 token；当前只接受共享排版器已实现的单栏和左右侧栏基础能力，不把未支持的构件静默降级。原生段落使用主题的纸张/四边边距、正文/姓名/模块标题/辅助文字角色、配色、模块间距和基础标题分隔线。内容保持可编辑、按原模块顺序输出；显式换行保留，自动换行由阅读器完成。`avoidSplitItems` 仅连接同一条目内的段落，不把整节或相邻条目锁为一组；过长内容仍允许阅读器跨页。`keepHeadingWithFirstItem` 控制模块标题跟随首项。
+| Source | Automated evidence | Follow-up |
+|---|---|---|
+| Resume One v1 | Read and normalize with schema | Use without conversion or explicitly upgrade. |
+| npm / JS / React / Handlebars | Pin source and extract metadata, palette, fonts, and structure | Validate regions, behavior, pagination, locales, and license. |
+| Static HTML/CSS | Extract supported sizes, colors, fonts, and regions | Map into bounded primitives and record missing behaviors. |
+| Dynamic dependencies or interaction | Discover catalog and dependencies | Redesign unsupported parts or omit the theme from declarative distribution. |
 
-Word 字号取整到半点，400/600 字重分别映射为常规/粗体；行高按 `sizePt × lineHeight` 写入原生最小行高，不使用可能裁切字形的固定高度，也避免把中文字体自身较大的度量再次按比例放大。完整 Noto 字体按 OFL 嵌入为 OOXML 混淆字体，保留后续编辑所需字形；禁止下载远端字体。纸色同时写入文档背景和重复的底层页尺寸矢量形状，避免部分阅读器忽略背景后导致深色主题不可读。不会把简历栅格化，也不把主题/样式写回简历 JSON。阅读器可能禁用嵌入字体、替换字形或重排，因此不保证与 PDF 的换行、页数和字重逐像素一致；Microsoft Word/macOS/Windows 实机兼容性仍是独立发布验收项。
+`resume-one-theme-migrate` is separate from the desktop app and agent CLI. Legacy candidates extract opaque hex/integer RGB colors and provenance with up to 20 font declarations plus layout hints. Hints from comments or strings remain evidence only. The [adaptation protocol](./theme-adaptation-v1.md) gives the bounded projection rules. The migrator statically reads upstream source. If executing originals for comparison, use an isolated comparison environment with public fixtures only. Compare short and long English and Chinese, all sections, sparse inputs, and multi-page A4/Letter. Unclear redistribution rights block publication.
 
-本地/主题字体的缺字回退按扩展字素簇显式拆分，正体和斜体均适用；不能只凭字体包含一个中文探测字就假定覆盖全部中文。缺字片段使用与预览/PDF 相同的真实 Noto Sans SC 正体，去掉原拉丁字面的粗体/斜体属性，保留颜色、字号、字距和内容；可显示的原字形仍使用原字面。不能把回退字体的选择或合成加粗留给 Word 阅读器决定。内置字体及全部可显示的原字形不因此改写。
+## 7. Source Publication and Review
 
-## 5. 安全与验证
+The public [theme repository](https://github.com/sctb512/resume-one-themes) publishes two catalogs. `migrated-index.json` lists adapted declarative packages. `originals/index.json` lists separately packaged upstream themes using the [original format](./json-resume-original-theme.md). Default settings use branch `main` and the reader resolves it to a commit for each catalog snapshot. Saved custom sources, including an explicitly empty list, take precedence. Private sources can supply `RESUME_ONE_THEME_GITHUB_TOKEN` in the process environment, outside persisted settings, caches, and release archives.
 
-配套 [JSON Schema](./schemas/resume-one-theme-v2.schema.json)先检查形状、白名单字段、枚举和数值边界；正式版还必须做以下语义检查：
+For strict declarative release review, supply `themes/index.json`, theme manifests, and `themes/review.json` using the [review schema](./schemas/theme-source-review-v1.schema.json). Include one record per ID with original-byte hash, upstream URL/revision/license, license and visual reviewers, review date, known limitations, six fixtures (short/long Chinese and English, missing fields, multi-page), and PDF review. Supply two PNGs per fixture plus a reviewed multi-page PDF under `qa/`, with hashes for all 13 files. Use public data only. Evidence is capped at 8 MiB per PNG, 30 MiB per PDF, and 512 MiB total. These files are separate from app downloads. Review themes must be v2 adaptations with author and migration metadata and be fully supported by the renderer.
 
-- `sidebar-*` 以外的布局不得使用独立主栏/侧栏位置；侧栏布局至少要有一个标准模块或基础信息区域放进侧栏；`asset:<id>` 必须引用确实存在且 hash 匹配的本地字体；不同资源 ID 不得重复。
-- 时间线只可用于有时间段的标准模块；`chips` 只用于技能、语言或兴趣等可枚举内容。不能因为不兼容就丢字段。
-- 文件和资源的真实路径须经规范化后仍在主题目录内；限制清单大小、字体大小、总下载量、并发、解码时间和缓存容量。只允许经验证的字体；不加载远程 URL、外部图片、JS、HTML、CSS、Handlebars 或任意 SVG。
-- `provenance.upstreamUrl` 只是署名/打开来源的元数据，渲染时不得发请求，更不能把用户简历传给主题源。
-- 验证失败保持上一个已应用主题；错误留在来源管理/诊断界面，不把无效条目当作可试穿主题。不要静默降级成另一排版后假称“迁移成功”。
-- 主题列表不用远程图片或官方截图。内置、本地、在线都以当前 Resume JSON 在本机同一渲染器试穿；悬停只改变屏幕画面，离开恢复，点击才应用。右侧模块始终属于已应用主题。
-- 内置主题是随安装包提供的**可定位真实文件**，不藏在可执行文件常量中；它们与用户目录主题走同一解析、校验和渲染路径。右键主题可在 Finder/资源管理器中显示其文件；若安装目录只读，用户仍可查看或复制，但编辑应在自己的主题目录进行。
+Run `resume-one verify-theme-source --dir /absolute/checkout` to check consistency, hashes, signatures, required evidence, and path safety. File signatures do not fully decode images or PDFs. A reviewer must still inspect the paired evidence and original license, verify the pinned public commit and release regression results, and check offline fallback. The command neither publishes nor changes default settings. The distributed preview catalogs and this stricter review procedure have separate acceptance records.
 
-## 6. 从现有主题迁移的路径
+## 8. GitHub Sources and Cache
 
-### 高保真验收门槛
-
-社区迁移以尽量接近原主题完整视觉效果为目标，不以收录数量、配色相近或成功导出作为完成依据。`provenance.fidelity: adapted` 只说明来源关系，不是相似度证书；NOTICE 披露差异也不能替代验收。现有改编包在通过以下对照前，只能作为本地适配验证，不能宣称已达到接近 100% 还原。
-
-先锁定上游 commit、原字体及公开测试 JSON；在相同语言、内容、纸张、缩放和屏幕/打印模式下对照。网页屏幕效果和原主题 `@media print` 分开建立基准，不能混用其边距、纸色或列宽。没有打印规则时明确记录采用的屏幕到纸张映射。预览/PDF 以同一纸面基准验证；可编辑 DOCX 的阅读器重排另列结果，不能用截图替代可编辑文本来追求一致。
-
-- 结构：栏位、模块/字段分组、显示顺序、页眉、卡片网格、图标及装饰须对应原设计。主题只能改变展示，原始 JSON 的字段、顺序和值不得因迁移而改写。
-- 排印：使用原始首选字族、实际字重和轴位置；逐项核对字号、行高、字距、大小写、对齐、边距、内距及边线。关键尺寸转换按 96 CSS px/in 与 72 pt/in；不可用近似字族或统一文字角色掩盖差异。
-- 配色：对照实际合成后的颜色、背景、透明度和渐变，而非仅比较清单色值。应用外壳可保持自身可访问性约束；如果正文因可读性修正而改变原色，须记录并作为未达视觉等效的差异，不能计为无差别还原。
-- 证据：六类公开样例逐页并排检查，检查换行、分页、孤行、溢出、缺字与缺字段。截图像素差只辅助定位，不用一个百分比掩盖字体替换、结构缺失或分页错误；不同系统的抗锯齿差异不等于布局差异。
-
-有明显的主体结构、字体、字号、文字角色或装饰差异时，先扩展受限声明式规范和共享渲染器，再重新验收；不得静默降级。只有已消除可见设计差异、保留许可并完成证据检查的主题，才进入正式默认主题源。不得给未经相同条件测量的主题标注“99%”“100%”等量化结论。
-
-| 原主题形态 | 可自动完成 | 需人工处理 | 结果 |
-|---|---|---|---|
-| 已是 Resume One v1 声明式文件 | 字段读取、默认值规范化、Schema 检查 | 无需重画 | 原文件直接用，未来可显式升级 v2 |
-| JSON Resume npm/JS/React/Handlebars | 固定来源、提取元数据/颜色/字体/资源、用公开样例截图和测量 | 对应区域、模块呈现、分页与中英文排版，许可证核对 | 可解释的 v2 迁移版；非原包运行时 |
-| 社区纯 CSS/HTML 模板 | 静态抽取尺寸、色值、字族和主要 DOM 分区 | 选择受限构件、清除模板逻辑、检查动态条件 | 能表达的部分迁移；超出能力明确标记差异 |
-| 依赖交互脚本/网络/任意计算 | 仅做目录发现和风险标记 | 改设计或放弃 | 不支持原样执行 |
-
-迁移器是**单独交付的工具** `resume-one-theme-migrate`，不内置在 GUI 或面向 agent 的 `resume-one` CLI 中。当前仅把第三方源码当作受限文本静态读取，不运行代码、不喂简历；如果未来为视觉比对而需要运行原主题，必须在独立隔离环境中且只使用公开的中英文测试简历。声明式主题的预览和导出只解析声明式配置。迁移器目前产出候选 `*.theme.json`、来源/许可证声明与未映射差异报告；配色识别十六进制及不透明整数 RGB，不猜测半透明颜色的背景合成。报告另保留最多 20 条字体声明及有限的布局线索供人参考。这些线索可能来自注释或脚本字符串，不会自动成为主题规则；静态提取的候选仍只有配色/元数据起点，布局和视觉效果仍需人工重建。再由人用短/长、中/英、全模块、缺字段、多页 A4/Letter 样例验收；未通过验收的候选不发布到在线目录。视觉差异无法通过自动提取全部解决，不能承诺一键无损；许可证不明时不再分发。
-
-## 7. 发布源合规性
-
-正式版默认在线源必须是真实、公开、已迁移和已验收的声明式 GitHub 仓库。构建时锁定 commit，并逐项检查清单、文件 SHA-256、来源许可、视觉/PDF 回归与离线回退；缺失即阻断发布。主应用不执行原代码主题，也不把官方主题目录或示例仓库冒充可用的声明式默认源。迁移器是独立程序，只把人工批准的结果写入在线清单。
-
-私有预发布使用 `sctb512/resume-one-themes` 的 `main` 与 `index.json` 作为初始配置。默认源通过认证的 GitHub API 读取，仍须先固定 commit 并校验清单、主题身份及文件摘要。调用进程通过 `RESUME_ONE_THEME_GITHUB_TOKEN` 提供该仓库的读取凭证，软件不会把它写入源配置、缓存或打包文件。已有的自定义源列表（包括主动保存的空列表）优先。该预发布配置不表示通过正式版高保真验收。
-
-待发布仓库必须包含 `themes/index.json`、逐项主题文件，以及 `themes/review.json`。后者遵循 [`theme-source-review-v1.schema.json`](./schemas/theme-source-review-v1.schema.json)：每个清单 ID 恰好对应一条记录，记录原文件 SHA-256、上游 URL/版本/许可、许可与视觉审核人、审核日期、六种样例（中英文短/长、缺字段、多页）、PDF 审核结果及已知局限。每个样例还须在 `qa/` 下留存上游与迁移版两张 PNG 截图及各自 SHA-256；另需一份已查看的迁移版多页 PDF 及其 SHA-256，共每主题 13 份证据文件。只能使用公开测试简历生成证据，不得收录用户私人简历。截图每份最多 8 MiB，PDF 最多 30 MiB，整个仓库本次审核读取的证据合计最多 512 MiB；这些文件不列入在线主题清单，不由应用下载。清单摘要按主题原始字节计算；主题须为 v2 `adapted`，具备上游作者和迁移人，且当前预览/导出引擎可完整解释。`resume-one verify-theme-source --dir /absolute/checkout` 离线检查这些结构、摘要、证据文件签名与来源一致性，拒绝符号链接、缺项和仅有配色的未完成候选。文件签名检查不等于图像/PDF 完整解码；审核人的声明也非机器可独立证实的许可或视觉验收。发布者仍须查看原始许可，打开证据对照原主题逐项验收，并在 GitHub 公开仓库及固定 commit 上重新检查。此命令不发布仓库，也不自动配置应用默认源。
-
-## 8. GitHub 来源及缓存契约
-
-共享来源库 `resume-one-themes` 与 `resume-one themes` CLI 已实现本节协议，GUI 已接入多来源管理、在线列表、悬停试穿、滚动预取及显式下载。公开且已验收的默认 GitHub 源仍是发布前置条件，不能以测试来源或占位地址替代。
-
-来源配置是 `repository/ref/indexPath` 三个字符串：例如 `{"repository":"owner/repository","ref":"main","indexPath":"themes/index.json"}`。仓库名规范化为小写，ref 保留大小写；配置列表最多 16 项，不允许相同三元组重复，不接受其他字段、凭据或任意 URL。上述仓库只是格式占位符，开发版不预置该地址。仓库、ref、路径只允许 ASCII 字母数字及 `-_.`，ref/路径可含分隔目录的 `/`，不得出现空段、`.` 或 `..`；ref 最长 100 字节，路径最长 240 字节且以 `.json` 结尾。
-
-仓库中的最小 `themes/index.json`：
+A source accepts `repository/ref/indexPath` with optional `name` (up to 60 Unicode characters, no controls). The location triple determines cache identity. Normalize repository to lowercase. Refs preserve case and can be at most 100 bytes. Index paths must end with `.json` and fit 240 bytes. Use ASCII letters, digits, hyphens, underscores and dots, with slash separators and no empty, dot, or parent path segments. Configure at most 16 distinct source locations. Supply no arbitrary endpoint or inline credentials.
 
 ```json
 {
   "version": 1,
   "themes": [
-    { "id": "calm-paper", "name": "静纸", "manifest": "calm-paper.theme.json" }
+    { "id": "calm-paper", "name": "Calm Paper", "manifest": "calm-paper.theme.json" }
   ]
 }
 ```
 
-`manifest` 相对清单文件所在目录；上例实际读取 `themes/calm-paper.theme.json`，内容可采用第 1 节的最小 v2 文件。清单与主题均最多 1 MiB，最多 500 项；ID 和 manifest 路径都不得重复。推荐每项增加原文件字节的 64 位十六进制 `sha256`；默认发布源必须提供该摘要，不以规范化或重新格式化后的 JSON 计算。清单通过校验只证明元数据形状有效，不表示所列主题已经通过验收。
+The manifest path is relative to its index. Indexes and manifests are each limited to 1 MiB and catalogs to 500 entries. IDs and manifest paths are unique. A SHA-256 is 64 hexadecimal digits over raw bytes and required for published default sources and resource-bearing manifests. The optional `files` map provides sibling TTF/OTF/TXT/MD assets with hashes. Fonts are limited to 8 MiB each, texts 1 MiB each, and a package to 32 MiB. Check file identity against manifest-declared resources and include them in local installation. [Source index schema](./schemas/resume-one-theme-source-v1.schema.json)
 
-读取分支或标签时先取得完整 commit SHA，之后仅对 `api.github.com`、`raw.githubusercontent.com` 发无简历参数的 HTTPS GET。主题请求固定在该 commit，关闭重定向、Cookie 与第三方代码执行；总请求超时 15 秒。清单支持 ETag 条件请求；304 只复用相同来源和 commit 的有效缓存。远端清单无效或网络失败时保留旧有效缓存，以 `stale` 和诊断区分回退，绝不把错误响应存成可用清单。
+Resolve refs to full commits and request only pinned files via HTTPS GET at api.github.com or raw.githubusercontent.com, with redirects and cookies disabled, no résumé parameters, and a 15-second request timeout. Use ETag/304 only with validated cache of the same location and commit. Network or validation failures may retain a previously valid catalog as stale with diagnostics.
 
-缓存身份包含完整来源三元组、commit 和 manifest 路径。缓存重新读取时再次验证清单/主题、身份与已声明 SHA-256，不信任已损坏的磁盘数据；目前只接受共享排版引擎能完整解释的单文件主题；在线字体资源包及未支持的高级构件不自动降级。缓存总量 256 MiB，按访问时间淘汰；GUI/CLI 写入通过同一个文件锁与原子提交串行核算容量，不沿符号链接读取、覆盖或递归删除。缓存不是用户主题目录。
+Validate cached bytes on read with source, commit, manifest path, identity, and declared hashes. Budget cache to 256 MiB with access-time eviction and common GUI/CLI advisory locking and atomic writes. Reject unsafe paths and unsupported rendering features. The cache and the local theme directory are separate. Explicit standalone downloads use `<source-fingerprint>-<id>-<content-hash>.theme.json`. Packages include their verified files and a manifest. An identical download is idempotent. Conflicting existing content stays intact. GUI uses the configured directory snapshot and locks changes during installation. CLI uses explicit `--dir`. Refresh the local list after a download without auto-applying it.
 
-下载到本地是显式动作：将通过校验的原始文件保存成 `<来源指纹>-<id>-<内容摘要>.theme.json`，防止不同来源同名冲突；相同文件幂等，已有不同内容保持原样，不静默替换。GUI 必须使用当前唯一的本地目录；CLI 独立运行时用明确的 `--dir`，不猜测 GUI 状态。主题目录和文件不会收到用户简历内容。
-
-主题 ID 只在单一源清单内唯一，不是跨来源的全局身份。本地列表按规范化文件路径区分，允许不同文件使用相同 ID；在线身份由来源指纹、commit 和 ID 共同组成。应用中的已选在线主题保留独立的已验证快照，不依赖当前浏览列表；切换来源或本地目录不改变该快照。悬停只改变显示效果，不改变用于导出和模块选择的已应用主题。
-
-GUI 预取应使用长度最多 20 的窗口：中心 `c` 对应 `[c-10,c+10)`，在首尾夹取补足 20；当前悬停项优先，最多 3 个并行请求。滚动后取消旧待发队列；已发响应可进入校验缓存，但只有来源/commit/当前悬停身份仍匹配时才能更新画面。不得把延迟响应直接应用为用户选中的主题。
-
-GUI 实现中，预取中心取可视列表中心对应行；初次载入取第 0 行。预取窗口外的当前悬停、显式应用或下载项也可入队，悬停优先。目录与清单请求同样占用 3 个后台任务名额，快速切源时旧任务结束前仍占名额，避免产生无界并发。内存已验证主题最多保留 32 项，另保留当前显示和已应用快照。未就绪的显式点击等待校验成功后才应用；切源、切至本地、切至源码、打开管理或打开文件会取消待应用动作。源错误仅在管理页显示；显式下载失败可弹出错误。失败项不随滚动反复重试，重新点击应用或下载可重试。预取及悬停不修改简历、磁盘简历、已应用主题或右侧模块范围。下载采用当前目录快照，下载请求至原子落盘期间不可更换/重置目录，完成后刷新本地列表，不自动应用下载项。
+The online applied theme is a verified snapshot independent of the current source or directory. Local identity uses canonical paths. Prefetch up to 20 entries centered on the visible list, clamped at its ends, with hover first and no more than three background requests including catalog work. Scrolling discards old queued jobs. Accept completed requests for the cache but update the screen only for the still-current source/commit/hover. Keep up to 32 verified in-memory themes, plus displayed and applied snapshots. An explicit pending application waits for validation. Switching source or view, going local, opening management, or opening a file cancels it. Source errors go to management and explicit download failures can surface directly. Repeated scrolling does not flood retries. A click or download request can retry deliberately.

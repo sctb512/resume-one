@@ -1,63 +1,55 @@
-# 桌面视觉与空间契约
+# Desktop Visual and Layout Contract
 
-本规范固化 Resume One 的原生桌面视觉。视觉依据为 v3 原型的暖纸、青色交互、朱印品牌、衬线标题和细线列表；最终交互决策优先于早期概念图，不恢复“编辑 JSON / 预览”按钮、JSON 标题条或格式化按钮。
+**English** · [简体中文](./desktop-appearance.zh-CN.md)
 
-## 工作区
+The v3 prototype establishes warm paper, teal interactions, a vermilion seal, serif headings, and fine-divided lists. The final desktop interaction uses the system View menu and shortcut to switch between preview and JSON. The JSON editor has a single content surface.
 
-- 顶栏高 60 逻辑像素，左右内距 26；朱印 28×28，英文品牌 18、中文品牌 15、文件名 13、状态 12。文件信息可截断，打开和导出入口保持可见。
-- 左轨 220，右轨 230；栏标题区高 63，标题为 18 号衬线，辅助文字不低于 12。macOS 将系统窗口按钮与工具栏合并为同一行，左侧为窗口按钮预留 90，不重复显示原生标题文字；品牌区可拖动窗口、双击遵守系统标题栏行为。Windows 保留系统标题栏，不属于上述工具栏高度。
-- 外壳面板色由当前主题的 canvas/paper 混合派生，分隔线由面板与 ink 派生。右栏、顶栏和按钮不得写死为浅色；纸张颜色及排版仍由主题决定。
-- 本地和在线主题行高 95，采用同一纸张缩略图、标题及描述布局。缩略图从当前简历与已验证主题的第一页本机绘制，不下载图片；未就绪时只留空纸。已应用行用淡色填充和 3 像素侧标记。
-- 模块行至少 58 高，用细分隔线、统一线形图标和名称组织；不使用重复白色卡片。右侧显示已有条目数或新增入口，选中态使用主题的轻量底色。
+## Workspace
 
-窗口宽度 ≥1280 时使用三栏；1024–1279 时主题改为左侧覆盖抽屉，右模块栏仍固定；720–1023 时两侧均为覆盖抽屉，同一时间只展开一个。入口只在相应侧栏被收起时出现，不增加模式切换按钮。点击遮罩、Esc 可收起；选择模块后让出正文，点击正文插入点时自动展开模块抽屉。抽屉不改变纸张缩放、逻辑换行、分页或右侧固定栏坐标；跨断点会取消临时试穿与过渡状态。最小窗口为 720×480，低窗口中的表单独立滚动。
+- The toolbar is 60 logical pixels high with 26 px horizontal padding. The seal is 28 × 28, the English brand 18, the Chinese brand 15, the filename 13, and status text 12. Truncate file information to preserve Open and Export.
+- The left rail is 220 px and the right rail 230 px. Rail headers occupy 63 px with 18 px serif titles and secondary text at least 12. macOS reserves 90 px for window controls on the toolbar, with native drag and double-click behavior in the brand area. Windows retains a system title bar separate from the toolbar.
+- Derive chrome panels from canvas and paper and separators from the panel and ink colors. Keep the paper and layout under theme control.
+- Local and online theme rows share a 95 px height and the same title, description, and paper thumbnail. Render the current resume locally using the validated theme. A pending thumbnail shows blank paper. The active theme uses a subtle fill and 3 px side marker.
+- Section rows are at least 58 px high and use fine dividers, consistent line icons, and labels. The right edge shows the current item count or the insertion affordance. Selected rows use a subtle theme-derived fill.
 
-## 纸张与编辑
+At widths of 1280 or more, use three rails. At 1024–1279, themes occupy a left overlay drawer and the right rail stays fixed. At 720–1023, both rails use drawers with at most one open. Show a drawer trigger only for a collapsed rail. Dismiss via backdrop or Esc. Selecting a section gives the document room, and selecting an insertion point opens the sections drawer as needed. Drawers leave scale, line wrapping, pagination, and fixed side coordinates intact. Crossing a breakpoint cancels temporary theme previews and transitions. Minimum window size is 720 × 480. Forms scroll independently in short windows.
 
-屏幕以固定物理纸张布局为源，缩放所有字形、线条和命中坐标，不因窗口变窄改变文字换行或分页。当前显示比例按中央可用宽度计算，限定为基础 3 px/mm 的 0.4–1.2 倍。缩放不得写回简历或影响 PDF。模式切换期间使用预览轨道的静止宽度计算比例，避免逐帧改变字号。
+## Paper and Editing
 
-JSON 编辑区最大宽度 930，圆角 8，正文 13、行高 21，保留右内距；没有错误或保存状态时不预留空状态栏，底部留白 16。结构操作和诊断不改变原始 JSON 的数据边界。
+Lay out at a fixed physical paper size and scale glyphs, rules, and hit coordinates together. Derive zoom from the center width and clamp it to 0.4–1.2 times 3 px/mm. Keep preview width stable during mode changes. Store zoom outside the resume and keep PDF independent of display scale.
 
-预览表单在正文内容宽度上左右各放宽约 32 逻辑像素，保持原内容中心，并限制在纸张两侧至少 14 像素留白以内，不推动正文；字段区宽度达到 440 时普通字段排成两列，描述和长链接通栏，窄于该阈值回到单列。字段区最高 360，随低窗口进一步收紧；有溢出时常驻细滚动条，标题和关闭入口留在滚动区之外。输入焦点的自动滚入、撤销和 Schema 保护继续生效。
+The JSON editor uses a 930 px maximum width, 8 px corner radius, 13 px type, 21 px line height, a right inset, and 16 px bottom padding. Reserve room for status only when there is an error or save status. Editing and diagnostics preserve raw JSON.
 
-表单使用当前主题派生的柔和纸色、1px 中性细线、10px 圆角与单层轻阴影，不使用粗强调色侧边。标题为 16 号衬线，辅以小图标和当前条目名称；关闭热区 28×28。正文左右内距 20，标签 12、输入文字 13，字段间纵距 14、双列横距 18。输入框使用 6px 圆角、轻填充及细线，不叠加独立阴影；聚焦以主题色边界强调，不改变布局。公司/职位、起止日期按语义顺序成组，描述、地址、长链接等通栏。社交账号与列表沿用相同细线与色彩体系。文字与其实际背景的对比至少 4.5:1，包含深色和中间亮度主题；错误提示也作对比校正。
+Preview forms extend about 32 px to each side of the document content, centered on it and at least 14 px inside the paper. At 440 px of field width, ordinary fields use two columns and descriptions and long links span both. Below that, use one column. The scroll area is at most 360 px and shrinks on short windows. Use a persistent thin scrollbar when needed and keep title and close outside the scrolling content. Preserve focus scrolling, undo, and schema safeguards.
 
-基本信息和各条目的整个内容区域均可触发自动展开，包含右侧无字留白、段落与行间空隙、空条目占位区；不再要求命中文字或日期。范围沿用实际模块/条目的完整栏宽和内容高度，不扩展到模块外的纸张空白、模块标题或相邻栏。候选按模块/条目及页码统一计时，在同一区域内移动不重置停留时间；离开该区域或纸张立即取消候选。文字命中矩形仅用于光标反馈，不参与候选触发或取消。滚动正文清除候选并暂缓新悬停 100ms，不能让旧任务在滚动后自动弹出；之后在同一区域内轻移鼠标即可重新计时，不要求移回文字。完整区域的点击和键盘目标保持不变。已有新增/移除按钮优先响应自身操作，指针停在移除按钮上不触发编辑表单遮挡该按钮。
+Use a muted paper tint, a 1 px neutral stroke, 10 px corner radius, and one light shadow. The 16 px serif title includes a small icon and current entry title. The close target is 28 × 28. Content insets are 20 px, labels 12, field text 13, vertical field gaps 14, and column gaps 18. Inputs use 6 px corners and theme-colored focus borders without reflow. Group employer and role, start and end dates, and semantic pairs. Descriptions, addresses, and long links take the full width. Reuse the same styling for social accounts and list entries. Ensure at least 4.5:1 contrast on the actual surface including errors, dark themes, and middle-luminance palettes.
 
-新增/移除控件使用同一可逆透明度机制，进入约 65ms、离开约 85ms，无位置和命中框缩放。条目与模块的移除控件只在对应内容真正悬停时开始显示，淡出完成才卸载；离开后残留的淡出层不再响应删除。完全隐藏的新增控件不响应无悬停点击，也不进入键盘焦点；已悬停的快速点击和插入聚焦模式下的可见按钮不必等动画结束。指针从内容移到移除控件时保持同一悬停目标，不触发闪烁。
+Hover the full bounds of basics or an entry, including blank areas, paragraph gaps, and empty placeholders. Use the actual column and content height, excluding the section heading, other columns, and unrelated paper. Moving within the same target/page preserves its dwell timer. Leaving the target or page cancels it. Text hit boxes only affect cursor feedback. Scrolling cancels the pending hover for 100 ms, then small motion within the same area can start a new dwell. Existing click and keyboard targets are unchanged. The add and remove controls have priority and hovering a remove button cannot cover it with a form.
 
-## 动效与菜单
+Add and remove controls use reversible opacity transitions of about 65 ms in and 85 ms out with stationary hitboxes. Remove controls appear with the relevant content hover. A fading remove control cannot delete after the pointer leaves. Hidden add controls cannot receive pointer or keyboard input. Visible hover or insertion controls work before the animation completes. Moving from content to its remove control preserves the hover target.
 
-两视图切换总时长 360ms。左轨从 220 连续变为 0，轨道内的固定宽主题列表同时向左移动并被裁切；反向时从左拉入。顶栏和右轨位置、宽度不参与动画。旧视图保留至时程的 62%，随后与轨道收尾重叠交叉淡化，避免侧栏完成后才响应的迟滞；反向从当前空间和透明度开始，不跳回端点。
+## Motion and Menus
 
-中窄窗口没有常驻左轨，不虚构推挤动作，只使用 80ms 中央视图交叉交接；模式切换会关闭抽屉。打开文件/导出菜单时也收起抽屉，避免多个遮罩和浮层重叠。
+Switch views in 360 ms. Collapse the 220 px left rail while sliding its fixed-width list left into a clip. Reverse that motion when showing themes. Keep toolbar and right rail position and width fixed. Retain the outgoing view for the first 62%, followed by a crossfade overlapping the rail's final motion. Reversal starts from the current geometry and opacity. At smaller widths without a permanent left rail, use an 80 ms center crossfade. Mode changes and the Open or Export menu close drawers.
 
-主题悬停停留 160ms 后才试穿；离开、滚动、切换模式或失效来源不得让旧任务稍后覆盖当前视图。点击立即应用，不等待悬停计时。
+Preview a theme after a 160 ms dwell. Leaving, scrolling, changing views, or invalidating a source cancels pending previews. Clicking applies immediately. Transition workspace and chrome colors over 160 ms from their current displayed values and correct contrast during the transition. Paper and typesetting use the new theme directly. Hover uses a fine outline and selection a fill and side mark. Trailing periods may be omitted in localized list descriptions without editing the theme. Chrome text, primary controls, and the brand seal meet 4.5:1 with a safe contrast fallback.
 
-主题试穿和应用时，外壳面板、顶栏、按钮及工作区背景在 160ms 内从当前可见配色过渡到新配色；连续试穿从中间色继续。纸张与排版直接使用新主题，不插值字形或影响导出；中间态文字仍作对比校正。减少动态效果时配色立即到位。
+Honor macOS Reduce Motion and the Windows client-area animation preference. Under reduced motion switch modes and focus overlays immediately and omit drawer and form animation. In preview, open a form after 140 ms on a target or 85 ms when moving to another entry from an open form. Fade in over 160 ms without movement. Start a 120 ms fade-out immediately on leaving the form boundary. A window-level capture observes movement across fields, scrollbars, selection drags, and window exit. Reentering reverses the current opacity and scales remaining duration by distance. Unmount after a frame confirms fade completion. Explicit close through × or Esc does not reopen from stationary hover. A keyboard-opened form waits for a real exit event.
 
-悬停用细线强调，已应用用淡色填充与侧标记，不共用同一种填充状态。中英文说明尾部句号只在列表显示时省略，原始主题文件不变。面板文字、品牌印记和主要按钮文字经过对比校正，保持至少 4.5:1；自定义中间亮度配色也必须有安全回退。
+Place forms on a per-page overlay that leaves content and the right rail stationary. Keep at most one outgoing form during a 90 ms crossfade and disable its inputs, Tab navigation, and structural actions. Rebuilding fields after structural edits keeps the existing opacity. Track paper hover per page so an old exit cannot clear a newer entry. An unfocused form follows a split entry to the hovered page without recreating field state. Pointer movement within the form suspends switching targets. Exiting can dismiss even when a field has focus. Commit visible IME composition to the shared JSON buffer and recovery draft before dismissal, retaining invalid data and diagnostics, without writing to the original file. Undo remains available. Escape or a fade must not immediately retrigger the just-exposed form. Reentry, click, or keyboard activation can reopen it. Reduced motion performs the same data handoff immediately without retaining the old layer. Drawers enter over 160 ms from a 16 px offset without changing paper layout. Briefly suppress pointer activation of invisible input layers during a mode switch.
 
-macOS 读取系统“减少动态效果”，Windows 读取客户区动画设置；启用时模式立即交接、聚焦遮罩直接到位、表单/抽屉不平移和淡入。预览内容停留 140ms 才展开表单；已有表单时移向另一条目等待 85ms。表单使用 160ms 纯透明度淡入，不做位移。鼠标移出编辑框的实际边界立即开始 120ms 淡出，不等待离开纸张，也没有关闭宽限。窗口级捕获监听指针位置，覆盖输入框、滚动条、按住鼠标选字与离开应用窗口，不依赖子控件的悬停事件。两方向共用当前透明度，快速回返从中间态恢复，剩余时长按距离缩短；淡出结束由实际帧采样决定卸载，不由独立计时器提前删除。显式关闭（× / Esc）不会因指针仍在框内而撤销。键盘打开时不因指针原本在外而立刻收起，后续实际移出事件仍遵循同一边界规则。
+With invalid JSON and a last-valid preview, show a clear read-only notice and disable structure actions in both the paper and rail. Keep the edited source and its last valid render recoverable while the user repairs the JSON. Toolbar and drawer actions support Tab, Enter, and Space with focus rings that do not move layout.
 
-表单位于独立于模块命中区域的页级浮层槽中，不推动正文与右栏。条目切换保留最多一个旧表单，使用 90ms 交叉淡化，不做跨页长距离平移；旧层禁用输入、Tab 与增删事件，结束后释放。结构增删重建字段时不重播入场。按页记录纸张悬停，旧页离开事件不能覆盖新页进入事件；同一条目跨页时，未聚焦表单跟随当前悬停页，不重建输入字段。指针在表单内不自动切换其他条目，但输入焦点不阻止移出关闭。关闭前提交输入法当前可见组合文字并同步至共享 JSON 缓冲和恢复草稿，保留 Schema 无效输入及其诊断，不自动写入原文件；收起后仍可撤销。原条目不能因浮层消失重新暴露而立即自动重开，离开触发区再进入才重新计时；明确点击或键盘激活不受此限制。减少动态效果时直接完成交接、不保留淡出旧层，同样先保留输入。抽屉使用 160ms、16px 的入场，不重排正文。切换中央视图时短暂阻止指针落入不可见的输入层，避免误点。
+When a local draft exists, show Restore draft and Discard draft in the center without interrupting mode animation or altering toolbar/right rail geometry. Until the choice is resolved, allow viewing, switching views, and opening a different document. Disable edits, formatting, save, structure actions, and export. Restore the original draft revision. Discard clears only the current recovery slot and leaves the on-disk resume intact. Reject stale actions associated with an earlier document or revision.
 
-JSON 有错误但存在上次有效预览时，在预览上方显示明确只读说明；正文和右栏的结构操作禁用，保留输入与上次有效内容，不弹出反复的结构操作警告。修复后恢复。顶栏文件、打开、导出和抽屉入口可用 Tab 聚焦、Enter/空格激活，焦点强调不能推动布局。
+The export menu offers PDF, DOCX, plain text, and Markdown with short descriptions. Arrow keys navigate, Enter exports, and Esc, outside click, or reactivating the button closes. The Open menu orders Open JSON, Open Folder, and New Resume. New also supports `⌘N` / `Ctrl+N`, preserving current theme and workspace directory while starting a new history and path. Confirm before discarding pending edits or a recovery draft. Start from `{"basics":{}}` and open the basics form in preview. The empty basics affordance is UI-only, and the file is created on first save.
 
-发现本地恢复草稿时，在中央工作区显示“恢复草稿 / 丢弃草稿”的轻量提示，不弹出系统模态框、不打断视图动画；顶栏和右栏几何保持不变。选择前允许查看、切换预览/JSON 与打开其他文件，但禁用内容编辑、结构操作、格式化、保存和导出，不覆盖待恢复文件。恢复沿用草稿原始 revision；丢弃明确清除当前文档的恢复槽，磁盘简历不变。旧文档或旧版本提示上的动作不能应用于新文档。
+The filename opens a compact switcher with directory JSON first and up to 12 deduplicated recent items showing filename and path. Scroll in short windows and support arrows and Enter. A failed open preserves the current document. Settings retain paths only. Directory browsing scope can be restored on launch. Default startup stays in preview with no auto-opened recent resume or popover. Cancellation, unresolved discard, and save failure leave recent history intact.
 
-导出按钮显示 PDF、DOCX、纯文本、Markdown 四项及简短用途。上下键选择，Enter 执行，Esc、点击外部或再次点击按钮关闭；仅打开或取消菜单不修改文档。视图切换入口留在系统“视图”菜单及快捷键。
+Load an explicitly supplied startup file and any previous folder scope after window creation. Open and refresh share a lightweight cancelable state in the center that preserves right rail geometry and allows switching views. Esc dismisses menus/drawers before canceling a read. Use a monotonically increasing generation to reject late success and error results. Cancellation invalidates the result. At most two reads may be in flight and further requests return an explicit limit message. While waiting, disable saving and competing document replacement. Text edits can continue and still require confirmation when results are ready. Restoring a directory changes browsing scope only and an unavailable directory preserves the current document. Startup theme and settings I/O are outside this contract.
 
-打开菜单依次为打开 JSON、打开目录、新建简历，第三项支持方向键、Enter 和 `⌘N` / `Ctrl+N`。新建保留主题与工作目录，不沿用旧文档的路径、内容或撤销链；空 JSON 为 `{"basics":{}}`，在预览中直接展开基本信息表单。不保存之前不创建文件；旧编辑与恢复草稿须经明确丢弃确认才能清除。空基本信息有仅在界面出现的可编辑入口，不导出为占位文字。
+## Acceptance
 
-顶栏文件名打开轻量文件切换器：先列当前目录的 JSON，再列不重复的最近文件（最多 12 项），最近项显示文件名及路径，列表在低窗口内滚动。上下键、Enter 可选择，失效路径读取失败时保留当前文档。应用设置只记录路径，重启可恢复上次目录用于切换，但启动默认仍是预览，不自动打开最近正文或弹出切换器；取消打开、丢弃确认前和保存失败均不得改写最近文件顺序。
+Preview undo/redo groups content editing and theme application in actual sequence. Hover and reapplying the same theme are excluded. Theme history holds validated in-memory snapshots independent of old folders and sources. JSON editing keeps its own text undo. An intervening source edit cannot be overwritten by stale content history. Opening or creating a resume starts fresh history.
 
-启动参数指定的简历及上次目录范围在窗口创建后后台读取，不得以同步文件打开阻止窗口出现。打开、刷新共用同一读取状态；中央提供轻量等待提示及可键盘操作的“取消”，不使用全屏遮罩、不移动右轨，仍允许切换视图。Esc 优先关闭菜单/抽屉，再取消读取。取消只使结果失效，不承诺中断操作系统 I/O；用递增代数拒绝所有迟到结果（包括错误），最多两个在途读取，超限明确提示且不再派发任务。等待期间禁用保存和其他文档替换；文本编辑允许继续，结果到达时仍执行未保存确认。恢复目录仅更新浏览范围，不读取简历正文、不弹文件列表；目录失效保留当前文档。该契约不涵盖启动时主题与设置目录 I/O。
-
-## 验收边界
-
-预览的操作历史统一包含内容编辑和主题应用，按实际顺序撤销/重做；悬停和重复选中不记入历史。主题历史保存已校验的内存快照，目录或来源变化不要求重新下载/创建旧主题文件；外观状态不写入 JSON。JSON 输入框保留自己的文本撤销，直接修改源码造成内容历史失配时不得用旧快照覆盖新输入。打开/新建文档清空上一文档的操作历史。
-
-测试应覆盖双向动画中间帧、顶栏/右轨恒定、纸张等比缩放与命中坐标、主题停留取消、导出菜单键盘操作、浅色和深色面板文字对比。GPUI 物理像素取整允许不超过 1px 的几何误差。
-
-Windows 实机视觉、减少动态效果设置联动和输入法验收仍须在 Windows 上独立完成，不能由 macOS 截图或交叉编译替代。当前 GPUI 自定义控件的屏幕阅读器语义覆盖仍有限；有键盘入口不等于完整辅助功能验收。
+Test intermediate frames in both directions, toolbar/right rail stability, proportional scale and hit testing, canceled theme dwells, keyboard export, and readable light and dark chrome. Allow up to 1 physical pixel of GPUI rounding. Verify Windows visuals, reduced motion, and IME independently on Windows. GPUI custom controls currently expose limited screen-reader semantics.

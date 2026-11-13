@@ -1,14 +1,14 @@
-# 独立外观设置 v1
+# Independent Appearance Settings v1
 
-## 边界与优先级
+**English** · [简体中文](./appearance-settings.zh-CN.md)
 
-主题以 `typography` 和 `colors` 声明默认字体和颜色。应用只在内存中计算：已应用主题或正在试穿主题 → 本机外观覆盖 → 可读性对比校正。原始主题对象、文件及 JSON Resume 均不得被外观设置改写。不得把外观设置放进简历的 `meta` 或扩展字段，也不得直接保存为原主题。
+## Scope and precedence
 
-外观设置是应用级、本机持久化偏好，跨文档、跨本地/在线主题生效；试穿与应用主题仍保留覆盖。字体与颜色独立，重置颜色不重置字体。正文与标题分别可选择“跟随主题”。外观修改不产生简历的未保存标记或占用内容撤销历史；恢复默认值用独立设置入口。复制简历或主题文件不携带这些偏好。
+Themes declare default fonts and colors through `typography` and `colors`. The app derives the effective appearance in memory from the applied or previewed theme, followed by local overrides and a readability contrast adjustment. The source theme and JSON Resume stay byte-for-byte intact. Appearance settings live on this device, apply across documents and sources, and travel independently of either file. Body and heading font overrides can follow the theme independently. Color reset preserves font choices. Changes use their own reset command and never mark the resume dirty or consume a content undo step.
 
-## 数据格式
+## Data format
 
-在应用现有 `settings.json` 的 `appearance` 键下保存以下对象，CLI 的 `--appearance` 文件则直接保存该对象，不含外层应用设置：
+Save this object under `appearance` in the existing application `settings.json`. A CLI `--appearance` file contains the object itself.
 
 ```json
 {
@@ -22,46 +22,38 @@
 }
 ```
 
-仅接受以上字段；版本必须为 1。`bodyFont`、`headingFont` 缺省或 null 表示跟随主题；可覆盖为 `cjk-sans`、`cjk-serif`，或 `font:Arial` 这类 `font:<原生字族名称>`。名称不超过 256 字节，不接受控制字符及双向文本控制符。正文覆盖作用于 `body/meta` 及明确声明的 `itemTitle/label/summary/sideDate`，未声明的附属角色继续继承有效的 body/meta；标题覆盖作用于 `name/sectionTitle`。系统字体保留主题的角色字重，由原生字体源选择最接近的真实字面，内置字体则分别使用实际提供的 400 / 600 字重。不修改主题字号、行高、字距、大小写、边距或布局。未知字体名称可保留在设置文件中，但加载和导出时必须明确报错，不能静默替换成另一字族。
+Only the listed fields are accepted, with version 1. An omitted or null font follows the theme. Available selectors are `cjk-sans`, `cjk-serif`, and `font:<native family name>`, such as `font:Arial`. Names are limited to 256 bytes and reject control and bidirectional formatting characters. The body override covers body/meta and explicitly styled itemTitle/label/summary/sideDate roles. Unspecified secondary roles inherit effective body or meta. The heading override covers name/sectionTitle. Select the closest supported real weight in the native family. The bundled fonts provide weight 400 or 600 respectively. A personal family override uses real upright faces for its entire role group, preserving supported weights without synthesizing italics. Resetting the group restores all theme styles. Size, line height, tracking, case, margins, and layout remain those of the theme. A saved unknown family produces an explicit load or export error.
 
-字族列表来自操作系统的原生字体源，并合并简里本机字体库；不把只扫描几个预定目录称作“所有系统字体”。支持 TTF / OTF / TTC / OTC。安装只复制到系统本地应用数据目录下的 `Resume One/fonts`，不修改系统字体目录或注册表；先完整校验，再按内容哈希原子创建，不覆盖同名字体。单源最多 256 MiB、集合最多 128 字面、单字面最多 64 MiB；字体库最多 128 个文件 / 1 GiB。符号链接字体库及已存在的不同内容目标拒写。字体集合提取独立 SFNT 并重算偏移和校验和。运行期字体缓存有独立的数量与内存上限，已生成的排版持有稳定的字面身份，不因后来安装字体而变成另一份数据。
+The font list combines native OS enumeration with the app library. TTF, OTF, TTC, and OTC imports go to `Resume One/fonts` under local app data. Validate each file and atomically create a hash-named destination. This operation leaves system font directories and registry entries alone. Limits are 256 MiB per source, 128 faces per collection, 64 MiB per face, and 128 files or 1 GiB for the library. Reject symlinked libraries and existing destinations with different content. Extract standalone SFNT faces from collections and recalculate offsets and checksums. Bound the runtime cache by count and bytes and preserve face identity for already-shaped layouts.
 
-`colors` 可省略，允许 `accent/paper/canvas/ink/muted/border/seal`；仅接受 `#RRGGBB`，保存时转为大写，空值删除覆盖、跟随主题。未知字段、未知字体、无效颜色、未来版本必须报错，不静默忽略。侧栏专有版式颜色尚无完整渲染支持，不作为独立覆盖入口暴露。对比修正不得写回用户指定值；最终文字显示可能为保证可读性而校正。
+`colors` is optional and accepts `accent/paper/canvas/ink/muted/border/seal` only. Accept `#RRGGBB`, normalize to uppercase, and remove the override on null. A sidebar-specific color has no independent override. Reject unknown keys, future versions, invalid colors, and unresolved fonts. Apply contrast correction to display colors only.
 
-## 界面与状态
+## Interface and state
 
-系统“主题 → 外观设置…”菜单与右栏“外观”入口派发同一动作，支持从聚焦的 JSON 输入框打开，不依赖鼠标定位；不会打开第二个检查器，也不会越过正在显示的主题管理模态窗口。右栏“外观 / 完成”点击区至少为 40 × 30 逻辑像素，保留轻量文字外观及可见的键盘焦点。
+The Theme → Appearance menu command and the Appearance action in the right rail dispatch the same action. The command works from the focused JSON input and does not bypass a modal theme manager or create a second inspector. Appearance / Done has a minimum 40 × 30 logical-pixel target and visible keyboard focus.
 
-主题栏只保留一个“管理”入口，及现有 `⌘,` / `Ctrl+,` 快捷键，用于主题目录与来源。在线列表只在有来源时显示仓库选择器；没有来源时不另放“管理来源”或重复添加入口。字体和配色不放在模态管理窗口内，而由右侧模块栏标题处的“外观”打开停靠检查器；检查器复用右栏宽度，“完成”回到模块列表。宽/中窗口切换不移动正文或右栏，不加遮罩；窄窗口明确停靠在右侧并为正文重新留出空间，不使用覆盖文档的抽屉。设置过程中始终看得到文档。
+Use the single Manage action and `⌘,` / `Ctrl+,` for folders and online sources. Show the online source selector when entries exist. Open appearance in the right rail in place of the sections list. Done returns to sections. At wide and medium widths the document and right rail stay in place. At narrow widths dock the inspector at right and allocate space for it beside the document.
 
-字体入口在同一右栏中进入可搜索、虚拟化的列表，正文始终可见；有跟随主题、两种内置字体及全部可用系统/已安装字族。鼠标进入任意字体整行即临时试用，包括跟随主题；离开该行恢复已确认外观，点击或 Enter 才持久化确认，选中标记始终代表已确认设置。系统字体先在后台检查完整角色字面，读取较慢时保留上一有效画面，后发悬停优先；同时最多一个试用读取及一个可替换的最新请求。离开、搜索、滚动、返回、关闭检查器、离开窗口、点击确认或安装字体使旧结果失效，不能稍后跳回已离开的字体。搜索支持上下键、Enter 和 Esc，返回后焦点回到对应字体入口；不得拦截输入法组合中的候选操作。安装入口调用原生文件选择器，一次最多 16 个文件，逐文件报告结果，安装成功后定位新字族；取消不修改内容或设置。
+The right rail shows a searchable, virtualized list of system and imported families, the two bundled choices, and Follow theme. Preview on entry anywhere in a row and restore the confirmed choice on exit. Click or press Enter to confirm. The selection indicator always marks the confirmed choice. Resolve all relevant faces in the background and retain the last valid display while loading. At most one read and one replaceable latest preview request may be pending. Invalidate stale previews on exit, search, scrolling, navigating back, closing, window exit, confirmation, or installation. Support Up, Down, Enter, and Esc without intercepting IME candidate actions. Returning restores focus to the relevant font picker. The native import dialog accepts at most 16 files, reports each result, locates new families, and returns focus to search after completion or cancellation.
 
-字体结果整行可点击，高亮和选中标记占满列表宽度；长名称省略但不挤出选中标记。正文与标题分别保留各自最后一次异步选择，解析任务有界串行，不因快速切换而覆盖另一角色。原生安装对话框完成或取消后，焦点回到搜索框；Esc 按当前层级返回，即使焦点已移到正文，也先收起字体列表或色盘，再关闭检查器。系统取色期间由系统接管 Esc，应用不得把它解释成关闭检查器；取色完成后恢复色盘焦点。
+Full-width selectable rows preserve their selection indicator even when a long name is truncated. Body and heading keep separate latest selections while bounded resolution runs serially. Esc closes the innermost font list or color picker first, including when focus has moved into the document. The system owns Esc during screen sampling, after which focus returns to the active picker.
 
-颜色默认展示色样，不要求输入十六进制。点击色样在右栏内展开 HSV 饱和度/明度面板、色相条、常用色及屏幕取色入口；一次只展开一项，不弹出遮住文档的面板。悬停常用色立即试用，色盘与色相条也按指针位置实时试用，不必先按下鼠标；离开对应色样/面板则恢复已确认颜色，点击或拖动松手才确认。纯悬停不移动已确认色盘标记、不改精确值输入、不写磁盘。文档、顶栏、面板、按钮和 JSON 代码配色共用临时有效外观，外壳沿用 160ms 可逆配色过渡及可读性校正，不改变右栏几何。字体试用和颜色试用只覆盖当前角色/色项，保留其他已确认偏好。“精确值”按需展开，仍支持完整有效 `#RRGGBB` 或清空；不完整输入不应用，失焦才提示。拖动连续更新内存预览，不在每个指针事件写设置；松手或离开窗口时提交一次，Esc 撤回本次拖动，再按 Esc 收起色盘。拖动期间消费指针事件，不触发正文表单或其他模块动作。键盘可调整色盘和色相，低窗口内焦点自动滚入可视区。“跟随主题”重置全部颜色但不重置字体；原始主题、JSON Resume 和内容撤销历史保持不变。
+A swatch expands an HSV saturation/value surface, hue strip, presets, and eyedropper in place. Only one expands at a time. Hover previews presets and samples the pointer position on the surface or strip. Leaving restores the confirmed color. Click or release after dragging to confirm. Hover leaves the committed marker, exact field, and settings file alone. The document chrome, workspace, controls, and JSON syntax palette use the effective colors. The shell uses a reversible 160 ms transition and contrast correction, without resizing the inspector. Font and color previews each affect only their corresponding role or token. The optional exact field accepts a complete `#RRGGBB` or an empty reset and reports an unfinished value on blur. Drag previews in memory, commits once on release or leaving the window, and consumes pointer interaction so document forms stay idle. Esc first cancels the drag and then closes the picker. Keyboard changes can scroll the focused control into view. Follow theme resets only colors.
 
-屏幕取色只在用户明确点击入口时启动：macOS 使用系统 NSColorSampler；Windows 使用一次性的冻结屏幕取色窗口，点击由取色窗口消费，不传给其他应用。结果转换为不透明 RGB，取消不改色，不保留或上传截图；Windows 的冻结像素仅存在内存，结束后释放。Windows 取色及多显示器/HDR 显示仍须实机验收。关闭会丢弃尚未有效的精确值草稿，已应用设置不会因关闭而回滚；外观切换与 JSON/预览切换互不关闭。
+Launch sampling only at the user's request. macOS uses NSColorSampler and Windows opens a single-use frozen screen surface that consumes its own click. Convert the result to opaque RGB. Cancellation leaves the color unchanged. The Windows capture stays in memory and is released afterward. Verify Windows, multi-monitor, and HDR sampling on native hardware. Closing discards incomplete exact-input text. Switching between JSON and preview leaves appearance controls available.
 
-字体和单次选色在持久化成功后才确认为已应用。色盘拖动允许暂时的内存预览，提交失败时恢复最后已保存的外观并给出错误；退出检查器或关闭窗口前也须处理未提交的预览。保存采用现有原子设置写入，保留其他设置键；损坏、超限或无法读取的设置文件拒绝覆盖并保留原件。
+Mark a font or one-shot color choice as confirmed only after persistence succeeds. A failed drag commit reverts to the last saved value and shows an error. Resolve uncommitted previews when closing the inspector or window. Use the existing atomic writer, preserve unrelated settings keys, and leave unreadable, oversized, or invalid settings files intact.
 
-字体列表选择的是字族，不是正斜体字面。明确选择个人正文字体或标题字体时，该组覆盖统一使用真实正体（`fontStyle: normal`），保留支持的真实字重，不要求每个可用字族都必须提供斜体，也不合成倾斜。此规则同样作用于明确声明的附属文字角色；未覆盖的另一组仍保留主题样式。恢复“跟随主题”后完整恢复主题原有斜体、字体及字重。悬停试用与点击确认使用同一规则，且不修改原主题或简历。
+## Rendering and export
 
-## 渲染与导出
+Fixed `typography.*.color` values are overridden in memory by ink for body/name/itemTitle/summary, muted for meta/sideDate, and accent for label/sectionTitle. A paper override clears fixed text colors from the effective snapshot and recomputes readable semantic colors. Canvas, border, and seal alone leave fixed text colors intact. The toolbar and controls use adjusted global tokens. An explicit `sections.*.entryHeader` line style follows similar rules. A body family override replaces fixed family and italics while preserving supported weight. Ink applies to itemTitle/body lines, muted to meta/sideDate lines, and a paper override clears all fixed line colors. Other style and content fields remain intact and reset restores the original.
 
-主题可以用 `typography.*.color` 精确保留原版的各角色文档文字颜色。个人颜色覆盖优先于这类固定色：ink 覆盖 body/name/itemTitle/summary，muted 覆盖 meta/sideDate，accent 覆盖 label/sectionTitle；paper 覆盖取消所有临时固定色，以有效纸色重新计算可读的语义配色。仅在内存快照移除固定值，不改主题文件或字号、排版、字体。未覆盖的角色保留原版固定色，重置恢复原值；只改 canvas/border/seal 不影响固定文字色。软件顶栏、面板、按钮始终使用可读性校正后的全局配色，不直接采用某个角色的固定文字色。
+Store confirmed and hover state separately. Exports and settings persistence use confirmed values. Invalidate page layout and thumbnails when effective appearance changes, including preview exit and confirmation. Pointer movement within an unchanged preview must not relayout. The JSON editor retains monospace text. Body fonts do not alter toolbar metrics.
 
-`sections.*.entryHeader` 的显式 `style` 同样遵守个人覆盖：正文字族覆盖取消其原字族/斜体，使用所选字族的真实正体及支持字重；未声明的行属性继续从有效的角色样式继承。颜色按该行 `role` 归组：`itemTitle/body` 属于 ink，`meta/sideDate` 属于 muted；paper 覆盖取消所有行的固定文字色。只移除内存快照中的相关固定值，其他字号、行高、字距、间距、字段选择及原文件不变。重置后恢复主题的完整行样式。
+Preview, thumbnails, PDF, and DOCX share the same effective theme model. Export snapshots the confirmed theme and appearance at the start and uses the same resolved font data and explicit CJK fallback as preview. Report Unicode code points and reject export if all available faces lack a glyph. Check OS/2 embedding flags. An editable DOCX requires editable embedding, and PDF must embed the full face when subsetting is prohibited. Font licensing still requires separate review. Word lays out the editable result itself.
 
-临时悬停外观与已确认外观分别保存于内存，所有导出与关闭时的设置保存只捕获已确认值；悬停不能被误保存，也不能占用简历撤销历史。退出试用或确认后必须使页面排版和缩略图缓存失效；同一候选内无变化的鼠标移动不得反复重建排版。
+TXT and Markdown ignore appearance. CLI export uses explicit `--theme <absolute path> --appearance <absolute path>`, independent of desktop settings. `fonts list` enumerates native and app families. `fonts install --file <absolute path>` installs in the app font library. A custom `--dir` only copies to that directory and does not expand app discovery. A missing family on another device generates an explicit error. Appearance files are limited to 64 KiB. Return `APPEARANCE_INVALID` for invalid files without creating or replacing output, and `APPEARANCE_IO` on a read failure.
 
-预览、主题缩略图和 PDF/DOCX 共用同一有效主题快照。修改外观必须使排版和缩略图缓存失效，不能仅依赖简历 revision。JSON 代码编辑器仍保持等宽字体，但其配色与应用面板、顶栏、按钮跟随当前有效色彩；简历正文字体不改变工具栏字号与几何。
+## Acceptance
 
-导出在开始时捕获已应用主题及外观，不采用暂时悬停的主题。预览、PDF 和 DOCX 使用同一份被解析的字面数据；所选字体缺少字符时，排版中显式采用内置中文备用字面，不能只在屏幕上回退。全部可用字面仍缺字时拒绝输出，并报告 Unicode 码点。PDF / DOCX 在导出前检查字体 OS/2 的嵌入标记；禁止嵌入的字面拒绝输出，可编辑 DOCX 要求可编辑嵌入，禁止子集时 PDF 必须嵌入完整字面。此项是技术预检，不替代字体许可审查。原生 Word 仍会自行排版，不能承诺与 PDF 逐像素一致。
-
-TXT/Markdown 不应用字体或颜色。CLI 通过 `export --theme <绝对路径> --appearance <绝对路径>` 显式使用同一格式，不自动读取桌面用户设置；`fonts list` 查询原生及本机库字族，`fonts install --file <绝对路径>` 显式安装到应用库，可用 `--dir` 指定纯文件安装目录，但自定义目录不会自动加入应用搜索路径。没有安装相同字体的另一台设备须明确报错。外观文件上限 64 KiB，错误返回 `APPEARANCE_INVALID`，不创建或替换输出；文件读取错误为 `APPEARANCE_IO`。
-
-## 验收
-
-补充自动布局验收：五档窗口尺寸、双向页面切换的连续几何采样、20 套内置主题及明暗覆盖下的控件边界；加宽表单在四档尺寸、所有内置主题下保持纸内留白并按阈值切换单双列。此类 GPUI 测试验证布局和事件行为，不等同于原生桌面截图、真实 GPU 帧率或视觉精修验收。
-
-必须覆盖：覆盖后原主题/简历字节不变；字体和颜色独立重置；重启持久化且不覆盖其他设置；损坏设置拒写；半成品颜色不应用且不阻塞其他设置；预览与缩略图缓存失效；主题试穿/切换不丢覆盖；有效主题快照用于 PDF/DOCX；右栏几何保持不变；检查器不遮盖纸张且无模态遮罩；窄窗口、低窗口下字段可达。原生 macOS/Windows 与 Word 验收分别记录，不能相互替代。
+Use automated layout tests for five window sizes, intermediate geometry in both switching directions, controls across all 20 bundled themes and light/dark overrides, and form padding and responsive columns at four sizes. Verify stable sidebar geometry, unobscured paper, keyboard reachability in narrow and short windows, snapshot reuse for PDF/DOCX, stale-preview cancellation, and thumbnail invalidation. Verify persistence across restart, separate resets, preservation of theme/resume bytes and other settings, rejection of damaged settings, and isolation of an unfinished color entry. Record native macOS, Windows, and Word results independently. GPUI geometry and event tests do not measure native screenshots, GPU frame rates, or visual polish.

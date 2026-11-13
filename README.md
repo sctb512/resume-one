@@ -13,7 +13,7 @@ Resume One is a local [JSON Resume](https://jsonresume.org/) editor for macOS an
 3. Hover over a theme to preview it and click to apply it. Use **Appearance** on the right to adjust fonts and colors independently of the résumé and theme files.
 4. Export to PDF, editable DOCX, Markdown, or plain text. You can check for updates from within the app.
 
-See the [user guide (Chinese)](./docs/user-manual.md) for details. Downloads are preview releases. macOS packages use ad hoc signing and are not Developer ID signed or notarized.
+See the [user guide](./docs/user-manual.md) for details. Downloads are preview releases. macOS packages use ad hoc signing and are not Developer ID signed or notarized.
 
 ## Themes and command-line tools
 
@@ -27,7 +27,7 @@ resume-one validate --file "$PWD/resume.json" --json
 resume-one export --file "$PWD/resume.json" --format md --out "$PWD/resume.md"
 ```
 
-The CLI binaries live in `Resume One.app/Contents/MacOS/` on macOS and in the extracted folder on Windows. All three programs share the two complete offline fonts bundled with the app. Keep the entire bundle or extracted folder together. See the [CLI manual (Chinese)](./docs/cli-manual.md) for more commands.
+The CLI binaries live in `Resume One.app/Contents/MacOS/` on macOS and in the extracted folder on Windows. All three programs share the two complete offline fonts bundled with the app. Keep the entire bundle or extracted folder together. See the [CLI manual](./docs/cli-manual.md) for more commands.
 
 ## Building locally
 
@@ -54,7 +54,7 @@ Use `cargo run -p resume-one-app` to run from source and `cargo test --locked --
 
 The Rust workspace lives in [`crates/`](./crates/). User and CLI manuals are in [`docs/`](./docs/). [`spec/`](./spec/) contains specifications, with [schemas](./spec/schemas/) and [examples](./spec/examples/) in their own folders. Release scripts are in [`packaging/`](./packaging/).
 
-- [Declarative theme specification (Chinese)](./spec/resume-one-theme-spec-v2.md) · [Original theme package specification (Chinese)](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/schemas/json-resume-1.3.1.schema.json)
+- [Declarative theme specification](./spec/resume-one-theme-spec-v2.md) · [Original theme package specification](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/schemas/json-resume-1.3.1.schema.json)
 - This repository holds the desktop app and both CLIs. Pushing a `v*` tag triggers a GitHub Actions build that verifies each platform archive before publishing to [Releases](https://github.com/sctb512/resume-one/releases).
 - The [theme repository](https://github.com/sctb512/resume-one-themes) hosts adapted and original themes. The [website repository](https://github.com/sctb512/resume-one-site) maintains the bilingual homepage and downloads.
 

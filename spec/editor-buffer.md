@@ -1,50 +1,44 @@
-# 编辑缓冲区与保存契约
+# Editor Buffer and Save Contract
 
-此规范适用于共享 Rust 编辑内核；桌面界面接入情况以 README 为准。
+**English** · [简体中文](./editor-buffer.zh-CN.md)
 
-## 原文与预览
+This contract applies to the shared Rust editor. Consult the [user guide](../docs/user-manual.md) for the current desktop integration.
 
-- 缓冲区保留输入的全部 UTF-8 文本，包括空白、换行、字段顺序和未知扩展字段。非 UTF-8 文件必须明确拒绝，禁止无声地替换不可解码字节。
-- 语法和固定版本的 JSON Resume Schema 都通过时，更新最近一次有效文档。无效输入保留在缓冲区，并产生诊断；不得替换最近有效预览，不得被静默丢弃或保存进简历文件。
-- 原始文件本身无效时可以建立修复缓冲区，最近有效文档为空。修复通过后可使用原始字节的 revision 保存。
-- 脏状态通过当前文本与最近已保存字节的 SHA-256 比较判定；撤销回相同字节即恢复未修改状态。
+## Source and preview
 
-## 格式化与撤销
+- Keep all UTF-8 input, including whitespace, line endings, key order, and unknown extension fields. Reject non-UTF-8 data without replacing bytes.
+- Change the last valid document only after JSON and the pinned résumé schema both pass. Keep invalid input and its diagnostics in the buffer. It must never replace the last valid preview or be saved as the résumé.
+- An invalid file can open in a repair buffer with no valid preview. After repair, the original byte revision is still used for the save.
+- Compare the current bytes with the last saved SHA-256 to determine whether edits are unsaved. Undoing to the same bytes returns the buffer to a clean state.
 
-格式化返回两空格缩进、末尾一个 LF 的 JSON 文本，保留字段顺序和未知字段。语法正确、Schema 不通过的文本也允许格式化，方便修复；语法损坏时禁止改写。内容校验和格式化上限均为 16 MiB。格式化不能自动补字段、转换字段类型、添加样式或清洗用户自行输入的字符串。
+## Formatting and undo
 
-调用界面必须把格式化、模块操作作为可撤销的编辑事务。文本历史、光标、选区和输入法组合状态由编辑器组件管理，共享缓冲区不建立另一套独立历史。
+Formatting uses two spaces and a single final LF. It preserves key order and extension fields. Syntactically valid JSON can be formatted before schema repair. Invalid syntax must leave the text intact. Validation and formatting are capped at 16 MiB. Formatting cannot add fields, coerce types, introduce styling, or sanitize user-authored strings. Parse, validate, and format numbers with arbitrary precision. Equivalent numeric spellings are acceptable after formatting. Unedited text and save snapshots retain exact bytes.
 
-桌面 JSON 行旁控件已接入：只读结构索引以 UTF-8 字节位置定位标准模块与条目，不扫描字符串中的伪括号、不将基本信息内的数组误认成顶层条目；支持转义键名、中文、emoji、CRLF、压缩文本和未知扩展字段。语法无效、根键重复或结构锚点超过 50,000 时不提供行旁控件；Schema 无效或处于输入法组合输入时也不提供，原始文本仍可修复。索引不能写入简历 JSON。
+Formatting and each structure operation form their own undo transaction, including quick successive clicks. A new edit after undo clears the old redo branch. The input component owns history, caret, selection, and IME state. The buffer has no second history. Formatting and structure edits wait for IME composition to finish. A platform IME commit through unmark alone must update the buffer, preview, and recovery draft immediately.
 
-控件位置来自当前帧输入组件的真实排版坐标，包括软换行、滚动和可视裁剪；不会使用固定行号乘行高近似。多个操作处于同一视觉行时，按新增/移除分组显示带名称的菜单，不堆叠按钮。菜单绑定编辑器实体与显示代数；切换文件、修改文本、开始组合输入或进入无效状态后，旧动作不再生效。源码模块插入复用预览的双向选择：先选模块间位置再选右栏模块，或先选右栏模块再选行旁位置；Esc 取消并恢复文本焦点，取消不创建历史。
+The read-only gutter index uses UTF-8 byte offsets for standard sections and entries. It recognizes escaped keys, CJK, emoji, CRLF, compact text, and extension fields. Brackets inside strings and arrays inside Basics are not mistaken for structure. Hide gutter actions for invalid syntax or schema, duplicate root keys, more than 50,000 anchors, or active composition.
 
-格式化与一次结构操作均以独立文本事务提交，快速连续点击也可逐次撤销；撤销后新编辑必须清空旧重做分支。组合输入过程中禁止格式化和结构事务。平台仅通过 unmark 提交输入法文本时，仍须更新缓冲区、预览和草稿；不能等到下次键入才同步。该适配固定在仓库内组件源码，来源及修改范围见第三方许可说明。
+Use the input component's current layout coordinates for soft wraps, scrolling, and clipping. Actions sharing a visual row appear in named add/remove groups. Menus bind to the input entity and display generation. Changing files or text, entering composition, or invalidating the document invalidates old actions. Insertions can begin at the source anchor or in the sections panel. Esc restores text focus without a history entry.
 
-结构事务在当前显示文本上裁去共同前后缀，仅替换实际变化的 UTF-16 范围；边界按完整 Unicode 字符计算，不拆开 emoji 或代理项。这样未改动的文本不进入历史，撤销定位接近操作位置。缓冲区与保存仍保留完整文本，局部替换不绕过 Schema、版本检查或原子保存。
+Structure edits trim the common prefix and suffix and replace only the changed UTF-16 range at Unicode character boundaries. Do not split emoji or surrogate pairs. This keeps undo close to the edited location. Validation, revision checks, and whole-text snapshots still apply. See [third-party notices](../licenses/THIRD_PARTY_LICENSES.md) for the vendored input component.
 
-解析、Schema 校验及格式化使用任意精度 JSON 数字。未知扩展字段中的超大整数和高精度小数不得因为转为二进制浮点数而改变数值；数字的等价表示形式不要求逐字符一致，未编辑原文和保存快照仍逐字节保留。
+## Save an existing document
 
-## 保存现有文件
+1. Capture valid source text and the last saved revision.
+2. GUI full-text saves and CLI patches normalize the target and share a sidecar lock. Cooperating writers cannot commit the same revision concurrently.
+3. Read and check the disk revision while holding the lock and check again before replacement. Reject external changes, unreadable files, and deletions rather than recreating or overwriting them.
+4. Write the captured bytes by atomic replacement in the same directory. Keep normal Unix permission bits and save through a symlink to the actual target rather than replacing the link.
+5. Update the baseline to the committed snapshot. Later input remains unsaved, and an old completion event cannot roll back a newer baseline.
 
-1. 保存快照由当前有效原文及最近已保存 revision 组成。
-2. GUI 全文保存与 CLI JSON Patch 使用同一规范化目标路径和同一旁路文件锁，保证两个配合锁的写入者不能同时提交同一 revision。
-3. 锁内读取磁盘原文并验证 revision；原子替换前再次读取检查。内容不一致、读取失败或文件已删除均须拒绝，不能覆盖外部内容或自行重建已删除文件。
-4. 写入快照的原始字节，不自动格式化，不混入主题或应用元数据；使用同目录原子替换。Unix 保留普通权限位，并保存符号链接指向的真实文件而不替换链接。
-5. 成功后以实际提交的快照更新缓冲区基线。保存期间用户继续输入时，新输入仍为未保存；旧完成事件不得回滚新的基线。
+Keep `.<filename>.resume-one.lock` after releasing it. Invalid content and revisions fail before lock creation. Lock acquisition is nonblocking. A busy lock returns `RESUME_BUSY`, leaving bytes, baseline, and draft intact. The GUI exits its saving state, and the CLI returns exit code 5. Read the revision again before retrying. This limit applies to lock contention. OS file I/O can still take time. Sync tools may ignore the lock. Checking right before replacement narrows the race without providing filesystem compare-and-swap against other programs. Windows replacement and permission handling require their own acceptance checks.
 
-锁文件 `.<文件名>.resume-one.lock` 必须保留，禁止解锁后删除并制造两套并发锁。无效新内容和无效 revision 在锁文件创建前拒绝。
+## Create and save as
 
-获取旁路锁使用非阻塞尝试。其他写入者持锁时立即返回 `RESUME_BUSY`，不排队等待、不修改原文件、不更新保存基线；GUI 退出“保存中”并保留编辑与草稿，CLI 以退出码 5 返回此错误。用户或 Agent 稍后重新读取 revision 后再重试，不能通过删除锁文件强行解锁。该约束仅限制锁竞争等待，不承诺操作系统文件 I/O 的超时或可取消性。
+`create_resume` validates the document, writes and syncs a complete temporary file in the chosen directory, then commits without overwriting. An existing target, including a dangling link, a nonwritable parent, or invalid data causes failure without affecting other files. At most one concurrent creation may succeed. An existence check followed by an overwriting rename is insufficient.
 
-## 创建新文件与另存为
+## Local draft recovery
 
-`create_resume` 先校验内容，再向所选目录的临时文件写入全部原文并同步，然后以禁止覆盖的方式提交。目标已存在（包括悬空符号链接）、父目录不可写或内容无效时必须拒绝，不修改已有文件。并发创建相同目标只允许一个成功。新文件保存不得通过“先检查不存在，再覆盖式 rename”实现。
+Drafts store original UTF-8, including temporarily invalid input, and the original file revision in app data, separately from the résumé. The limit is 32 MiB. Slots derive from SHA-256 of native path bytes, with a separate slot for the unnamed sample. The Unix recovery directory uses mode `0700`.
 
-## 本地草稿恢复
-
-未保存的原文可独立写入应用数据目录中的恢复草稿，绝不修改原简历。草稿保存完整 UTF-8 文本和编辑开始时的文件 revision，包括暂时无效的 JSON；上限为 32 MiB。每个文件使用基于原生路径字节的 SHA-256 固定槽，未命名示例使用独立槽，避免不同目录或非 UTF-8 文件名碰撞。Unix 恢复目录权限为 `0700`。
-
-同一草稿存储实例的异步写入按递增代数串行处理。保存成功或明确丢弃后，清理操作必须阻止排队中的旧写入重新生成草稿。恢复草稿时，应用必须询问用户，并保留草稿记录的旧 revision；如果磁盘文件此后被外部进程修改，后续保存仍须报告冲突。桌面应用已接入自动记录、恢复询问和退出前刷盘；后续仍需跨平台实机检查异常退出及同步目录冲突。
-
-外部同步服务未必遵守旁路锁。替换前再次检查只能缩小竞态窗口，不能提供与任意外部进程的文件系统 CAS 保证；不得将它宣传成绝对消除同步冲突。非 Unix 平台不能沿用 Unix 权限保留承诺，须在正式发布前独立验收 Windows 的权限与替换行为。
+A store serializes writes by increasing generation. Save and explicit discard invalidate older queued writes so a removed draft cannot reappear. Recover only after asking the user, keeping the draft revision so later external changes still cause a conflict. Desktop recording, prompts, and a pre-exit flush are implemented. Unexpected exits and sync-folder conflicts require platform-specific acceptance.

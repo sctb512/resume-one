@@ -94,10 +94,20 @@ def verify(archive_path, release_tag=None):
             for font_name, versions in fonts.items():
                 if any(data in executable for data in versions):
                     raise ValueError(f"{name} embeds a duplicate of {font_name}")
-        for name in ("README.md", "README.zh-CN.md", "LICENSE", "docs/user-manual.md", "docs/cli-manual.md",
-                     "licenses/THIRD_PARTY_LICENSES.md", "licenses/LICENSE-BOOST-1.0.txt",
-                     "spec/resume-one-theme-spec-v2.md", "vendor/ruzstd/LICENSE-MIT"):
+        for name in ("README.md", "README.zh-CN.md", "LICENSE", "licenses/LICENSE-BOOST-1.0.txt",
+                     "vendor/ruzstd/LICENSE-MIT"):
             archive.getinfo(f"{resources}/{name}")
+        document_stems = (
+            "docs/user-manual",
+            "docs/cli-manual",
+            "licenses/THIRD_PARTY_LICENSES",
+            "spec/resume-one-theme-spec-v2",
+        )
+        for stem in document_stems:
+            for suffix in (".md", ".zh-CN.md"):
+                name = f"{stem}{suffix}"
+                if archive.read(f"{resources}/{name}") != (ROOT / name).read_bytes():
+                    raise ValueError(f"The bundled document differs from the source: {name}")
         spec_root = f"{resources}/spec/"
         expected_specs = {
             path.relative_to(ROOT).as_posix(): path
@@ -109,7 +119,7 @@ def verify(archive_path, release_tag=None):
         } or f"{resources}/resume-one-theme-spec-v2.md" in entries:
             raise ValueError("The bundle must use the repository's specification layout")
         for name, path in expected_specs.items():
-            if name.endswith(".json") and archive.read(f"{resources}/{name}") != path.read_bytes():
+            if archive.read(f"{resources}/{name}") != path.read_bytes():
                 raise ValueError(f"The bundled specification resource differs from the source: {name}")
         for name in ("example.resume.json", "example.en.resume.json"):
             if archive.read(f"{resources}/assets/{name}") != (ASSET_SOURCE / name).read_bytes():

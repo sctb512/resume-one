@@ -76,7 +76,11 @@ try {
     foreach ($folder in @('docs', 'spec', 'assets\themes', 'assets\fonts', 'vendor\gpui-component', 'vendor\ruzstd')) {
         New-Item -ItemType Directory -Path (Join-Path $bundle $folder) -Force | Out-Null
     }
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'README.en.md'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'README.zh-CN.md'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
+    $legacyReadme = Join-Path $bundle 'README.en.md'
+    if (Test-Path -LiteralPath $legacyReadme -PathType Leaf) {
+        Remove-Item -LiteralPath $legacyReadme -Force
+    }
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination $bundle -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json'), (Join-Path $repoRoot 'assets\example.en.resume.json') -Destination (Join-Path $bundle 'assets') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\gpui-component\LICENSE-APACHE') -Destination (Join-Path $bundle 'vendor\gpui-component') -Force

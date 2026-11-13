@@ -93,7 +93,7 @@ def verify(archive_path, release_tag=None):
             for font_name, versions in fonts.items():
                 if any(data in executable for data in versions):
                     raise ValueError(f"{name} embeds a duplicate of {font_name}")
-        for name in ("README.md", "README.en.md", "docs/user-manual.md", "docs/cli-manual.md",
+        for name in ("README.md", "README.zh-CN.md", "docs/user-manual.md", "docs/cli-manual.md",
                      "resume-one-theme-spec-v2.md", "vendor/ruzstd/LICENSE-MIT"):
             archive.getinfo(f"{resources}/{name}")
         for name in ("example.resume.json", "example.en.resume.json"):

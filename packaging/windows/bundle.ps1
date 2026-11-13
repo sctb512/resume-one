@@ -73,24 +73,32 @@ try {
             throw "$name --version failed with exit code $LASTEXITCODE."
         }
     }
-    foreach ($folder in @('docs', 'spec', 'assets\themes', 'assets\fonts', 'vendor\gpui-component', 'vendor\ruzstd')) {
+    foreach ($folder in @('assets\themes', 'assets\fonts', 'vendor\gpui-component', 'vendor\ruzstd')) {
         New-Item -ItemType Directory -Path (Join-Path $bundle $folder) -Force | Out-Null
     }
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'README.zh-CN.md'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'README.zh-CN.md'), (Join-Path $repoRoot 'LICENSE'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
     $legacyReadme = Join-Path $bundle 'README.en.md'
     if (Test-Path -LiteralPath $legacyReadme -PathType Leaf) {
         Remove-Item -LiteralPath $legacyReadme -Force
     }
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination $bundle -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json'), (Join-Path $repoRoot 'assets\example.en.resume.json') -Destination (Join-Path $bundle 'assets') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\gpui-component\LICENSE-APACHE') -Destination (Join-Path $bundle 'vendor\gpui-component') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\ruzstd\LICENSE-MIT') -Destination (Join-Path $bundle 'vendor\ruzstd') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\fonts\OFL-*.txt') -Destination (Join-Path $bundle 'assets\fonts') -Force
     & $python.Source (Join-Path $repoRoot 'packaging\bundle_fonts.py') (Join-Path $bundle 'assets\fonts')
     if ($LASTEXITCODE -ne 0) { throw 'Failed to package the shared fonts.' }
-    Copy-Item -Path (Join-Path $repoRoot 'docs\*.md') -Destination (Join-Path $bundle 'docs') -Force
-    Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
-    Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
+    foreach ($folder in @('docs', 'spec', 'licenses')) {
+        Copy-Item -LiteralPath (Join-Path $repoRoot $folder) -Destination $bundle -Recurse -Force
+    }
+    # Remove obsolete copies left by an earlier build in the default output folder.
+    foreach ($file in @('resume-one-theme-spec-v2.md', 'spec\LICENSE-APACHE-2.0.txt', 'spec\LICENSE-BOOST-1.0.txt', 'spec\THIRD_PARTY_LICENSES.md')) {
+        $legacyFile = Join-Path $bundle $file
+        if (Test-Path -LiteralPath $legacyFile -PathType Leaf) {
+            Remove-Item -LiteralPath $legacyFile -Force
+        }
+    }
+    Get-ChildItem -LiteralPath (Join-Path $bundle 'spec') -Filter '*.schema.json' -File |
+        Remove-Item -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\themes\*.theme.json'), (Join-Path $repoRoot 'assets\themes\*.localizations.txt') -Destination (Join-Path $bundle 'assets\themes') -Force
     if ($env:RESUME_ONE_RELEASE_TAG) {
         Set-Content -LiteralPath (Join-Path $bundle 'release-tag.txt') -Value $env:RESUME_ONE_RELEASE_TAG -Encoding ascii

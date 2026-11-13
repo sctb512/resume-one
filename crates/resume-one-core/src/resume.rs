@@ -14,7 +14,8 @@ use sha2::{Digest, Sha256};
 use crate::Diagnostic;
 
 pub const JSON_RESUME_SCHEMA_VERSION: &str = "1.3.1";
-pub const JSON_RESUME_SCHEMA: &str = include_str!("../../../spec/json-resume-1.3.1.schema.json");
+pub const JSON_RESUME_SCHEMA: &str =
+    include_str!("../../../spec/schemas/json-resume-1.3.1.schema.json");
 pub const MAX_RESUME_BYTES: usize = 16 * 1024 * 1024;
 static RESUME_VALIDATOR: OnceLock<Validator> = OnceLock::new();
 static RESUME_SCHEMA_VALUE: OnceLock<Value> = OnceLock::new();

@@ -34,8 +34,8 @@ pub mod theme_style;
 const MAX_THEME_BYTES: usize = 1_048_576;
 pub const MAX_FONT_BYTES: usize = 8_388_608;
 pub const THEME_LOCALES_FILE: &str = "localizations.txt";
-const V1_SCHEMA: &str = include_str!("../../../resume-one-theme-v1.schema.json");
-const V2_SCHEMA: &str = include_str!("../../../resume-one-theme-v2.schema.json");
+const V1_SCHEMA: &str = include_str!("../../../spec/schemas/resume-one-theme-v1.schema.json");
+const V2_SCHEMA: &str = include_str!("../../../spec/schemas/resume-one-theme-v2.schema.json");
 
 #[cfg(test)]
 const LEGACY_THEME_TEST_BYTES: &[u8] = include_bytes!("../tests/fixtures/legacy-native.theme.json");
@@ -595,7 +595,8 @@ mod tests {
     use super::*;
     use std::fs;
 
-    const V2_EXAMPLE: &str = include_str!("../../../resume-one-theme-v2.example.json");
+    const V2_EXAMPLE: &str =
+        include_str!("../../../spec/examples/resume-one-theme-v2.example.json");
     const V1_BUILTIN: &str = r##"{
       "formatVersion":1,
       "id":"qinghe",

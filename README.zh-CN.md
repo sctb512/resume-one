@@ -52,10 +52,12 @@ macOS 输出到 `target/release/`。Windows 输出到 `target/<Rust 目标>/rele
 
 ## 文档与项目仓库
 
-- [声明式主题规范](./resume-one-theme-spec-v2.md) · [原版主题包规范](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)
+Rust 工作区位于 [`crates/`](./crates/)。用户和 CLI 手册位于 [`docs/`](./docs/)。[`spec/`](./spec/) 存放技术规范，[Schema](./spec/schemas/) 和[规范示例](./spec/examples/)各有独立目录。发布脚本位于 [`packaging/`](./packaging/)。
+
+- [声明式主题规范](./spec/resume-one-theme-spec-v2.md) · [原版主题包规范](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/schemas/json-resume-1.3.1.schema.json)
 - 本仓库维护桌面应用和两个 CLI。推送 `v*` 标签后，GitHub Actions 构建和校验各平台 ZIP，再发布到 [Releases](https://github.com/sctb512/resume-one/releases)。
 - [社区主题仓库](https://github.com/sctb512/resume-one-themes)维护迁移版和原版主题。[官网仓库](https://github.com/sctb512/resume-one-site)维护双语主页和下载入口。
 
 发布后可以在构建流水线中传入 `verify_update_tag`，从四种原生架构验证公开 ZIP 的下载和安装。
 
-项目采用 [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt)。字体和其他第三方资源的许可见[第三方许可](./spec/THIRD_PARTY_LICENSES.md)。
+项目采用 [Apache-2.0](./LICENSE)。字体和其他第三方资源的许可见[第三方许可](./licenses/THIRD_PARTY_LICENSES.md)。

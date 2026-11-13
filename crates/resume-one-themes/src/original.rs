@@ -40,7 +40,7 @@ impl OriginalTheme {
         static VALIDATOR: OnceLock<Validator> = OnceLock::new();
         let validator = VALIDATOR.get_or_init(|| {
             let schema = serde_json::from_str(include_str!(
-                "../../../spec/json-resume-original-theme-v1.schema.json"
+                "../../../spec/schemas/json-resume-original-theme-v1.schema.json"
             ))
             .expect("original theme schema JSON");
             jsonschema::draft7::new(&schema).expect("valid original theme schema")

@@ -52,10 +52,12 @@ Use `cargo run -p resume-one-app` to run from source and `cargo test --locked --
 
 ## Documentation and repositories
 
-- [Declarative theme specification (Chinese)](./resume-one-theme-spec-v2.md) · [Original theme package specification (Chinese)](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/json-resume-1.3.1.schema.json)
+The Rust workspace lives in [`crates/`](./crates/). User and CLI manuals are in [`docs/`](./docs/). [`spec/`](./spec/) contains specifications, with [schemas](./spec/schemas/) and [examples](./spec/examples/) in their own folders. Release scripts are in [`packaging/`](./packaging/).
+
+- [Declarative theme specification (Chinese)](./spec/resume-one-theme-spec-v2.md) · [Original theme package specification (Chinese)](./spec/json-resume-original-theme.md) · [JSON Resume Schema 1.3.1](./spec/schemas/json-resume-1.3.1.schema.json)
 - This repository holds the desktop app and both CLIs. Pushing a `v*` tag triggers a GitHub Actions build that verifies each platform archive before publishing to [Releases](https://github.com/sctb512/resume-one/releases).
 - The [theme repository](https://github.com/sctb512/resume-one-themes) hosts adapted and original themes. The [website repository](https://github.com/sctb512/resume-one-site) maintains the bilingual homepage and downloads.
 
 After publishing, run the release workflow with `verify_update_tag` to test downloading and installing the public archives on all four native architectures.
 
-Resume One is licensed under [Apache-2.0](./spec/LICENSE-APACHE-2.0.txt). See [third-party licenses](./spec/THIRD_PARTY_LICENSES.md) for fonts and other resources.
+Resume One is licensed under [Apache-2.0](./LICENSE). See [third-party licenses](./licenses/THIRD_PARTY_LICENSES.md) for fonts and other resources.

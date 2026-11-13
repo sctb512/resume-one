@@ -234,7 +234,7 @@ impl Catalog {
         let validator = VALIDATOR.get_or_init(|| {
             jsonschema::draft7::new(
                 &serde_json::from_str(include_str!(
-                    "../../../resume-one-theme-source-v1.schema.json"
+                    "../../../spec/schemas/resume-one-theme-source-v1.schema.json"
                 ))
                 .expect("source schema JSON"),
             )

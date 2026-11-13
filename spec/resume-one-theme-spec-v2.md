@@ -1,16 +1,16 @@
 # Resume One 声明式主题规范 v2
 
-状态：v2 文件结构及校验规则在 Rust 共享核心中实现；预览、PDF 和 DOCX 已支持单栏/左右侧栏基础视觉参数、四种模块标题、紧凑条目间距及经校验的本地静态字体资源。独立迁移器已支持 v1→v2 候选文件和第三方主题包的低置信度静态配色/元数据、字体声明及布局线索提取。视觉等效的人工移植及其余主题排版仍在开发。配套文件：[JSON Schema](./resume-one-theme-v2.schema.json)与[结构示例](./resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
+状态：v2 文件结构及校验规则在 Rust 共享核心中实现；预览、PDF 和 DOCX 已支持单栏/左右侧栏基础视觉参数、四种模块标题、紧凑条目间距及经校验的本地静态字体资源。独立迁移器已支持 v1→v2 候选文件和第三方主题包的低置信度静态配色/元数据、字体声明及布局线索提取。视觉等效的人工移植及其余主题排版仍在开发。配套文件：[JSON Schema](./schemas/resume-one-theme-v2.schema.json)与[结构示例](./examples/resume-one-theme-v2.example.json)。目标是在不执行主题代码、不污染 `resume.json` 的前提下，让内置、本地下载和社区迁移主题共用一种文件格式，并尽可能保留原主题的视觉特征。
 
 ## 1. 为什么要自定规范
 
-主题文件的 `typography` 与 `colors` 是主题默认值，不是用户个人偏好的存储位置。软件提供独立的本机字体/颜色覆盖，在内存快照中应用于预览与导出，不改写主题文件或简历；数据格式、优先级、独立重置与验收约束见[独立外观设置 v1](./spec/appearance-settings.md)。
+主题文件的 `typography` 与 `colors` 是主题默认值，不是用户个人偏好的存储位置。软件提供独立的本机字体/颜色覆盖，在内存快照中应用于预览与导出，不改写主题文件或简历；数据格式、优先级、独立重置与验收约束见[独立外观设置 v1](./appearance-settings.md)。
 
 [JSON Resume 官方 Schema](https://github.com/jsonresume/jsonresume.org/tree/master/packages/schema)规范的是**简历内容**。其[主题开发说明](https://www.jsonresume.org/theme-development)和[当前主题脚手架](https://github.com/jsonresume/jsonresume.org/blob/master/docs/CREATING_A_THEME.md)定义的是 npm 包、`render(resume)` 与 HTML/React 渲染约定，并没有要求社区发布统一的、可安全解释的声明式布局 JSON。旧[官方样板主题](https://github.com/jsonresume/jsonresume-theme-boilerplate)使用 JS、Handlebars 和 CSS，也说明现有主题形态并不统一。[Reactive Resume](https://github.com/reactive-resume/reactive-resume)有自己的模板和样式规则，但它属于另一应用的数据与渲染模型，不能直接视为 JSON Resume 主题通用规范。
 
-因此本规范**不是 JSON Resume 官方标准**，也不声称兼容现有 npm 主题包的执行接口。它只规定简里的声明式主题。应用还支持独立的[原版 JSON Resume 主题包](./spec/json-resume-original-theme.md)，该格式使用单独的校验和渲染路径。
+因此本规范**不是 JSON Resume 官方标准**，也不声称兼容现有 npm 主题包的执行接口。它只规定简里的声明式主题。应用还支持独立的[原版 JSON Resume 主题包](./json-resume-original-theme.md)，该格式使用单独的校验和渲染路径。
 
-阅读顺序：先看下方的最小文件，再按字段表添加布局细节；[JSON Schema](./resume-one-theme-v2.schema.json)是机器校验基线，本文规定跨字段语义。主题作者不需要懂 Rust、GPUI、CSS 或模板语言。
+阅读顺序：先看下方的最小文件，再按字段表添加布局细节；[JSON Schema](./schemas/resume-one-theme-v2.schema.json)是机器校验基线，本文规定跨字段语义。主题作者不需要懂 Rust、GPUI、CSS 或模板语言。
 
 ```json
 {
@@ -28,12 +28,12 @@
 ## 2. 文件与兼容性
 
 - 文件名：根目录 `*.theme.json`，或主题子目录中的 `theme.json`。内置、本地、在线下载后的文件形状完全相同；在线 GitHub 清单 `themes/index.json` 只负责列出路径，不是另一种主题格式。
-- v1 `formatVersion: 1` 的 `id/name/description/layout/colors/modules` **继续有效**，其可运行的机器定义见 [v1 JSON Schema](./resume-one-theme-v1.schema.json)；解析器把 v1 在内存中规范化为 v2 的默认值，不静默改写原文件。
+- v1 `formatVersion: 1` 的 `id/name/description/layout/colors/modules` **继续有效**，其可运行的机器定义见 [v1 JSON Schema](./schemas/resume-one-theme-v1.schema.json)；解析器把 v1 在内存中规范化为 v2 的默认值，不静默改写原文件。
 - v2 仍保留上述字段和含义，只新增版本、来源、纸张、字体、区域、模块呈现与受限资源字段。`layout` 四个旧值继续作为兼容回退样式；有 `composition` 时，v2 布局器优先使用它。
 - `formatVersion` 是解析协议版本；`version` 是单个主题的语义版本。未知协议版本、未知字段或不认识的枚举值应报错，不猜测、不执行。与未来 v3 不兼容时仍可保留文件与来源信息。
 - `resume.json` 只包含 JSON Resume 内容字段。已应用主题 ID、主题目录、来源、预览缓存和迁移映射留在应用本地状态；主题切换不得重写简历。
 - 主题文件是 UTF-8 JSON，不含注释或尾逗号。`id` 在同一源内唯一；跨来源身份为「源 + 固定版本/commit + id」，不能只靠名字。文件名不决定 ID；清单 ID 必须与文件 ID 相同。
-- 在线清单的机器定义见[主题源索引 v1 Schema](./resume-one-theme-source-v1.schema.json)。清单 `name` 必须与 manifest `name` 一致；`manifest` 为相对清单文件的仓库内路径，不能跳出仓库；`sha256` 如有填写，必须对原始 UTF-8 文件字节计算并在解析前验证。重复 ID 拒绝整份清单。
+- 在线清单的机器定义见[主题源索引 v1 Schema](./schemas/resume-one-theme-source-v1.schema.json)。清单 `name` 必须与 manifest `name` 一致；`manifest` 为相对清单文件的仓库内路径，不能跳出仓库；`sha256` 如有填写，必须对原始 UTF-8 文件字节计算并在解析前验证。重复 ID 拒绝整份清单。
 
 ## 3. 字段语义
 
@@ -65,7 +65,7 @@
 
 可编辑 DOCX 的一个字族只提供常规、粗体、斜体和粗斜体槽位，不能用同一槽位区分 300/400/500 等多个静态字重。迁移包需要同时使用这些字面时，应在原许可允许修改并遵守保留字体名称条款的前提下，为每个静态字面分配独立的主字族身份，并在 NOTICE 记录原始、静态中间产物和最终文件的哈希。名称、兼容全名、排印/兼容字族及 PostScript 前缀须保持一致，不能只改一个显示名。此步骤不得改动字形、度量、定位、原有版权/许可文本或嵌入权限；除 name 表和 head 校验和外的表须逐字节相同，整体 SFNT 校验和也须有效。内部数据转换助手目前只接受已获许可的独立静态 TrueType，不接受集合、可变字面和未经单独审查名称程序的 CFF/CFF2。合法命名或技术校验通过不等于法律许可已确认，也不等于原生 Word 验收通过。
 
-对应的[示例文件](./resume-one-theme-v2.example.json)演示了侧栏、模块放置、字体层级和时间线。它只是**结构示例**；在桌面布局器及 PDF 一致性验收完成前，不得把它列为可完整应用的主题。
+对应的[示例文件](./examples/resume-one-theme-v2.example.json)演示了侧栏、模块放置、字体层级和时间线。它只是**结构示例**；在桌面布局器及 PDF 一致性验收完成前，不得把它列为可完整应用的主题。
 
 ### 主题语言
 
@@ -106,7 +106,7 @@
 
 在 `line-box` 模式中，普通文字的基线距当前行框顶部为 `(lineHeight + ascent - descent) × sizePt / 2`。`lineHeight` 是无单位行高，`ascent/descent` 为实际 `FontKind` 字面的 em 度量，下降部使用正值。共享预览与 PDF 用每行的真实字号和行高计算基线，行框推进量等于行框高度。混排不同字号时，基线随当前行的字面改变。主栏、侧栏、分栏页头和续页各有独立的行框起点，装饰标题和并排日期以所占行框计量。
 
-`page.marginsMm` 仍只保存最终四边物理留白，范围各为 3–35mm，不是 CSS 或盒子表达式。独立迁移器可把受支持的 `@page` 边距与 html/body/单一文档容器内距组合成该最终值，再显式选择 `line-box`；组合、数值上下文及回退规则见[适配协议](./spec/theme-adaptation-v1.md)。应用加载主题时不重新执行 CSS 组合，不把参数写入 resume.json。
+`page.marginsMm` 仍只保存最终四边物理留白，范围各为 3–35mm，不是 CSS 或盒子表达式。独立迁移器可把受支持的 `@page` 边距与 html/body/单一文档容器内距组合成该最终值，再显式选择 `line-box`；组合、数值上下文及回退规则见[适配协议](./theme-adaptation-v1.md)。应用加载主题时不重新执行 CSS 组合，不把参数写入 resume.json。
 
 DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不因 `line-box` 再添加 ascent 空白段落或重复偏移。Word/LibreOffice 自行决定字形定位、换行与分页；此字段保证起点语义，不证明 DOCX、PDF 或原网页逐像素相同，也不表示迁移已通过完整 CSS 或 100% 视觉认证。
 
@@ -157,7 +157,7 @@ DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不
 
 缺少 `endDate` 时只输出起始日期；没有起始日期时整个区间为空，不创造只有终止时间的区间。底层投影保留「未提供」与「显式 null/空串」的区别，后者表示 `Present`，但**这不放宽 JSON Resume 内容 Schema**：当前官方 1.3.1 校验仍拒绝 null/空串等非法日期，不能绕过校验生成已接受的简历。不可能的日期原样保留而非溢出归一化；不支持时间戳、时区偏移、其他地区/历法、表达式、格式字符串或本地化当前日期标签。这是标准日期子集的确定性移植，不声称实现全部 JavaScript Date/Intl 行为。
 
-格式化结果仅供选择此选项的预览/PDF/DOCX 页头行使用，再应用该行的文字样式及前后缀。原 JSON、源字段、旧辅助信息、纯文本/Markdown 以及未启用此选项的主题均不变。原始 `date/releaseDate` 不套用该格式。实现行为参照固定上游及许可见[第三方许可](./spec/THIRD_PARTY_LICENSES.md)。
+格式化结果仅供选择此选项的预览/PDF/DOCX 页头行使用，再应用该行的文字样式及前后缀。原 JSON、源字段、旧辅助信息、纯文本/Markdown 以及未启用此选项的主题均不变。原始 `date/releaseDate` 不套用该格式。实现行为参照固定上游及许可见[第三方许可](../licenses/THIRD_PARTY_LICENSES.md)。
 
 ### 社区内置包与署名
 
@@ -260,7 +260,7 @@ Word 字号取整到半点，400/600 字重分别映射为常规/粗体；行高
 
 ## 5. 安全与验证
 
-配套 [JSON Schema](./resume-one-theme-v2.schema.json)先检查形状、白名单字段、枚举和数值边界；正式版还必须做以下语义检查：
+配套 [JSON Schema](./schemas/resume-one-theme-v2.schema.json)先检查形状、白名单字段、枚举和数值边界；正式版还必须做以下语义检查：
 
 - `sidebar-*` 以外的布局不得使用独立主栏/侧栏位置；侧栏布局至少要有一个标准模块或基础信息区域放进侧栏；`asset:<id>` 必须引用确实存在且 hash 匹配的本地字体；不同资源 ID 不得重复。
 - 时间线只可用于有时间段的标准模块；`chips` 只用于技能、语言或兴趣等可枚举内容。不能因为不兼容就丢字段。
@@ -300,7 +300,7 @@ Word 字号取整到半点，400/600 字重分别映射为常规/粗体；行高
 
 私有预发布使用 `sctb512/resume-one-themes` 的 `main` 与 `index.json` 作为初始配置。默认源通过认证的 GitHub API 读取，仍须先固定 commit 并校验清单、主题身份及文件摘要。调用进程通过 `RESUME_ONE_THEME_GITHUB_TOKEN` 提供该仓库的读取凭证，软件不会把它写入源配置、缓存或打包文件。已有的自定义源列表（包括主动保存的空列表）优先。该预发布配置不表示通过正式版高保真验收。
 
-待发布仓库必须包含 `themes/index.json`、逐项主题文件，以及 `themes/review.json`。后者遵循 [`theme-source-review-v1.schema.json`](./spec/theme-source-review-v1.schema.json)：每个清单 ID 恰好对应一条记录，记录原文件 SHA-256、上游 URL/版本/许可、许可与视觉审核人、审核日期、六种样例（中英文短/长、缺字段、多页）、PDF 审核结果及已知局限。每个样例还须在 `qa/` 下留存上游与迁移版两张 PNG 截图及各自 SHA-256；另需一份已查看的迁移版多页 PDF 及其 SHA-256，共每主题 13 份证据文件。只能使用公开测试简历生成证据，不得收录用户私人简历。截图每份最多 8 MiB，PDF 最多 30 MiB，整个仓库本次审核读取的证据合计最多 512 MiB；这些文件不列入在线主题清单，不由应用下载。清单摘要按主题原始字节计算；主题须为 v2 `adapted`，具备上游作者和迁移人，且当前预览/导出引擎可完整解释。`resume-one verify-theme-source --dir /absolute/checkout` 离线检查这些结构、摘要、证据文件签名与来源一致性，拒绝符号链接、缺项和仅有配色的未完成候选。文件签名检查不等于图像/PDF 完整解码；审核人的声明也非机器可独立证实的许可或视觉验收。发布者仍须查看原始许可，打开证据对照原主题逐项验收，并在 GitHub 公开仓库及固定 commit 上重新检查。此命令不发布仓库，也不自动配置应用默认源。
+待发布仓库必须包含 `themes/index.json`、逐项主题文件，以及 `themes/review.json`。后者遵循 [`theme-source-review-v1.schema.json`](./schemas/theme-source-review-v1.schema.json)：每个清单 ID 恰好对应一条记录，记录原文件 SHA-256、上游 URL/版本/许可、许可与视觉审核人、审核日期、六种样例（中英文短/长、缺字段、多页）、PDF 审核结果及已知局限。每个样例还须在 `qa/` 下留存上游与迁移版两张 PNG 截图及各自 SHA-256；另需一份已查看的迁移版多页 PDF 及其 SHA-256，共每主题 13 份证据文件。只能使用公开测试简历生成证据，不得收录用户私人简历。截图每份最多 8 MiB，PDF 最多 30 MiB，整个仓库本次审核读取的证据合计最多 512 MiB；这些文件不列入在线主题清单，不由应用下载。清单摘要按主题原始字节计算；主题须为 v2 `adapted`，具备上游作者和迁移人，且当前预览/导出引擎可完整解释。`resume-one verify-theme-source --dir /absolute/checkout` 离线检查这些结构、摘要、证据文件签名与来源一致性，拒绝符号链接、缺项和仅有配色的未完成候选。文件签名检查不等于图像/PDF 完整解码；审核人的声明也非机器可独立证实的许可或视觉验收。发布者仍须查看原始许可，打开证据对照原主题逐项验收，并在 GitHub 公开仓库及固定 commit 上重新检查。此命令不发布仓库，也不自动配置应用默认源。
 
 ## 8. GitHub 来源及缓存契约
 

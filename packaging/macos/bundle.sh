@@ -24,20 +24,21 @@ fi
 
 mkdir -p "$bundle/Contents/MacOS"
 mkdir -p "$bundle/Contents/Resources"
-mkdir -p "$bundle/Contents/Resources/docs" "$bundle/Contents/Resources/spec" "$bundle/Contents/Resources/assets/themes" "$bundle/Contents/Resources/assets/fonts" "$bundle/Contents/Resources/vendor/gpui-component" "$bundle/Contents/Resources/vendor/ruzstd"
+mkdir -p "$bundle/Contents/Resources/assets/themes" "$bundle/Contents/Resources/assets/fonts" "$bundle/Contents/Resources/vendor/gpui-component" "$bundle/Contents/Resources/vendor/ruzstd"
 cp "$repo_root/packaging/macos/Info.plist" "$bundle/Contents/Info.plist"
 cp "$repo_root/assets/app-icon.icns" "$bundle/Contents/Resources/app-icon.icns"
-cp "$repo_root/README.md" "$repo_root/README.zh-CN.md" "$repo_root/assets/example.resume.json" "$bundle/Contents/Resources/"
+cp "$repo_root/README.md" "$repo_root/README.zh-CN.md" "$repo_root/LICENSE" "$repo_root/assets/example.resume.json" "$bundle/Contents/Resources/"
 rm -f "$bundle/Contents/Resources/README.en.md"
-cp "$repo_root/resume-one-theme-spec-v2.md" "$bundle/Contents/Resources/"
 cp "$repo_root/assets/example.resume.json" "$repo_root/assets/example.en.resume.json" "$bundle/Contents/Resources/assets/"
 cp "$repo_root/vendor/gpui-component/LICENSE-APACHE" "$bundle/Contents/Resources/vendor/gpui-component/"
 cp "$repo_root/vendor/ruzstd/LICENSE-MIT" "$bundle/Contents/Resources/vendor/ruzstd/"
 cp "$repo_root/assets/fonts/"OFL-*.txt "$bundle/Contents/Resources/assets/fonts/"
 python3.14 "$repo_root/packaging/bundle_fonts.py" "$bundle/Contents/Resources/assets/fonts"
-cp "$repo_root/docs/user-manual.md" "$repo_root/docs/cli-manual.md" "$bundle/Contents/Resources/docs/"
-cp "$repo_root/resume-one-theme-spec-v2.md" "$bundle/Contents/Resources/spec/"
-cp "$repo_root"/spec/* "$bundle/Contents/Resources/spec/"
+cp -R "$repo_root/docs" "$repo_root/spec" "$repo_root/licenses" "$bundle/Contents/Resources/"
+# Remove obsolete copies left by an earlier build in the default output folder.
+rm -f "$bundle/Contents/Resources/resume-one-theme-spec-v2.md" \
+    "$bundle/Contents/Resources/spec/"*.schema.json \
+    "$bundle/Contents/Resources/spec/"{LICENSE-APACHE-2.0.txt,LICENSE-BOOST-1.0.txt,THIRD_PARTY_LICENSES.md}
 cp "$repo_root"/assets/themes/*.theme.json "$repo_root"/assets/themes/*.localizations.txt "$bundle/Contents/Resources/assets/themes/"
 cp "$repo_root/target/$profile/resume-one-app" "$bundle/Contents/MacOS/resume-one-app"
 cp "$repo_root/target/$profile/resume-one" "$bundle/Contents/MacOS/resume-one"

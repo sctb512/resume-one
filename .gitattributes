@@ -1,1 +1,3 @@
 /assets/example*.resume.json text eol=lf
+/spec/schemas/*.schema.json text eol=lf
+/spec/examples/*.json text eol=lf

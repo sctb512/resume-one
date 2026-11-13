@@ -32,7 +32,7 @@
 
 例如，上边的 `@page margin: 19.05mm` 与文档容器 `padding-top: 7.94mm` 组合为 `page.marginsMm.top: 26.99`。参与组合的每项须为 0–35mm，最终值须为 3–35mm；负值、百分数、无法求值或组合结果越界时采用 16mm，并记录 `NUMERIC_VALUE_UNREPRESENTABLE`，不放宽 Schema 边界，也不猜测容器宽度。任意嵌套盒子、margin collapse 和原网页分页不在此组合契约内。
 
-存在已提取样式声明时，适配输出显式设置 `page.firstLinePosition: "line-box"`。共享渲染器从行框顶部推进，按当前行真实字面的 `(lineHeight + ascent - descent) × sizePt / 2` 向下定位基线。`ascent/descent` 为 em 单位的上升部及正值下降部。混合字号的连续行分别定位，推进量取行框高度。主栏、侧栏、分栏页头及续页使用独立起点。字段的默认值和渲染语义见[主题规范](../resume-one-theme-spec-v2.md#纸张起点与首行定位)。
+存在已提取样式声明时，适配输出显式设置 `page.firstLinePosition: "line-box"`。共享渲染器从行框顶部推进，按当前行真实字面的 `(lineHeight + ascent - descent) × sizePt / 2` 向下定位基线。`ascent/descent` 为 em 单位的上升部及正值下降部。混合字号的连续行分别定位，推进量取行框高度。主栏、侧栏、分栏页头及续页使用独立起点。字段的默认值和渲染语义见[主题规范](./resume-one-theme-spec-v2.md#纸张起点与首行定位)。
 
 行框模式的顶部安全保护按字面可能超出行框的上溢量留白，不再额外叠加完整 ascent；当前适配阶段使用内置回退字面度量，必要调整仍记录 `BASELINE_TOP_CLEARANCE_ADAPTED`。加载真实资源后的最终样本检查核对实际字面上下缘，不能把该保护当成原版排版等价证明。DOCX 保留组合后的物理上边距，使用 Word 原生可编辑行框，不另加 ascent 空白段落或再次增大边距；其字形定位、换行和分页仍由阅读器决定，未认证与 PDF/原网页逐像素一致。
 

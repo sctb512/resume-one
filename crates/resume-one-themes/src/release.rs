@@ -80,7 +80,7 @@ fn review_validator() -> &'static Validator {
     VALIDATOR.get_or_init(|| {
         jsonschema::draft7::new(
             &serde_json::from_str(include_str!(
-                "../../../spec/theme-source-review-v1.schema.json"
+                "../../../spec/schemas/theme-source-review-v1.schema.json"
             ))
             .expect("review schema JSON"),
         )

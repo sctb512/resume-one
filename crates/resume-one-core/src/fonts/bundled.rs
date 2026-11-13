@@ -1,40 +1,41 @@
 //! Source builds are portable. Distributed executables share resources in their bundle.
 
-#[cfg(not(resume_one_packaged_fonts))]
+#[cfg(not(feature = "packaged-fonts"))]
 static SANS: &[u8] = include_bytes!("../../../../assets/fonts/NotoSansSC-Regular.ttf");
-#[cfg(not(resume_one_packaged_fonts))]
+#[cfg(not(feature = "packaged-fonts"))]
 static SERIF: &[u8] = include_bytes!("../../../../assets/fonts/NotoSerifSC-SemiBold.ttf");
 
 pub fn check_bundled_fonts() -> Result<(), String> {
-    #[cfg(resume_one_packaged_fonts)]
+    #[cfg(feature = "packaged-fonts")]
     packaged::fonts()?;
     Ok(())
 }
 
 pub fn sans_font_bytes() -> &'static [u8] {
-    #[cfg(resume_one_packaged_fonts)]
+    #[cfg(feature = "packaged-fonts")]
     {
         &packaged::fonts().expect("checked bundled fonts").0
     }
-    #[cfg(not(resume_one_packaged_fonts))]
+    #[cfg(not(feature = "packaged-fonts"))]
     SANS
 }
 
 pub fn serif_font_bytes() -> &'static [u8] {
-    #[cfg(resume_one_packaged_fonts)]
+    #[cfg(feature = "packaged-fonts")]
     {
         &packaged::fonts().expect("checked bundled fonts").1
     }
-    #[cfg(not(resume_one_packaged_fonts))]
+    #[cfg(not(feature = "packaged-fonts"))]
     SERIF
 }
 
-#[cfg(resume_one_packaged_fonts)]
+#[cfg(feature = "packaged-fonts")]
 mod packaged {
+    use ruzstd::decoding::StreamingDecoder;
     use sha2::{Digest, Sha256};
     use std::{
         fs::{self, File},
-        io::Read,
+        io::{BufRead, BufReader, Read},
         path::{Path, PathBuf},
         sync::OnceLock,
     };
@@ -84,7 +85,7 @@ mod packaged {
         digest: &str,
     ) -> Result<Box<[u8]>, String> {
         let size: u64 = size.parse().expect("font size from build");
-        let path = directory.join(name);
+        let path = directory.join(format!("{name}.zst"));
         let invalid = || {
             format!(
                 "共享字体 {name} 缺失或损坏，请重新解压完整发布包。位置：{}",
@@ -92,14 +93,26 @@ mod packaged {
             )
         };
         let metadata = fs::symlink_metadata(&path).map_err(|_| invalid())?;
-        if !metadata.is_file() || metadata.len() != size {
+        if !metadata.is_file() || metadata.len() >= size {
             return Err(invalid());
         }
+        let source = File::open(&path).map_err(|_| invalid())?;
+        let mut decoder =
+            StreamingDecoder::new_with_max_window_size(BufReader::new(source.take(size)), size)
+                .map_err(|_| invalid())?;
         let mut bytes = Vec::with_capacity(size as usize);
-        File::open(&path)
-            .and_then(|file| file.take(size + 1).read_to_end(&mut bytes))
+        (&mut decoder)
+            .take(size + 1)
+            .read_to_end(&mut bytes)
             .map_err(|_| invalid())?;
-        if bytes.len() as u64 != size || format!("{:x}", Sha256::digest(&bytes)) != digest {
+        if bytes.len() as u64 != size
+            || !decoder
+                .into_inner()
+                .fill_buf()
+                .map_err(|_| invalid())?
+                .is_empty()
+            || format!("{:x}", Sha256::digest(&bytes)) != digest
+        {
             return Err(invalid());
         }
         Ok(bytes.into_boxed_slice())

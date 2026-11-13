@@ -62,7 +62,7 @@ Windows 请在**原生 Windows** 上安装 Rust 1.99 MSVC 工具链、Visual Stu
 
 Windows 可用 `powershell -File packaging/windows/bundle.ps1 -Profile release -Archive` 装配当前处理器对应的便携 ZIP。可通过 `-Architecture x64` 或 `-Architecture arm64` 显式选择已安装的 Rust MSVC 目标，输出位于 `target/<目标>/release/`。脚本自动定位 Windows SDK 的 `fxc.exe`，也可设置 `GPUI_FXC_PATH`。
 
-macOS 和 Windows 的打包脚本让桌面程序、文档 CLI 和迁移器共用一套 Noto Sans SC 与 Noto Serif SC。请保留完整的应用包或解压目录。普通的 `cargo build` 和 `cargo run` 使用内嵌字体，仍支持直接运行源码构建的可执行文件。
+macOS 和 Windows 的打包脚本需要带 Zstandard 支持的 Python 3.14，并将完整的 Noto Sans SC 与 Noto Serif SC 无损压缩后打包。桌面程序、文档 CLI 和迁移器共用这一套离线字体，请保留完整的应用包或解压目录。普通的 `cargo build` 和 `cargo run` 使用内嵌字体。
 
 ## 三仓与自动发布
 

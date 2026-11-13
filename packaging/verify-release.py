@@ -1,13 +1,15 @@
 """Verify the native bundle, shared fonts, and bundled themes."""
 
 import argparse
+from compression import zstd
+from io import BytesIO
 from pathlib import Path, PurePosixPath
 import struct
 import zipfile
 
-FONT_NAMES = ("NotoSansSC-Regular.ttf", "NotoSerifSC-SemiBold.ttf")
+from bundle_fonts import FONT_NAMES, FONT_SOURCE
+
 ASSET_SOURCE = Path(__file__).resolve().parents[1] / "assets"
-FONT_SOURCE = ASSET_SOURCE / "fonts"
 ARCHIVES = {
     "Resume-One-macOS-arm64-unsigned.zip": ("macOS", 0x0100000C),
     "Resume-One-macOS-x64-unsigned.zip": ("macOS", 0x01000007),
@@ -67,25 +69,32 @@ def verify(archive_path, release_tag=None):
             path = PurePosixPath(name)
             if path.is_absolute() or ".." in path.parts or "\\" in name:
                 raise ValueError(f"Invalid archive path {name}")
-        font_paths = {f"{resources}/assets/fonts/{name}" for name in FONT_NAMES}
+        font_paths = {f"{resources}/assets/fonts/{name}.zst" for name in FONT_NAMES}
         if {name for name in entries if name.startswith(f"{root}/") and
-                PurePosixPath(name).suffix.lower() in {".ttf", ".otf"}} != font_paths:
+                PurePosixPath(name).suffix.lower() in {".ttf", ".otf", ".woff", ".woff2", ".zst"}} != font_paths:
             raise ValueError("The bundle must contain exactly one shared copy of each fallback font")
         fonts = {}
         for name in FONT_NAMES:
             data = (FONT_SOURCE / name).read_bytes()
-            if archive.read(f"{resources}/assets/fonts/{name}") != data:
+            with archive.open(f"{resources}/assets/fonts/{name}.zst") as file:
+                compressed = file.read(len(data))
+            if len(compressed) >= len(data):
+                raise ValueError(f"Shared font exceeds its compressed size limit: {name}")
+            with zstd.open(BytesIO(compressed), "rb") as file:
+                restored = file.read(len(data) + 1)
+            if restored != data:
                 raise ValueError(f"Shared font contents differ from the source: {name}")
-            fonts[name] = data
+            fonts[name] = (data, compressed)
         for name in ("resume-one-app", "resume-one", "resume-one-theme-migrate"):
             member = f"{executables}/{name}{suffix}"
             with archive.open(member) as binary:
                 verify_binary(binary, name, macos, machine)
             executable = archive.read(member)
-            for font_name, data in fonts.items():
-                if data in executable:
+            for font_name, versions in fonts.items():
+                if any(data in executable for data in versions):
                     raise ValueError(f"{name} embeds a duplicate of {font_name}")
-        for name in ("README.md", "docs/user-manual.md", "docs/cli-manual.md", "resume-one-theme-spec-v2.md"):
+        for name in ("README.md", "docs/user-manual.md", "docs/cli-manual.md",
+                     "resume-one-theme-spec-v2.md", "vendor/ruzstd/LICENSE-MIT"):
             archive.getinfo(f"{resources}/{name}")
         for name in ("example.resume.json", "example.en.resume.json"):
             if archive.read(f"{resources}/assets/{name}") != (ASSET_SOURCE / name).read_bytes():
@@ -105,7 +114,8 @@ def verify(archive_path, release_tag=None):
         translations = {name.removesuffix(".theme.json") + ".localizations.txt" for name in native}
         if {name for name in entries if name.startswith(theme_root)} != set(native) | translations:
             raise ValueError("The release must contain only native themes and their translations")
-        print(f"Verified {archive_path.name}, 3 executables, 2 shared fonts and 20 native themes.")
+        print(f"Verified {archive_path.name} ({archive_path.stat().st_size / 2**20:.2f} MiB), "
+              "3 executables, 2 losslessly compressed shared fonts and 20 native themes.")
 
 
 def main():

@@ -22,9 +22,12 @@ $target = switch ($Architecture) {
     default { throw "Unsupported Windows architecture: $Architecture" }
 }
 $previousFxc = $env:GPUI_FXC_PATH
-$previousPackagedFonts = $env:RESUME_ONE_PACKAGED_FONTS
 Push-Location $repoRoot
 try {
+    $python = Get-Command python3.14.exe, python.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $python) { throw 'Python 3.14 with Zstandard support is required for packaging.' }
+    & $python.Source -c 'from compression import zstd'
+    if ($LASTEXITCODE -ne 0) { throw 'Python 3.14 with Zstandard support is required for packaging.' }
     if (-not $env:GPUI_FXC_PATH) {
         $sdkBin = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\bin'
         if (Test-Path -LiteralPath $sdkBin -PathType Container) {
@@ -44,11 +47,10 @@ try {
     if (-not $env:GPUI_FXC_PATH -or -not (Test-Path -LiteralPath $env:GPUI_FXC_PATH -PathType Leaf)) {
         throw 'The Windows SDK HLSL compiler fxc.exe is required; install the Windows SDK or set GPUI_FXC_PATH.'
     }
-    $buildArgs = @('build', '--locked', '--target', $target, '-p', 'resume-one-app', '-p', 'resume-one-cli', '-p', 'resume-one-theme-migrate')
+    $buildArgs = @('build', '--locked', '--target', $target, '--features', 'resume-one-core/packaged-fonts', '-p', 'resume-one-app', '-p', 'resume-one-cli', '-p', 'resume-one-theme-migrate')
     if ($Profile -eq 'release') {
         $buildArgs += '--release'
     }
-    $env:RESUME_ONE_PACKAGED_FONTS = '1'
     & cargo @buildArgs
     if ($LASTEXITCODE -ne 0) {
         throw "Cargo build failed with exit code $LASTEXITCODE."
@@ -71,19 +73,17 @@ try {
             throw "$name --version failed with exit code $LASTEXITCODE."
         }
     }
-    foreach ($folder in @('docs', 'spec', 'assets\themes', 'assets\fonts', 'vendor\gpui-component')) {
+    foreach ($folder in @('docs', 'spec', 'assets\themes', 'assets\fonts', 'vendor\gpui-component', 'vendor\ruzstd')) {
         New-Item -ItemType Directory -Path (Join-Path $bundle $folder) -Force | Out-Null
     }
     Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md'), (Join-Path $repoRoot 'assets\example.resume.json') -Destination $bundle -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination $bundle -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'assets\example.resume.json'), (Join-Path $repoRoot 'assets\example.en.resume.json') -Destination (Join-Path $bundle 'assets') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\gpui-component\LICENSE-APACHE') -Destination (Join-Path $bundle 'vendor\gpui-component') -Force
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'vendor\ruzstd\LICENSE-MIT') -Destination (Join-Path $bundle 'vendor\ruzstd') -Force
     Copy-Item -Path (Join-Path $repoRoot 'assets\fonts\OFL-*.txt') -Destination (Join-Path $bundle 'assets\fonts') -Force
-    $fontFiles = @(
-        (Join-Path $repoRoot 'assets\fonts\NotoSansSC-Regular.ttf'),
-        (Join-Path $repoRoot 'assets\fonts\NotoSerifSC-SemiBold.ttf')
-    )
-    Copy-Item -LiteralPath $fontFiles -Destination (Join-Path $bundle 'assets\fonts') -Force
+    & $python.Source (Join-Path $repoRoot 'packaging\bundle_fonts.py') (Join-Path $bundle 'assets\fonts')
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to package the shared fonts.' }
     Copy-Item -Path (Join-Path $repoRoot 'docs\*.md') -Destination (Join-Path $bundle 'docs') -Force
     Copy-Item -Path (Join-Path $repoRoot 'spec\*') -Destination (Join-Path $bundle 'spec') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'resume-one-theme-spec-v2.md') -Destination (Join-Path $bundle 'spec') -Force
@@ -108,13 +108,13 @@ try {
         if (Test-Path -LiteralPath $archivePath) {
             throw "Archive already exists; move it before packaging: $archivePath"
         }
-        Compress-Archive -LiteralPath $bundle -DestinationPath $archivePath
+        & $python.Source (Join-Path $PSScriptRoot 'archive.py') $bundle $archivePath
+        if ($LASTEXITCODE -ne 0) { throw 'Failed to create the release ZIP.' }
         Write-Output $archivePath
     }
     Write-Output $bundle
 }
 finally {
     $env:GPUI_FXC_PATH = $previousFxc
-    $env:RESUME_ONE_PACKAGED_FONTS = $previousPackagedFonts
     Pop-Location
 }

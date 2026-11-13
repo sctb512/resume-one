@@ -5,6 +5,9 @@ edition.workspace = true
 license.workspace = true
 rust-version.workspace = true
 
+[features]
+packaged-fonts = ["dep:ruzstd"]
+
 [dependencies]
 serde_json.workspace = true
 jsonschema.workspace = true
@@ -19,6 +22,7 @@ ttf-parser.workspace = true
 font-kit = { package = "zed-font-kit", version = "=0.14.1-zed" }
 dirs = "=5.0.1"
 unicode-segmentation = "=1.13.3"
+ruzstd = { version = "=0.9.1", default-features = false, features = ["std"], optional = true }
 
 [build-dependencies]
 sha2.workspace = true

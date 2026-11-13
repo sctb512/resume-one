@@ -56,7 +56,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.13'
+          python-version: '3.14'
       - run: rustup target add ${{ matrix.target }}
       - name: Prepare Xcode and Rust
         if: runner.os == 'macOS'
@@ -114,6 +114,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
       - uses: actions/download-artifact@v7
         with:
           pattern: resume-one-macOS-*
@@ -123,7 +126,7 @@ jobs:
         run: |
           bash packaging/macos/universal.sh dist/Resume-One-macOS-arm64-unsigned.zip \
             dist/Resume-One-macOS-x64-unsigned.zip "$PWD/dist/Resume-One-macOS-universal-unsigned.zip"
-          python3 packaging/verify-release.py dist/Resume-One-macOS-universal-unsigned.zip --release-tag "$RESUME_ONE_RELEASE_TAG"
+          python packaging/verify-release.py dist/Resume-One-macOS-universal-unsigned.zip --release-tag "$RESUME_ONE_RELEASE_TAG"
       - uses: actions/upload-artifact@v6
         with:
           name: resume-one-macOS-universal

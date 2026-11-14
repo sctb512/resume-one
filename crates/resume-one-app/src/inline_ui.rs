@@ -78,6 +78,8 @@ pub(super) struct InlineForm {
     history_before: Option<String>,
     history_slot: usize,
     error: Option<String>,
+    pinned: bool,
+    show_optional: bool,
 }
 
 struct Field {
@@ -140,10 +142,10 @@ pub(super) fn field_order(section: &str, key: &str) -> usize {
             "position",
             "startDate",
             "endDate",
-            "location",
-            "url",
             "summary",
             "description",
+            "location",
+            "url",
         ],
         "education" => &[
             "institution",
@@ -267,6 +269,23 @@ fn field_label(key: &str) -> &'static str {
 }
 
 impl ResumeOne {
+    pub(super) fn open_pinned_inline(
+        &mut self,
+        section: &str,
+        index: Option<usize>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.open_inline(section, index, window, cx);
+        if let Some(form) = &mut self.inline.form
+            && form.section == section
+            && form.index == index
+        {
+            form.pinned = true;
+            cx.notify();
+        }
+    }
+
     pub(super) fn inline_form_geometry(&self) -> (f32, f32) {
         let style = self.active_style();
         let paper = style.page.width_mm * 3. * self.preview_scale;
@@ -364,6 +383,7 @@ impl ResumeOne {
         self.inline.suppressed = None;
         if self.inline_focused(window, cx)
             || self.inline.form_hovered
+            || self.inline.form.as_ref().is_some_and(|form| form.pinned)
             || self.inline.scroll_until.is_some_and(|until| now < until)
         {
             return;
@@ -561,6 +581,8 @@ impl ResumeOne {
             history_before: None,
             history_slot: self.visual_undo.len(),
             error: initial_error,
+            pinned: false,
+            show_optional: false,
         });
         cx.notify();
     }
@@ -762,6 +784,8 @@ impl ResumeOne {
         let section = form.section.clone();
         let index = form.index;
         let page = form.page;
+        let retained_pinned = form.pinned;
+        let retained_optional = form.show_optional;
         if self
             .visual_undo
             .iter()
@@ -798,6 +822,8 @@ impl ResumeOne {
                     this.inline.visibility.snap(1.);
                     if let Some(form) = &mut this.inline.form {
                         form.page = page;
+                        form.pinned = retained_pinned;
+                        form.show_optional = retained_optional;
                     }
                     this.inline.scroll.set_offset(retained_offset);
                     this.inline.form_hovered = retained_hover;
@@ -879,6 +905,7 @@ impl ResumeOne {
             |_, _, _| (),
             move |_, (), window, _| {
                 let exit_view = view.clone();
+                let press_view = view.clone();
                 window.on_mouse_event(move |event: &gpui::MouseMoveEvent, phase, window, cx| {
                     if phase == gpui::DispatchPhase::Capture {
                         view.update(cx, |app, cx| {
@@ -891,6 +918,28 @@ impl ResumeOne {
                     if phase == gpui::DispatchPhase::Capture {
                         exit_view
                             .update(cx, |app, cx| app.inline_window_left(window, cx))
+                            .ok();
+                    }
+                });
+                window.on_mouse_event(move |event: &gpui::MouseDownEvent, phase, _, cx| {
+                    if phase == gpui::DispatchPhase::Capture
+                        && event.button == gpui::MouseButton::Left
+                    {
+                        press_view
+                            .update(cx, |app, cx| {
+                                if app
+                                    .inline
+                                    .bounds
+                                    .get()
+                                    .is_some_and(|bounds| bounds.contains(&event.position))
+                                    && !app.inline.closing_explicit
+                                    && let Some(form) = &mut app.inline.form
+                                {
+                                    form.pinned = true;
+                                    app.resume_inline(cx);
+                                    cx.notify();
+                                }
+                            })
                             .ok();
                     }
                 });
@@ -928,6 +977,11 @@ impl ResumeOne {
     }
 
     pub(super) fn close_inline_outside(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.inline.closing_explicit
+            && self.inline.form.as_ref().is_some_and(|form| form.pinned)
+        {
+            return;
+        }
         if self.inline.form.is_some() && !self.inline.form_hovered && !self.inline.closing {
             self.cancel_inline_candidate();
             let form = self.inline.form.as_ref().unwrap();
@@ -1211,7 +1265,12 @@ impl ResumeOne {
             .filter(|field| field.list_index.is_none())
             .collect();
         ordered.sort_by_key(|field| field_order(&form.section, field.key));
+        let mut optional_fields = Vec::new();
         for field in ordered {
+            if form.section == "work" && matches!(field.key, "location" | "url" | "description") {
+                optional_fields.push(field);
+                continue;
+            }
             let selector = selector_for(format!("inline-field-{}", field.key));
             text_fields = text_fields.child(
                 div()
@@ -1299,6 +1358,64 @@ impl ResumeOne {
                 list = list.child(self.inline_list_add(key, index + 1, retiring, cx));
             }
             fields = fields.child(list);
+        }
+        if !optional_fields.is_empty() {
+            let mut optional = div().flex().flex_col().gap_3();
+            for field in optional_fields {
+                if form.show_optional || !field.input.read(cx).value().is_empty() {
+                    optional = optional.child(
+                        div()
+                            .flex()
+                            .flex_col()
+                            .gap_1()
+                            .child(
+                                div()
+                                    .text_size(px(12.))
+                                    .text_color(color(palette.muted))
+                                    .child(form_field_label(&form.section, field.key)),
+                            )
+                            .child(self.inline_input(
+                                field,
+                                selector_for(format!("inline-field-{}", field.key)),
+                                scroll.clone(),
+                                retiring,
+                                cx,
+                            )),
+                    );
+                }
+            }
+            fields = fields
+                .child(
+                    div()
+                        .id("inline-optional-fields")
+                        .tab_index(0)
+                        .tab_stop(!retiring)
+                        .text_size(px(12.))
+                        .text_color(color(palette.accent))
+                        .cursor_pointer()
+                        .child(if form.show_optional {
+                            tr("收起可选字段")
+                        } else {
+                            tr("更多字段")
+                        })
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if !retiring && let Some(form) = &mut this.inline.form {
+                                form.show_optional = !form.show_optional;
+                                cx.notify();
+                            }
+                        }))
+                        .on_key_down(cx.listener(move |this, event, _, cx| {
+                            if !retiring
+                                && crate::chrome::activation_key(event)
+                                && let Some(form) = &mut this.inline.form
+                            {
+                                form.show_optional = !form.show_optional;
+                                cx.stop_propagation();
+                                cx.notify();
+                            }
+                        })),
+                )
+                .child(optional);
         }
         if form.section == "basics" {
             let mut profiles = div()
@@ -2306,6 +2423,43 @@ mod tests {
             })
         });
         assert!(cx.debug_bounds("inline-form").is_some());
+    }
+
+    #[gpui::test]
+    fn clicking_a_work_field_keeps_the_form_open_outside_its_bounds(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(AppModel::load(None).unwrap(), cx));
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.open_inline("work", Some(0), window, cx));
+            window.refresh();
+        });
+        cx.executor().advance_clock(INLINE_FADE_IN);
+        cx.update(|window, _| window.refresh());
+        let summary = cx.debug_bounds("inline-field-summary").unwrap();
+        cx.simulate_click(summary.center(), Modifiers::none());
+        let outside = gpui::point(px(24.), px(100.));
+        cx.simulate_mouse_move(outside, None, Modifiers::none());
+        cx.executor().advance_clock(INLINE_FADE_OUT);
+        cx.update(|window, cx| {
+            assert!(
+                view.read(cx)
+                    .inline
+                    .form
+                    .as_ref()
+                    .is_some_and(|form| form.pinned)
+            );
+            view.update(cx, |app, cx| app.dismiss_inline(&DismissInline, window, cx));
+        });
+        cx.executor().advance_clock(INLINE_FADE_OUT);
+        cx.update(|window, _| window.refresh());
+        cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
     }
 
     #[gpui::test]

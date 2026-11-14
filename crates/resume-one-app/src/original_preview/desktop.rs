@@ -2,6 +2,7 @@
 use std::{cell::Cell, rc::Rc};
 
 use futures_channel::mpsc;
+use futures_channel::oneshot;
 use gpui::{App, Bounds, IntoElement, Pixels, Window, canvas, prelude::*};
 use wry::{
     NewWindowResponse, Rect, WebView, WebViewBuilder, dpi::LogicalPosition, dpi::LogicalSize,
@@ -65,6 +66,91 @@ impl Desktop {
     pub(super) fn hide(&self) {
         if self.visible.replace(false) {
             let _ = self.webview.set_visible(false);
+        }
+    }
+
+    pub(super) fn is_visible(&self) -> bool {
+        self.visible.get()
+    }
+
+    pub(super) fn snapshot(&self) -> oneshot::Receiver<gpui::Image> {
+        let (send, receive) = oneshot::channel();
+        if self.visible.get() {
+            self.capture(move |image| {
+                let _ = send.send(image);
+            });
+        }
+        receive
+    }
+
+    #[cfg(target_os = "macos")]
+    fn capture(&self, complete: impl FnOnce(gpui::Image) + 'static) {
+        use objc2_app_kit::NSImage;
+        use wry::WebViewExtMacOS;
+        let complete = Cell::new(Some(complete));
+        let block = block2::RcBlock::new(move |image: *mut NSImage, _| {
+            if let Some(complete) = complete.take()
+                && let Some(image) = unsafe { image.as_ref() }
+                && let Some(data) = image.TIFFRepresentation()
+            {
+                complete(gpui::Image::from_bytes(
+                    gpui::ImageFormat::Tiff,
+                    data.to_vec(),
+                ));
+            }
+        });
+        // Capture only the native preview, including its current scroll position.
+        unsafe {
+            let view: &objc2_web_kit::WKWebView = &self.webview.webview();
+            view.takeSnapshotWithConfiguration_completionHandler(None, &block);
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    fn capture(&self, complete: impl FnOnce(gpui::Image) + 'static) {
+        use webview2_com::{
+            CapturePreviewCompletedHandler,
+            Microsoft::Web::WebView2::Win32::COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG,
+        };
+        use windows::Win32::{
+            System::Com::{STATFLAG_NONAME, STATSTG, STREAM_SEEK_SET},
+            UI::Shell::SHCreateMemStream,
+        };
+        use wry::WebViewExtWindows;
+
+        let Some(stream) = (unsafe { SHCreateMemStream(None) }) else {
+            return;
+        };
+        let captured = stream.clone();
+        let handler = CapturePreviewCompletedHandler::create(Box::new(move |result| {
+            result?;
+            let mut stat = STATSTG::default();
+            unsafe {
+                captured.Stat(&mut stat, STATFLAG_NONAME)?;
+                if stat.cbSize > 32 * 1024 * 1024 {
+                    return Ok(());
+                }
+                captured.Seek(0, STREAM_SEEK_SET, None)?;
+                let mut bytes = vec![0; stat.cbSize as usize];
+                let mut read = 0;
+                captured
+                    .Read(
+                        bytes.as_mut_ptr().cast(),
+                        bytes.len() as u32,
+                        Some(&mut read),
+                    )
+                    .ok()?;
+                bytes.truncate(read as usize);
+                complete(gpui::Image::from_bytes(gpui::ImageFormat::Png, bytes));
+            }
+            Ok(())
+        }));
+        unsafe {
+            let _ = self.webview.webview().CapturePreview(
+                COREWEBVIEW2_CAPTURE_PREVIEW_IMAGE_FORMAT_PNG,
+                &stream,
+                &handler,
+            );
         }
     }
 

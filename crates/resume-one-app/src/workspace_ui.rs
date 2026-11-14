@@ -32,6 +32,7 @@ impl Layout {
         self != Self::Compact
     }
 
+    #[cfg(test)]
     pub fn reserved_width(self) -> f32 {
         (if self.theme_docked() {
             chrome::THEME_WIDTH
@@ -224,6 +225,7 @@ mod tests {
         let source = model.document.source.clone();
         let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
         cx.simulate_resize(gpui::size(px(900.), px(560.)));
+        cx.executor().advance_clock(crate::motion::MODE_DURATION);
         cx.update(|window, _| window.refresh());
         let paper = cx.debug_bounds("resume-paper").unwrap();
         let button = cx.debug_bounds("show-themes").unwrap();

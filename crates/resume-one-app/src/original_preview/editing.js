@@ -4,6 +4,7 @@ const editHit = document.querySelector("#paper-hit");
 const editTitle = editPanel.querySelector("h2");
 const editFields = editPanel.querySelector(".fields");
 const editError = editPanel.querySelector(".error");
+let editPinned = false;
 const normalize = value => value.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
   .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const aliases = Object.fromEntries(Object.entries({
@@ -183,6 +184,7 @@ function closeEdit() {
   flushFields();
   suppressedTarget = targetId(edited);
   edited = null;
+  editPinned = false;
   editPanel.inert = true;
   editPanel.classList.remove("shown");
 }
@@ -190,11 +192,24 @@ function closeEdit() {
 function openEdit(region, point, keyboard = false) {
   if (!editEnabled || edited) return;
   edited = region.target;
+  editPinned = keyboard;
   session++;
   editError.textContent = "";
   editTitle.textContent = edited.title + (edited.index === null ? "" : " · " + (edited.index + 1));
   editFields.replaceChildren();
-  for (const field of edited.fields) {
+  const optional = document.createElement("details");
+  const more = document.createElement("summary");
+  more.textContent = document.documentElement.lang === "en" ? "More fields" : "更多字段";
+  optional.append(more);
+  const extra = document.createElement("div");
+  extra.className = "fields";
+  optional.append(extra);
+  const work = edited.section === "work";
+  const optionalWork = key => ["location", "url", "description"].includes(key);
+  const fields = work
+    ? [...edited.fields.filter(field => !optionalWork(field.key)), ...edited.fields.filter(field => optionalWork(field.key))]
+    : edited.fields;
+  for (const field of fields) {
     const label = document.createElement("label");
     label.append(document.createTextNode(field.label + (field.index === null ? "" : " " + (field.index + 1))));
     const input = document.createElement(field.long ? "textarea" : "input");
@@ -205,7 +220,7 @@ function openEdit(region, point, keyboard = false) {
     input.dataset.field = fieldId(field);
     if (field.readOnly) input.placeholder = document.documentElement.lang === "en" ? "Edit in JSON view" : "在 JSON 视图中编辑";
     label.append(input);
-    editFields.append(label);
+    (work && optionalWork(field.key) && !field.value ? extra : editFields).append(label);
     const queue = () => {
       clearTimeout(pendingFields.get(fieldId(field))?.timer);
       const timer = setTimeout(() => {
@@ -217,6 +232,7 @@ function openEdit(region, point, keyboard = false) {
     input.addEventListener("input", event => { if (!event.isComposing) queue(); });
     input.addEventListener("compositionend", queue);
   }
+  if (extra.childElementCount) editFields.append(optional);
   editPanel.inert = false;
   editPanel.classList.add("shown");
   const viewport = current.getBoundingClientRect();
@@ -279,7 +295,13 @@ editHit.addEventListener("mouseleave", () => {
 });
 editHit.addEventListener("click", event => {
   const {region, y} = findEditRegion(event);
-  if (region && editEnabled) openEdit(region, {y}, true);
+  if (region && editEnabled) {
+    if (edited && targetId(edited) === targetId(region.target)) editPinned = true;
+    else {
+      closeEdit();
+      openEdit(region, {y}, true);
+    }
+  }
 });
 addEventListener("keydown", event => {
   if (event.key === "Alt") {
@@ -292,8 +314,14 @@ addEventListener("keyup", stopSelecting);
 addEventListener("blur", stopSelecting);
 
 editPanel.addEventListener("pointerleave", () => {
+  if (editPinned) return;
   suppressUntil = performance.now() + 120;
   closeEdit();
+});
+editPanel.addEventListener("pointerdown", () => {
+  if (edited) {
+    editPinned = true;
+  }
 });
 editPanel.querySelector("button").addEventListener("click", closeEdit);
 function reportReading() {
@@ -328,7 +356,7 @@ window.jianliJump = (section, index) => {
 
 addEventListener("scroll", () => {
   suppressUntil = performance.now() + 140;
-  closeEdit();
+  if (!editPinned) closeEdit();
   reportReading();
 }, {passive:true});
 window.jianliEditEnabled = enabled => {

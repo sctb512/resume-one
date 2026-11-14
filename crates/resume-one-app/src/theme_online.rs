@@ -13,6 +13,7 @@ use crate::model::BuiltinTheme;
 pub(super) trait Provider: Send + Sync {
     fn catalog(&self, source: &GithubSource) -> Result<CatalogResult, ThemeError>;
     fn theme(&self, catalog: &Catalog, id: &str) -> Result<VerifiedTheme, ThemeError>;
+    fn remember_catalog(&self, _: &Catalog) {}
 }
 
 #[cfg(test)]
@@ -269,6 +270,9 @@ impl Provider for GithubClient {
     fn theme(&self, catalog: &Catalog, id: &str) -> Result<VerifiedTheme, ThemeError> {
         self.theme(catalog, id, false)
     }
+    fn remember_catalog(&self, catalog: &Catalog) {
+        let _ = GithubClient::remember_catalog(self, catalog);
+    }
 }
 
 #[derive(Clone)]
@@ -323,6 +327,7 @@ pub(super) struct OnlineThemes {
     failed: HashSet<String>,
     hovered: Option<String>,
     pending_apply: Option<String>,
+    failed_apply: Option<String>,
     pending_download: Option<String>,
     center: usize,
 }
@@ -372,6 +377,7 @@ impl OnlineThemes {
         self.failed.clear();
         self.clear_hover();
         self.pending_apply = None;
+        self.failed_apply = None;
         self.pending_download = None;
         self.center = 0;
         if self.online
@@ -431,10 +437,21 @@ impl OnlineThemes {
             return None;
         }
         self.failed.remove(id);
+        self.failed_apply = None;
         let ready = self.resolved(id);
         self.pending_apply = ready.is_none().then(|| id.to_owned());
         self.requeue();
         ready
+    }
+
+    pub fn apply_status(&self, id: &str) -> Option<&'static str> {
+        if self.pending_apply.as_deref() == Some(id) {
+            Some(crate::i18n::tr("正在应用…"))
+        } else if self.failed_apply.as_deref() == Some(id) {
+            Some(crate::i18n::tr("应用失败 · 点击重试"))
+        } else {
+            None
+        }
     }
 
     pub fn download(&mut self, id: &str) -> Option<(GithubSource, Arc<VerifiedTheme>)> {
@@ -486,7 +503,11 @@ impl OnlineThemes {
 
     fn resolved(&mut self, id: &str) -> Option<BuiltinTheme> {
         let theme = self.ready.get(id)?;
-        let result = BuiltinTheme::from_verified(theme, self.identity(id)?)?;
+        let mut result = BuiltinTheme::from_verified(theme, self.identity(id)?)?;
+        result.source = self
+            .catalog
+            .as_ref()
+            .map(|catalog| catalog.source().clone());
         self.lru.retain(|key| key != id);
         self.lru.push_back(id.to_owned());
         Some(result)
@@ -571,6 +592,7 @@ impl OnlineThemes {
                 self.diagnostic(format!("{} / {}：{error}", job.source.repository(), job.id));
                 if self.pending_apply.as_ref() == Some(&job.id) {
                     self.pending_apply = None;
+                    self.failed_apply = Some(job.id.clone());
                 }
                 if self.pending_download.as_ref() == Some(&job.id) {
                     self.pending_download = None;

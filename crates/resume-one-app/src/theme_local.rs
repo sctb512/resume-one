@@ -31,6 +31,7 @@ pub(super) struct ThemeStore {
 }
 
 const MAX_RECENT_FILES: usize = 12;
+const MAX_DOCUMENT_THEMES: usize = 32;
 
 // Exact bytes shipped before the first visual refinement. Only untouched
 // copies of these files may be replaced; a user's edits always win.
@@ -484,6 +485,36 @@ impl ThemeStore {
         self.last_folder.as_deref()
     }
 
+    pub fn document_theme(&self, path: &Path) -> Option<Value> {
+        let settings = Self::read_settings(&self.settings_path).ok()?;
+        settings["documentThemes"]
+            .as_array()?
+            .iter()
+            .take(MAX_DOCUMENT_THEMES)
+            .find(|entry| {
+                entry["file"]
+                    .as_str()
+                    .is_some_and(|file| Path::new(file) == path)
+            })
+            .map(|entry| entry["theme"].clone())
+    }
+
+    pub fn remember_document_theme(&self, path: &Path, theme: Value) -> Result<(), String> {
+        let Some(path) = path.to_str() else {
+            return Ok(());
+        };
+        let mut settings = Self::read_settings(&self.settings_path)?;
+        let mut themes = settings["documentThemes"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default();
+        themes.retain(|entry| entry["file"].as_str() != Some(path));
+        themes.insert(0, json!({"file": path, "theme": theme}));
+        themes.truncate(MAX_DOCUMENT_THEMES);
+        settings["documentThemes"] = json!(themes);
+        self.write_settings(&settings)
+    }
+
     pub fn remember_file(&mut self, path: &Path) -> Result<(), String> {
         if !path.is_absolute() || !path.is_file() {
             return Err("最近文件必须是已打开的绝对文件路径".into());
@@ -664,6 +695,7 @@ impl ThemeStore {
             let style = ThemeStyle::from_manifest(&manifest);
             themes.push(BuiltinTheme {
                 identity,
+                source: None,
                 original: None,
                 manifest,
                 style,

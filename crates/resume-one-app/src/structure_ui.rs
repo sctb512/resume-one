@@ -68,6 +68,7 @@ pub(super) fn register(cx: &mut App) {
 
 impl ResumeOne {
     pub(super) fn apply_theme_selection(&mut self, theme: crate::model::BuiltinTheme) {
+        self.theme_restore_epoch = self.theme_restore_epoch.wrapping_add(1);
         let before = self.model.applied_theme().clone();
         self.clear_inline();
         self.cancel_insertion();
@@ -77,6 +78,7 @@ impl ResumeOne {
         self.theme_hover_generation += 1;
         self.theme_hover_candidate = None;
         if before.identity == theme.identity {
+            self.remember_applied_theme();
             return;
         }
         self.visual_undo.push(VisualEdit::Theme {
@@ -85,9 +87,10 @@ impl ResumeOne {
         });
         self.visual_redo.clear();
         self.restore_theme_selection(&theme);
+        self.remember_applied_theme();
     }
 
-    fn restore_theme_selection(&mut self, theme: &crate::model::BuiltinTheme) {
+    pub(super) fn restore_theme_selection(&mut self, theme: &crate::model::BuiltinTheme) {
         if let Some(index) = self
             .model
             .themes
@@ -135,6 +138,8 @@ impl ResumeOne {
                     return false;
                 }
                 self.restore_theme_selection(target);
+                self.theme_restore_epoch = self.theme_restore_epoch.wrapping_add(1);
+                self.remember_applied_theme();
             }
         }
         true
@@ -235,7 +240,7 @@ impl ResumeOne {
         }
         if let Some((section, index)) = open_after {
             cx.defer_in(window, move |this, window, cx| {
-                this.open_inline(&section, index, window, cx);
+                this.open_pinned_inline(&section, index, window, cx);
                 this.focus_inline_first(window, cx);
                 cx.notify();
             });

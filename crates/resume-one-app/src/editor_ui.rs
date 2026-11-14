@@ -621,6 +621,9 @@ impl ResumeOne {
                 if let Some(path) = self.model.document_path.clone() {
                     self.remember_file(&path);
                 }
+                if create {
+                    self.remember_applied_theme();
+                }
                 window.set_window_title(&format!(
                     "{} — Resume One · 简里",
                     self.model.document_label
@@ -752,7 +755,13 @@ impl ResumeOne {
             });
             self.source_mode = false;
             self.begin_mode_transition();
-            if let Some((id, index)) = target {
+            let previous = self.source_return_position.take();
+            if let Some((previous_target, offset)) = previous
+                && (previous_target.as_ref() == target.as_ref() || target.is_none())
+                && !self.model.applied_theme().original.is_some()
+            {
+                self.preview_scroll.set_offset(offset);
+            } else if let Some((id, index)) = target {
                 self.jump_to_preview(&id, index);
             }
             window.focus(&self.focus);
@@ -764,6 +773,7 @@ impl ResumeOne {
         }
         apply_editor_theme(&self.active_style(), cx);
         self.source_mode = true;
+        self.source_return_position = Some((preview_target.clone(), self.preview_scroll.offset()));
         self.begin_mode_transition();
         if !self.recovery_pending
             && let Some(editor) = &self.editor

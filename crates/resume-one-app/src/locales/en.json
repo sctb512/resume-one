@@ -280,5 +280,15 @@
   "无法加载主题目录 · 重新选择来源可重试": "Could not load the catalog. Reselect the source to retry.",
   "正在读取主题目录…": "Loading themes…",
   "收起其他颜色": "Hide more colors",
-  "更多颜色": "More colors"
+  "更多颜色": "More colors",
+  "⌘/ 查看 JSON": "⌘/  View JSON",
+  "Ctrl+/ 查看 JSON": "Ctrl+/  View JSON",
+  "选择保存位置…": "Choosing a location…",
+  "保存位置…": "Save location…",
+  "更多字段": "More fields",
+  "收起可选字段": "Hide optional fields",
+  "正在应用…": "Applying…",
+  "应用失败 · 点击重试": "Failed · Click to retry",
+  "无法恢复此简历的在线主题": "Could not restore the online theme for this résumé",
+  "无法恢复此简历的本地主题": "Could not restore the local theme for this résumé"
 }

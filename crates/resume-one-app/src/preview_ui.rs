@@ -45,6 +45,7 @@ mod tests {
         model.document = parse_resume(br#"{"basics":{"name":"Ada"},"work":[{"name":"MainCompany"}],"skills":[{"name":"SideSkill"}]}"#).unwrap();
         model.content = project(&model.document);
         model.replace_themes(vec![BuiltinTheme {
+            source: None,
             original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
@@ -88,6 +89,7 @@ mod tests {
         model.document = parse_resume(br#"{"basics":{"name":"Ada"}}"#).unwrap();
         model.content = project(&model.document);
         model.replace_themes(vec![BuiltinTheme {
+            source: None,
             original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
@@ -463,6 +465,7 @@ mod tests {
             value["sections"] = serde_json::json!({"work":{"items":kind}});
             let manifest = resume_one_core::parse_theme(value.to_string().as_bytes()).unwrap();
             model.replace_themes(vec![BuiltinTheme {
+                source: None,
                 original: None,
                 style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
                 manifest,
@@ -622,6 +625,7 @@ mod tests {
                 .unwrap();
                 manifest.normalized["composition"]["preset"] = serde_json::json!(preset);
                 model.replace_themes(vec![BuiltinTheme {
+                    source: None,
                     original: None,
                     style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
                     manifest,
@@ -792,6 +796,7 @@ mod tests {
         ))
         .unwrap();
         model.themes = vec![BuiltinTheme {
+            source: None,
             original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
@@ -826,6 +831,7 @@ mod tests {
         ))
         .unwrap();
         model.themes = vec![BuiltinTheme {
+            source: None,
             original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
@@ -853,6 +859,7 @@ mod tests {
         ))
         .unwrap();
         let theme = BuiltinTheme {
+            source: None,
             original: None,
             style: resume_one_core::theme_style::ThemeStyle::from_manifest(&manifest),
             manifest,
@@ -1244,6 +1251,25 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
 }
 
 impl ResumeOne {
+    pub(super) fn rescale_preview_scroll(&mut self, previous_scale: f32) {
+        let offset = self.preview_scroll.offset();
+        let top = -f32::from(offset.y);
+        if top <= 24. {
+            return;
+        }
+        let page = self.active_style().page.height_mm * PX_PER_MM;
+        let previous_stride = page * previous_scale + 24.;
+        let current_stride = page * self.preview_scale + 24.;
+        let page_index = ((top - 24.) / previous_stride).floor();
+        let inside_page = top - 24. - page_index * previous_stride;
+        let position = (inside_page / previous_scale).min(page) * self.preview_scale;
+        let gap = (inside_page - page * previous_scale).max(0.);
+        self.preview_scroll.set_offset(point(
+            offset.x,
+            px(-(24. + page_index * current_stride + position + gap)),
+        ));
+    }
+
     pub(super) fn preview_reading_target(&self) -> Option<(String, Option<usize>)> {
         if self.model.applied_theme().original.is_some() {
             return self.original_preview.reading_target.clone();
@@ -1634,7 +1660,7 @@ impl ResumeOne {
             )
             .on_click(cx.listener(move |this, _, window, cx| {
                 if editable && valid {
-                    this.open_inline(&click_id, target.index, window, cx);
+                    this.open_pinned_inline(&click_id, target.index, window, cx);
                     if let Some(form) = &mut this.inline.form {
                         form.page = Some(region.page);
                     }
@@ -1643,7 +1669,7 @@ impl ResumeOne {
             .on_action(
                 cx.listener(move |this, _: &inline_ui::OpenInline, window, cx| {
                     if editable && valid {
-                        this.open_inline(&key_id, target.index, window, cx);
+                        this.open_pinned_inline(&key_id, target.index, window, cx);
                         if let Some(form) = &mut this.inline.form {
                             form.page = Some(region.page);
                         }

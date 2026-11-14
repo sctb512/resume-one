@@ -241,14 +241,16 @@ impl ResumeOne {
         self.online.cancel_interaction();
         self.preview_scroll.set_offset(gpui::point(px(0.), px(0.)));
         self.original_preview.reset_document();
+        self.source_return_position = None;
         self.model.new_document();
+        self.theme_restore_epoch = self.theme_restore_epoch.wrapping_add(1);
         self.model.presentation_language = crate::i18n::language();
         self.export_language = self.model.presentation_language;
         self.reset_editor_for_new_document(window, cx);
         self.source_mode = false;
         self.begin_mode_transition();
         window.set_window_title(tr("未命名简历 — Resume One · 简里"));
-        self.open_inline("basics", None, window, cx);
+        self.open_pinned_inline("basics", None, window, cx);
         self.focus_inline_first(window, cx);
         cx.notify();
     }
@@ -548,7 +550,9 @@ impl ResumeOne {
             .set_offset(gpui::point(px(0.0), px(0.0)));
         let path = opened.path.clone();
         self.original_preview.reset_document();
+        self.source_return_position = None;
         self.model.apply_opened(opened);
+        self.restore_document_theme(window, cx);
         self.model.presentation_language = crate::i18n::document_language(
             &self.model.document_label,
             &self.model.document,

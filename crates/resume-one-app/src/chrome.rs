@@ -216,6 +216,7 @@ pub fn icon(kind: &'static str, ink: Rgb) -> impl IntoElement {
             &[(6., 6.), (10., 2.), (14., 6.)],
         ],
         "chevron" => &[&[(6., 8.), (10., 12.), (14., 8.)]],
+        "chevron-right" => &[&[(8., 6.), (12., 10.), (8., 14.)]],
         "volunteer" | "interests" => &[&[
             (10., 17.),
             (2., 9.),
@@ -413,8 +414,9 @@ impl ResumeOne {
                             } else {
                                 style.colors.accent
                             })))
-                            .when(!compact, |v| v.child(status)),
-                    ),
+                            .when(!compact || dirty, |v| v.child(status)),
+                    )
+                    .child(div().flex_none().child(icon("chevron", p.muted))),
             )
             .when(!self.layout.modules_docked(), |v| {
                 v.child(self.drawer_button(crate::workspace_ui::Drawer::Modules, cx))
@@ -490,7 +492,11 @@ impl ResumeOne {
                     .text_size(px(13.))
                     .hover(|v| v.bg(color(style.colors.accent.mix(style.colors.ink, 0.12))))
                     .child(icon("export", export_ink))
-                    .child(if self.export_busy {
+                    .child(if self.export_choosing_path && !compact {
+                        tr("选择保存位置…")
+                    } else if self.export_choosing_path {
+                        tr("保存位置…")
+                    } else if self.export_busy {
                         tr("导出中…")
                     } else {
                         tr("导出")

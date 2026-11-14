@@ -381,6 +381,7 @@ impl ResumeOne {
         let suggested = format!("{stem}.{}", kind.extension());
         let choice = cx.prompt_for_new_path(&directory, Some(&suggested));
         self.export_busy = true;
+        self.export_choosing_path = true;
         self.exported_file = None;
         cx.spawn_in(window, async move |this, cx| {
             let path = match choice.await {
@@ -388,6 +389,7 @@ impl ResumeOne {
                 Ok(Err(error)) => {
                     this.update_in(cx, |this, window, cx| {
                         this.export_busy = false;
+                        this.export_choosing_path = false;
                         this.editor_warning(tr("无法选择导出位置"), &error.to_string(), window, cx);
                     })
                     .ok();
@@ -396,6 +398,7 @@ impl ResumeOne {
                 Err(_) => None,
             };
             this.update_in(cx, |this, window, cx| {
+                this.export_choosing_path = false;
                 if let Some(path) = path {
                     this.finish_export_path(path, snapshot, window, cx);
                 } else {

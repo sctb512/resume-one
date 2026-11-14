@@ -5838,6 +5838,7 @@ dependencies = [
  "gpui",
  "gpui-component",
  "objc2-app-kit",
+ "objc2-web-kit",
  "raw-window-handle",
  "resume-one-core",
  "resume-one-themes",
@@ -5845,6 +5846,8 @@ dependencies = [
  "serde_json",
  "sys-locale",
  "tempfile",
+ "webview2-com",
+ "windows 0.61.3",
  "windows-sys 0.61.2",
  "wry",
 ]

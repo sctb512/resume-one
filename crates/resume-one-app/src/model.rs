@@ -39,6 +39,7 @@ pub struct BuiltinTheme {
     pub style: ThemeStyle,
     pub path: Option<PathBuf>,
     pub identity: String,
+    pub source: Option<resume_one_themes::GithubSource>,
     pub original: Option<Arc<OriginalTheme>>,
 }
 
@@ -95,6 +96,7 @@ impl BuiltinTheme {
             manifest,
             style,
             identity,
+            source: None,
             path,
             original: Some(theme),
         }
@@ -110,6 +112,7 @@ impl BuiltinTheme {
             manifest,
             style,
             identity,
+            source: None,
             path: None,
             original: None,
         })
@@ -185,6 +188,7 @@ impl AppModel {
                     manifest,
                     style,
                     path: None,
+                    source: None,
                     original: None,
                 })
             })

@@ -72,8 +72,12 @@ struct ResumeOne {
     files: files::FileUi,
     preview_scroll: ScrollHandle,
     preview_scale: f32,
+    source_return_position: Option<(Option<(String, Option<usize>)>, gpui::Point<gpui::Pixels>)>,
     source_mode: bool,
     layout: workspace_ui::Layout,
+    docked_themes: motion::Visibility,
+    docked_modules: motion::Visibility,
+    layout_initialized: bool,
     drawer: Option<workspace_ui::Drawer>,
     reduce_motion: bool,
     viewport_height: f32,
@@ -87,11 +91,13 @@ struct ResumeOne {
     spotlight_dimmed: Vec<&'static str>,
     editor: Option<editor_ui::EditorUi>,
     export_busy: bool,
+    export_choosing_path: bool,
     exported_file: Option<std::path::PathBuf>,
     export_menu_open: bool,
     export_choice: usize,
     export_language: resume_one_core::render::Language,
     theme_store: Option<theme_local::ThemeStore>,
+    theme_restore_epoch: u64,
     theme_manager_open: bool,
     updates: update_ui::UpdateUi,
     online: theme_online::OnlineThemes,
@@ -130,8 +136,12 @@ impl ResumeOne {
             files,
             preview_scroll: ScrollHandle::new(),
             preview_scale: 1.0,
+            source_return_position: None,
             source_mode: false,
             layout: workspace_ui::Layout::Wide,
+            docked_themes: Default::default(),
+            docked_modules: Default::default(),
+            layout_initialized: false,
             drawer: None,
             reduce_motion: false,
             viewport_height: 820.,
@@ -145,11 +155,13 @@ impl ResumeOne {
             spotlight_dimmed: Vec::new(),
             editor: None,
             export_busy: false,
+            export_choosing_path: false,
             exported_file: None,
             export_menu_open: false,
             export_choice: 0,
             export_language,
             theme_store: None,
+            theme_restore_epoch: 0,
             theme_manager_open: false,
             updates: update_ui::UpdateUi::default(),
             online: theme_online::OnlineThemes::default(),
@@ -599,7 +611,7 @@ impl ResumeOne {
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
             .cursor_pointer()
-            .w(px(32.))
+            .w(px(25.))
             .h(px(32.))
             .flex()
             .items_center()
@@ -631,7 +643,7 @@ impl ResumeOne {
             .id(gpui::SharedString::from(selector.clone()))
             .debug_selector(move || selector.clone())
             .cursor_pointer()
-            .w(px(32.))
+            .w(px(25.))
             .h(px(32.))
             .flex()
             .items_center()
@@ -856,7 +868,7 @@ impl ResumeOne {
             let selected = self.selected_module.as_deref() == Some(id.as_str())
                 || self.selected_item_module.as_deref() == Some(id.as_str());
             let dimmed = self.spotlight_dimmed.contains(&id.as_str());
-            let mut controls = div().flex().items_center().gap_1();
+            let mut controls = div().flex().flex_none().items_center().gap(px(3.));
             if present {
                 controls = controls.child(
                     div()
@@ -875,6 +887,43 @@ impl ResumeOne {
             } else if !present && enabled {
                 controls = controls.child(div().text_size(px(17.0)).text_color(accent).child("+"));
             }
+            if present && id != "basics" && enabled {
+                let expanded = self.selected_item_module.as_deref() == Some(id.as_str());
+                let section = id.clone();
+                let keyboard_section = section.clone();
+                controls = controls.child(
+                    div()
+                        .id(gpui::SharedString::from(format!("expand-module-{id}")))
+                        .debug_selector({
+                            let section = section.clone();
+                            move || format!("expand-module-{section}")
+                        })
+                        .tab_index(0)
+                        .tab_stop(true)
+                        .size(px(24.))
+                        .flex()
+                        .items_center()
+                        .justify_center()
+                        .rounded(px(4.))
+                        .cursor_pointer()
+                        .hover(|v| v.bg(color(palette.soft)))
+                        .focus(|v| v.bg(color(palette.soft)))
+                        .child(chrome::icon(
+                            if expanded { "chevron" } else { "chevron-right" },
+                            palette.muted,
+                        ))
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            cx.stop_propagation();
+                            this.toggle_section_items(&section, window, cx);
+                        }))
+                        .on_key_down(cx.listener(move |this, event, window, cx| {
+                            if chrome::activation_key(event) {
+                                cx.stop_propagation();
+                                this.toggle_section_items(&keyboard_section, window, cx);
+                            }
+                        })),
+                );
+            }
             let source_mode = sidebar_tools;
             let row_id = id.clone();
             list = list.child(
@@ -884,7 +933,7 @@ impl ResumeOne {
                     .flex()
                     .min_h(px(44.))
                     .flex_none()
-                    .gap(px(10.))
+                    .gap(px(7.))
                     .items_center()
                     .justify_between()
                     .px(px(4.))
@@ -924,13 +973,6 @@ impl ResumeOne {
                                 } else {
                                     this.jump_to_preview(&row_id, None);
                                 }
-                                this.selected_item_module = if row_id == "basics"
-                                    || this.selected_item_module.as_deref() == Some(row_id.as_str())
-                                {
-                                    None
-                                } else {
-                                    Some(row_id.clone())
-                                };
                                 cx.notify();
                             } else if let Some(before) = this.insertion_before.clone() {
                                 this.apply_visual_structure(
@@ -958,9 +1000,7 @@ impl ResumeOne {
                             this.clear_inline();
                             this.hovered_theme = None;
                             this.jump_to_preview(&row_id, None);
-                            this.selected_item_module = (row_id != "basics"
-                                && this.selected_item_module.as_deref() != Some(&row_id))
-                            .then_some(row_id.clone());
+                            this.selected_item_module = None;
                             this.selected_module = None;
                             this.insertion_before = None;
                             window.focus(&this.focus);
@@ -1101,6 +1141,20 @@ impl ResumeOne {
             .into_any_element()
     }
 
+    fn toggle_section_items(&mut self, section: &str, window: &mut Window, cx: &mut Context<Self>) {
+        self.clear_inline();
+        self.insertion_before = None;
+        self.selected_module = None;
+        self.selected_item_module =
+            (self.selected_item_module.as_deref() != Some(section)).then(|| section.to_owned());
+        if !self.source_mode && self.model.applied_theme().original.is_none() {
+            self.close_drawer();
+            self.jump_to_preview(section, None);
+            window.focus(&self.focus);
+        }
+        cx.notify();
+    }
+
     fn sample_actions(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let p = chrome::Palette::new(self.shell_style());
         let mut actions = div()
@@ -1121,6 +1175,15 @@ impl ResumeOne {
                 div()
                     .text_color(color(p.muted))
                     .child(tr("试改示例，或开始自己的简历")),
+            )
+            .child(
+                div()
+                    .text_color(color(p.muted))
+                    .child(if cfg!(target_os = "macos") {
+                        tr("⌘/ 查看 JSON")
+                    } else {
+                        tr("Ctrl+/ 查看 JSON")
+                    }),
             );
         for (id, caption) in [
             ("sample-new", tr("新建简历")),
@@ -1171,7 +1234,30 @@ impl Render for ResumeOne {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.ensure_theme_search(window, cx);
         self.viewport_height = f32::from(window.viewport_size().height);
+        self.reduce_motion = motion::system_reduces_motion();
         let layout = workspace_ui::Layout::for_width(f32::from(window.viewport_size().width));
+        let now = cx.background_executor().now();
+        let immediate_layout =
+            !self.layout_initialized || self.reduce_motion || self.appearance_editor.is_some();
+        self.layout_initialized = true;
+        self.docked_themes.retarget(
+            f32::from(layout.theme_docked()),
+            now,
+            motion::MODE_DURATION,
+            immediate_layout,
+        );
+        self.docked_modules.retarget(
+            f32::from(layout.modules_docked() || self.appearance_editor.is_some()),
+            now,
+            motion::MODE_DURATION,
+            immediate_layout,
+        );
+        let (themes, themes_done) = self.docked_themes.sample(now);
+        let (modules, modules_done) = self.docked_modules.sample(now);
+        if !themes_done || !modules_done {
+            cx.on_next_frame(window, |_, _, cx| cx.notify());
+            window.request_animation_frame();
+        }
         if self.layout != layout {
             self.layout = layout;
             self.drawer = None;
@@ -1183,7 +1269,6 @@ impl Render for ResumeOne {
             self.sidebar_progress = if self.source_mode { 1. } else { 0. };
             self.view_blend = self.sidebar_progress;
         }
-        self.reduce_motion = motion::system_reduces_motion();
         if self.reduce_motion {
             self.mode_transition = None;
             self.sidebar_progress = if self.source_mode { 1. } else { 0. };
@@ -1204,16 +1289,19 @@ impl Render for ResumeOne {
         }
         // A screen transform only: PDF geometry and line breaks stay unchanged.
         // Use the preview rails' resting widths, so mode animation never resizes glyphs.
+        let before_scale = self.preview_scale;
         self.preview_scale = ((f32::from(window.viewport_size().width)
-            - self.layout.reserved_width()
-            - if self.appearance_editor.is_some() && !self.layout.modules_docked() {
-                chrome::MODULE_WIDTH
-            } else {
-                0.
-            }
+            - themes * chrome::THEME_WIDTH
+            - modules * chrome::MODULE_WIDTH
             - 44.)
             / (self.active_style().page.width_mm * 3.))
             .clamp(0.4, 1.2);
+        if before_scale != self.preview_scale
+            && !self.source_mode
+            && self.display_theme().original.is_none()
+        {
+            self.rescale_preview_scroll(before_scale);
+        }
         let spotlight_target = if self.insertion_active() { 1.0 } else { 0.0 };
         if self.reduce_motion {
             self.spotlight_progress = spotlight_target;
@@ -1263,7 +1351,12 @@ impl Render for ResumeOne {
         }
         let dialogs = gpui_component::Root::render_dialog_layer(window, cx);
         let show_original = self.original_surface_visible(dialogs.is_some());
-        if !show_original {
+        let preview_covered = self.view_blend < 0.5
+            && !show_original
+            && self.model.preview_ready
+            && self.display_theme().original.is_some();
+        self.update_original_cover(preview_covered, window, cx);
+        if !show_original && !preview_covered {
             self.original_preview.hide();
         }
         let progress = self.sidebar_progress;
@@ -1329,10 +1422,13 @@ impl Render for ResumeOne {
                     .flex_1()
                     .min_h_0()
                     .when(
-                        self.layout.theme_docked() && (progress < 1.0 || !self.source_mode),
+                        themes > 0.0 && (progress < 1.0 || !self.source_mode),
                         |view| {
                             view.child(
-                                self.theme_sidebar(motion::THEME_WIDTH * (1.0 - progress), cx),
+                                self.theme_sidebar(
+                                    motion::THEME_WIDTH * themes * (1.0 - progress),
+                                    cx,
+                                ),
                             )
                         },
                     )
@@ -1401,10 +1497,21 @@ impl Render for ResumeOne {
                                     ),
                             ),
                     )
-                    .when(
-                        self.layout.modules_docked() || self.appearance_editor.is_some(),
-                        |view| view.child(self.module_sidebar(cx)),
-                    ),
+                    .when(modules > 0.0, |view| {
+                        view.child(
+                            div()
+                                .w(px(chrome::MODULE_WIDTH * modules))
+                                .h_full()
+                                .flex_none()
+                                .overflow_hidden()
+                                .children(
+                                    (self.layout.modules_docked()
+                                        || self.appearance_editor.is_some()
+                                        || !modules_done)
+                                        .then(|| self.module_sidebar(cx)),
+                                ),
+                        )
+                    }),
             )
             .when(self.drawer.is_some(), |view| {
                 view.child(self.drawer_overlay(cx))
@@ -1715,6 +1822,9 @@ mod tests {
         cx.simulate_click(volunteer.center(), Modifiers::none());
         cx.update(|_, cx| assert!(!view.read(cx).insertion_active()));
         cx.simulate_click(work.center(), Modifiers::none());
+        cx.update(|_, cx| assert!(!view.read(cx).insertion_active()));
+        let expand = cx.debug_bounds("expand-module-work").unwrap();
+        cx.simulate_click(expand.center(), Modifiers::none());
         cx.update(|window, _| window.refresh());
         assert!(cx.debug_bounds("add-item-work-0").is_some());
         cx.simulate_click(add_education_item.center(), Modifiers::none());
@@ -1871,14 +1981,8 @@ mod tests {
         });
         assert_eq!(sidebar, cx.debug_bounds("module-panel").unwrap());
         cx.update(|window, _| window.refresh());
-        let skill = cx.debug_bounds("module-skills").unwrap();
-        cx.simulate_click(
-            point(
-                skill.origin.x + skill.size.width / 2.0,
-                skill.origin.y + skill.size.height / 2.0,
-            ),
-            Modifiers::none(),
-        );
+        let expand = cx.debug_bounds("expand-module-skills").unwrap();
+        cx.simulate_click(expand.center(), Modifiers::none());
         cx.update(|window, _| window.refresh());
         let target = cx.debug_bounds("add-item-skills-0").unwrap();
         cx.simulate_click(
@@ -1967,6 +2071,10 @@ mod tests {
             ),
             Modifiers::none(),
         );
+        cx.update(|window, _| window.refresh());
+        assert!(cx.debug_bounds("source-remove-item-work-0").is_none());
+        let expand = cx.debug_bounds("expand-module-work").unwrap();
+        cx.simulate_click(expand.center(), Modifiers::none());
         cx.update(|window, _| window.refresh());
         let remove = cx.debug_bounds("source-remove-item-work-0").unwrap();
         cx.simulate_click(
@@ -2133,6 +2241,7 @@ mod tests {
 
     #[gpui::test]
     fn preview_window_renders_all_three_panes(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
         let model = AppModel::load(None).unwrap();
         let original_sections = model.content.sections.len();
         let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
@@ -2206,6 +2315,7 @@ mod tests {
         }
         for width in [800.0, 1120.0, 1440.0] {
             cx.simulate_resize(size(px(width), px(600.0)));
+            cx.executor().advance_clock(motion::MODE_DURATION);
             cx.update(|window, _| window.refresh());
             let preview = cx.debug_bounds("resume-preview").unwrap();
             let paper = cx.debug_bounds("resume-paper").unwrap();

@@ -99,8 +99,26 @@ impl ThemeCache {
     }
 
     pub fn catalog(&self, source: &GithubSource) -> Result<Option<Catalog>, ThemeError> {
-        let Some(bytes) = Self::read(&self.path("catalogs", &source.key())?, SNAPSHOT_LIMIT)?
-        else {
+        self.read_catalog(source, &source.key())
+    }
+
+    pub(crate) fn pinned_catalog(
+        &self,
+        source: &GithubSource,
+        commit: &str,
+    ) -> Result<Option<Catalog>, ThemeError> {
+        let key = crate::sha256(format!("{}\n{commit}", source.key()).as_bytes());
+        Ok(self
+            .read_catalog(source, &key)?
+            .filter(|catalog| catalog.commit == commit))
+    }
+
+    fn read_catalog(
+        &self,
+        source: &GithubSource,
+        key: &str,
+    ) -> Result<Option<Catalog>, ThemeError> {
+        let Some(bytes) = Self::read(&self.path("catalogs", key)?, SNAPSHOT_LIMIT)? else {
             return Ok(None);
         };
         let value: Value = serde_json::from_slice(&bytes)
@@ -152,9 +170,22 @@ impl ThemeCache {
     }
 
     pub(crate) fn store_catalog(&self, catalog: &Catalog) -> Result<(), ThemeError> {
-        let bytes = serde_json::to_vec(&json!({"source":catalog.source.location_json(),"commit":catalog.commit,
-            "index":std::str::from_utf8(&catalog.bytes).expect("validated UTF-8"),"etag":catalog.etag})).expect("JSON value");
-        self.store(&self.path("catalogs", &catalog.source.key())?, &bytes)
+        self.write_catalog(catalog, &catalog.source.key())
+    }
+
+    pub(crate) fn store_pinned_catalog(&self, catalog: &Catalog) -> Result<(), ThemeError> {
+        let key = crate::sha256(format!("{}\n{}", catalog.source.key(), catalog.commit).as_bytes());
+        self.write_catalog(catalog, &key)
+    }
+
+    fn write_catalog(&self, catalog: &Catalog, key: &str) -> Result<(), ThemeError> {
+        let bytes = serde_json::to_vec(&json!({
+            "source": catalog.source.location_json(), "commit": catalog.commit,
+            "index": std::str::from_utf8(&catalog.bytes).expect("validated UTF-8"),
+            "etag": catalog.etag,
+        }))
+        .expect("JSON value");
+        self.store(&self.path("catalogs", key)?, &bytes)
     }
 
     pub(crate) fn store_theme(

@@ -228,7 +228,7 @@ impl ResumeOne {
                         this.editor_warning(tr("无法下载主题"), &error, window, cx);
                     }
                     if let Some(theme) = effects.apply {
-                        this.apply_online_theme(theme);
+                        this.apply_online_theme(theme, cx);
                     }
                     if let Some((source, theme)) = effects.download {
                         this.install_online_theme(source, theme, window, cx);
@@ -242,8 +242,100 @@ impl ResumeOne {
         }
     }
 
-    fn apply_online_theme(&mut self, theme: BuiltinTheme) {
+    fn apply_online_theme(&mut self, theme: BuiltinTheme, cx: &Context<Self>) {
+        if let (Some(provider), Some(catalog)) =
+            (self.online.provider.clone(), self.online.catalog.clone())
+        {
+            // A bounded pinned catalog allows an offline reopen after the branch advances.
+            cx.background_executor()
+                .spawn(async move {
+                    provider.remember_catalog(&catalog);
+                })
+                .detach();
+        }
         self.apply_theme_selection(theme);
+    }
+
+    pub(super) fn remember_applied_theme(&mut self) {
+        let (Some(path), Some(store)) = (&self.model.document_path, &mut self.theme_store) else {
+            return;
+        };
+        let theme = self.model.applied_theme();
+        let mut value = serde_json::json!({"identity": theme.identity});
+        if let Some(source) = &theme.source {
+            value["source"] = source.as_json();
+        }
+        if let Err(error) = store.remember_document_theme(path, value) {
+            store.warnings.push(error);
+        }
+    }
+
+    pub(super) fn restore_document_theme(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.theme_restore_epoch = self.theme_restore_epoch.wrapping_add(1);
+        let Some(saved) = self
+            .model
+            .document_path
+            .as_deref()
+            .and_then(|path| self.theme_store.as_ref()?.document_theme(path))
+        else {
+            return;
+        };
+        let Some(identity) = saved["identity"].as_str() else {
+            return;
+        };
+        if let Some(index) = self
+            .model
+            .themes
+            .iter()
+            .position(|theme| theme.identity == identity)
+        {
+            self.model.select_theme(index);
+            return;
+        }
+        self.model.select_theme(0);
+        let Ok(source) = GithubSource::from_json(&saved["source"]) else {
+            self.online
+                .diagnostic(tr("无法恢复此简历的本地主题").to_owned());
+            return;
+        };
+        let prefix = format!("online:{}:", source.key());
+        let Some((commit, id)) = identity
+            .strip_prefix(&prefix)
+            .and_then(|value| value.split_once(':'))
+        else {
+            return;
+        };
+        let Some(cache) = dirs::cache_dir() else {
+            return;
+        };
+        let (identity, commit, id) = (identity.to_owned(), commit.to_owned(), id.to_owned());
+        let epoch = self.theme_restore_epoch;
+        let task = cx.background_executor().spawn(async move {
+            let cache = ThemeCache::new(&cache.join("Resume One").join("theme-cache")).ok()?;
+            let verified = GithubClient::new(cache)
+                .pinned_theme(&source, &commit, &id)
+                .ok()?;
+            let mut theme = BuiltinTheme::from_verified(&verified, identity)?;
+            theme.source = Some(source);
+            Some(theme)
+        });
+        cx.spawn_in(window, async move |this, cx| {
+            let result = task.await;
+            this.update_in(cx, |this, _, cx| {
+                if this.theme_restore_epoch != epoch {
+                    return;
+                }
+                if let Some(theme) = result {
+                    this.restore_theme_selection(&theme);
+                } else {
+                    this.online
+                        .diagnostic(tr("无法恢复此简历的在线主题").to_owned());
+                }
+                cx.notify();
+            })
+            .ok();
+        })
+        .detach();
     }
 
     fn install_online_theme(
@@ -541,16 +633,27 @@ impl ResumeOne {
                                         |theme| theme.manifest.localized_name(&locale).to_owned(),
                                     )),
                             )
-                            .when(!description.is_empty(), |label| {
+                            .when_some(self.online.apply_status(&id), |label, status| {
                                 label.child(
                                     div()
                                         .text_size(px(12.))
-                                        .line_height(px(17.))
-                                        .line_clamp(2)
-                                        .text_color(color(p.muted))
-                                        .child(description),
+                                        .text_color(color(p.accent))
+                                        .child(status),
                                 )
-                            }),
+                            })
+                            .when(
+                                self.online.apply_status(&id).is_none() && !description.is_empty(),
+                                |label| {
+                                    label.child(
+                                        div()
+                                            .text_size(px(12.))
+                                            .line_height(px(17.))
+                                            .line_clamp(2)
+                                            .text_color(color(p.muted))
+                                            .child(description),
+                                    )
+                                },
+                            ),
                     )
                     .on_hover(cx.listener(move |this, entering: &bool, window, cx| {
                         let identity = this.online.identity(&id);
@@ -595,7 +698,7 @@ impl ResumeOne {
                             }
                             if let Some(theme) = this.online.apply(&click_id) {
                                 this.drawer = None;
-                                this.apply_online_theme(theme);
+                                this.apply_online_theme(theme, cx);
                             }
                             this.pump_online(window, cx);
                             window.focus(&this.focus);

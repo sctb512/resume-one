@@ -55,6 +55,12 @@ pub(super) struct OriginalPreviewState {
     sequence: u64,
     canvas: Option<resume_one_core::theme_style::Rgb>,
     last_declarative: Option<BuiltinTheme>,
+    snapshot: Option<(Key, Arc<gpui::RenderImage>)>,
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    capture_sequence: u64,
+    capture_pending: bool,
+    overlay_open: bool,
+    cover_key: Option<Key>,
     error: Option<String>,
     thumbnails: VecDeque<(Key, Option<Arc<gpui::Image>>)>,
     thumbnail_pending: bool,
@@ -62,6 +68,85 @@ pub(super) struct OriginalPreviewState {
 }
 
 impl ResumeOne {
+    pub(super) fn update_original_cover(
+        &mut self,
+        covered: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let newly_covered = covered && !self.original_preview.overlay_open;
+        self.original_preview.overlay_open = covered;
+        if newly_covered {
+            self.original_preview.cover_key = self.original_preview.painted.clone();
+        }
+        if !covered {
+            self.original_preview.cover_key = None;
+        }
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        if newly_covered {
+            self.capture_original_preview(window, cx);
+        }
+        #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+        let _ = (newly_covered, window, cx);
+    }
+
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
+    fn capture_original_preview(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let state = &mut self.original_preview;
+        let (Some(desktop), Some(key)) = (state.desktop.as_ref(), state.painted.clone()) else {
+            return;
+        };
+        if !desktop.is_visible() || state.capture_pending {
+            return;
+        }
+        state.capture_sequence = state.capture_sequence.wrapping_add(1);
+        let sequence = state.capture_sequence;
+        state.capture_pending = true;
+        let receive = desktop.snapshot();
+        let task = cx
+            .background_executor()
+            .timer(std::time::Duration::from_millis(150));
+        cx.spawn_in(window, async move |this, cx| {
+            task.await;
+            this.update_in(cx, |this, _, cx| {
+                let state = &mut this.original_preview;
+                if state.capture_sequence == sequence && state.capture_pending {
+                    state.capture_pending = false;
+                    state.capture_sequence = state.capture_sequence.wrapping_add(1);
+                    cx.notify();
+                }
+            })
+            .ok();
+        })
+        .detach();
+        let renderer = cx.svg_renderer();
+        let executor = cx.background_executor().clone();
+        cx.spawn_in(window, async move |this, cx| {
+            let snapshot = if let Ok(image) = receive.await {
+                executor
+                    .spawn(async move { image.to_image_data(renderer).ok() })
+                    .await
+            } else {
+                None
+            };
+            this.update_in(cx, |this, _, cx| {
+                let state = &mut this.original_preview;
+                if state.capture_sequence != sequence {
+                    return;
+                }
+                state.capture_pending = false;
+                if let Some(snapshot) = snapshot
+                    && state.painted.as_ref() == Some(&key)
+                {
+                    state.snapshot = Some((key, snapshot));
+                }
+                cx.notify();
+            })
+            .ok();
+        })
+        .detach();
+    }
+
     pub(super) fn original_thumbnail(&self, theme: &BuiltinTheme) -> Option<Arc<gpui::Image>> {
         let key = Key::new(self, theme)?;
         self.original_preview
@@ -326,7 +411,7 @@ impl ResumeOne {
             })
         });
         #[cfg(any(target_os = "macos", target_os = "windows"))]
-        if visible
+        if (visible || state.overlay_open && state.capture_pending)
             && error.is_none()
             && state.painted.is_some()
             && let Some(desktop) = &state.desktop
@@ -340,8 +425,15 @@ impl ResumeOne {
         }
         let _ = visible;
         state.hide();
-        if visible
-            && error.is_none()
+        if let Some((cached, image)) = &state.snapshot
+            && (cached == &key || state.cover_key.as_ref() == Some(cached))
+        {
+            return gpui::img(image.clone())
+                .size_full()
+                .object_fit(gpui::ObjectFit::Fill)
+                .into_any_element();
+        }
+        if error.is_none()
             && let Some(previous) = &state.last_declarative
         {
             return div()
@@ -396,10 +488,14 @@ impl OriginalPreviewState {
         self.hide();
         self.painted = None;
         self.sent = None;
+        self.snapshot = None;
+        self.cover_key = None;
+        self.capture_pending = false;
         self.thumbnail_epoch = self.thumbnail_epoch.wrapping_add(1);
         self.thumbnails.clear();
         #[cfg(any(target_os = "macos", target_os = "windows"))]
         {
+            self.capture_sequence = self.capture_sequence.wrapping_add(1);
             self.painted_token = None;
             self.edit_revision = None;
             self.edit_session = None;

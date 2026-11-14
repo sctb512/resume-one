@@ -334,6 +334,51 @@ impl<T: Transport> GithubClient<T> {
     ) -> Result<Option<VerifiedTheme>, ThemeError> {
         self.cache.theme(catalog, entry)
     }
+
+    pub fn remember_catalog(&self, catalog: &Catalog) -> Result<(), ThemeError> {
+        self.cache.store_pinned_catalog(catalog)
+    }
+
+    pub fn pinned_theme(
+        &self,
+        source: &GithubSource,
+        commit: &str,
+        id: &str,
+    ) -> Result<VerifiedTheme, ThemeError> {
+        if !GithubSource::valid_commit(commit) {
+            return Err(ThemeError::new(
+                "SOURCE_COMMIT",
+                "主题版本不是有效的提交标识",
+            ));
+        }
+        let catalog = self
+            .cache
+            .pinned_catalog(source, commit)
+            .ok()
+            .flatten()
+            .or_else(|| {
+                self.cache
+                    .catalog(source)
+                    .ok()
+                    .flatten()
+                    .filter(|catalog| catalog.commit == commit)
+            });
+        let catalog = match catalog {
+            Some(catalog) => catalog,
+            None => {
+                let response = self.transport.get(
+                    &source.raw_url(commit, source.index_path()),
+                    None,
+                    MAX_FILE_BYTES,
+                )?;
+                status(response.status)?;
+                let catalog = Catalog::parse(source.clone(), commit, &response.bytes)?;
+                self.remember_catalog(&catalog)?;
+                catalog
+            }
+        };
+        self.theme(&catalog, id, false)
+    }
 }
 
 fn status(status: u16) -> Result<(), ThemeError> {
@@ -490,6 +535,37 @@ mod tests {
             )
         );
         assert_eq!(calls[4].1.as_deref(), Some("\"test\""));
+    }
+
+    #[test]
+    fn reopens_the_selected_theme_offline_after_its_branch_moves() {
+        let root = tempfile::tempdir().unwrap();
+        let mock = Mock::default();
+        let source = source("main");
+        let client =
+            GithubClient::with_transport(ThemeCache::new(root.path()).unwrap(), mock.clone());
+        let bytes = include_bytes!("../../../assets/themes/zhibai.theme.json");
+        mock.respond(200, COMMIT.as_bytes().into());
+        mock.respond(200, index());
+        mock.respond(200, bytes.into());
+        let selected = client.catalog(&source, false).unwrap().catalog;
+        client.theme(&selected, "zhibai", false).unwrap();
+        client.remember_catalog(&selected).unwrap();
+        let newer_commit = "a".repeat(40);
+        mock.respond(200, newer_commit.as_bytes().into());
+        mock.respond(200, index());
+        assert_eq!(
+            client.catalog(&source, false).unwrap().catalog.commit(),
+            newer_commit
+        );
+        assert_eq!(
+            client
+                .pinned_theme(&source, COMMIT, "zhibai")
+                .unwrap()
+                .bytes(),
+            bytes
+        );
+        assert_eq!(mock.calls.lock().unwrap().len(), 5);
     }
 
     #[test]

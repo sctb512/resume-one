@@ -375,7 +375,7 @@ fn basics_blocks(content: &ResumeContent, style: &ThemeStyle, region: &str) -> V
         if split_header {
             let total = twips((page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM)
                 as usize;
-            let left_width = (total as f32 * 0.58).round() as usize;
+            let left_width = (total as f32 * style.header_identity_fraction).round() as usize;
             let right_width = total - left_width;
             let mut left = TableCell::new().width(left_width, WidthType::Dxa);
             if !content.name.is_empty() {

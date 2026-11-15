@@ -151,3 +151,146 @@ fn one_page_fit_compacts_a_borderline_resume_and_keeps_long_content() {
     );
     assert!(ThemeStyle::from_manifest(&fit_theme).page.fit_to_one_page);
 }
+
+#[test]
+fn one_page_uses_shared_date_rows_before_tightening_type_or_margins() {
+    use resume_one_core::{layout::measured_theme_layout, theme_style::DatePlacement};
+
+    let mut theme = theme_value();
+    theme["sections"]["work"]["date"] = json!("inline");
+    theme["page"]["marginsMm"] = json!({"top":19,"right":17,"bottom":15,"left":21});
+    let default = manifest(&theme);
+    let authored = ThemeStyle::from_manifest(&default);
+    theme["page"]["fitToOnePage"] = json!(true);
+    let opted_in = manifest(&theme);
+    let content_for = |count| {
+        let work = (0..count)
+            .map(|index| {
+                json!({
+                    "position":format!("Designer {index:02}"), "name":"Studio",
+                    "startDate":"2021-06", "endDate":"2024-10",
+                    "summary":"Worked with teams across research, product and engineering.",
+                })
+            })
+            .collect::<Vec<_>>();
+        project(
+            &parse_resume(
+                &serde_json::to_vec(&json!({"basics":{"name":"Ada Lin"},"work":work})).unwrap(),
+            )
+            .unwrap(),
+        )
+    };
+    let short = content_for(2);
+    assert_eq!(
+        layout_with_theme(&short, Language::En, &default).unwrap(),
+        layout_with_theme(&short, Language::En, &opted_in).unwrap()
+    );
+
+    let (style, result) = (11..=19)
+        .find_map(|count| {
+            let content = content_for(count);
+            let base = layout_with_theme(&content, Language::En, &default).unwrap();
+            if base.pages.len() == 1 {
+                return None;
+            }
+            let (style, layout) = measured_theme_layout(&content, Language::En, &opted_in).unwrap();
+            (layout.pages.len() == 1).then_some((style, layout))
+        })
+        .expect("aligning dates with titles should recover a full page");
+    assert_eq!(style.section("work").date, DatePlacement::Right);
+    assert_eq!(style.page.section_gap_mm, authored.page.section_gap_mm);
+    assert_eq!(
+        style.typography.body.size_pt,
+        authored.typography.body.size_pt
+    );
+    assert_eq!(
+        style.typography.body.line_height,
+        authored.typography.body.line_height
+    );
+    assert_eq!(style.page.margins.left, 21.0);
+    assert_eq!(style.page.margins.right, 17.0);
+    assert_eq!(style.page.margins.top, 19.0);
+    assert_eq!(style.page.margins.bottom, 15.0);
+    let entry = LayoutTarget {
+        section: "work",
+        index: Some(0),
+    };
+    let runs: Vec<_> = result.pages[0]
+        .iter()
+        .filter_map(|node| match node {
+            LayoutElement::Text(text) if text.target == Some(entry) => Some(text),
+            _ => None,
+        })
+        .collect();
+    let title = runs
+        .iter()
+        .find(|text| text.text.contains("Designer 00"))
+        .unwrap();
+    let dates = runs
+        .iter()
+        .find(|text| text.text.contains("2021-06") && text.text.contains("2024-10"))
+        .unwrap();
+    assert_eq!(title.baseline_y_pt, dates.baseline_y_pt);
+    assert!(title.x_pt + title.width_pt() < dates.x_pt);
+}
+
+#[test]
+fn a_crowded_sidebar_gets_width_before_type_is_reduced() {
+    use resume_one_core::layout::measured_theme_layout;
+
+    let mut theme = theme_value();
+    theme["composition"] = json!({
+        "preset":"sidebar-left", "sidebarWidthPct":25,
+        "placements":{"work":"sidebar"},
+    });
+    let default = manifest(&theme);
+    let authored = ThemeStyle::from_manifest(&default);
+    theme["page"]["fitToOnePage"] = json!(true);
+    let opted_in = manifest(&theme);
+    let (style, layout) = (7..=14)
+        .find_map(|count| {
+            let work = (0..count)
+                .map(|index| {
+                    json!({
+                        "position":format!("設計師 {index:02}"),
+                        "summary":"與產品及工程團隊合作完成研究、設計、交付及後續驗證。",
+                    })
+                })
+                .collect::<Vec<_>>();
+            let content = project(
+                &parse_resume(
+                    &serde_json::to_vec(&json!({
+                        "basics":{"name":"林嘉禾"},
+                        "work":work, "education":[{"institution":"研究學院","area":"服務設計"}],
+                    }))
+                    .unwrap(),
+                )
+                .unwrap(),
+            );
+            if layout_with_theme(&content, Language::Zh, &default)
+                .unwrap()
+                .pages
+                .len()
+                == 1
+            {
+                return None;
+            }
+            let (style, layout) = measured_theme_layout(&content, Language::Zh, &opted_in).unwrap();
+            (layout.pages.len() == 1).then_some((style, layout))
+        })
+        .expect("giving wrapping text more room should fit");
+    assert!(style.sidebar_width_pct > authored.sidebar_width_pct);
+    assert!(style.in_sidebar("work"));
+    assert!(!style.in_sidebar("education"));
+    assert_eq!(
+        style.typography.body.size_pt,
+        authored.typography.body.size_pt
+    );
+    assert_eq!(style.page.section_gap_mm, authored.page.section_gap_mm);
+    assert_eq!(style.page.margins.left, authored.page.margins.left);
+    assert!(
+        printed(&layout)
+            .iter()
+            .any(|line| line.contains("後續驗證"))
+    );
+}

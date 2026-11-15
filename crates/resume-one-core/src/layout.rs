@@ -10,7 +10,9 @@ use crate::theme_style::{
 };
 use ttf_parser::Face;
 use unicode_segmentation::UnicodeSegmentation;
+mod one_page;
 mod sections;
+pub(crate) use one_page::fit_layout;
 
 pub const PT_PER_MM: f32 = 72.0 / 25.4;
 
@@ -375,7 +377,7 @@ impl<'a> PageWriter<'a> {
     fn split_header(&mut self, content: &ResumeContent, style: &ThemeStyle) {
         // Fixed two-column header: the body remains full width. The right cell
         // has an inner gutter, matching the editable DOCX table.
-        let split = self.content_width() * 0.58;
+        let split = self.content_width() * style.header_identity_fraction;
         let gutter = 14.0;
         let right_width = self.content_width() - split - gutter;
         let mut left_lines = Vec::new();
@@ -1406,39 +1408,6 @@ pub fn measured_theme_layout(
     validate_theme(theme, &style)?;
     let content = style.visible_content(content);
     fit_layout(&content, language, style)
-}
-
-/// Resolve the same spacing and font sizes for preview, PDF and editable DOCX.
-/// Limit the search so editing large files stays responsive. If even the
-/// compact layout overflows, preserve the original layout and all its pages.
-pub(crate) fn fit_layout(
-    content: &ResumeContent,
-    language: Language,
-    style: ThemeStyle,
-) -> Result<(ThemeStyle, ResumeLayout), String> {
-    let natural = layout_with_style(content, language, &style)?;
-    if !style.page.fit_to_one_page || natural.pages.len() == 1 {
-        return Ok((style, natural));
-    }
-    let compact = style.compressed(1.0);
-    let fitted = layout_with_style(content, language, &compact)?;
-    if fitted.pages.len() != 1 {
-        return Ok((style, natural));
-    }
-    let mut best = (compact, fitted);
-    let (mut lower, mut upper) = (0.0, 1.0);
-    for _ in 0..5 {
-        let amount = (lower + upper) / 2.0;
-        let candidate = style.compressed(amount);
-        let layout = layout_with_style(content, language, &candidate)?;
-        if layout.pages.len() == 1 {
-            best = (candidate, layout);
-            upper = amount;
-        } else {
-            lower = amount;
-        }
-    }
-    Ok(best)
 }
 
 /// Check renderer capability without loading any resume content.

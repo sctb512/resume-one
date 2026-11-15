@@ -262,6 +262,7 @@ pub struct ThemeStyle {
     spacing_scale: f32,
     pub centered_header: bool,
     pub split_header: bool,
+    pub(crate) header_identity_fraction: f32,
     pub stacked_contacts: bool,
     pub header_region: String,
     pub summary_region: String,
@@ -444,41 +445,35 @@ impl ThemeStyle {
         self.section(id).paragraph_gap_pt() * self.spacing_scale
     }
 
-    pub(crate) fn compressed(&self, amount: f32) -> Self {
-        let mut result = self.clone();
-        result.page.first_line_position = FirstLinePosition::LineBox;
-        result.spacing_scale = 1.0 - 0.65 * amount;
-        result.page.section_gap_mm *= result.spacing_scale;
-        for (margin, floor) in [
-            (&mut result.page.margins.top, 9.0),
-            (&mut result.page.margins.bottom, 8.0),
-            (&mut result.page.margins.left, 9.0),
-            (&mut result.page.margins.right, 9.0),
-        ] {
-            *margin -= (*margin - floor).max(0.0) * amount;
-        }
-        let scale_typography = |style: &mut TextStyle, floor: f32| {
-            let factor = 1.0 - 0.22 * ((amount - 0.45).max(0.0) / 0.55);
-            style.size_pt = (style.size_pt * factor).max(style.size_pt.min(floor));
-            style.line_height -= (style.line_height - 1.15).max(0.0) * amount * 0.7;
+    pub(crate) fn adjust_page_density(&mut self, gaps: f32, leading: f32, type_scale: f32) {
+        self.spacing_scale *= gaps;
+        let section_gap = self.page.section_gap_mm;
+        self.page.section_gap_mm = (section_gap * gaps).max(section_gap.min(3.2));
+        let sidebar_scale = if self.has_sidebar() {
+            self.sidebar_typography_scale.min(1.0)
+        } else {
+            1.0
+        };
+        let adjust_role = |style: &mut TextStyle, floor: f32| {
+            let size = style.size_pt;
+            // Respect the size floor after the theme's sidebar scale is applied.
+            style.size_pt = (size * type_scale).max(size.min(floor / sidebar_scale));
+            style.line_height -= (style.line_height - 1.20).max(0.0) * leading;
         };
         for (style, floor) in [
-            (&mut result.typography.body, 8.5),
-            (&mut result.typography.item_title, 8.5),
-            (&mut result.typography.name, 14.0),
-            (&mut result.typography.section_title, 10.0),
-            (&mut result.typography.meta, 8.0),
-            (&mut result.typography.label, 8.5),
-            (&mut result.typography.summary, 8.5),
-            (&mut result.typography.side_date, 8.0),
+            (&mut self.typography.body, 9.0),
+            (&mut self.typography.item_title, 9.0),
+            (&mut self.typography.meta, 8.5),
+            (&mut self.typography.label, 9.0),
+            (&mut self.typography.summary, 9.0),
+            (&mut self.typography.side_date, 8.5),
         ] {
-            scale_typography(style, floor);
+            adjust_role(style, floor);
         }
-        for line in result.entry_headers.values_mut().flatten() {
-            scale_typography(&mut line.style, 8.0);
-            line.scale_spacing(result.spacing_scale);
+        for line in self.entry_headers.values_mut().flatten() {
+            adjust_role(&mut line.style, 9.0);
+            line.scale_spacing(gaps);
         }
-        result
     }
 
     /// Apply the visibility rules to print data while preserving item indexes.
@@ -755,6 +750,7 @@ impl ThemeStyle {
             centered_header: manifest["composition"]["header"] == "centered",
             split_header: manifest["composition"]["header"] == "split"
                 || manifest["composition"]["preset"] == "split-header",
+            header_identity_fraction: 0.58,
             stacked_contacts: manifest["composition"]["contact"] == "stacked",
             header_region: manifest["composition"]["headerRegion"]
                 .as_str()

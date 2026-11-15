@@ -406,14 +406,15 @@ impl ThemeEditor {
                     .on_click(cx.listener(|this, _, _, cx| { this.apply_margins(cx); }))))
             .child(div().mt_3().pt_3().border_t_1().border_color(color(palette.line)).flex().flex_col().gap_2()
                 .child(Button::new("theme-fit").small().outline()
-                    .label(if fit { tr("✓ 已开启单页适配") } else { tr("自动适配一页") })
+                    .label(if fit { tr("✓ 适配一页") } else { tr("适配一页") })
                     .on_click(cx.listener(move |this, _, _, cx| {
                         if this.apply_margins(cx) {
                             this.edit(|v| v["page"]["fitToOnePage"] = json!(!fit), cx);
                         }
                     })))
                 .when_some(pages, |view, count| view.child(div().text_xs().text_color(color(palette.muted)).child(
-                    if fit && count > 1 { tr("为保持可读性，已保留分页").into() }
+                    if fit && count > 1 { tr("内容较多，已保留主题分页").into() }
+                    else if fit && count == 1 { tr("已排成一页").into() }
                     else if crate::i18n::is_english() { format!("{count} {}", if count == 1 {"page"} else {"pages"}) }
                     else { format!("共 {count} 页") }
                 ))))

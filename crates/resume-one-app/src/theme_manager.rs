@@ -660,6 +660,8 @@ mod tests {
         cx.update(|window, _| window.refresh());
         let themes = cx.debug_bounds("show-themes").unwrap();
         cx.simulate_click(themes.center(), gpui::Modifiers::none());
+        cx.update(|window, _| window.refresh());
+        cx.run_until_parked();
         cx.executor().advance_clock(crate::motion::MODE_DURATION);
         cx.update(|window, _| window.refresh());
         let right = cx.debug_bounds("show-modules").unwrap();

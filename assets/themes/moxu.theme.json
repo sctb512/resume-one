@@ -3,7 +3,7 @@
   "id": "moxu",
   "name": "墨序",
   "description": "紧凑单栏 · 工程履历",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": {
@@ -31,10 +31,10 @@
     "firstLinePosition": "line-box",
     "sectionGapMm": 4.6,
     "marginsMm": {
-      "top": 13,
-      "right": 17,
-      "bottom": 14,
-      "left": 17
+      "top": 11,
+      "right": 13,
+      "bottom": 11,
+      "left": 13
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true

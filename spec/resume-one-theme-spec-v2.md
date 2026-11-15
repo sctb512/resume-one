@@ -184,6 +184,34 @@ Within a region, render identity, independent contact, summary, then modules. Fu
 
 `contact: inline` joins semantic contacts with a middle dot and wraps groups in a narrow split column without a leading separator. `stacked` gives each contact its own wrapping line. Reject `icons` explicitly. Preserve field order, with no placeholders or generated icons.
 
+### Personal layout controls
+
+`page.marginsMm` sets four independent margins from 3 to 35 millimetres. With `page.fitToOnePage: true`, the renderer measures a bounded reduction in margins, section and paragraph spacing, leading, and font size at the authored paper size. If the compact candidate still overflows, the ordinary multipage layout is retained. Preview and PDF use identical page geometry. Editable DOCX uses the resolved margins and typography and lets the document reader paginate.
+
+`composition.hiddenModules` omits selected standard body modules from themed rendering. `composition.hiddenBasics` can omit any of `name`, `label`, `contacts`, and `summary` from the header. `sections.<id>.hiddenElements` accepts `heading`, `entryHeader`, `description`, `highlights`, and `link`. Optional `sections.<id>.elements` adds up to eight ordered plain-text elements or dividers between the heading and entries. Text follows the section-title constraints. Text and Markdown export retain the source content and order. For custom entry rows, `entryHeaderMode: "append"` preserves the standard heading and inserts the rows after its information lines, before the description. Omission or `"replace"` uses the existing replacement behavior.
+
+```json
+{
+  "page": {
+    "marginsMm": {"top": 12, "right": 14, "bottom": 11, "left": 14},
+    "fitToOnePage": true
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": ["work", "education", "skills"],
+    "hiddenModules": ["references"]
+  },
+  "sections": {
+    "work": {
+      "hiddenElements": ["link"],
+      "elements": [{"kind": "text", "text": "Selected experience"}, {"kind": "divider"}],
+      "entryHeaderMode": "append",
+      "entryHeader": [{"role": "meta", "parts": [{"field": "location"}]}]
+    }
+  }
+}
+```
+
 ## 4. Fixed Rendering Semantics
 
 The core owns schema parsing, safe text and URLs, built-in labels, field mapping, dates, and missing values. Layout uses selected primitives and data. `basics` provides identity and contacts. Keep unknown JSON extension fields intact even when unsupported visually. `modules` only controls insertion candidates. Theme changes cannot remove or reorder document data. A shared document and manifest produce interactive preview and control-free print layout. The app retains control over interaction and accessibility.

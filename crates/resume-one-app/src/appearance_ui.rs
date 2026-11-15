@@ -1035,7 +1035,10 @@ impl Render for AppearanceEditor {
 
 impl ResumeOne {
     pub(super) fn show_appearance(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.appearance_editor.is_some() || self.theme_manager_open {
+        if self.appearance_editor.is_some()
+            || self.theme_manager_open
+            || self.theme_editor.is_some()
+        {
             return;
         }
         self.inline_window_left(window, cx);

@@ -20,6 +20,7 @@ mod theme_info;
 mod theme_local;
 mod theme_manager;
 mod theme_online;
+mod theme_studio;
 mod update_ui;
 mod workspace;
 mod workspace_ui;
@@ -62,6 +63,10 @@ fn label(id: &str) -> &str {
 
 struct ResumeOne {
     appearance_editor: Option<gpui::Entity<appearance_ui::AppearanceEditor>>,
+    theme_editor: Option<gpui::Entity<theme_studio::ThemeEditor>>,
+    theme_draft: Option<model::BuiltinTheme>,
+    theme_editor_generation: u64,
+    theme_editor_loading: bool,
     model: AppModel,
     shell: chrome::Shell,
     window_drag_pending: bool,
@@ -126,6 +131,10 @@ impl ResumeOne {
         let export_language = model.presentation_language;
         Self {
             appearance_editor: None,
+            theme_editor: None,
+            theme_draft: None,
+            theme_editor_generation: 0,
+            theme_editor_loading: false,
             shell: chrome::Shell::new(&model.selected_style()),
             window_drag_pending: false,
             model,
@@ -190,6 +199,11 @@ impl ResumeOne {
     }
 
     fn display_theme(&self) -> &model::BuiltinTheme {
+        if !self.source_mode
+            && let Some(theme) = &self.theme_draft
+        {
+            return theme;
+        }
         if self.online.online
             && !self.source_mode
             && !self.theme_manager_open
@@ -352,7 +366,7 @@ impl ResumeOne {
                 }))
                 .on_click(
                     cx.listener(move |this, event: &gpui::ClickEvent, window, cx| {
-                        if !event.standard_click() {
+                        if !event.standard_click() || this.theme_editor.is_some() {
                             return;
                         }
                         this.apply_theme_selection(this.model.themes[index].clone());
@@ -770,7 +784,7 @@ impl ResumeOne {
                     .flex()
                     .justify_center()
                     .when(self.model.preview_ready, |view| {
-                        view.child(self.resume_pages(theme, true, cx))
+                        view.child(self.resume_pages(theme, self.theme_editor.is_none(), cx))
                     })
                     .when(!self.model.preview_ready, |view| {
                         view.child(
@@ -792,7 +806,17 @@ impl ResumeOne {
 
     fn module_sidebar(&self, cx: &mut Context<Self>) -> gpui::AnyElement {
         let palette = chrome::Palette::new(self.shell_style());
-        if let Some(editor) = &self.appearance_editor {
+        let inspector = self
+            .theme_editor
+            .as_ref()
+            .filter(|_| !self.source_mode)
+            .map(|editor| editor.clone().into_any_element())
+            .or_else(|| {
+                self.appearance_editor
+                    .as_ref()
+                    .map(|editor| editor.clone().into_any_element())
+            });
+        if let Some(editor) = inspector {
             return div()
                 .id("module-panel")
                 .debug_selector(|| "module-panel".into())
@@ -804,7 +828,7 @@ impl ResumeOne {
                 .border_l_1()
                 .border_color(color(palette.line))
                 .bg(color(palette.panel))
-                .child(editor.clone())
+                .child(editor)
                 .into_any_element();
         }
         let accent = color(palette.accent);
@@ -1078,33 +1102,42 @@ impl ResumeOne {
                     )
                     .child(
                         div()
-                            .min_w_0()
-                            .truncate()
-                            .text_size(px(12.))
-                            .text_color(color(palette.muted))
-                            .id("show-appearance")
-                            .debug_selector(|| "show-appearance".into())
-                            .tab_index(0)
-                            .tab_stop(true)
-                            .cursor_pointer()
-                            .min_w(px(40.))
-                            .h(px(30.))
                             .flex()
+                            .gap_1()
                             .items_center()
-                            .justify_center()
-                            .rounded(px(5.))
-                            .hover(|view| view.bg(color(palette.soft)))
-                            .focus(|view| view.bg(color(palette.soft)))
-                            .child(tr("外观"))
-                            .on_click(
-                                cx.listener(|this, _, window, cx| this.show_appearance(window, cx)),
-                            )
-                            .on_key_down(cx.listener(|this, event, window, cx| {
-                                if chrome::activation_key(event) {
-                                    cx.stop_propagation();
-                                    this.show_appearance(window, cx);
-                                }
-                            })),
+                            .when(!self.source_mode, |row| {
+                                row.child(self.theme_edit_button(cx))
+                            })
+                            .child(
+                                div()
+                                    .min_w_0()
+                                    .truncate()
+                                    .text_size(px(12.))
+                                    .text_color(color(palette.muted))
+                                    .id("show-appearance")
+                                    .debug_selector(|| "show-appearance".into())
+                                    .tab_index(0)
+                                    .tab_stop(true)
+                                    .cursor_pointer()
+                                    .min_w(px(40.))
+                                    .h(px(30.))
+                                    .flex()
+                                    .items_center()
+                                    .justify_center()
+                                    .rounded(px(5.))
+                                    .hover(|view| view.bg(color(palette.soft)))
+                                    .focus(|view| view.bg(color(palette.soft)))
+                                    .child(tr("外观"))
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.show_appearance(window, cx)
+                                    }))
+                                    .on_key_down(cx.listener(|this, event, window, cx| {
+                                        if chrome::activation_key(event) {
+                                            cx.stop_propagation();
+                                            this.show_appearance(window, cx);
+                                        }
+                                    })),
+                            ),
                     ),
             )
             .child(list)
@@ -1237,6 +1270,8 @@ impl Render for ResumeOne {
         self.reduce_motion = motion::system_reduces_motion();
         let layout = workspace_ui::Layout::for_width(f32::from(window.viewport_size().width));
         let now = cx.background_executor().now();
+        let inspector_open =
+            self.appearance_editor.is_some() || (!self.source_mode && self.theme_editor.is_some());
         let immediate_layout =
             !self.layout_initialized || self.reduce_motion || self.appearance_editor.is_some();
         self.layout_initialized = true;
@@ -1247,7 +1282,7 @@ impl Render for ResumeOne {
             immediate_layout,
         );
         self.docked_modules.retarget(
-            f32::from(layout.modules_docked() || self.appearance_editor.is_some()),
+            f32::from(layout.modules_docked() || inspector_open),
             now,
             motion::MODE_DURATION,
             immediate_layout,
@@ -1506,7 +1541,7 @@ impl Render for ResumeOne {
                                 .overflow_hidden()
                                 .children(
                                     (self.layout.modules_docked()
-                                        || self.appearance_editor.is_some()
+                                        || inspector_open
                                         || !modules_done)
                                         .then(|| self.module_sidebar(cx)),
                                 ),

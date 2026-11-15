@@ -138,6 +138,9 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if self.theme_editor.is_some() || self.theme_editor_loading {
+            return;
+        }
         let identity = self.model.themes[index].identity.clone();
         if !entering {
             if self.theme_hover_candidate.as_ref() == Some(&identity) {
@@ -162,6 +165,7 @@ impl ResumeOne {
                 if this.theme_hover_generation == generation
                     && !this.source_mode
                     && !this.theme_manager_open
+                    && this.theme_editor.is_none()
                     && !this.online.online
                     && this
                         .model
@@ -243,6 +247,9 @@ impl ResumeOne {
     }
 
     fn apply_online_theme(&mut self, theme: BuiltinTheme, cx: &Context<Self>) {
+        if self.theme_editor.is_some() {
+            return;
+        }
         if let (Some(provider), Some(catalog)) =
             (self.online.provider.clone(), self.online.catalog.clone())
         {

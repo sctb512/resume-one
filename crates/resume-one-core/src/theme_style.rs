@@ -114,6 +114,7 @@ pub struct PageStyle {
     pub height_mm: f32,
     pub margins: MarginsMm,
     pub section_gap_mm: f32,
+    pub fit_to_one_page: bool,
     pub avoid_split_items: bool,
     pub keep_heading_with_first_item: bool,
     pub first_line_position: FirstLinePosition,
@@ -254,6 +255,11 @@ pub struct ThemeStyle {
     pub composition_preset: String,
     /// Optional presentation order. Unlisted sections retain their input order.
     pub module_order: Vec<String>,
+    hidden_modules: Vec<String>,
+    hidden_basics: Vec<String>,
+    hidden_elements: BTreeMap<String, Vec<String>>,
+    pub(crate) section_elements: BTreeMap<String, Vec<SectionElement>>,
+    spacing_scale: f32,
     pub centered_header: bool,
     pub split_header: bool,
     pub stacked_contacts: bool,
@@ -267,7 +273,24 @@ pub struct ThemeStyle {
     pub section_titles: BTreeMap<String, String>,
     localized_section_titles: [BTreeMap<String, String>; 2],
     pub(crate) entry_headers: BTreeMap<String, Vec<crate::entry_header::HeaderLine>>,
+    appended_entry_headers: Vec<String>,
     pub sections: BTreeMap<String, SectionStyle>,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) enum SectionElement {
+    Text(String),
+    Divider,
+}
+
+fn strings(value: &Value) -> Vec<String> {
+    value
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .map(str::to_owned)
+        .collect()
 }
 
 fn optional_color(value: &Value, key: &str) -> Option<Rgb> {
@@ -382,7 +405,10 @@ impl ThemeStyle {
 
     /// Shared by preview/PDF and editable Word output; never mutates source content.
     pub(crate) fn ordered_sections<'a>(&self, sections: &'a [Section]) -> Vec<&'a Section> {
-        let mut ordered: Vec<_> = sections.iter().collect();
+        let mut ordered: Vec<_> = sections
+            .iter()
+            .filter(|section| !self.hidden_modules.iter().any(|id| id == section.id))
+            .collect();
         if !self.module_order.is_empty() {
             // Stable sorting appends every unlisted section in its original order.
             ordered.sort_by_key(|section| {
@@ -393,6 +419,107 @@ impl ThemeStyle {
             });
         }
         ordered
+    }
+
+    pub fn section_element_visible(&self, module: &str, element: &str) -> bool {
+        self.hidden_elements
+            .get(module)
+            .is_none_or(|elements| !elements.iter().any(|id| id == element))
+    }
+
+    pub(crate) fn basics_element_visible(&self, element: &str) -> bool {
+        !self.hidden_basics.iter().any(|id| id == element)
+    }
+
+    pub(crate) fn replaces_entry_header(&self, module: &str) -> bool {
+        self.entry_headers.contains_key(module)
+            && !self.appended_entry_headers.iter().any(|id| id == module)
+    }
+
+    pub(crate) fn item_gap(&self, id: &str) -> f32 {
+        self.section(id).item_gap_pt() * self.spacing_scale
+    }
+
+    pub(crate) fn paragraph_gap(&self, id: &str) -> f32 {
+        self.section(id).paragraph_gap_pt() * self.spacing_scale
+    }
+
+    pub(crate) fn compressed(&self, amount: f32) -> Self {
+        let mut result = self.clone();
+        result.page.first_line_position = FirstLinePosition::LineBox;
+        result.spacing_scale = 1.0 - 0.65 * amount;
+        result.page.section_gap_mm *= result.spacing_scale;
+        for (margin, floor) in [
+            (&mut result.page.margins.top, 9.0),
+            (&mut result.page.margins.bottom, 8.0),
+            (&mut result.page.margins.left, 9.0),
+            (&mut result.page.margins.right, 9.0),
+        ] {
+            *margin -= (*margin - floor).max(0.0) * amount;
+        }
+        let scale_typography = |style: &mut TextStyle, floor: f32| {
+            let factor = 1.0 - 0.22 * ((amount - 0.45).max(0.0) / 0.55);
+            style.size_pt = (style.size_pt * factor).max(style.size_pt.min(floor));
+            style.line_height -= (style.line_height - 1.15).max(0.0) * amount * 0.7;
+        };
+        for (style, floor) in [
+            (&mut result.typography.body, 8.5),
+            (&mut result.typography.item_title, 8.5),
+            (&mut result.typography.name, 14.0),
+            (&mut result.typography.section_title, 10.0),
+            (&mut result.typography.meta, 8.0),
+            (&mut result.typography.label, 8.5),
+            (&mut result.typography.summary, 8.5),
+            (&mut result.typography.side_date, 8.0),
+        ] {
+            scale_typography(style, floor);
+        }
+        for line in result.entry_headers.values_mut().flatten() {
+            scale_typography(&mut line.style, 8.0);
+            line.scale_spacing(result.spacing_scale);
+        }
+        result
+    }
+
+    /// Apply the visibility rules to print data while preserving item indexes.
+    pub(crate) fn visible_content<'a>(
+        &self,
+        content: &'a crate::semantic::ResumeContent,
+    ) -> std::borrow::Cow<'a, crate::semantic::ResumeContent> {
+        if self.hidden_elements.is_empty() && self.hidden_basics.is_empty() {
+            return std::borrow::Cow::Borrowed(content);
+        }
+        let mut content = content.clone();
+        for element in &self.hidden_basics {
+            match element.as_str() {
+                "name" => content.name.clear(),
+                "label" => content.label.clear(),
+                "contacts" => content.contacts.clear(),
+                "summary" => content.summary.clear(),
+                _ => {}
+            }
+        }
+        for section in &mut content.sections {
+            for item in &mut section.items {
+                if !self.section_element_visible(section.id, "entryHeader") {
+                    item.header_fields.clear();
+                    item.heading.clear();
+                    item.details.clear();
+                    item.short_en_date_range.clear();
+                    item.date_detail_index = None;
+                }
+                if !self.section_element_visible(section.id, "description") {
+                    item.paragraphs.clear();
+                }
+                if !self.section_element_visible(section.id, "highlights") {
+                    item.bullets.clear();
+                }
+                if !self.section_element_visible(section.id, "link") {
+                    item.url = None;
+                }
+            }
+        }
+        std::borrow::Cow::Owned(content)
     }
 
     /// Author-supplied plain display text never changes a section's identity.
@@ -552,6 +679,7 @@ impl ThemeStyle {
                     left: number(margins, "left", 16.0),
                 },
                 section_gap_mm: number(page, "sectionGapMm", 6.0),
+                fit_to_one_page: page["fitToOnePage"] == true,
                 avoid_split_items: page
                     .get("avoidSplitItems")
                     .and_then(Value::as_bool)
@@ -587,11 +715,42 @@ impl ThemeStyle {
                 .and_then(Value::as_str)
                 .unwrap_or("single-column")
                 .to_owned(),
-            module_order: manifest["composition"]["moduleOrder"]
-                .as_array()
+            module_order: strings(&manifest["composition"]["moduleOrder"]),
+            hidden_modules: strings(&manifest["composition"]["hiddenModules"]),
+            hidden_basics: strings(&manifest["composition"]["hiddenBasics"]),
+            hidden_elements: manifest["sections"]
+                .as_object()
                 .into_iter()
                 .flatten()
-                .map(|id| id.as_str().expect("schema checked module order").to_owned())
+                .filter_map(|(id, section)| {
+                    section
+                        .get("hiddenElements")
+                        .map(|value| (id.clone(), strings(value)))
+                })
+                .collect(),
+            section_elements: manifest["sections"]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .filter_map(|(id, section)| {
+                    let elements = section["elements"]
+                        .as_array()?
+                        .iter()
+                        .map(|element| match element["text"].as_str() {
+                            Some(text) => SectionElement::Text(text.into()),
+                            None => SectionElement::Divider,
+                        })
+                        .collect();
+                    Some((id.clone(), elements))
+                })
+                .collect(),
+            spacing_scale: 1.0,
+            appended_entry_headers: manifest["sections"]
+                .as_object()
+                .into_iter()
+                .flatten()
+                .filter(|(_, section)| section["entryHeaderMode"] == "append")
+                .map(|(id, _)| id.clone())
                 .collect(),
             centered_header: manifest["composition"]["header"] == "centered",
             split_header: manifest["composition"]["header"] == "split"

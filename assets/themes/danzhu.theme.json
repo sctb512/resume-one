@@ -3,7 +3,7 @@
   "id": "danzhu",
   "name": "丹朱",
   "description": "朱砂细线 · 分栏页眉",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "layout": "rules",
   "colors": {
@@ -31,10 +31,10 @@
     "firstLinePosition": "line-box",
     "sectionGapMm": 6.1,
     "marginsMm": {
-      "top": 19,
-      "right": 19,
-      "bottom": 17,
-      "left": 19
+      "top": 13,
+      "right": 15,
+      "bottom": 13,
+      "left": 15
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true

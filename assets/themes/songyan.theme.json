@@ -3,7 +3,7 @@
   "id": "songyan",
   "name": "松烟",
   "description": "经典衬线 · 教育优先",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": {
@@ -31,10 +31,10 @@
     "firstLinePosition": "line-box",
     "sectionGapMm": 4.6,
     "marginsMm": {
-      "top": 17,
-      "right": 18,
-      "bottom": 15,
-      "left": 18
+      "top": 13,
+      "right": 14,
+      "bottom": 12,
+      "left": 14
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true

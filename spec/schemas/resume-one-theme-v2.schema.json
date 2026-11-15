@@ -75,6 +75,7 @@
           }
         },
         "sectionGapMm": { "type": "number", "minimum": 0, "maximum": 20 },
+        "fitToOnePage": { "type": "boolean" },
         "avoidSplitItems": { "type": "boolean" },
         "keepHeadingWithFirstItem": { "type": "boolean" }
       }
@@ -107,6 +108,18 @@
           "items": {
             "enum": ["work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"]
           }
+        },
+        "hiddenModules": {
+          "type": "array",
+          "maxItems": 11,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["work", "volunteer", "education", "awards", "certificates", "publications", "skills", "languages", "interests", "references", "projects"]
+          }
+        },
+        "hiddenBasics": {
+          "type": "array", "maxItems": 4, "uniqueItems": true,
+          "items": { "enum": ["name", "label", "contacts", "summary"] }
         },
         "sidebarWidthPct": { "type": "number", "minimum": 20, "maximum": 40 },
         "gapMm": { "type": "number", "minimum": 0, "maximum": 15 },
@@ -242,7 +255,30 @@
       "additionalProperties": false,
       "properties": {
         "title": { "$ref": "#/definitions/sectionTitle" },
+        "hiddenElements": {
+          "type": "array", "maxItems": 5, "uniqueItems": true,
+          "items": { "enum": ["heading", "entryHeader", "description", "highlights", "link"] }
+        },
+        "elements": {
+          "type": "array", "maxItems": 8,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object", "additionalProperties": false, "required": ["kind", "text"],
+                "properties": {
+                  "kind": { "const": "text" },
+                  "text": { "$ref": "#/definitions/sectionTitle" }
+                }
+              },
+              {
+                "type": "object", "additionalProperties": false, "required": ["kind"],
+                "properties": { "kind": { "const": "divider" } }
+              }
+            ]
+          }
+        },
         "entryHeader": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/definitions/headerLine" } },
+        "entryHeaderMode": { "enum": ["replace", "append"] },
         "heading": { "enum": ["plain", "line", "accent-line", "filled"] },
         "headingAlign": { "enum": ["left", "center", "right"] },
         "items": { "enum": ["stack", "compact", "timeline", "cards", "chips"] },

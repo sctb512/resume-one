@@ -285,6 +285,15 @@ impl ResumeOne {
         if self.source_mode {
             return;
         }
+        if let Some(editor) = self.theme_editor.clone() {
+            let editor = editor.downgrade();
+            window.defer(cx, move |window, cx| {
+                if let Some(editor) = editor.upgrade() {
+                    editor.update(cx, |editor, cx| editor.restore(true, window, cx));
+                }
+            });
+            return;
+        }
         self.cancel_insertion();
         self.close_drawer();
         self.clear_inline();
@@ -308,6 +317,15 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.source_mode {
+            return;
+        }
+        if let Some(editor) = self.theme_editor.clone() {
+            let editor = editor.downgrade();
+            window.defer(cx, move |window, cx| {
+                if let Some(editor) = editor.upgrade() {
+                    editor.update(cx, |editor, cx| editor.restore(false, window, cx));
+                }
+            });
             return;
         }
         self.cancel_insertion();

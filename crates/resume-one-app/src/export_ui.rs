@@ -347,20 +347,19 @@ impl ResumeOne {
             );
             return;
         }
+        let theme = self
+            .theme_draft
+            .as_ref()
+            .unwrap_or_else(|| self.model.applied_theme());
         let snapshot = ExportSnapshot {
             kind,
-            original: self
-                .model
-                .applied_theme()
+            original: theme
                 .original
                 .as_ref()
                 .map(|theme| (theme.clone(), self.model.document.value.clone())),
             language: self.export_language,
             content: self.model.content.clone(),
-            theme: self
-                .model
-                .appearance
-                .apply(&self.model.applied_theme().manifest),
+            theme: self.model.appearance.apply(&theme.manifest),
             source_path: self.model.document_path.clone(),
         };
         let directory = self

@@ -83,7 +83,7 @@ impl ItemFrame {
                 if style.page.avoid_split_items && measured.full <= capacity {
                     measured.full
                 } else {
-                    measured.start.unwrap_or(style.section(id).item_gap_pt())
+                    measured.start.unwrap_or(style.item_gap(id))
                 },
             );
         }
@@ -97,7 +97,7 @@ impl ItemFrame {
             index: Some(index),
         });
         (page.left, page.right) = inner;
-        page.gap(style.section(id).item_gap_pt());
+        page.gap(style.item_gap(id));
         Self {
             kind,
             left,

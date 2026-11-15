@@ -3,7 +3,7 @@
   "id": "qinghe",
   "name": "青禾",
   "description": "浅禾绿右栏 · 衬线姓名",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "layout": "classic",
   "colors": {
@@ -32,10 +32,10 @@
     "firstLinePosition": "line-box",
     "sectionGapMm": 6.1,
     "marginsMm": {
-      "top": 17,
-      "right": 17,
-      "bottom": 17,
-      "left": 17
+      "top": 13,
+      "right": 13,
+      "bottom": 12,
+      "left": 13
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true

@@ -230,6 +230,9 @@ impl ResumeOne {
     }
 
     fn apply_new_document(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_editor.is_some() || self.theme_editor_loading {
+            self.close_theme_editor(window, cx);
+        }
         if !self.discard_current_draft(window, cx) {
             return;
         }
@@ -545,6 +548,9 @@ impl ResumeOne {
             && !self.discard_current_draft(window, cx)
         {
             return;
+        }
+        if self.theme_editor.is_some() || self.theme_editor_loading {
+            self.close_theme_editor(window, cx);
         }
         self.preview_scroll
             .set_offset(gpui::point(px(0.0), px(0.0)));

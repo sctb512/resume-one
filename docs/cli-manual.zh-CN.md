@@ -49,6 +49,8 @@ resume-one export --file /absolute/resume.json --format docx --out /absolute/res
 
 Agent 修改文件的流程为：先用 `inspect --file ... --json` 获取 revision，必要时用 `read --pointer ...` 读取字段；标准模块和条目增删优先用 `structure --if-match REV --dry-run --json` 预检，普通文本字段优先用 `set-field --if-match REV --dry-run --json`，其他具体字段用 `patch --if-match REV --dry-run --json`。预检后在 revision 不变时提交。数组按位置寻址时，建议在补丁中先加 `test` 操作确认条目身份；冲突后应重新读取，不可盲目重放旧操作。
 
+桌面应用保存的自定义主题可用于 `--theme`。PDF 和 DOCX 读取主题的模块顺序、显示设置、四边页边距和 `page.fitToOnePage`。TXT 和 Markdown 保留简历原始数据和顺序。
+
 ## 在线主题命令
 
 ### 独立外观文件

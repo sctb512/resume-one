@@ -20,7 +20,7 @@ fn pdf_color(color: Rgb) -> Color {
 }
 
 pub fn render(content: &ResumeContent, language: Language) -> Result<Vec<u8>, String> {
-    encode(content, &layout::layout(content, language)?)
+    encode(&content.name, &layout::layout(content, language)?)
 }
 
 pub fn render_with_theme(
@@ -28,23 +28,22 @@ pub fn render_with_theme(
     language: Language,
     theme: &ThemeManifest,
 ) -> Result<Vec<u8>, String> {
-    encode(
-        content,
-        &layout::layout_with_theme(content, language, theme)?,
-    )
+    let (style, layout) = layout::measured_theme_layout(content, language, theme)?;
+    let name = if style.basics_element_visible("name") {
+        content.name.as_str()
+    } else {
+        ""
+    };
+    encode(name, &layout)
 }
 
-fn encode(content: &ResumeContent, layout: &ResumeLayout) -> Result<Vec<u8>, String> {
+fn encode(name: &str, layout: &ResumeLayout) -> Result<Vec<u8>, String> {
     let mut font_warnings = Vec::new();
     let sans = ParsedFont::from_bytes(sans_font_bytes(), 0, &mut font_warnings)
         .ok_or_else(|| "内置无衬线字体无法解析".to_owned())?;
     let serif = ParsedFont::from_bytes(serif_font_bytes(), 0, &mut font_warnings)
         .ok_or_else(|| "内置衬线字体无法解析".to_owned())?;
-    let mut document = PdfDocument::new(if content.name.is_empty() {
-        "Resume One"
-    } else {
-        &content.name
-    });
+    let mut document = PdfDocument::new(if name.is_empty() { "Resume One" } else { name });
     let sans_id = document.add_font(&sans);
     let serif_id = document.add_font(&serif);
     let mut local_ids = std::collections::BTreeMap::new();

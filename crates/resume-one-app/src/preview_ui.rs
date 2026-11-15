@@ -964,6 +964,7 @@ struct Cache {
 }
 
 struct PreviewData {
+    style: resume_one_core::theme_style::ThemeStyle,
     layout: ResumeLayout,
     regions: Vec<Region>,
 }
@@ -1021,8 +1022,8 @@ impl PreviewState {
         }
         let effective = model.display_appearance().apply(&theme.manifest);
         let result =
-            layout::layout_with_theme(&model.content, model.presentation_language, &effective)
-                .and_then(|layout| {
+            layout::measured_theme_layout(&model.content, model.presentation_language, &effective)
+                .and_then(|(style, layout)| {
                     let mut pending: std::collections::BTreeSet<_> =
                         effective.font_asset_ids().collect();
                     for element in layout.pages.iter().flatten() {
@@ -1046,7 +1047,11 @@ impl PreviewState {
                         self.registered_fonts.borrow_mut().extend(pending);
                     }
                     let regions = regions(&layout);
-                    Ok(Arc::new(PreviewData { layout, regions }))
+                    Ok(Arc::new(PreviewData {
+                        style,
+                        layout,
+                        regions,
+                    }))
                 });
         // Up to 32 online manifests plus the applied/hovered theme must fit
         // together; otherwise the sidebar and main page evict each other every frame.
@@ -1251,6 +1256,14 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
 }
 
 impl ResumeOne {
+    pub(super) fn theme_draft_page_count(&self) -> Option<usize> {
+        self.model.preview_ready.then_some(())?;
+        let theme = self.theme_draft.as_ref()?;
+        self.preview
+            .resolve(&self.model, theme)
+            .ok()
+            .map(|data| data.layout.pages.len())
+    }
     pub(super) fn rescale_preview_scroll(&mut self, previous_scale: f32) {
         let offset = self.preview_scroll.offset();
         let top = -f32::from(offset.y);
@@ -1370,7 +1383,7 @@ impl ResumeOne {
                     .into_any_element();
             }
         };
-        let style = self.model.effective_style(theme);
+        let style = &data.style;
         let spotlight = self.insertion_active();
         let px_per_mm = PX_PER_MM * self.preview_scale;
         let px_per_pt = PX_PER_PT * self.preview_scale;
@@ -1517,7 +1530,7 @@ impl ResumeOne {
                             .left(px(left))
                             .top(px(position))
                             .w(px(content_width))
-                            .child(self.module_insert_control(None, &style, cx)),
+                            .child(self.module_insert_control(None, style, cx)),
                     );
                 }
             }
@@ -1748,7 +1761,7 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) -> gpui::Stateful<gpui::Div> {
         let summaries = self.model.document.sections();
-        let style = self.active_style();
+        let style = &data.style;
         let px_per_mm = PX_PER_MM * self.preview_scale;
         let px_per_pt = PX_PER_PT * self.preview_scale;
         for (index, summary) in summaries.iter().enumerate() {
@@ -1801,7 +1814,7 @@ impl ResumeOne {
                             - column.page.margins.left
                             - column.page.margins.right)
                             * px_per_mm))
-                        .child(self.item_insert_control(id, 0, &style, cx)),
+                        .child(self.item_insert_control(id, 0, style, cx)),
                 );
             }
         }

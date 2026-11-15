@@ -23,6 +23,13 @@ pub(crate) struct HeaderLine {
     after: f32,
 }
 
+impl HeaderLine {
+    pub(crate) fn scale_spacing(&mut self, factor: f32) {
+        self.before *= factor;
+        self.after *= factor;
+    }
+}
+
 pub(crate) struct HeaderRow<'a> {
     pub text: String,
     pub style: &'a TextStyle,

@@ -47,6 +47,8 @@ Use `--format pdf|docx|md|txt`, `--out`, and optional `--lang zh|en`. The defaul
 
 PDF and DOCX accept an absolute declarative v1/v2 theme path with `--theme`, including a standalone `*.theme.json` or the `theme.json` in a theme folder. The theme may specify A4 or Letter, margins, spacing, font roles, section styling, and supported header or sidebar arrangements. Unsupported constructs fail rather than silently falling back. Long content wraps, and an oversize split header can reflow across the page. DOCX preserves editable paragraphs and uses tables for supported split and sidebar layouts. Pagination can vary across readers. See the [declarative theme specification](../spec/resume-one-theme-spec-v2.md).
 
+A personal theme saved by the desktop app can be passed to `--theme`. Its module order, visibility, page margins, and `page.fitToOnePage` apply to PDF and DOCX. TXT and Markdown retain the résumé data and order.
+
 A theme can include up to four static TTF/OTF fonts of at most 8 MiB each. Reference them as `asset:<id>`. The loader verifies relative paths, hashes, file formats, and actual weights. Keep the complete package together. A verified catalog can carry its font and license files. Missing assets, variable fonts, WOFF/WOFF2, collections, and inconsistent face metadata fail. Two distinct font files with the same family and weight cannot be used interchangeably in a process.
 
 ```sh

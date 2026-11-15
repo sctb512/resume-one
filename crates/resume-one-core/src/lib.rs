@@ -119,6 +119,38 @@ impl ThemeManifest {
     pub fn font_asset_ids(&self) -> impl Iterator<Item = u16> + '_ {
         self.asset_fonts.values().copied()
     }
+
+    /// The exact verified bytes used to render each declared theme font.
+    pub fn font_assets(&self) -> impl Iterator<Item = (&str, std::sync::Arc<Vec<u8>>)> {
+        self.normalized["assets"]["fonts"]
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|font| {
+                let path = font["path"].as_str()?;
+                let id = self.asset_fonts.get(font["id"].as_str()?)?;
+                Some((path, fonts::get(*id).bytes))
+            })
+    }
+
+    /// Revalidate an edited copy while retaining the exact verified font resources.
+    pub fn edited_copy(&self, value: &Value) -> Result<Self, String> {
+        let mut next = parse_theme(&serde_json::to_vec(value).map_err(|error| error.to_string())?)
+            .map_err(|issues| {
+                issues
+                    .into_iter()
+                    .take(3)
+                    .map(|issue| format!("{} {}", issue.path, issue.message))
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })?;
+        if next.normalized["assets"] != self.normalized["assets"] {
+            return Err("主题编辑不能改变已经验证的字体资源".into());
+        }
+        next.asset_fonts.clone_from(&self.asset_fonts);
+        layout::check_theme(&next)?;
+        Ok(next)
+    }
 }
 
 fn validator(version: u64) -> &'static Validator {
@@ -509,7 +541,9 @@ fn semantic_issues(theme: &Value) -> Vec<Diagnostic> {
                         "此模块的标签/网格需要独立的模板能力，当前不支持 entryHeader",
                     ));
                 }
-                if style["date"].as_str().is_some_and(|date| date != "inline") {
+                if style["entryHeaderMode"] != "append"
+                    && style["date"].as_str().is_some_and(|date| date != "inline")
+                {
                     issues.push(diagnostic(
                         "ENTRY_HEADER_DATE_CONFLICT",
                         format!("/sections/{module}/date"),

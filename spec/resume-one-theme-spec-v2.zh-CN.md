@@ -242,6 +242,34 @@ DOCX 使用原生可编辑段落和行框，保留声明的物理上边距，不
 
 预览与 PDF 共用测量后的坐标；DOCX 的居中页眉使用可编辑段落，分栏页眉使用无边框定宽双单元格表格，均由阅读器负责重排。基础信息继续共用文档宽度内的编辑表单，不随姓名字数收窄。`contact: icons` 目前明确拒绝，不能静默按其他版式渲染。省略 `composition` 或显式声明默认值保持原有布局；正文侧栏规则见上节。
 
+### 自定义纸面
+
+`page.marginsMm` 指定四个独立页边距，范围为 3–35 毫米。开启 `page.fitToOnePage: true` 后，共享排版器会在固定纸张尺寸下尝试有限度地缩减页边距、模块与段落空白、行距及字号。最紧凑版式仍放不下时，沿用原有分页。预览和 PDF 使用相同的排版结果。可编辑 DOCX 使用适配后的边距和字号，最终分页由阅读器决定。
+
+`composition.hiddenModules` 在主题输出中隐藏指定的标准正文模块。`composition.hiddenBasics` 可以隐藏 `name`、`label`、`contacts` 或 `summary`。`sections.<id>.hiddenElements` 接受 `heading`、`entryHeader`、`description`、`highlights` 和 `link`。`sections.<id>.elements` 可在模块标题和条目之间按顺序插入最多八个纯文本或分隔线。纯文本遵循模块标题约束。TXT 和 Markdown 保留原始内容和顺序。`entryHeaderMode: "append"` 保留标准条目标题与信息行，在描述之前追加自定义字段行。省略或设为 `"replace"` 时使用原来的替换规则。
+
+```json
+{
+  "page": {
+    "marginsMm": {"top": 12, "right": 14, "bottom": 11, "left": 14},
+    "fitToOnePage": true
+  },
+  "composition": {
+    "preset": "single-column",
+    "moduleOrder": ["work", "education", "skills"],
+    "hiddenModules": ["references"]
+  },
+  "sections": {
+    "work": {
+      "hiddenElements": ["link"],
+      "elements": [{"kind": "text", "text": "Selected experience"}, {"kind": "divider"}],
+      "entryHeaderMode": "append",
+      "entryHeader": [{"role": "meta", "parts": [{"field": "location"}]}]
+    }
+  }
+}
+```
+
 ## 4. 渲染器的固定语义
 
 1. 布局器负责解析 JSON Resume、字段安全转义、本地化模块标题、日期格式、URL 安全校验和缺失字段处理。主题只能选择预置排版构件及参数，不能提供模板语言、表达式、回调或脚本。

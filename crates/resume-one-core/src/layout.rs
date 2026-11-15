@@ -6,7 +6,7 @@ use crate::fonts::{check_bundled_fonts, sans_font_bytes, serif_font_bytes};
 use crate::render::Language;
 use crate::semantic::{Item, ResumeContent};
 use crate::theme_style::{
-    DatePlacement, FirstLinePosition, Rgb, SectionHeading, TextStyle, ThemeStyle,
+    DatePlacement, FirstLinePosition, Rgb, SectionElement, SectionHeading, TextStyle, ThemeStyle,
 };
 use ttf_parser::Face;
 use unicode_segmentation::UnicodeSegmentation;
@@ -1183,7 +1183,7 @@ pub(crate) fn entry_tail_gap(item: &Item, id: &str, style: &ThemeStyle) -> f32 {
     let base = if item.paragraphs.is_empty() {
         0.0
     } else {
-        style.section(id).paragraph_gap_pt()
+        style.paragraph_gap(id)
     };
     let next = if !item.paragraphs.is_empty() || !item.bullets.is_empty() {
         &style.typography.body
@@ -1216,18 +1216,21 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
     let heading = &style.typography.item_title;
     let meta = &style.typography.meta;
     let section = style.section(section_id);
-    let mut height = section.item_gap_pt();
+    let mut height = style.item_gap(section_id);
     height += entry_tail_gap(item, section_id, style)
         - if item.paragraphs.is_empty() {
             0.0
         } else {
-            section.paragraph_gap_pt()
+            style.paragraph_gap(section_id)
         };
     if let Some(rows) = crate::entry_header::rows(item, section_id, style) {
         for row in rows {
             height += row.before + wrapped_height(page, &row.text, row.style, 0.0) + row.after;
         }
-    } else if section.date != DatePlacement::Inline
+    }
+    let replaces = style.replaces_entry_header(section_id);
+    if !replaces
+        && section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
         let date_style = &style.typography.side_date;
@@ -1241,10 +1244,10 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
         } else {
             lines.heading.len() as f32 * heading_leading + lines.date.len() as f32 * date_leading
         };
-    } else if !item.heading.is_empty() {
+    } else if !replaces && !item.heading.is_empty() {
         height += wrapped_height(page, &item.heading, heading, 0.0);
     }
-    let details = if style.entry_headers.contains_key(section_id) {
+    let details = if replaces {
         String::new()
     } else if section.date != DatePlacement::Inline && item.date().is_some() {
         item.other_details().join("   ·   ")
@@ -1255,7 +1258,7 @@ fn item_height(page: &PageWriter<'_>, item: &Item, section_id: &str, style: &The
         height += wrapped_height(page, &details, meta, 0.0);
     }
     for paragraph in &item.paragraphs {
-        height += section.paragraph_gap_pt() + wrapped_height(page, paragraph, body, 0.0);
+        height += style.paragraph_gap(section_id) + wrapped_height(page, paragraph, body, 0.0);
     }
     if (section_id == "skills" || section_id == "interests") && !item.bullets.is_empty() {
         height += wrapped_height(page, &item.bullets.join("   ·   "), meta, 0.0);
@@ -1285,9 +1288,8 @@ fn item_start_height(
     let leading = |s: &TextStyle| s.size_pt * s.line_height;
     let visible = |s: &str| !s.trim().is_empty();
     let custom = crate::entry_header::rows(item, id, style);
-    let first = if let Some(row) = custom.as_ref().and_then(|rows| rows.first()) {
-        row.before + leading(row.style)
-    } else if custom.is_none()
+    let replaces = style.replaces_entry_header(id);
+    let first = if !replaces
         && section.date != DatePlacement::Inline
         && let Some(date) = item.date()
     {
@@ -1301,16 +1303,18 @@ fn item_start_height(
         } else {
             leading(date_style)
         }
-    } else if custom.is_none() && visible(&item.heading) {
+    } else if !replaces && visible(&item.heading) {
         if section.items == crate::theme_style::ItemLayout::Chips && id == "languages" {
             leading(meta) + 10.0
         } else {
             leading(heading)
         }
-    } else if custom.is_none() && item.details.iter().any(|s| visible(s)) {
+    } else if !replaces && item.details.iter().any(|s| visible(s)) {
         leading(meta)
+    } else if let Some(row) = custom.as_ref().and_then(|rows| rows.first()) {
+        row.before + leading(row.style)
     } else if item.paragraphs.iter().any(|s| visible(s)) {
-        section.paragraph_gap_pt() + leading(body)
+        style.paragraph_gap(id) + leading(body)
     } else if item.bullets.iter().any(|s| visible(s)) {
         if matches!(id, "skills" | "interests") {
             leading(meta)
@@ -1327,7 +1331,7 @@ fn item_start_height(
     } else {
         return None;
     };
-    Some(section.item_gap_pt() + first)
+    Some(style.item_gap(id) + first)
 }
 
 /// Legacy chips use a baseline cursor directly. The opt-in line-box flow has
@@ -1389,9 +1393,52 @@ pub fn layout_with_theme(
     language: Language,
     theme: &ThemeManifest,
 ) -> Result<ResumeLayout, String> {
+    measured_theme_layout(content, language, theme).map(|(_, layout)| layout)
+}
+
+/// Returns the actual style used for pagination, including one-page fitting.
+pub fn measured_theme_layout(
+    content: &ResumeContent,
+    language: Language,
+    theme: &ThemeManifest,
+) -> Result<(ThemeStyle, ResumeLayout), String> {
     let style = ThemeStyle::from_manifest(theme);
     validate_theme(theme, &style)?;
-    layout_with_style(content, language, &style)
+    let content = style.visible_content(content);
+    fit_layout(&content, language, style)
+}
+
+/// Resolve the same spacing and font sizes for preview, PDF and editable DOCX.
+/// Limit the search so editing large files stays responsive. If even the
+/// compact layout overflows, preserve the original layout and all its pages.
+pub(crate) fn fit_layout(
+    content: &ResumeContent,
+    language: Language,
+    style: ThemeStyle,
+) -> Result<(ThemeStyle, ResumeLayout), String> {
+    let natural = layout_with_style(content, language, &style)?;
+    if !style.page.fit_to_one_page || natural.pages.len() == 1 {
+        return Ok((style, natural));
+    }
+    let compact = style.compressed(1.0);
+    let fitted = layout_with_style(content, language, &compact)?;
+    if fitted.pages.len() != 1 {
+        return Ok((style, natural));
+    }
+    let mut best = (compact, fitted);
+    let (mut lower, mut upper) = (0.0, 1.0);
+    for _ in 0..5 {
+        let amount = (lower + upper) / 2.0;
+        let candidate = style.compressed(amount);
+        let layout = layout_with_style(content, language, &candidate)?;
+        if layout.pages.len() == 1 {
+            best = (candidate, layout);
+            upper = amount;
+        } else {
+            lower = amount;
+        }
+    }
+    Ok(best)
 }
 
 /// Check renderer capability without loading any resume content.
@@ -1558,8 +1605,24 @@ fn layout_sections<'a>(
     let (ink, muted, accent) = (style.colors.ink, style.colors.muted, style.colors.accent);
     let section_gap = style.page.section_gap_mm * PT_PER_MM;
     for section_content in sections {
-        let section = style.section(section_content.id);
-        let heading_height = heading_height(page, style, section_content.id, language);
+        let id = section_content.id;
+        let section = style.section(id);
+        let visible_heading = style.section_element_visible(id, "heading");
+        let extras = style
+            .section_elements
+            .get(id)
+            .map_or(&[][..], Vec::as_slice);
+        let intro_height = if visible_heading {
+            heading_height(page, style, id, language)
+        } else {
+            0.0
+        } + extras
+            .iter()
+            .map(|element| match element {
+                SectionElement::Text(text) => 2.0 + wrapped_height(page, text, meta, 0.0),
+                SectionElement::Divider => 6.0,
+            })
+            .sum::<f32>();
         let mut first_visible = None;
         if style.page.keep_heading_with_first_item {
             let mut prefix_height = 0.0;
@@ -1568,7 +1631,7 @@ fn layout_sections<'a>(
                 if measured.start.is_some() {
                     first_visible = Some(index);
                     page.ensure(sections::heading_reservation(
-                        section_gap + heading_height + prefix_height,
+                        section_gap + intro_height + prefix_height,
                         &measured,
                         page.height - page.top - page.bottom,
                         style.page.avoid_split_items,
@@ -1587,9 +1650,30 @@ fn layout_sections<'a>(
                     };
             }
         }
-        page.ensure(section_gap + heading_height);
+        page.ensure(section_gap + intro_height);
         page.gap(section_gap);
-        section_heading(page, section_content.id, language, style);
+        if visible_heading {
+            section_heading(page, id, language, style);
+        } else {
+            page.mark(LayoutTarget {
+                section: id,
+                index: None,
+            });
+        }
+        for element in extras {
+            match element {
+                SectionElement::Text(text) => {
+                    page.gap(2.0);
+                    page.wrapped(text, meta, muted, 0.0);
+                }
+                SectionElement::Divider => {
+                    page.ensure(6.0);
+                    page.gap(2.0);
+                    add_rule(page, style.colors.border, 0.6);
+                    page.gap(4.0);
+                }
+            }
+        }
         for (index, item) in section_content.items.iter().enumerate() {
             let frame = sections::ItemFrame::begin(
                 page,
@@ -1599,33 +1683,34 @@ fn layout_sections<'a>(
                 style,
                 first_visible.is_some_and(|first| index <= first),
             );
-            if let Some(rows) = crate::entry_header::rows(item, section_content.id, style) {
+            if !style.replaces_entry_header(id) {
+                if section.date != DatePlacement::Inline
+                    && let Some(date) = item.date()
+                {
+                    page.side_dated_heading(&item.heading, date, section.date, style);
+                } else if section.items == crate::theme_style::ItemLayout::Chips
+                    && section_content.id == "languages"
+                    && !item.heading.is_empty()
+                {
+                    layout_chips(page, std::slice::from_ref(&item.heading), style);
+                } else if !item.heading.is_empty() {
+                    page.wrapped(&item.heading, item_title, ink, 0.0);
+                }
+                let details = if section.date != DatePlacement::Inline && item.date().is_some() {
+                    item.other_details().join("   ·   ")
+                } else {
+                    item.details.join("   ·   ")
+                };
+                if !details.is_empty() {
+                    page.wrapped(&details, meta, muted, 0.0);
+                }
+            }
+            if let Some(rows) = crate::entry_header::rows(item, id, style) {
                 for row in rows {
                     page.gap(row.before);
                     page.wrapped(&row.text, row.style, row.color, 0.0);
                     page.gap(row.after);
                 }
-            } else if section.date != DatePlacement::Inline
-                && let Some(date) = item.date()
-            {
-                page.side_dated_heading(&item.heading, date, section.date, style);
-            } else if section.items == crate::theme_style::ItemLayout::Chips
-                && section_content.id == "languages"
-                && !item.heading.is_empty()
-            {
-                layout_chips(page, std::slice::from_ref(&item.heading), style);
-            } else if !item.heading.is_empty() {
-                page.wrapped(&item.heading, item_title, ink, 0.0);
-            }
-            let details = if style.entry_headers.contains_key(section_content.id) {
-                String::new()
-            } else if section.date != DatePlacement::Inline && item.date().is_some() {
-                item.other_details().join("   ·   ")
-            } else {
-                item.details.join("   ·   ")
-            };
-            if !details.is_empty() {
-                page.wrapped(&details, meta, muted, 0.0);
             }
             let tail_gap = entry_tail_gap(item, section_content.id, style);
             if item.paragraphs.is_empty() && tail_gap > 0.0 {
@@ -1635,7 +1720,7 @@ fn layout_sections<'a>(
                 page.gap(if index == 0 {
                     tail_gap
                 } else {
-                    section.paragraph_gap_pt()
+                    style.paragraph_gap(id)
                 });
                 page.wrapped(paragraph, body, ink, 0.0);
             }

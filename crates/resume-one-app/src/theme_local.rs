@@ -14,6 +14,7 @@ use resume_one_themes::{
 use serde_json::{Value, json};
 
 use crate::ResumeOne;
+use crate::i18n::tr;
 use crate::model::{BUILTIN_LOCALES, BUILTIN_THEMES, BuiltinTheme};
 
 actions!(resume_one, [ChooseThemeDirectory, ResetThemeDirectory]);
@@ -330,6 +331,90 @@ fn recent_files_from(settings: &Value) -> Vec<PathBuf> {
     files
 }
 
+// Only replace untouched copies of the previous bundled themes.
+const PRE_MARGIN_REFRESH_SHA256: &[(&str, &str)] = &[
+    (
+        "danzhu",
+        "1ffbb106a8a057af87f6deffecdc4de8754864df8d5b4d582a5ca38407fa6461",
+    ),
+    (
+        "fenglan",
+        "af6af7c9ef4ef9bd050f3754e9c55d80338a76154fbff0523a44b535a3a03f2d",
+    ),
+    (
+        "huanghun",
+        "1ea0cba882e02c88a5a9422c64581f98dd5f3d26cdd6b46577abdf16a6376fc7",
+    ),
+    (
+        "linquan",
+        "862d1da4387d0aab4173417211215fd936223d3d67563c9ee17b6c98a60a8749",
+    ),
+    (
+        "mingsha",
+        "299058c114c1d45a69094af4e34bb11ae7d0395ae73095eaf64aea1bece375b6",
+    ),
+    (
+        "moxu",
+        "c79bba248ac1f8c89eff33cd3b43e44807efde0c8d23e2a196ced18b8c78be34",
+    ),
+    (
+        "qingci",
+        "5de92d34ed5c2afffeae2ff21102ba459ddf9628d54f806a09c485c3ae56e4d2",
+    ),
+    (
+        "qinghe",
+        "49dea5453435b15d3a6f3ec347fc288486d7c6fc57a50ee6def69cdd2245c2f0",
+    ),
+    (
+        "shanshui",
+        "aaeb62eb4e8142f950247a33208657f3c20368f398a5e5615237f6a095bfaaac",
+    ),
+    (
+        "songyan",
+        "15f3a3ac225cec909e0cf3031f1800ade5a39d305c653aea2e47580a530c8445",
+    ),
+    (
+        "xiaguang",
+        "32629861275856d184fb76ec346a273a246004c07e55a34939c4c102995317d8",
+    ),
+    (
+        "xingye",
+        "26ac6a1cbc2963b4a63b130ade96b98b7109057a928cbb632a920f1247ba8add",
+    ),
+    (
+        "xuanmu",
+        "a3972b298e0b9c40a9159a67b40546a2f2d19934d683e24ebef478c372b3972c",
+    ),
+    (
+        "yanshan",
+        "8c9a9b06750d1c35822867e7682b42f7869538d6396bcf1602112d5c9383e7db",
+    ),
+    (
+        "yehe",
+        "160e0496c1418ec77084ca8efa4c1ffde8de11fb9c87b36c9b2dcfbac3c74cd9",
+    ),
+    (
+        "yuebai",
+        "32171acf171034a32c9ee459375fe1f23d4fc2fc9497d863d8af6eb3a0686f6a",
+    ),
+    (
+        "zhegui",
+        "d4cc24786436792d993b2b316aa58a717c698bf3d52f47205392913fdf587c1e",
+    ),
+    (
+        "zhibai",
+        "6d20729ed38d5fe8500775cd0e026d0ed5a771f28f81117903c920e50104ab9c",
+    ),
+    (
+        "zhimo",
+        "101cf6e7ef56b3a73d566604689f1237b08165a31fb8e0a25c91b53aa6773985",
+    ),
+    (
+        "zhuqing",
+        "2486e93ab6827344dabc92502155291242dad448e891fcb67e081d178539b0d9",
+    ),
+];
+
 impl ThemeStore {
     pub fn system() -> Result<Self, String> {
         let data = dirs::data_local_dir().ok_or("无法定位本地应用数据目录")?;
@@ -569,6 +654,7 @@ impl ThemeStore {
                             .chain(REFINED_PREVERSION_SHA256)
                             .chain(REFINED_V1_1_SHA256)
                             .chain(PRE_REDESIGN_SHA256)
+                            .chain(PRE_MARGIN_REFRESH_SHA256)
                             .any(|(id, known_hash)| {
                                 *id == manifest.id && existing_hash == *known_hash
                             });
@@ -727,6 +813,95 @@ impl ThemeStore {
         let (themes, warnings) = Self::scan(&self.directory, self.directory == self.default_dir)?;
         self.warnings.extend(warnings);
         Ok(themes)
+    }
+
+    pub(super) fn save_personal_theme(
+        &mut self,
+        source: &resume_one_core::ThemeManifest,
+        draft: &Value,
+        name: &str,
+    ) -> Result<(Vec<BuiltinTheme>, PathBuf), String> {
+        let identical = |path: &Path, bytes: &[u8]| {
+            fs::symlink_metadata(path).is_ok_and(|metadata| {
+                metadata.is_file()
+                    && metadata.len() == bytes.len() as u64
+                    && fs::read(path).is_ok_and(|existing| existing == bytes)
+            })
+        };
+        let mut value = draft.clone();
+        if name.trim().is_empty() || name.chars().any(char::is_control) {
+            return Err(tr("请输入有效的主题名称").into());
+        }
+        value["name"] = json!(name.trim());
+        if let Some(locales) = value
+            .get_mut("localizations")
+            .and_then(Value::as_object_mut)
+        {
+            locales.retain(|_, fields| {
+                let fields = fields.as_object_mut().expect("validated localizations");
+                fields.remove("name");
+                !fields.is_empty()
+            });
+        }
+        let hash =
+            resume_one_themes::sha256(&serde_json::to_vec(&value).map_err(|e| e.to_string())?);
+        let base = value["id"].as_str().expect("validated theme id");
+        let base = base.strip_prefix("personal-").unwrap_or(base);
+        let base = base.get(..base.len().min(40)).expect("ASCII theme id");
+        value["id"] = json!(format!(
+            "personal-{}-{}",
+            base.trim_end_matches('-'),
+            &hash[..12]
+        ));
+        let theme = source.edited_copy(&value)?;
+        let mut bytes = serde_json::to_vec_pretty(&theme.normalized).map_err(|e| e.to_string())?;
+        bytes.push(b'\n');
+        let path = if theme.font_assets().next().is_none() {
+            let path = self.directory.join(format!("{}.theme.json", theme.id));
+            if identical(&path, &bytes) {
+                return Ok((self.load_themes()?, path));
+            }
+            resume_one_core::export::write_export_unnamed(&path, &bytes, false)
+                .map_err(|error| error.message)?;
+            path
+        } else {
+            let package = self.directory.join(&theme.id);
+            let path = package.join("theme.json");
+            match fs::create_dir(&package) {
+                Ok(()) => {
+                    let write = (|| {
+                        for (relative, font) in theme.font_assets() {
+                            let path = package.join(relative);
+                            fs::create_dir_all(path.parent().expect("font has a parent"))
+                                .map_err(|e| e.to_string())?;
+                            resume_one_core::export::write_export_unnamed(&path, &font, false)
+                                .map_err(|error| error.message)?;
+                        }
+                        resume_one_core::export::write_export_unnamed(&path, &bytes, false)
+                            .map_err(|error| error.message)
+                    })();
+                    if let Err(error) = write {
+                        let _ = fs::remove_dir_all(&package);
+                        return Err(error);
+                    }
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+                    if !fs::symlink_metadata(&package).is_ok_and(|m| m.is_dir())
+                        || !identical(&path, &bytes)
+                    {
+                        return Err(tr("本地已有同名主题，原文件已保留").into());
+                    }
+                    let relative = path
+                        .strip_prefix(&self.directory)
+                        .expect("personal theme path");
+                    resume_one_core::load_theme(&self.directory, relative)
+                        .map_err(|issues| format!("{issues:?}"))?;
+                }
+                Err(error) => return Err(error.to_string()),
+            }
+            path
+        };
+        Ok((self.load_themes()?, path))
     }
 
     fn switch(&mut self, directory: PathBuf) -> Result<Vec<BuiltinTheme>, String> {

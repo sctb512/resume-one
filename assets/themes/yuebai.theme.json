@@ -3,7 +3,7 @@
   "id": "yuebai",
   "name": "月白",
   "description": "素纸右栏 · 清朗页眉",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "license": "Apache-2.0",
   "layout": "minimal",
   "colors": {
@@ -32,10 +32,10 @@
     "firstLinePosition": "line-box",
     "sectionGapMm": 6.1,
     "marginsMm": {
-      "top": 19,
-      "right": 18,
-      "bottom": 17,
-      "left": 18
+      "top": 14,
+      "right": 14,
+      "bottom": 13,
+      "left": 14
     },
     "avoidSplitItems": true,
     "keepHeadingWithFirstItem": true

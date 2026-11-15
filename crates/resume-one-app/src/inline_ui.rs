@@ -1135,6 +1135,10 @@ impl ResumeOne {
             cx.notify();
             return;
         }
+        if !self.source_mode && (self.theme_editor.is_some() || self.theme_editor_loading) {
+            self.request_close_theme_editor(window, cx);
+            return;
+        }
         if self.drawer.take().is_some() {
             self.hovered_theme = None;
             self.online.cancel_interaction();

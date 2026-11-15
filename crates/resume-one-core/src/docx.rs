@@ -15,7 +15,8 @@ use crate::layout::{PT_PER_MM, check_theme, side_date_lines_for_style};
 use crate::render::Language;
 use crate::semantic::ResumeContent;
 use crate::theme_style::{
-    DatePlacement, HeadingAlignment, ItemLayout, Rgb, SectionHeading, TextStyle, ThemeStyle,
+    DatePlacement, HeadingAlignment, ItemLayout, Rgb, SectionElement, SectionHeading, TextStyle,
+    ThemeStyle,
 };
 
 fn color(rgb: Rgb) -> String {
@@ -333,7 +334,13 @@ pub fn render_with_theme(
     // Never silently flatten unsupported composition, decorations, assets or typography.
     check_theme(theme)?;
     let style = ThemeStyle::from_manifest(theme);
-    pack(build_document(content, language, &style)?, &style)
+    let content = style.visible_content(content);
+    let style = if style.page.fit_to_one_page {
+        crate::layout::fit_layout(&content, language, style)?.0
+    } else {
+        style
+    };
+    pack(build_document(&content, language, &style)?, &style)
 }
 
 enum BasicsBlock {
@@ -585,108 +592,155 @@ fn build_document(
         let heading = style.typography.item_title.clone();
         let column = &mut columns[usize::from(sidebar)];
         let section_style = style.section(section.id);
-        column.push(
-            section_heading(section.id, language, style)
-                .keep_next(page.keep_heading_with_first_item && !section.items.is_empty())
-                .keep_lines(true),
-        );
-        for item in &section.items {
+        let extras = style
+            .section_elements
+            .get(section.id)
+            .map_or(&[][..], Vec::as_slice);
+        let has_heading = style.section_element_visible(section.id, "heading");
+        if has_heading {
+            column.push(
+                section_heading(section.id, language, style)
+                    .keep_next(
+                        !extras.is_empty()
+                            || (page.keep_heading_with_first_item && !section.items.is_empty()),
+                    )
+                    .keep_lines(true),
+            );
+        }
+        let intro_gap = if has_heading {
+            2.0
+        } else {
+            page.section_gap_mm * PT_PER_MM
+        };
+        for (index, element) in extras.iter().enumerate() {
+            let gap = if index == 0 { intro_gap } else { 2.0 };
+            let p = match element {
+                SectionElement::Text(text) => paragraph(text, meta, muted, gap, 0.0),
+                SectionElement::Divider => {
+                    let mut line = Paragraph::new().line_spacing(
+                        LineSpacing::new()
+                            .before(twips(gap))
+                            .after(twips(4.0))
+                            .line_rule(LineSpacingType::Exact)
+                            .line(twips(1.0) as i32),
+                    );
+                    line.property.borders = Some(
+                        ParagraphBorders::with_empty().set(
+                            ParagraphBorder::new(ParagraphBorderPosition::Bottom)
+                                .color(color(style.colors.border))
+                                .size(5),
+                        ),
+                    );
+                    line
+                }
+            };
+            column.push(p.keep_next(index + 1 < extras.len() || !section.items.is_empty()));
+        }
+        for (item_index, item) in section.items.iter().enumerate() {
             let mut paragraphs = Vec::new();
             let header_rows = crate::entry_header::rows(item, section.id, style);
-            let first_before = header_rows
-                .as_ref()
-                .and_then(|rows| rows.first())
-                .map_or_else(
-                    || {
-                        if header_rows.is_some() && !item.paragraphs.is_empty() {
-                            section_style.paragraph_gap_pt()
-                        } else {
-                            0.0
+            let first_before = if style.replaces_entry_header(section.id) {
+                header_rows
+                    .as_ref()
+                    .and_then(|rows| rows.first())
+                    .map_or_else(
+                        || {
+                            if header_rows.is_some() && !item.paragraphs.is_empty() {
+                                style.paragraph_gap(section.id)
+                            } else {
+                                0.0
+                            }
+                        },
+                        |row| row.before,
+                    )
+            } else {
+                0.0
+            };
+            if !style.replaces_entry_header(section.id) {
+                if section_style.date != DatePlacement::Inline
+                    && let Some(date) = item.date()
+                {
+                    let lines = side_date_lines_for_style(style, &item.heading, date);
+                    if lines.heading.is_empty() {
+                        let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
+                        if section_style.date == DatePlacement::Right {
+                            date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
                         }
-                    },
-                    |row| row.before,
-                );
+                        paragraphs.push(date_paragraph);
+                    } else if !lines.same_line {
+                        let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
+                        if section_style.date == DatePlacement::Right {
+                            date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
+                            paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                            paragraphs.push(date_paragraph);
+                        } else {
+                            paragraphs.push(date_paragraph);
+                            paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                        }
+                    } else if section_style.date == DatePlacement::Left {
+                        let mut p = paragraph(date, date_style, muted, 0.0, 0.0)
+                            .add_tab(
+                                docx_rs::Tab::new()
+                                    .val(docx_rs::TabValueType::Left)
+                                    .pos(twips(lines.date_width_pt + 12.0) as usize),
+                            )
+                            .add_run(styled_run(&heading, ink).add_tab());
+                        for run in text_runs(&lines.heading[0], &heading, ink) {
+                            p = p.add_run(run);
+                        }
+                        paragraphs.push(p);
+                        for continuation in lines.heading.iter().skip(1) {
+                            paragraphs.push(
+                                paragraph(continuation, &heading, ink, 0.0, 0.0).indent(
+                                    Some(twips(lines.date_width_pt + 12.0) as i32),
+                                    None,
+                                    None,
+                                    None,
+                                ),
+                            );
+                        }
+                    } else {
+                        let content_width =
+                            (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
+                        let mut p = paragraph(&lines.heading[0], &heading, ink, 0.0, 0.0)
+                            .add_tab(
+                                docx_rs::Tab::new()
+                                    .val(docx_rs::TabValueType::Right)
+                                    .pos(twips(content_width) as usize),
+                            )
+                            .add_run(styled_run(date_style, muted).add_tab());
+                        for run in text_runs(date, date_style, muted) {
+                            p = p.add_run(run);
+                        }
+                        paragraphs.push(p);
+                        for continuation in lines.heading.iter().skip(1) {
+                            paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0));
+                        }
+                    }
+                } else if section_style.items == ItemLayout::Chips
+                    && section.id == "languages"
+                    && !item.heading.is_empty()
+                {
+                    paragraphs.push(keyword_chips(std::slice::from_ref(&item.heading), style));
+                } else if !item.heading.is_empty() {
+                    paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
+                }
+                let details =
+                    if section_style.date != DatePlacement::Inline && item.date().is_some() {
+                        item.other_details().join("   ·   ")
+                    } else {
+                        item.details.join("   ·   ")
+                    };
+                if !details.is_empty() {
+                    paragraphs.push(paragraph(&details, meta, muted, 0.0, 0.0));
+                }
+            }
             if let Some(rows) = header_rows {
                 for row in rows {
                     paragraphs.push(paragraph(
                         &row.text, row.style, row.color, row.before, row.after,
                     ));
                 }
-            } else if section_style.date != DatePlacement::Inline
-                && let Some(date) = item.date()
-            {
-                let lines = side_date_lines_for_style(style, &item.heading, date);
-                if lines.heading.is_empty() {
-                    let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
-                    if section_style.date == DatePlacement::Right {
-                        date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
-                    }
-                    paragraphs.push(date_paragraph);
-                } else if !lines.same_line {
-                    let mut date_paragraph = paragraph(date, date_style, muted, 0.0, 0.0);
-                    if section_style.date == DatePlacement::Right {
-                        date_paragraph = date_paragraph.align(docx_rs::AlignmentType::Right);
-                        paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
-                        paragraphs.push(date_paragraph);
-                    } else {
-                        paragraphs.push(date_paragraph);
-                        paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
-                    }
-                } else if section_style.date == DatePlacement::Left {
-                    let mut p = paragraph(date, date_style, muted, 0.0, 0.0)
-                        .add_tab(
-                            docx_rs::Tab::new()
-                                .val(docx_rs::TabValueType::Left)
-                                .pos(twips(lines.date_width_pt + 12.0) as usize),
-                        )
-                        .add_run(styled_run(&heading, ink).add_tab());
-                    for run in text_runs(&lines.heading[0], &heading, ink) {
-                        p = p.add_run(run);
-                    }
-                    paragraphs.push(p);
-                    for continuation in lines.heading.iter().skip(1) {
-                        paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0).indent(
-                            Some(twips(lines.date_width_pt + 12.0) as i32),
-                            None,
-                            None,
-                            None,
-                        ));
-                    }
-                } else {
-                    let content_width =
-                        (page.width_mm - page.margins.left - page.margins.right) * PT_PER_MM;
-                    let mut p = paragraph(&lines.heading[0], &heading, ink, 0.0, 0.0)
-                        .add_tab(
-                            docx_rs::Tab::new()
-                                .val(docx_rs::TabValueType::Right)
-                                .pos(twips(content_width) as usize),
-                        )
-                        .add_run(styled_run(date_style, muted).add_tab());
-                    for run in text_runs(date, date_style, muted) {
-                        p = p.add_run(run);
-                    }
-                    paragraphs.push(p);
-                    for continuation in lines.heading.iter().skip(1) {
-                        paragraphs.push(paragraph(continuation, &heading, ink, 0.0, 0.0));
-                    }
-                }
-            } else if section_style.items == ItemLayout::Chips
-                && section.id == "languages"
-                && !item.heading.is_empty()
-            {
-                paragraphs.push(keyword_chips(std::slice::from_ref(&item.heading), style));
-            } else if !item.heading.is_empty() {
-                paragraphs.push(paragraph(&item.heading, &heading, ink, 0.0, 0.0));
-            }
-            let details = if style.entry_headers.contains_key(section.id) {
-                String::new()
-            } else if section_style.date != DatePlacement::Inline && item.date().is_some() {
-                item.other_details().join("   ·   ")
-            } else {
-                item.details.join("   ·   ")
-            };
-            if !details.is_empty() {
-                paragraphs.push(paragraph(&details, meta, muted, 0.0, 0.0));
             }
             let tail_gap = crate::layout::entry_tail_gap(item, section.id, style);
             for (index, text) in item.paragraphs.iter().enumerate() {
@@ -697,7 +751,7 @@ fn build_document(
                     if index == 0 {
                         tail_gap
                     } else {
-                        section_style.paragraph_gap_pt()
+                        style.paragraph_gap(section.id)
                     },
                     0.0,
                 ));
@@ -744,8 +798,14 @@ fn build_document(
                 p = decorate_item(p, section_style.items, style);
                 if index == 0 {
                     let spacing = p.property.line_spacing.take().unwrap_or_default();
-                    p.property.line_spacing =
-                        Some(spacing.before(twips(section_style.item_gap_pt() + first_before)));
+                    let section_before = if !has_heading && extras.is_empty() && item_index == 0 {
+                        page.section_gap_mm * PT_PER_MM
+                    } else {
+                        0.0
+                    };
+                    p.property.line_spacing = Some(spacing.before(twips(
+                        style.item_gap(section.id) + first_before + section_before,
+                    )));
                 }
                 // Link only this item, never a complete section or neighbouring items.
                 // Oversized paragraphs stay splittable by Word to avoid overflow.

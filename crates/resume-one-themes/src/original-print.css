@@ -33,10 +33,15 @@
 }
 [data-jianli-theme="original-flat"] section,
 [data-jianli-theme="original-pumpkin"] section { margin-block-start: 21px; }
-[data-jianli-theme="original-even"] body { gap: 1.4em; margin-block-end: 1.2em; }
-[data-jianli-theme="original-even"] .masthead { padding-block: 2em; }
+[data-jianli-theme="original-even"] body { gap: 1em; margin-block-end: 1em; }
+[data-jianli-theme="original-even"] .masthead { padding-block: 1.45em; }
 [data-jianli-theme="original-macchiato"] #resume { height: auto; min-height: 0; }
 [data-jianli-theme="original-minyma"] body { padding: 24px 36px 28px; }
 [data-jianli-theme="original-minyma"] body > div:first-child { width: auto; padding-inline: 0; }
-[data-jianli-theme="original-minyma"] body > div:first-child > :not(:first-child) { margin-top: 1.4rem; }
-[data-jianli-theme="original-minyma"] header { padding-block: 1rem; }
+[data-jianli-theme="original-minyma"] body > div:first-child > :not(:first-child) { margin-top: 1.1rem; }
+[data-jianli-theme="original-minyma"] header { padding-block: 0.5rem; }
+[data-jianli-theme="original-minyma"] header > div:first-child { padding-block: 0.5rem; }
+[data-jianli-theme="original-minyma"] header h2 {
+  color: #525252;
+  font-weight: 400;
+}

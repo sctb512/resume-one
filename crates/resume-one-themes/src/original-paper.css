@@ -97,7 +97,10 @@ html[data-jianli-theme] {
 [data-jianli-theme="original-minyma"] body { padding: 38px 48px 52px; background: #fff; }
 [data-jianli-theme="original-minyma"] body > div:first-child { width: auto; padding-inline: 0; }
 [data-jianli-theme="original-minyma"] body > div:first-child > :not(:first-child) { margin-top: 1.85rem; }
-[data-jianli-theme="original-minyma"] header h2 { font-weight: 400; }
+[data-jianli-theme="original-minyma"] header h2 {
+  color: #525252;
+  font-weight: 400;
+}
 [data-jianli-theme="original-paper-plus-plus"],
 [data-jianli-theme="original-paper-plus-plus"] body { padding-top: 0; background: #fff; }
 [data-jianli-theme="original-paper-plus-plus"] .resume-wrapper,

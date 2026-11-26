@@ -1067,17 +1067,22 @@ impl Render for ThemeEditor {
                             )
                             .child(
                                 Button::new("close-theme-editor")
+                                    .debug_selector(|| "close-theme-editor".into())
                                     .xsmall()
                                     .ghost()
                                     .label("×")
                                     .tooltip(tr("关闭"))
-                                    .on_click(cx.listener(|this, _, window, cx| {
-                                        if let Some(owner) = this.owner.upgrade() {
-                                            owner.update(cx, |app, cx| {
-                                                app.request_close_theme_editor(window, cx)
-                                            });
+                                    .on_click({
+                                        let owner = self.owner.clone();
+                                        // Closing reads this editor, so avoid holding its update lease.
+                                        move |_, window, cx| {
+                                            if let Some(owner) = owner.upgrade() {
+                                                owner.update(cx, |app, cx| {
+                                                    app.request_close_theme_editor(window, cx)
+                                                });
+                                            }
                                         }
-                                    })),
+                                    }),
                             ),
                     )
                     .child(tabs),
@@ -1415,6 +1420,78 @@ impl ResumeOne {
 mod tests {
     use super::*;
     use gpui::TestAppContext;
+
+    #[gpui::test]
+    fn close_button_releases_an_unchanged_theme_editor(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let model = crate::model::AppModel::load(None).unwrap();
+        let original = model.applied_theme().identity.clone();
+        let source = model.document.source.clone();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.simulate_resize(gpui::size(px(1340.0), px(820.0)));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+        });
+        cx.run_until_parked();
+        let close = cx.debug_bounds("close-theme-editor").expect("close button");
+        cx.simulate_click(close.center(), gpui::Modifiers::none());
+        cx.run_until_parked();
+        assert!(!cx.has_pending_prompt());
+        cx.update(|window, _| window.refresh());
+        assert!(cx.debug_bounds("show-theme-editor").is_some());
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.theme_editor.is_none());
+            assert!(app.theme_draft.is_none());
+            assert_eq!(app.model.applied_theme().identity, original);
+            assert_eq!(app.model.document.source, source);
+        });
+    }
+
+    #[gpui::test]
+    fn close_button_preserves_changes_until_discard_is_confirmed(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let model = crate::model::AppModel::load(None).unwrap();
+        let original = model.applied_theme().clone();
+        let source = model.document.source.clone();
+        let (view, cx) = cx.add_window_view(|_, cx| ResumeOne::new(model, cx));
+        cx.simulate_resize(gpui::size(px(1340.0), px(820.0)));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                editor.edit(|value| value["page"]["marginsMm"]["top"] = json!(10), cx);
+                editor.refresh_margins(window, cx);
+            });
+        });
+        cx.run_until_parked();
+        let close = cx.debug_bounds("close-theme-editor").expect("close button");
+        cx.simulate_click(close.center(), gpui::Modifiers::none());
+        cx.run_until_parked();
+        assert!(cx.has_pending_prompt());
+        cx.simulate_prompt_answer(tr("继续编辑"));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            assert!(view.read(cx).theme_editor.is_some());
+            assert_eq!(view.read(cx).display_theme().style.page.margins.top, 10.0);
+        });
+        cx.simulate_click(close.center(), gpui::Modifiers::none());
+        cx.run_until_parked();
+        cx.simulate_prompt_answer(tr("放弃修改"));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.theme_editor.is_none());
+            assert!(app.theme_draft.is_none());
+            assert_eq!(app.model.applied_theme().identity, original.identity);
+            assert_eq!(
+                app.display_theme().style.page.margins.top,
+                original.style.page.margins.top
+            );
+            assert_eq!(app.model.document.source, source);
+        });
+        assert!(!cx.has_pending_prompt());
+    }
 
     #[gpui::test]
     fn theme_draft_can_be_undone_and_saved_beside_the_source(cx: &mut TestAppContext) {

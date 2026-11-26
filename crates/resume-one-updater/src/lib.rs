@@ -247,8 +247,27 @@ pub struct Prepared {
     tag: String,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum UpdateProgress {
+    Downloading { received: u64, total: u64 },
+    Verifying,
+    Preparing,
+}
+
 impl Release {
     pub fn prepare(self, installation: Installation) -> Result<Prepared> {
+        self.prepare_with_progress(installation, |_| {})
+    }
+
+    pub fn prepare_with_progress(
+        self,
+        installation: Installation,
+        mut report: impl FnMut(UpdateProgress),
+    ) -> Result<Prepared> {
+        report(UpdateProgress::Downloading {
+            received: 0,
+            total: self.size,
+        });
         let parent = installation.root.parent().ok_or("安装目录缺少父目录")?;
         let directory = tempfile::Builder::new()
             .prefix(".resume-one-update-")
@@ -271,12 +290,18 @@ impl Release {
             }
             digest.update(&block[..length]);
             archive.write_all(&block[..length])?;
+            report(UpdateProgress::Downloading {
+                received: count,
+                total: self.size,
+            });
         }
+        report(UpdateProgress::Verifying);
         if count != self.size || format!("{:x}", digest.finalize()) != self.digest {
             return Err("更新包 SHA-256 校验失败".into());
         }
         archive.sync_all()?;
         drop(archive);
+        report(UpdateProgress::Preparing);
         unpack(&archive_path, directory.path(), installation.platform)?;
         let staged = directory.path().join(installation.platform.archive_root());
         let updated = Installation::open(&staged, installation.platform)?;
@@ -647,7 +672,29 @@ mod tests {
             assert_eq!(release.tag, expected);
         }
         let version = release.tag.clone();
-        let prepared = release.prepare(installation).unwrap();
+        let size = release.size;
+        let mut received = 0;
+        let mut verified = false;
+        let mut preparing = false;
+        let prepared = release
+            .prepare_with_progress(installation, |progress| match progress {
+                UpdateProgress::Downloading {
+                    received: next,
+                    total,
+                } => {
+                    assert_eq!(total, size);
+                    assert!(next >= received && next <= total);
+                    received = next;
+                }
+                UpdateProgress::Verifying => verified = true,
+                UpdateProgress::Preparing => {
+                    assert!(verified);
+                    preparing = true;
+                }
+            })
+            .unwrap();
+        assert_eq!(received, size);
+        assert!(preparing);
         let stage = prepared.directory.path().join(platform.archive_root());
         let backup = prepared.directory.path().join("previous");
         replace_installation(&root, &stage, &backup, || {

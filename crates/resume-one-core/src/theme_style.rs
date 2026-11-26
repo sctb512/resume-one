@@ -362,6 +362,16 @@ pub(crate) fn inherited_text_style(value: Option<&Value>, base: &TextStyle) -> T
 }
 
 impl ThemeStyle {
+    /// Identity-column fraction used by a measured split header.
+    pub fn header_identity_fraction(&self) -> f32 {
+        self.header_identity_fraction
+    }
+
+    /// Multiplier applied to measured entry and paragraph spacing.
+    pub fn spacing_scale(&self) -> f32 {
+        self.spacing_scale
+    }
+
     pub fn all_text_styles(&self) -> impl Iterator<Item = &TextStyle> {
         [
             &self.typography.body,

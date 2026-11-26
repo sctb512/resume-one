@@ -1,6 +1,10 @@
 use crate::i18n::tr;
 use gpui::{Context, PromptLevel, Window, actions};
-use resume_one_updater::{Installation, Prepared, Release};
+use resume_one_updater::{Installation, Prepared, Release, UpdateProgress};
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 use crate::ResumeOne;
 
@@ -12,18 +16,37 @@ pub(super) struct UpdateUi {
     busy: bool,
     available: Option<Release>,
     ready: Option<Prepared>,
+    progress: Option<Arc<Mutex<UpdateProgress>>>,
 }
 
 impl UpdateUi {
-    pub fn label(&self) -> &'static str {
-        if self.busy {
-            tr("正在检查或下载更新…")
+    pub fn label(&self) -> String {
+        if let Some(progress) = self
+            .progress
+            .as_ref()
+            .and_then(|progress| progress.lock().ok())
+        {
+            match *progress {
+                UpdateProgress::Downloading { received, total } => format!(
+                    "{} {}%",
+                    tr("正在下载更新"),
+                    received
+                        .saturating_mul(100)
+                        .checked_div(total)
+                        .unwrap_or(0)
+                        .min(100)
+                ),
+                UpdateProgress::Verifying => tr("正在校验更新…").into(),
+                UpdateProgress::Preparing => tr("正在准备安装…").into(),
+            }
+        } else if self.busy {
+            tr("正在检查更新…").into()
         } else if self.ready.is_some() {
-            tr("重启并安装更新…")
+            tr("重启并安装更新…").into()
         } else if self.available.is_some() {
-            tr("有可用更新…")
+            tr("有可用更新…").into()
         } else {
-            tr("检查更新…")
+            tr("检查更新…").into()
         }
     }
 }
@@ -107,8 +130,10 @@ impl ResumeOne {
             return;
         };
         let message = format!(
-            "可从 GitHub Releases 下载 {}。下载后可选择何时重启。",
-            release.tag
+            "{} {}\n{}",
+            tr("可用版本"),
+            release.tag,
+            tr("下载后可选择何时重启。")
         );
         self.updates.busy = true;
         let choice = window.prompt(
@@ -140,13 +165,51 @@ impl ResumeOne {
             return;
         };
         self.updates.busy = true;
-        let job = cx
-            .background_executor()
-            .spawn(async move { release.prepare(installation) });
+        let progress = Arc::new(Mutex::new(UpdateProgress::Downloading {
+            received: 0,
+            total: 0,
+        }));
+        self.updates.progress = Some(progress.clone());
+        let worker_progress = progress.clone();
+        let job = cx.background_executor().spawn(async move {
+            release.prepare_with_progress(installation, move |value| {
+                if let Ok(mut progress) = worker_progress.lock() {
+                    *progress = value;
+                }
+            })
+        });
+        let executor = cx.background_executor().clone();
+        cx.spawn_in(window, async move |this, cx| {
+            loop {
+                executor.timer(Duration::from_millis(200)).await;
+                let active = this
+                    .update_in(cx, |app, _, cx| {
+                        let active = app
+                            .updates
+                            .progress
+                            .as_ref()
+                            .is_some_and(|current| Arc::ptr_eq(current, &progress));
+                        if active {
+                            cx.notify();
+                        }
+                        active
+                    })
+                    .unwrap_or(false);
+                if !active {
+                    break;
+                }
+            }
+        })
+        .detach();
         cx.spawn_in(window, async move |this, cx| {
             let result = job.await;
             this.update_in(cx, |this, window, cx| {
                 this.updates.busy = false;
+                let phase = this
+                    .updates
+                    .progress
+                    .take()
+                    .and_then(|progress| progress.lock().ok().map(|value| *value));
                 match result {
                     Ok(ready) => {
                         this.updates.ready = Some(ready);
@@ -154,12 +217,29 @@ impl ResumeOne {
                             this.offer_restart(window, cx);
                         }
                     }
-                    Err(error) => this.editor_warning(
-                        tr("无法下载或验证更新"),
-                        &error.to_string(),
-                        window,
-                        cx,
-                    ),
+                    Err(error) => {
+                        let title = match phase {
+                            Some(UpdateProgress::Verifying) => tr("更新校验失败"),
+                            Some(UpdateProgress::Preparing) => tr("无法准备更新安装"),
+                            _ => tr("更新下载中断"),
+                        };
+                        let answer = window.prompt(
+                            PromptLevel::Warning,
+                            title,
+                            Some(&error.to_string()),
+                            &[tr("稍后"), tr("重试")],
+                            cx,
+                        );
+                        cx.spawn_in(window, async move |this, cx| {
+                            if answer.await.ok() == Some(1) {
+                                this.update_in(cx, |app, window, cx| {
+                                    app.download_update(window, cx)
+                                })
+                                .ok();
+                            }
+                        })
+                        .detach();
+                    }
                 }
                 cx.notify();
             })
@@ -170,6 +250,8 @@ impl ResumeOne {
 
     fn update_is_safe(&self) -> bool {
         !self.files.busy
+            && self.theme_editor.is_none()
+            && !self.theme_editor_loading
             && !self.export_busy
             && !self.theme_manager_open
             && !self.recovery_pending
@@ -180,6 +262,10 @@ impl ResumeOne {
     }
 
     fn offer_restart(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_editor.is_some() || self.theme_editor_loading {
+            self.after_theme_guard(window, cx, |app, window, cx| app.offer_restart(window, cx));
+            return;
+        }
         if !self.update_is_safe() {
             self.editor_warning(
                 tr("请先保存当前工作"),
@@ -244,5 +330,33 @@ impl ResumeOne {
             .ok();
         })
         .detach();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn update_labels_distinguish_progress_and_validation() {
+        let progress = Arc::new(Mutex::new(UpdateProgress::Downloading {
+            received: 12,
+            total: 48,
+        }));
+        let state = UpdateUi {
+            busy: true,
+            progress: Some(progress.clone()),
+            ..Default::default()
+        };
+        assert!(state.label().ends_with("25%"));
+        *progress.lock().unwrap() = UpdateProgress::Verifying;
+        assert_eq!(state.label(), tr("正在校验更新…"));
+        *progress.lock().unwrap() = UpdateProgress::Preparing;
+        assert_eq!(state.label(), tr("正在准备安装…"));
+        *progress.lock().unwrap() = UpdateProgress::Downloading {
+            received: 0,
+            total: 0,
+        };
+        assert!(state.label().ends_with("0%"));
     }
 }

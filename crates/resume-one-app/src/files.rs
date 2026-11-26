@@ -176,6 +176,19 @@ impl ResumeOne {
         {
             return;
         }
+        self.after_theme_guard(window, cx, |app, window, cx| {
+            app.new_resume_confirmed(window, cx);
+        });
+    }
+
+    fn new_resume_confirmed(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.theme_manager_open
+            || self.files.busy
+            || self.export_busy
+            || self.editor.as_ref().is_some_and(|e| e.saving)
+        {
+            return;
+        }
         if !self.ensure_editor(window, cx) || self.recovery_pending {
             return;
         }
@@ -539,6 +552,17 @@ impl ResumeOne {
     }
 
     fn apply_opened_file(
+        &mut self,
+        opened: OpenedFile,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.after_theme_guard(window, cx, move |app, window, cx| {
+            app.apply_opened_file_confirmed(opened, window, cx);
+        });
+    }
+
+    fn apply_opened_file_confirmed(
         &mut self,
         opened: OpenedFile,
         window: &mut Window,

@@ -298,6 +298,14 @@ impl ResumeOne {
     }
 
     pub(super) fn confirm_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        if self.theme_editor.is_some() || self.theme_editor_loading {
+            self.after_theme_guard(window, cx, |app, window, cx| {
+                if app.confirm_close(window, cx) {
+                    window.remove_window();
+                }
+            });
+            return false;
+        }
         if let Err(error) = self.change_appearance(self.model.appearance.clone(), window, cx) {
             self.editor_warning(tr("外观设置未保存"), &error, window, cx);
             return false;

@@ -1256,6 +1256,56 @@ fn page_canvas(data: Arc<PreviewData>, page: usize, px_per_pt: f32) -> impl Into
 }
 
 impl ResumeOne {
+    pub(super) fn theme_draft_fit_description(&self) -> String {
+        let Some(theme) = &self.theme_draft else {
+            return String::new();
+        };
+        let Ok(data) = self.preview.resolve(&self.model, theme) else {
+            return String::new();
+        };
+        let authored = resume_one_core::theme_style::ThemeStyle::from_manifest(
+            &self.model.appearance.apply(&theme.manifest),
+        );
+        let mut changes = Vec::new();
+        if authored.stacked_contacts != data.style.stacked_contacts {
+            changes.push(crate::i18n::tr("合并联系方式"));
+        }
+        if authored.sidebar_width_pct != data.style.sidebar_width_pct {
+            changes.push(crate::i18n::tr("平衡双栏宽度"));
+        }
+        if authored.split_header != data.style.split_header
+            || authored.header_identity_fraction() != data.style.header_identity_fraction()
+        {
+            changes.push(crate::i18n::tr("调整页眉布局"));
+        }
+        if self
+            .model
+            .content
+            .sections
+            .iter()
+            .any(|section| authored.section(section.id).date != data.style.section(section.id).date)
+        {
+            changes.push(crate::i18n::tr("调整日期排列"));
+        }
+        if authored.typography.body.size_pt != data.style.typography.body.size_pt {
+            changes.push(crate::i18n::tr("微调正文字号"));
+        }
+        if authored.page.section_gap_mm != data.style.page.section_gap_mm {
+            changes.push(crate::i18n::tr("收紧模块留白"));
+        }
+        if authored.spacing_scale() != data.style.spacing_scale() {
+            changes.push(crate::i18n::tr("收紧条目留白"));
+        }
+        if authored.typography.body.line_height != data.style.typography.body.line_height {
+            changes.push(crate::i18n::tr("微调正文行距"));
+        }
+        if changes.is_empty() {
+            crate::i18n::tr("沿用主题原有排版").into()
+        } else {
+            changes.join(" · ")
+        }
+    }
+
     pub(super) fn theme_draft_page_count(&self) -> Option<usize> {
         self.model.preview_ready.then_some(())?;
         let theme = self.theme_draft.as_ref()?;

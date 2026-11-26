@@ -2,8 +2,8 @@
 use std::path::PathBuf;
 
 use gpui::{
-    Context, Entity, IntoElement, PromptLevel, Render, Subscription, WeakEntity, Window, div,
-    prelude::*, px,
+    Animation, AnimationExt, Context, Entity, IntoElement, PromptLevel, Render, ScrollHandle,
+    Subscription, WeakEntity, Window, div, prelude::*, px,
 };
 use gpui_component::{
     Disableable, Selectable, Sizable,
@@ -46,6 +46,7 @@ pub(super) struct ThemeEditor {
     owner: WeakEntity<ResumeOne>,
     base: ThemeManifest,
     value: Value,
+    initial: Value,
     name: Entity<InputState>,
     text: Entity<InputState>,
     margins: [Entity<InputState>; 4],
@@ -60,6 +61,31 @@ pub(super) struct ThemeEditor {
     message: Option<String>,
     from_original: bool,
     default_name: String,
+    text_initial: String,
+    text_language: resume_one_core::render::Language,
+    scroll: [ScrollHandle; 2],
+    module_scroll: std::collections::BTreeMap<&'static str, ScrollHandle>,
+    motion: usize,
+}
+
+#[derive(Clone)]
+struct DragModule {
+    editor: gpui::EntityId,
+    id: &'static str,
+    palette: chrome::Palette,
+}
+
+impl Render for DragModule {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .px_3()
+            .py_2()
+            .rounded_md()
+            .bg(color(self.palette.panel))
+            .text_color(color(self.palette.ink))
+            .shadow_sm()
+            .child(label(self.id))
+    }
 }
 
 fn array(value: &mut Value) -> &mut Vec<Value> {
@@ -125,19 +151,30 @@ impl ThemeEditor {
                     .default_value(value["page"]["marginsMm"][side].to_string())
             })
         });
-        let subscriptions = margins
+        let mut subscriptions: Vec<_> = margins
             .iter()
             .map(|input| {
                 cx.subscribe_in(input, window, |this, _, event, _, cx| {
-                    if matches!(event, InputEvent::PressEnter { .. }) {
+                    if matches!(event, InputEvent::PressEnter { .. } | InputEvent::Blur) {
                         this.apply_margins(cx);
                     }
+                    cx.notify();
                 })
             })
             .collect();
+        for input in [&name, &text] {
+            subscriptions
+                .push(cx.subscribe_in(input, window, |_, _, _: &InputEvent, _, cx| cx.notify()));
+        }
+        subscriptions.push(cx.subscribe_in(&text, window, |this, _, event, _, cx| {
+            if matches!(event, InputEvent::PressEnter { .. }) {
+                this.finish_text(cx);
+            }
+        }));
         Self {
             owner,
             base: theme.manifest.clone(),
+            initial: value.clone(),
             value,
             name,
             text,
@@ -153,6 +190,14 @@ impl ThemeEditor {
             message: None,
             from_original,
             default_name,
+            text_initial: String::new(),
+            text_language: crate::i18n::language(),
+            scroll: std::array::from_fn(|_| ScrollHandle::new()),
+            module_scroll: SECTION_LABELS
+                .iter()
+                .map(|(id, _)| (*id, ScrollHandle::new()))
+                .collect(),
+            motion: 0,
         }
     }
 
@@ -215,12 +260,16 @@ impl ThemeEditor {
     }
 
     fn has_changes(&self, cx: &gpui::App) -> bool {
-        !self.history.is_empty()
+        self.value != self.initial
             || self.name.read(cx).value().as_ref() != self.default_name
-            || self.editing_title
-            || self.element.is_some()
-            || SIDES.iter().zip(&self.margins).any(|((side, _), input)| {
-                input.read(cx).value().as_ref() != self.value["page"]["marginsMm"][side].to_string()
+            || self.name.read(cx).is_composing()
+            || ((self.editing_title || self.element.is_some())
+                && (self.text.read(cx).value().as_ref() != self.text_initial
+                    || self.text.read(cx).is_composing()))
+            || self.parsed_margins(cx).is_none_or(|margins| {
+                SIDES.iter().any(|(side, _)| {
+                    margins[side].as_f64() != self.value["page"]["marginsMm"][side].as_f64()
+                })
             })
     }
 
@@ -236,7 +285,7 @@ impl ThemeEditor {
         }
     }
 
-    fn parsed_margins(&self, cx: &Context<Self>) -> Option<Value> {
+    fn parsed_margins(&self, cx: &gpui::App) -> Option<Value> {
         let mut values = serde_json::Map::new();
         for ((side, _), input) in SIDES.iter().zip(&self.margins) {
             let value = input
@@ -275,6 +324,12 @@ impl ThemeEditor {
     }
 
     fn open_text(&mut self, value: String, window: &mut Window, cx: &mut Context<Self>) {
+        self.text_initial = value.clone();
+        self.text_language = self
+            .owner
+            .upgrade()
+            .map(|owner| owner.read(cx).model.presentation_language)
+            .unwrap_or_else(crate::i18n::language);
         self.text.update(cx, |text, cx| {
             text.set_value(value, window, cx);
             text.focus(window, cx);
@@ -282,15 +337,68 @@ impl ThemeEditor {
         cx.notify();
     }
 
+    fn finish_text(&mut self, cx: &mut Context<Self>) -> bool {
+        if !(self.editing_title || self.element.is_some()) {
+            return true;
+        }
+        if self.text.read(cx).is_composing() {
+            self.message = Some(tr("请先完成文字输入").into());
+            cx.notify();
+            return false;
+        }
+        if self.text.read(cx).value().as_ref() == self.text_initial {
+            self.clear_text_edit();
+            return true;
+        }
+        if let Some(id) = self.module {
+            self.save_text(id, cx);
+        }
+        !self.editing_title && self.element.is_none()
+    }
+
+    fn navigate(&mut self, tab: Tab, module: Option<&'static str>, cx: &mut Context<Self>) {
+        if !self.finish_text(cx) || (self.tab == Tab::Paper && !self.apply_margins(cx)) {
+            return;
+        }
+        if self.tab != tab || self.module != module {
+            self.motion = self.motion.wrapping_add(1);
+        }
+        self.tab = tab;
+        self.module = module;
+        self.clear_text_edit();
+        cx.notify();
+    }
+
+    fn move_module(&mut self, id: &str, target: &str, sidebar: bool, cx: &mut Context<Self>) {
+        if id == target || !self.finish_text(cx) {
+            return;
+        }
+        self.edit(
+            |value| {
+                let order = array(&mut value["composition"]["moduleOrder"]);
+                let (Some(from), Some(to)) = (
+                    order.iter().position(|value| value == id),
+                    order.iter().position(|value| value == target),
+                ) else {
+                    return;
+                };
+                let module = order.remove(from);
+                order.insert(to, module);
+                let preset = value["composition"]["preset"].as_str().unwrap_or_default();
+                if matches!(preset, "sidebar-left" | "sidebar-right") {
+                    value["composition"]["placements"][id] =
+                        json!(if sidebar { "sidebar" } else { "main" });
+                }
+            },
+            cx,
+        );
+    }
+
     fn save_text(&mut self, id: &'static str, cx: &mut Context<Self>) {
         let text = self.text.read(cx).value().trim().to_owned();
         let title = self.editing_title;
         let index = self.element;
-        let language = self
-            .owner
-            .upgrade()
-            .map(|owner| owner.read(cx).model.presentation_language);
-        let locale = if language == Some(resume_one_core::render::Language::En) {
+        let locale = if self.text_language == resume_one_core::render::Language::En {
             "en"
         } else {
             "zh-cn"
@@ -317,13 +425,8 @@ impl ThemeEditor {
     }
 
     fn save_copy(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if (self.editing_title || self.element.is_some())
-            && let Some(id) = self.module
-        {
-            self.save_text(id, cx);
-            if self.editing_title || self.element.is_some() {
-                return;
-            }
+        if !self.finish_text(cx) {
+            return;
         }
         if !self.apply_margins(cx) {
             return;
@@ -366,9 +469,37 @@ impl ThemeEditor {
                         .gap_1()
                         .child(
                             div()
+                                .flex()
+                                .items_center()
+                                .justify_between()
                                 .text_xs()
                                 .text_color(color(palette.muted))
-                                .child(tr(SIDES[index].1)),
+                                .child(format!("{} · mm", tr(SIDES[index].1)))
+                                .child(
+                                    Button::new(("reset-theme-margin", index))
+                                        .xsmall()
+                                        .ghost()
+                                        .label("↺")
+                                        .tooltip(tr("恢复此项默认值"))
+                                        .on_click(cx.listener(move |this, _, window, cx| {
+                                            let margins =
+                                                ThemeStyle::from_manifest(&this.base).page.margins;
+                                            let defaults = [
+                                                margins.top,
+                                                margins.bottom,
+                                                margins.left,
+                                                margins.right,
+                                            ];
+                                            this.margins[index].update(cx, |input, cx| {
+                                                input.set_value(
+                                                    defaults[index].to_string(),
+                                                    window,
+                                                    cx,
+                                                );
+                                            });
+                                            this.apply_margins(cx);
+                                        })),
+                                ),
                         )
                         .child(edit_input(&self.margins[index], palette)),
                 );
@@ -409,7 +540,14 @@ impl ThemeEditor {
                     .label(if fit { tr("✓ 适配一页") } else { tr("适配一页") })
                     .on_click(cx.listener(move |this, _, _, cx| {
                         if this.apply_margins(cx) {
-                            this.edit(|v| v["page"]["fitToOnePage"] = json!(!fit), cx);
+                            let original = this.initial["page"]["fitToOnePage"].clone();
+                            this.edit(|v| {
+                                if fit && original.is_null() {
+                                    v["page"].as_object_mut().unwrap().remove("fitToOnePage");
+                                } else {
+                                    v["page"]["fitToOnePage"] = json!(!fit);
+                                }
+                            }, cx);
                         }
                     })))
                 .when_some(pages, |view, count| view.child(div().text_xs().text_color(color(palette.muted)).child(
@@ -418,6 +556,21 @@ impl ThemeEditor {
                     else if crate::i18n::is_english() { format!("{count} {}", if count == 1 {"page"} else {"pages"}) }
                     else { format!("共 {count} 页") }
                 ))))
+            .when(fit, |view| {
+                let explanation = self.owner.upgrade()
+                    .map(|owner| owner.read(cx).theme_draft_fit_description())
+                    .unwrap_or_default();
+                view.child(div().text_xs().whitespace_normal().text_color(color(palette.muted)).child(explanation))
+                    .child(Button::new("theme-fit-restore").small().ghost().label(tr("恢复主题排版"))
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            let original = this.initial["page"]["fitToOnePage"].clone();
+                            this.edit(|value| {
+                                if original.is_null() {
+                                    value["page"].as_object_mut().unwrap().remove("fitToOnePage");
+                                } else { value["page"]["fitToOnePage"] = json!(false); }
+                            }, cx);
+                        })))
+            })
     }
 
     fn modules(&self, palette: chrome::Palette, cx: &mut Context<Self>) -> impl IntoElement {
@@ -437,13 +590,12 @@ impl ThemeEditor {
             .unwrap_or_else(|| ThemeStyle::from_manifest(&self.base));
         let mut rows = div().flex().flex_col().gap_1().child(
             Button::new("theme-module-basics")
+                .debug_selector(|| "theme-module-basics".into())
                 .small()
                 .outline()
                 .label(label("basics"))
                 .on_click(cx.listener(|this, _, _, cx| {
-                    this.module = Some("basics");
-                    this.clear_text_edit();
-                    cx.notify();
+                    this.navigate(Tab::Modules, Some("basics"), cx);
                 })),
         );
         let mut entries: Vec<_> = order.iter().enumerate().collect();
@@ -476,23 +628,55 @@ impl ThemeEditor {
                 .as_array()
                 .is_some_and(|values| values.contains(module));
             let mut row = div()
+                .id(("theme-module-row", index))
+                .debug_selector(move || format!("theme-module-target-{id}"))
                 .min_w_0()
                 .flex()
                 .items_center()
                 .gap_1()
-                .rounded_md()
-                .bg(color(palette.soft))
+                .py_1()
+                .border_b_1()
+                .border_color(color(palette.line))
+                .drag_over::<DragModule>(move |row, _, _, _| row.bg(color(palette.soft)))
+                .on_drop(cx.listener(move |this, drag: &DragModule, _, cx| {
+                    if drag.editor == cx.entity_id() {
+                        this.move_module(drag.id, id, sidebar, cx);
+                    }
+                }))
+                .child(
+                    div()
+                        .id(("theme-module-grip", index))
+                        .debug_selector(move || format!("theme-module-grip-{id}"))
+                        .px_1()
+                        .cursor_grab()
+                        .text_color(color(palette.muted))
+                        .child("⠿")
+                        .on_drag(
+                            DragModule {
+                                editor: cx.entity_id(),
+                                id,
+                                palette,
+                            },
+                            |drag, _, _, cx| {
+                                cx.stop_propagation();
+                                cx.new(|_| drag.clone())
+                            },
+                        ),
+                )
                 .child(
                     div().flex_1().min_w_0().child(
                         Button::new(gpui::SharedString::from(format!("theme-module-{id}")))
+                            .debug_selector(move || format!("theme-module-{id}"))
                             .small()
                             .ghost()
                             .w_full()
-                            .label(label(id))
+                            .label(if hidden {
+                                format!("{} · {}", label(id), tr("已隐藏"))
+                            } else {
+                                label(id).to_owned()
+                            })
                             .on_click(cx.listener(move |this, _, _, cx| {
-                                this.module = Some(id);
-                                this.clear_text_edit();
-                                cx.notify();
+                                this.navigate(Tab::Modules, Some(id), cx);
                             })),
                     ),
                 );
@@ -505,11 +689,15 @@ impl ThemeEditor {
                     .ghost()
                     .label(if offset == 0 { "↑" } else { "↓" })
                     .disabled(target.is_none())
-                    .tooltip(if offset == 0 {
-                        tr("上移模块")
-                    } else {
-                        tr("下移模块")
-                    })
+                    .tooltip(format!(
+                        "{} · {}",
+                        label(id),
+                        if offset == 0 {
+                            tr("上移模块")
+                        } else {
+                            tr("下移模块")
+                        }
+                    ))
                     .on_click(cx.listener(move |this, _, _, cx| {
                         if let Some(target) = target {
                             this.edit(
@@ -563,9 +751,7 @@ impl ThemeEditor {
                         .label("‹")
                         .tooltip(tr("返回模块"))
                         .on_click(cx.listener(|this, _, _, cx| {
-                            this.module = None;
-                            this.clear_text_edit();
-                            cx.notify();
+                            this.navigate(Tab::Modules, None, cx);
                         })),
                 )
                 .child(
@@ -662,6 +848,9 @@ impl ThemeEditor {
                             .label(tr("编辑"))
                             .on_click(cx.listener(
                                 move |this, _, window, cx| {
+                                    if !this.finish_text(cx) {
+                                        return;
+                                    }
                                     this.clear_text_edit();
                                     this.element = Some(index);
                                     this.open_text(text.clone(), window, cx);
@@ -678,6 +867,9 @@ impl ThemeEditor {
                         .label("−")
                         .tooltip(tr("删除元素"))
                         .on_click(cx.listener(move |this, _, _, cx| {
+                            if !this.finish_text(cx) {
+                                return;
+                            }
                             this.clear_text_edit();
                             this.edit(
                                 |v| {
@@ -705,6 +897,9 @@ impl ThemeEditor {
                         .outline()
                         .label(tr("编辑模块标题"))
                         .on_click(cx.listener(move |this, _, window, cx| {
+                            if !this.finish_text(cx) {
+                                return;
+                            }
                             this.clear_text_edit();
                             this.editing_title = true;
                             let language = this
@@ -735,6 +930,9 @@ impl ThemeEditor {
                                 .label(tr("+ 文字"))
                                 .disabled(extras.len() == 8)
                                 .on_click(cx.listener(move |this, _, window, cx| {
+                                    if !this.finish_text(cx) {
+                                        return;
+                                    }
                                     this.clear_text_edit();
                                     this.element = Some(
                                         this.value["sections"][id]["elements"]
@@ -751,6 +949,9 @@ impl ThemeEditor {
                                 .label(tr("+ 分隔线"))
                                 .disabled(extras.len() == 8)
                                 .on_click(cx.listener(move |this, _, _, cx| {
+                                    if !this.finish_text(cx) {
+                                        return;
+                                    }
                                     this.clear_text_edit();
                                     this.edit(
                                         |v| {
@@ -869,6 +1070,9 @@ impl ThemeEditor {
                             .ghost()
                             .label(tr("编辑"))
                             .on_click(cx.listener(move |this, _, _, cx| {
+                                if !this.finish_text(cx) {
+                                    return;
+                                }
                                 this.clear_text_edit();
                                 this.header_line = Some(index);
                                 cx.notify();
@@ -881,6 +1085,9 @@ impl ThemeEditor {
                             .label("−")
                             .tooltip(tr("删除元素"))
                             .on_click(cx.listener(move |this, _, _, cx| {
+                                if !this.finish_text(cx) {
+                                    return;
+                                }
                                 this.clear_text_edit();
                                 this.edit(
                                     |v| {
@@ -909,6 +1116,9 @@ impl ThemeEditor {
                 .label(tr("+ 字段行"))
                 .disabled(lines.len() == 8)
                 .on_click(cx.listener(|this, _, _, cx| {
+                    if !this.finish_text(cx) {
+                        return;
+                    }
                     this.clear_text_edit();
                     this.header_line = Some(usize::MAX);
                     cx.notify();
@@ -1018,18 +1228,20 @@ impl Render for ThemeEditor {
         for (tab, title) in [(Tab::Paper, "纸面"), (Tab::Modules, "模块")] {
             tabs = tabs.child(
                 Button::new(title)
+                    .debug_selector(move || {
+                        if tab == Tab::Paper {
+                            "theme-tab-paper".into()
+                        } else {
+                            "theme-tab-modules".into()
+                        }
+                    })
                     .small()
                     .flex_1()
                     .outline()
                     .label(tr(title))
                     .selected(self.tab == tab)
                     .on_click(cx.listener(move |this, _, _, cx| {
-                        if this.tab == Tab::Paper && !this.apply_margins(cx) {
-                            return;
-                        }
-                        this.tab = tab;
-                        this.clear_text_edit();
-                        cx.notify();
+                        this.navigate(tab, this.module, cx);
                     })),
             );
         }
@@ -1037,6 +1249,27 @@ impl Render for ThemeEditor {
             (Tab::Paper, _) => self.paper(palette, pages, cx).into_any_element(),
             (Tab::Modules, Some(id)) => self.module_detail(id, palette, cx).into_any_element(),
             (Tab::Modules, None) => self.modules(palette, cx).into_any_element(),
+        };
+        let reduce_motion = self
+            .owner
+            .upgrade()
+            .is_none_or(|owner| owner.read(cx).reduce_motion);
+        let content = div().child(content);
+        let content = if reduce_motion {
+            content.into_any_element()
+        } else {
+            content
+                .with_animation(
+                    ("theme-editor-transition", self.motion),
+                    Animation::new(std::time::Duration::from_millis(140)),
+                    |view, t| view.opacity(0.35 + 0.65 * t * t * (3.0 - 2.0 * t)),
+                )
+                .into_any_element()
+        };
+        let scroll = match (self.tab, self.module) {
+            (Tab::Paper, _) => &self.scroll[0],
+            (Tab::Modules, None) => &self.scroll[1],
+            (Tab::Modules, Some(id)) => self.module_scroll.get(id).expect("standard module"),
         };
         div()
             .id("theme-editor")
@@ -1070,7 +1303,7 @@ impl Render for ThemeEditor {
                                     .debug_selector(|| "close-theme-editor".into())
                                     .xsmall()
                                     .ghost()
-                                    .label("×")
+                                    .label(tr("关闭"))
                                     .tooltip(tr("关闭"))
                                     .on_click({
                                         let owner = self.owner.clone();
@@ -1085,6 +1318,13 @@ impl Render for ThemeEditor {
                                     }),
                             ),
                     )
+                    .child(div().text_xs().text_color(color(palette.muted)).child(tr(
+                        if self.has_changes(cx) {
+                            "未保存副本"
+                        } else {
+                            "尚未修改"
+                        },
+                    )))
                     .child(tabs),
             )
             .child(
@@ -1093,6 +1333,7 @@ impl Render for ThemeEditor {
                     .flex_1()
                     .min_h_0()
                     .overflow_y_scroll()
+                    .track_scroll(scroll)
                     .p_3()
                     .flex()
                     .flex_col()
@@ -1339,6 +1580,7 @@ impl ResumeOne {
     pub(super) fn close_theme_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.theme_editor_generation = self.theme_editor_generation.wrapping_add(1);
         self.theme_editor_loading = false;
+        self.theme_exit_pending = false;
         self.theme_editor = None;
         if self.theme_draft.take().is_some() {
             self.model.theme_epoch = self.model.theme_epoch.wrapping_add(1);
@@ -1352,31 +1594,72 @@ impl ResumeOne {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        self.after_theme_guard(window, cx, |_, _, _| {});
+    }
+
+    pub(super) fn after_theme_guard(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        action: impl FnOnce(&mut Self, &mut Window, &mut Context<Self>) + 'static,
+    ) {
+        if self.theme_exit_pending {
+            return;
+        }
         let Some(editor) = self
             .theme_editor
             .as_ref()
             .filter(|editor| editor.read(cx).has_changes(cx))
         else {
-            self.close_theme_editor(window, cx);
+            if self.theme_editor.is_some() || self.theme_editor_loading {
+                self.close_theme_editor(window, cx);
+            }
+            action(self, window, cx);
             return;
         };
         let editor = editor.downgrade();
+        self.theme_exit_pending = true;
         let answer = window.prompt(
             PromptLevel::Warning,
             tr("未保存主题副本"),
-            Some(tr("退出后将丢弃本次主题修改。")),
-            &[tr("继续编辑"), tr("放弃修改")],
+            Some(tr("保存主题副本后继续，或放弃本次修改。")),
+            &[tr("继续编辑"), tr("放弃修改"), tr("保存副本并继续")],
             cx,
         );
         cx.spawn_in(window, async move |this, cx| {
-            if answer.await.ok() == Some(1) {
-                this.update_in(cx, |app, window, cx| {
-                    if editor.upgrade().as_ref() == app.theme_editor.as_ref() {
+            let answer = answer.await.ok();
+            this.update_in(cx, |app, window, cx| {
+                app.theme_exit_pending = false;
+                if editor.upgrade().as_ref() != app.theme_editor.as_ref() {
+                    return;
+                }
+                match answer {
+                    Some(1) => {
                         app.close_theme_editor(window, cx);
+                        action(app, window, cx);
                     }
-                })
-                .ok();
-            }
+                    Some(2) => {
+                        let owner = cx.entity().downgrade();
+                        // Saving the child updates its owner. Release the owner first.
+                        window.defer(cx, move |window, cx| {
+                            let (Some(owner), Some(editor)) = (owner.upgrade(), editor.upgrade())
+                            else {
+                                return;
+                            };
+                            if owner.read(cx).theme_editor.as_ref() != Some(&editor) {
+                                return;
+                            }
+                            editor.update(cx, |editor, cx| editor.save_copy(window, cx));
+                            if owner.read(cx).theme_editor.is_none() {
+                                owner.update(cx, |app, cx| action(app, window, cx));
+                            }
+                        });
+                    }
+                    _ => {}
+                }
+                cx.notify();
+            })
+            .ok();
         })
         .detach();
     }
@@ -1420,6 +1703,215 @@ impl ResumeOne {
 mod tests {
     use super::*;
     use gpui::TestAppContext;
+
+    #[gpui::test]
+    fn dirty_state_survives_history_truncation_and_recognizes_restored_values(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let (view, cx) = cx.add_window_view(|_, cx| {
+            ResumeOne::new(crate::model::AppModel::load(None).unwrap(), cx)
+        });
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                let initial = editor.initial.clone();
+                let top = initial["page"]["marginsMm"]["top"].as_f64().unwrap();
+                editor.edit(
+                    |value| value["page"]["marginsMm"]["top"] = json!(top + 1.0),
+                    cx,
+                );
+                editor.edit(|value| *value = initial.clone(), cx);
+                editor.refresh_margins(window, cx);
+                assert!(!editor.has_changes(cx));
+                for step in 1..=61 {
+                    editor.edit(
+                        |value| value["page"]["marginsMm"]["top"] = json!(top + step as f64 / 10.0),
+                        cx,
+                    );
+                }
+                for _ in 0..60 {
+                    editor.restore(true, window, cx);
+                }
+                assert_ne!(editor.value, initial);
+                assert!(editor.has_changes(cx));
+            });
+        });
+    }
+
+    #[gpui::test]
+    fn navigation_commits_text_but_keeps_invalid_input_and_scroll_position(
+        cx: &mut TestAppContext,
+    ) {
+        cx.update(gpui_component::init);
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| ResumeOne::new(crate::model::AppModel::load(None).unwrap(), cx));
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                editor.navigate(Tab::Modules, Some("work"), cx);
+                editor.editing_title = true;
+                editor.open_text("Work".into(), window, cx);
+                let language = editor.text_language;
+                editor.text.update(cx, |input, cx| {
+                    input.set_value("Selected experience", window, cx)
+                });
+                editor.module_scroll["work"].set_offset(gpui::point(px(0.0), px(-72.0)));
+                editor.navigate(Tab::Paper, Some("work"), cx);
+                let locale = if language == resume_one_core::render::Language::En {
+                    "en"
+                } else {
+                    "zh-cn"
+                };
+                assert_eq!(
+                    editor.value["localizations"][locale]["sections"]["work"],
+                    "Selected experience"
+                );
+                editor.navigate(Tab::Modules, Some("work"), cx);
+                assert_eq!(editor.module_scroll["work"].offset().y, px(-72.0));
+                editor.editing_title = true;
+                editor.open_text("Selected experience".into(), window, cx);
+                editor
+                    .text
+                    .update(cx, |input, cx| input.set_value("x".repeat(500), window, cx));
+                editor.navigate(Tab::Paper, Some("work"), cx);
+                assert!(editor.tab == Tab::Modules && editor.editing_title);
+                assert!(editor.message.is_some());
+                assert_eq!(editor.text.read(cx).value().len(), 500);
+            });
+        });
+    }
+
+    #[gpui::test]
+    fn guarded_new_document_can_cancel_and_save_and_failure_keeps_draft(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let temp = tempfile::tempdir().unwrap();
+        let store = crate::theme_local::ThemeStore::new(
+            temp.path().join("settings.json"),
+            temp.path().join("themes"),
+        )
+        .unwrap();
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| {
+                let mut app = ResumeOne::new(crate::model::AppModel::load(None).unwrap(), cx);
+                app.theme_store = Some(store);
+                app
+            });
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        let source = cx.update(|_, cx| view.read(cx).model.document.source.clone());
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                editor.edit(|value| value["page"]["marginsMm"]["top"] = json!(10), cx);
+                editor.refresh_margins(window, cx);
+            });
+            view.update(cx, |app, cx| assert!(!app.confirm_close(window, cx)));
+        });
+        assert!(cx.has_pending_prompt());
+        cx.simulate_prompt_answer(tr("继续编辑"));
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            assert!(view.read(cx).theme_editor.is_some());
+            view.update(cx, |app, cx| {
+                app.new_resume(&crate::files::NewResume, window, cx)
+            });
+        });
+        assert!(cx.has_pending_prompt());
+        cx.simulate_prompt_answer(tr("继续编辑"));
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            assert!(view.read(cx).theme_editor.is_some());
+            assert_eq!(view.read(cx).model.document.source, source);
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                editor
+                    .name
+                    .update(cx, |name, cx| name.set_value("", window, cx))
+            });
+            view.update(cx, |app, cx| {
+                app.new_resume(&crate::files::NewResume, window, cx)
+            });
+        });
+        cx.simulate_prompt_answer(tr("保存副本并继续"));
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            let editor = view
+                .read(cx)
+                .theme_editor
+                .clone()
+                .expect("failed save preserves the draft");
+            assert_eq!(view.read(cx).model.document.source, source);
+            editor.update(cx, |editor, cx| {
+                editor.name.update(cx, |name, cx| {
+                    name.set_value("Saved before new", window, cx)
+                })
+            });
+            view.update(cx, |app, cx| {
+                app.new_resume(&crate::files::NewResume, window, cx)
+            });
+        });
+        cx.simulate_prompt_answer(tr("保存副本并继续"));
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let app = view.read(cx);
+            assert!(app.theme_editor.is_none());
+            assert_eq!(app.model.applied_theme().manifest.name, "Saved before new");
+            assert_eq!(app.model.document.value, json!({"basics":{}}));
+        });
+    }
+
+    #[gpui::test]
+    fn dragging_modules_reorders_without_losing_content_and_can_be_undone(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let (view, cx) = cx.add_window_view(|_, cx| {
+            ResumeOne::new(crate::model::AppModel::load(None).unwrap(), cx)
+        });
+        cx.simulate_resize(gpui::size(px(1340.0), px(820.0)));
+        cx.update(|window, cx| {
+            view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| editor.navigate(Tab::Modules, None, cx));
+            window.refresh();
+        });
+        let before = cx.update(|_, cx| view.read(cx).theme_editor.as_ref().unwrap().read(cx).value["composition"]["moduleOrder"].clone());
+        let source = cx.debug_bounds("theme-module-grip-work").unwrap().center();
+        let target = cx
+            .debug_bounds("theme-module-target-education")
+            .unwrap()
+            .center();
+        cx.simulate_mouse_down(source, gpui::MouseButton::Left, gpui::Modifiers::none());
+        cx.simulate_mouse_move(target, gpui::MouseButton::Left, gpui::Modifiers::none());
+        cx.simulate_mouse_up(target, gpui::MouseButton::Left, gpui::Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            let editor = view.read(cx).theme_editor.clone().unwrap();
+            editor.update(cx, |editor, cx| {
+                let after = &editor.value["composition"]["moduleOrder"];
+                assert_ne!(after, &before);
+                let mut sorted_before = before.as_array().unwrap().clone();
+                let mut sorted_after = after.as_array().unwrap().clone();
+                sorted_before.sort_by_key(|value| value.as_str().unwrap().to_owned());
+                sorted_after.sort_by_key(|value| value.as_str().unwrap().to_owned());
+                assert_eq!(sorted_before, sorted_after);
+                editor.restore(true, window, cx);
+                assert_eq!(editor.value["composition"]["moduleOrder"], before);
+            });
+        });
+    }
 
     #[gpui::test]
     fn close_button_releases_an_unchanged_theme_editor(cx: &mut TestAppContext) {

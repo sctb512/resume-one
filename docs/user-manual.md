@@ -48,7 +48,7 @@ Original themes render the current résumé through the system WebView, which is
 
 ### Personal themes and page layout
 
-Apply a theme, then choose **Edit theme** in the sections panel. The paper stays visible while you edit.
+Apply a theme, then choose **Edit theme** in the sections panel. The paper stays visible while you edit. Module names have their own row, with move, hide, and show controls underneath. Inspector controls follow the application’s current palette independently of the system’s light or dark appearance.
 
 - **Page** lets you set the four margins from 3–35 mm, use the **Narrow** preset, or restore the source theme's margins. Apply valid numeric edits with Enter, on leaving the field, or with **Apply**. Each margin also has its own reset control. The 20 built-in themes use their own compact defaults.
 - **Sections** lets you drag modules to reorder them or move them between columns, use the up/down controls, show or hide them, and open a module to edit its localized heading. You can toggle its entry headings, descriptions, highlights, and links, add or edit supported entry field rows, and add, edit, or delete plain text and thin dividers. These controls change what the theme displays. You can also show or hide individual fields in Basics. The résumé's JSON stays intact.

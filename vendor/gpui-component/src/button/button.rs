@@ -515,7 +515,7 @@ impl RenderOnce for Button {
                         let hover_style = style.hovered(self.outline, cx);
                         this.bg(hover_style.bg)
                             .border_color(hover_style.border)
-                            .text_color(crate::red_400())
+                            .text_color(hover_style.fg)
                     })
                     .active(|this| {
                         let active_style = style.active(self.outline, cx);
@@ -961,9 +961,12 @@ impl ButtonVariant {
             ButtonVariant::Success => cx.theme().success.opacity(0.15),
             ButtonVariant::Info => cx.theme().info.opacity(0.15),
             ButtonVariant::Secondary => cx.theme().secondary.opacity(1.5),
-            ButtonVariant::Custom(style) => style.color.opacity(0.15),
+            ButtonVariant::Custom(style) => style.color.opacity(style.color.a * 0.15),
         };
-        let fg = cx.theme().muted_foreground.opacity(0.5);
+        let fg = match self {
+            ButtonVariant::Custom(style) => style.foreground.opacity(0.45),
+            _ => cx.theme().muted_foreground.opacity(0.5),
+        };
         let (bg, border) = if outline {
             (cx.theme().transparent, cx.theme().border.opacity(0.5))
         } else {
@@ -980,5 +983,40 @@ impl ButtonVariant {
             underline,
             shadow,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use gpui::{TestAppContext, rgb};
+
+    #[gpui::test]
+    fn custom_foregrounds_do_not_inherit_system_appearance(cx: &mut TestAppContext) {
+        cx.update(crate::init);
+        cx.update(|cx| {
+            for mode in [crate::ThemeMode::Light, crate::ThemeMode::Dark] {
+                crate::Theme::change(mode, None, cx);
+                for (background, foreground) in [(0xf8f6f1, 0x243330), (0x182522, 0xf6f3ec)] {
+                    let foreground: Hsla = rgb(foreground).into();
+                    let custom = ButtonVariant::Custom(
+                        ButtonCustomVariant::new(cx)
+                            .color(rgb(background).into())
+                            .foreground(foreground)
+                            .hover(rgb(background).into())
+                            .active(rgb(background).into()),
+                    );
+                    for style in [
+                        custom.normal(false, cx),
+                        custom.hovered(false, cx),
+                        custom.active(false, cx),
+                        custom.selected(false, cx),
+                    ] {
+                        assert_eq!(style.fg, foreground);
+                    }
+                    assert_eq!(custom.disabled(false, cx).fg, foreground.opacity(0.45));
+                }
+            }
+        });
     }
 }

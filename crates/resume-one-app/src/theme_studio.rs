@@ -7,7 +7,7 @@ use gpui::{
 };
 use gpui_component::{
     Disableable, Selectable, Sizable,
-    button::{Button, ButtonVariants},
+    button::{Button, ButtonCustomVariant, ButtonVariants},
     input::{Input, InputEvent, InputPalette, InputState},
 };
 use resume_one_core::{ThemeManifest, theme_style::ThemeStyle};
@@ -474,11 +474,10 @@ impl ThemeEditor {
                                 .justify_between()
                                 .text_xs()
                                 .text_color(color(palette.muted))
-                                .child(format!("{} · mm", tr(SIDES[index].1)))
+                                .child(tr(SIDES[index].1))
                                 .child(
-                                    Button::new(("reset-theme-margin", index))
+                                    editor_button(("reset-theme-margin", index), palette, cx)
                                         .xsmall()
-                                        .ghost()
                                         .label("↺")
                                         .tooltip(tr("恢复此项默认值"))
                                         .on_click(cx.listener(move |this, _, window, cx| {
@@ -506,10 +505,10 @@ impl ThemeEditor {
             }
             margins = margins.child(fields);
         }
-        div().flex().flex_col().gap_2()
+        div().w_full().min_w_0().flex().flex_col().gap_3()
             .child(div().flex().justify_between().items_center().gap_1()
                 .child(div().font_weight(gpui::FontWeight::SEMIBOLD).child(tr("页边距 · mm")))
-                .child(Button::new("theme-margin-compact").small().ghost().label(tr("紧凑"))
+                .child(editor_button("theme-margin-compact", palette, cx).small().label(tr("紧凑"))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.edit(|v| {
                             v["page"]["marginsMm"] = json!({"top":10, "bottom":10, "left":11, "right":11});
@@ -519,7 +518,7 @@ impl ThemeEditor {
                     }))))
             .child(margins)
             .child(div().flex().justify_between()
-                .child(Button::new("theme-margin-reset").small().ghost().label(tr("恢复默认"))
+                .child(editor_button("theme-margin-reset", palette, cx).small().label(tr("恢复默认"))
                     .on_click(cx.listener(|this, _, window, cx| {
                         let margins = ThemeStyle::from_manifest(&this.base).page.margins;
                         let position = this.base.normalized["page"]["firstLinePosition"].clone();
@@ -533,10 +532,11 @@ impl ThemeEditor {
                         }, cx);
                         this.refresh_margins(window, cx);
                     })))
-                .child(Button::new("theme-margin-apply").small().outline().label(tr("应用"))
+                .child(outlined_editor_button("theme-margin-apply", palette, cx)
+                    .debug_selector(|| "theme-margin-apply".into()).small().label(tr("应用"))
                     .on_click(cx.listener(|this, _, _, cx| { this.apply_margins(cx); }))))
             .child(div().mt_3().pt_3().border_t_1().border_color(color(palette.line)).flex().flex_col().gap_2()
-                .child(Button::new("theme-fit").small().outline()
+                .child(outlined_editor_button("theme-fit", palette, cx).small()
                     .label(if fit { tr("✓ 适配一页") } else { tr("适配一页") })
                     .on_click(cx.listener(move |this, _, _, cx| {
                         if this.apply_margins(cx) {
@@ -561,7 +561,7 @@ impl ThemeEditor {
                     .map(|owner| owner.read(cx).theme_draft_fit_description())
                     .unwrap_or_default();
                 view.child(div().text_xs().whitespace_normal().text_color(color(palette.muted)).child(explanation))
-                    .child(Button::new("theme-fit-restore").small().ghost().label(tr("恢复主题排版"))
+                    .child(editor_button("theme-fit-restore", palette, cx).small().label(tr("恢复主题排版"))
                         .on_click(cx.listener(|this, _, _, cx| {
                             let original = this.initial["page"]["fitToOnePage"].clone();
                             this.edit(|value| {
@@ -588,11 +588,10 @@ impl ThemeEditor {
                     .map(|theme| theme.style.clone())
             })
             .unwrap_or_else(|| ThemeStyle::from_manifest(&self.base));
-        let mut rows = div().flex().flex_col().gap_1().child(
-            Button::new("theme-module-basics")
+        let mut rows = div().w_full().min_w_0().flex().flex_col().gap_1().child(
+            outlined_editor_button("theme-module-basics", palette, cx)
                 .debug_selector(|| "theme-module-basics".into())
                 .small()
-                .outline()
                 .label(label("basics"))
                 .on_click(cx.listener(|this, _, _, cx| {
                     this.navigate(Tab::Modules, Some("basics"), cx);
@@ -631,13 +630,14 @@ impl ThemeEditor {
                 .id(("theme-module-row", index))
                 .debug_selector(move || format!("theme-module-target-{id}"))
                 .min_w_0()
+                .w_full()
                 .flex()
-                .items_center()
+                .flex_col()
                 .gap_1()
-                .py_1()
+                .py_2()
                 .border_b_1()
                 .border_color(color(palette.line))
-                .drag_over::<DragModule>(move |row, _, _, _| row.bg(color(palette.soft)))
+                .drag_over::<DragModule>(move |row, _, _, _| row.bg(color(editor_surface(palette))))
                 .on_drop(cx.listener(move |this, drag: &DragModule, _, cx| {
                     if drag.editor == cx.entity_id() {
                         this.move_module(drag.id, id, sidebar, cx);
@@ -645,48 +645,71 @@ impl ThemeEditor {
                 }))
                 .child(
                     div()
-                        .id(("theme-module-grip", index))
-                        .debug_selector(move || format!("theme-module-grip-{id}"))
-                        .px_1()
-                        .cursor_grab()
-                        .text_color(color(palette.muted))
-                        .child("⠿")
-                        .on_drag(
-                            DragModule {
-                                editor: cx.entity_id(),
-                                id,
-                                palette,
-                            },
-                            |drag, _, _, cx| {
-                                cx.stop_propagation();
-                                cx.new(|_| drag.clone())
-                            },
+                        .w_full()
+                        .min_w_0()
+                        .flex()
+                        .items_center()
+                        .gap_1()
+                        .child(
+                            div()
+                                .id(("theme-module-grip", index))
+                                .debug_selector(move || format!("theme-module-grip-{id}"))
+                                .px_1()
+                                .flex_none()
+                                .cursor_grab()
+                                .text_color(color(palette.muted))
+                                .child("⠿")
+                                .on_drag(
+                                    DragModule {
+                                        editor: cx.entity_id(),
+                                        id,
+                                        palette,
+                                    },
+                                    |drag, _, _, cx| {
+                                        cx.stop_propagation();
+                                        cx.new(|_| drag.clone())
+                                    },
+                                ),
+                        )
+                        .child(
+                            div().flex_1().min_w_0().child(
+                                editor_button(
+                                    gpui::SharedString::from(format!("theme-module-{id}")),
+                                    palette,
+                                    cx,
+                                )
+                                .debug_selector(move || format!("theme-module-{id}"))
+                                .small()
+                                .w_full()
+                                .px_1()
+                                .justify_start()
+                                .tooltip(label(id))
+                                .child(
+                                    div()
+                                        .min_w_0()
+                                        .truncate()
+                                        .when(hidden, |view| view.text_color(color(palette.muted)))
+                                        .child(label(id)),
+                                )
+                                .on_click(cx.listener(
+                                    move |this, _, _, cx| {
+                                        this.navigate(Tab::Modules, Some(id), cx);
+                                    },
+                                )),
+                            ),
                         ),
-                )
-                .child(
-                    div().flex_1().min_w_0().child(
-                        Button::new(gpui::SharedString::from(format!("theme-module-{id}")))
-                            .debug_selector(move || format!("theme-module-{id}"))
-                            .small()
-                            .ghost()
-                            .w_full()
-                            .label(if hidden {
-                                format!("{} · {}", label(id), tr("已隐藏"))
-                            } else {
-                                label(id).to_owned()
-                            })
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                this.navigate(Tab::Modules, Some(id), cx);
-                            })),
-                    ),
                 );
+            let mut actions = div().w_full().flex().items_center().justify_end().gap_1();
             for (offset, target) in adjacent.into_iter().enumerate() {
-                row = row.child(
-                    Button::new(gpui::SharedString::from(format!(
-                        "theme-module-move-{id}-{offset}"
-                    )))
+                actions = actions.child(
+                    editor_button(
+                        gpui::SharedString::from(format!("theme-module-move-{id}-{offset}")),
+                        palette,
+                        cx,
+                    )
                     .xsmall()
-                    .ghost()
+                    .w(px(24.))
+                    .debug_selector(move || format!("theme-module-move-{id}-{offset}"))
                     .label(if offset == 0 { "↑" } else { "↓" })
                     .disabled(target.is_none())
                     .tooltip(format!(
@@ -708,13 +731,19 @@ impl ThemeEditor {
                     })),
                 );
             }
-            row = row.child(
-                Button::new(gpui::SharedString::from(format!(
-                    "theme-module-toggle-{id}"
-                )))
+            actions = actions.child(
+                editor_button(
+                    gpui::SharedString::from(format!("theme-module-toggle-{id}")),
+                    palette,
+                    cx,
+                )
                 .xsmall()
-                .ghost()
-                .label(if hidden { "+" } else { "−" })
+                .debug_selector(move || format!("theme-module-toggle-{id}"))
+                .label(if hidden {
+                    tr("显示模块")
+                } else {
+                    tr("隐藏模块")
+                })
                 .tooltip(if hidden {
                     tr("显示模块")
                 } else {
@@ -727,6 +756,7 @@ impl ThemeEditor {
                     )
                 })),
             );
+            row = row.child(actions);
             rows = rows.child(row);
         }
         rows
@@ -739,15 +769,15 @@ impl ThemeEditor {
         cx: &mut Context<Self>,
     ) -> gpui::AnyElement {
         let section = &self.value["sections"][id];
-        let mut body = div().flex().flex_col().gap_2().child(
+        let mut body = div().w_full().min_w_0().flex().flex_col().gap_3().child(
             div()
                 .flex()
                 .items_center()
                 .gap_2()
                 .child(
-                    Button::new("theme-module-back")
+                    editor_button("theme-module-back", palette, cx)
+                        .debug_selector(|| "theme-module-back".into())
                         .small()
-                        .ghost()
                         .label("‹")
                         .tooltip(tr("返回模块"))
                         .on_click(cx.listener(|this, _, _, cx| {
@@ -787,9 +817,8 @@ impl ThemeEditor {
                 .iter()
                 .any(|key| self.value["composition"][key] == "sidebar");
             body = body.child(
-                Button::new("theme-module-placement")
+                outlined_editor_button("theme-module-placement", palette, cx)
                     .small()
-                    .outline()
                     .label(if sidebar {
                         tr("移到主栏")
                     } else {
@@ -835,16 +864,17 @@ impl ThemeEditor {
                     .items_center()
                     .gap_1()
                     .rounded_md()
-                    .bg(color(palette.soft))
+                    .bg(color(editor_surface(palette)))
                     .pl_2()
                     .child(div().flex_1().min_w_0().truncate().text_xs().child(display))
                     .when_some(text, |row, text| {
                         row.child(
-                            Button::new(gpui::SharedString::from(format!(
-                                "theme-extra-edit-{index}"
-                            )))
+                            editor_button(
+                                gpui::SharedString::from(format!("theme-extra-edit-{index}")),
+                                palette,
+                                cx,
+                            )
                             .xsmall()
-                            .ghost()
                             .label(tr("编辑"))
                             .on_click(cx.listener(
                                 move |this, _, window, cx| {
@@ -859,11 +889,12 @@ impl ThemeEditor {
                         )
                     })
                     .child(
-                        Button::new(gpui::SharedString::from(format!(
-                            "theme-extra-remove-{index}"
-                        )))
+                        editor_button(
+                            gpui::SharedString::from(format!("theme-extra-remove-{index}")),
+                            palette,
+                            cx,
+                        )
                         .xsmall()
-                        .ghost()
                         .label("−")
                         .tooltip(tr("删除元素"))
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -892,9 +923,9 @@ impl ThemeEditor {
                 .flex_col()
                 .gap_2()
                 .child(
-                    Button::new("theme-edit-title")
+                    outlined_editor_button("theme-edit-title", palette, cx)
+                        .debug_selector(|| "theme-edit-title".into())
                         .small()
-                        .outline()
                         .label(tr("编辑模块标题"))
                         .on_click(cx.listener(move |this, _, window, cx| {
                             if !this.finish_text(cx) {
@@ -924,9 +955,9 @@ impl ThemeEditor {
                         .flex()
                         .gap_1()
                         .child(
-                            Button::new("theme-new-text")
+                            editor_button("theme-new-text", palette, cx)
+                                .debug_selector(|| "theme-new-text".into())
                                 .small()
-                                .ghost()
                                 .label(tr("+ 文字"))
                                 .disabled(extras.len() == 8)
                                 .on_click(cx.listener(move |this, _, window, cx| {
@@ -943,9 +974,9 @@ impl ThemeEditor {
                                 })),
                         )
                         .child(
-                            Button::new("theme-new-divider")
+                            editor_button("theme-new-divider", palette, cx)
+                                .debug_selector(|| "theme-new-divider".into())
                                 .small()
-                                .ghost()
                                 .label(tr("+ 分隔线"))
                                 .disabled(extras.len() == 8)
                                 .on_click(cx.listener(move |this, _, _, cx| {
@@ -970,9 +1001,8 @@ impl ThemeEditor {
                             .justify_end()
                             .gap_1()
                             .child(
-                                Button::new("theme-text-cancel")
+                                editor_button("theme-text-cancel", palette, cx)
                                     .small()
-                                    .ghost()
                                     .label(tr("取消"))
                                     .on_click(cx.listener(|this, _, _, cx| {
                                         this.clear_text_edit();
@@ -980,9 +1010,12 @@ impl ThemeEditor {
                                     })),
                             )
                             .child(
-                                Button::new("theme-text-apply")
+                                editor_button("theme-text-apply", palette, cx)
                                     .small()
-                                    .outline()
+                                    .custom(
+                                        editor_colors(palette, cx)
+                                            .border(color(palette.line).into()),
+                                    )
                                     .label(tr("应用"))
                                     .on_click(
                                         cx.listener(move |this, _, _, cx| this.save_text(id, cx)),
@@ -1013,12 +1046,14 @@ impl ThemeEditor {
                 div()
                     .text_xs()
                     .text_color(color(palette.muted))
+                    .flex_1()
+                    .min_w_0()
+                    .whitespace_normal()
                     .child(tr(title)),
             )
             .child(
-                Button::new(key)
+                outlined_editor_button(key, palette, cx)
                     .xsmall()
-                    .outline()
                     .label(if hidden { tr("隐藏") } else { tr("显示") })
                     .on_click(cx.listener(move |this, _, _, cx| this.edit(&change, cx))),
             )
@@ -1065,9 +1100,8 @@ impl ThemeEditor {
                     .px_1()
                     .child(div().flex_1().min_w_0().truncate().text_xs().child(names))
                     .child(
-                        Button::new(("edit-entry-field", index))
+                        editor_button(("edit-entry-field", index), palette, cx)
                             .xsmall()
-                            .ghost()
                             .label(tr("编辑"))
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 if !this.finish_text(cx) {
@@ -1079,9 +1113,8 @@ impl ThemeEditor {
                             })),
                     )
                     .child(
-                        Button::new(("remove-entry-field", index))
+                        editor_button(("remove-entry-field", index), palette, cx)
                             .xsmall()
-                            .ghost()
                             .label("−")
                             .tooltip(tr("删除元素"))
                             .on_click(cx.listener(move |this, _, _, cx| {
@@ -1110,9 +1143,8 @@ impl ThemeEditor {
             );
         }
         fields = fields.child(
-            Button::new("theme-add-entry-field")
+            editor_button("theme-add-entry-field", palette, cx)
                 .small()
-                .ghost()
                 .label(tr("+ 字段行"))
                 .disabled(lines.len() == 8)
                 .on_click(cx.listener(|this, _, _, cx| {
@@ -1134,15 +1166,19 @@ impl ThemeEditor {
                         .is_some_and(|parts| parts.iter().any(|part| part["field"] == field))
                 });
                 options = options.child(
-                    Button::new((
-                        "pick-entry-field",
-                        resume_one_core::semantic::header_field_names(id)
-                            .iter()
-                            .position(|value| *value == field)
-                            .unwrap(),
-                    ))
+                    editor_button(
+                        (
+                            "pick-entry-field",
+                            resume_one_core::semantic::header_field_names(id)
+                                .iter()
+                                .position(|value| *value == field)
+                                .unwrap(),
+                        ),
+                        palette,
+                        cx,
+                    )
                     .xsmall()
-                    .outline()
+                    .custom(editor_colors(palette, cx).border(color(palette.line).into()))
                     .label(field_name(field))
                     .disabled(already_used)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -1168,9 +1204,8 @@ impl ThemeEditor {
                 );
             }
             fields = fields.child(options).child(
-                Button::new("cancel-entry-field")
+                editor_button("cancel-entry-field", palette, cx)
                     .xsmall()
-                    .ghost()
                     .label(tr("取消"))
                     .on_click(cx.listener(|this, _, _, cx| {
                         this.header_line = None;
@@ -1224,10 +1259,16 @@ impl Render for ThemeEditor {
                     None,
                 )
             });
-        let mut tabs = div().flex().gap_1();
+        let mut tabs = div()
+            .w_full()
+            .flex()
+            .gap_1()
+            .p_1()
+            .rounded_md()
+            .bg(color(editor_surface(palette)));
         for (tab, title) in [(Tab::Paper, "纸面"), (Tab::Modules, "模块")] {
             tabs = tabs.child(
-                Button::new(title)
+                editor_button(title, palette, cx)
                     .debug_selector(move || {
                         if tab == Tab::Paper {
                             "theme-tab-paper".into()
@@ -1237,7 +1278,12 @@ impl Render for ThemeEditor {
                     })
                     .small()
                     .flex_1()
-                    .outline()
+                    .h(px(28.))
+                    .custom(
+                        editor_colors(palette, cx)
+                            .color(color(editor_surface(palette)).into())
+                            .active(color(palette.panel).into()),
+                    )
                     .label(tr(title))
                     .selected(self.tab == tab)
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -1254,7 +1300,7 @@ impl Render for ThemeEditor {
             .owner
             .upgrade()
             .is_none_or(|owner| owner.read(cx).reduce_motion);
-        let content = div().child(content);
+        let content = div().w_full().min_w_0().flex_none().child(content);
         let content = if reduce_motion {
             content.into_any_element()
         } else {
@@ -1273,6 +1319,9 @@ impl Render for ThemeEditor {
         };
         div()
             .id("theme-editor")
+            .bg(color(palette.panel))
+            .text_color(color(palette.ink))
+            .text_sm()
             .debug_selector(|| "theme-editor".into())
             .size_full()
             .flex()
@@ -1299,10 +1348,9 @@ impl Render for ThemeEditor {
                                     .child(tr("编辑主题")),
                             )
                             .child(
-                                Button::new("close-theme-editor")
+                                editor_button("close-theme-editor", palette, cx)
                                     .debug_selector(|| "close-theme-editor".into())
                                     .xsmall()
-                                    .ghost()
                                     .label(tr("关闭"))
                                     .tooltip(tr("关闭"))
                                     .on_click({
@@ -1330,6 +1378,8 @@ impl Render for ThemeEditor {
             .child(
                 div()
                     .id("theme-editor-content")
+                    .debug_selector(|| "theme-editor-content".into())
+                    .min_w_0()
                     .flex_1()
                     .min_h_0()
                     .overflow_y_scroll()
@@ -1387,9 +1437,8 @@ impl Render for ThemeEditor {
                                     .flex()
                                     .gap_1()
                                     .child(
-                                        Button::new("theme-undo")
+                                        editor_button("theme-undo", palette, cx)
                                             .xsmall()
-                                            .ghost()
                                             .label("↶")
                                             .tooltip(tr("撤销"))
                                             .disabled(self.history.is_empty())
@@ -1398,9 +1447,8 @@ impl Render for ThemeEditor {
                                             })),
                                     )
                                     .child(
-                                        Button::new("theme-redo")
+                                        editor_button("theme-redo", palette, cx)
                                             .xsmall()
-                                            .ghost()
                                             .label("↷")
                                             .tooltip(tr("重做"))
                                             .disabled(self.redo.is_empty())
@@ -1412,9 +1460,12 @@ impl Render for ThemeEditor {
                     )
                     .child(edit_input(&self.name, palette))
                     .child(
-                        Button::new("theme-save-copy")
+                        editor_button("theme-save-copy", palette, cx)
+                            .debug_selector(|| "theme-save-copy".into())
                             .small()
-                            .primary()
+                            .w_full()
+                            .h(px(30.))
+                            .custom(primary_colors(palette, cx))
                             .label(tr("保存并应用副本"))
                             .on_click(
                                 cx.listener(|this, _, window, cx| this.save_copy(window, cx)),
@@ -1424,15 +1475,71 @@ impl Render for ThemeEditor {
     }
 }
 
+// Keep the same legible foreground on both resting and hovered surfaces.
+fn editor_surface(palette: chrome::Palette) -> resume_one_core::theme_style::Rgb {
+    for step in (0..=20).rev() {
+        let surface = palette.panel.mix(palette.soft, step as f32 / 20.0);
+        if palette.ink.contrast(surface) >= 4.5 {
+            return surface;
+        }
+    }
+    palette.panel
+}
+
+// The résumé controls the inspector palette; system appearance can differ.
+fn editor_colors(palette: chrome::Palette, cx: &gpui::App) -> ButtonCustomVariant {
+    ButtonCustomVariant::new(cx)
+        .color(gpui::Hsla::from(color(palette.panel)).opacity(0.0))
+        .foreground(color(palette.ink).into())
+        .border(gpui::Hsla::from(color(palette.panel)).opacity(0.0))
+        .hover(color(editor_surface(palette)).into())
+        .active(color(editor_surface(palette)).into())
+        .shadow(false)
+}
+
+fn primary_colors(palette: chrome::Palette, cx: &gpui::App) -> ButtonCustomVariant {
+    ButtonCustomVariant::new(cx)
+        .color(color(palette.accent).into())
+        .foreground(color(chrome::readable_on(palette.panel, palette.accent)).into())
+        .border(color(palette.accent).into())
+        .hover(color(palette.accent).into())
+        .active(color(palette.accent).into())
+        .shadow(false)
+}
+
+fn editor_button(
+    id: impl Into<gpui::ElementId>,
+    palette: chrome::Palette,
+    cx: &gpui::App,
+) -> Button {
+    Button::new(id)
+        .custom(editor_colors(palette, cx))
+        .min_w_0()
+        .rounded(px(5.))
+}
+
+fn outlined_editor_button(
+    id: impl Into<gpui::ElementId>,
+    palette: chrome::Palette,
+    cx: &gpui::App,
+) -> Button {
+    editor_button(id, palette, cx)
+        .custom(editor_colors(palette, cx).border(color(palette.line).into()))
+}
+
 fn edit_input(input: &Entity<InputState>, palette: chrome::Palette) -> Input {
-    Input::new(input).small().palette(InputPalette {
-        background: color(palette.panel).into(),
-        border: color(palette.line).into(),
-        focus: color(palette.accent).into(),
-        foreground: color(palette.ink).into(),
-        placeholder: color(palette.muted).into(),
-        selection: color(palette.soft).into(),
-    })
+    Input::new(input)
+        .small()
+        .w_full()
+        .min_w_0()
+        .palette(InputPalette {
+            background: color(palette.panel).into(),
+            border: color(palette.line).into(),
+            focus: color(palette.accent).into(),
+            foreground: color(palette.ink).into(),
+            placeholder: color(palette.muted).into(),
+            selection: color(palette.soft).into(),
+        })
 }
 
 impl ResumeOne {
@@ -1703,6 +1810,109 @@ impl ResumeOne {
 mod tests {
     use super::*;
     use gpui::TestAppContext;
+
+    #[test]
+    fn hover_surfaces_preserve_readable_text_even_at_midtones() {
+        use resume_one_core::theme_style::Rgb;
+        for gray in 0..=255 {
+            let panel = Rgb {
+                r: gray,
+                g: gray,
+                b: gray,
+            };
+            let ink = chrome::readable_on(
+                Rgb {
+                    r: 32,
+                    g: 45,
+                    b: 42,
+                },
+                panel,
+            );
+            for tint in [
+                Rgb { r: 0, g: 0, b: 0 },
+                Rgb {
+                    r: 255,
+                    g: 255,
+                    b: 255,
+                },
+            ] {
+                let palette = chrome::Palette {
+                    panel,
+                    ink,
+                    line: panel,
+                    muted: ink,
+                    accent: ink,
+                    soft: panel.mix(tint, 0.09),
+                };
+                assert!(ink.contrast(editor_surface(palette)) >= 4.5);
+            }
+        }
+    }
+
+    #[gpui::test]
+    fn narrow_inspector_keeps_module_labels_and_actions_on_separate_rows(cx: &mut TestAppContext) {
+        cx.update(gpui_component::init);
+        let (view, cx) = cx.add_window_view(|_, cx| {
+            ResumeOne::new(crate::model::AppModel::load(None).unwrap(), cx)
+        });
+        cx.simulate_resize(gpui::size(px(1080.0), px(720.0)));
+        for preference in [
+            crate::i18n::Preference::Chinese,
+            crate::i18n::Preference::English,
+        ] {
+            cx.update(|window, cx| {
+                preference.apply();
+                gpui_component::Theme::change(gpui_component::ThemeMode::Dark, Some(window), cx);
+                view.update(cx, |app, cx| app.show_theme_editor(window, cx));
+                let editor = view.read(cx).theme_editor.clone().unwrap();
+                editor.update(cx, |editor, cx| editor.navigate(Tab::Modules, None, cx));
+            });
+            cx.run_until_parked();
+            let panel = cx.debug_bounds("theme-editor").unwrap();
+            let name = cx.debug_bounds("theme-module-work").unwrap();
+            let action = cx.debug_bounds("theme-module-toggle-work").unwrap();
+            let save = cx.debug_bounds("theme-save-copy").unwrap();
+            assert!(name.origin.x >= panel.origin.x && name.right() <= panel.right());
+            assert!(
+                name.size.width >= px(170.0),
+                "module label needs its own line"
+            );
+            assert!(
+                name.bottom() <= action.origin.y,
+                "actions must not crowd the label"
+            );
+            assert!(action.right() <= panel.right());
+            assert!(save.origin.x >= panel.origin.x && save.right() <= panel.right());
+            assert!(save.bottom() <= panel.bottom());
+            cx.update(|window, cx| {
+                let editor = view.read(cx).theme_editor.clone().unwrap();
+                editor.update(cx, |editor, cx| editor.navigate(Tab::Paper, None, cx));
+                window.refresh();
+            });
+            cx.run_until_parked();
+            let apply = cx.debug_bounds("theme-margin-apply").unwrap();
+            let content = cx.debug_bounds("theme-editor-content").unwrap();
+            assert!(apply.origin.x >= content.origin.x && apply.right() <= content.right());
+            assert!(apply.bottom() < save.origin.y);
+            cx.update(|window, cx| {
+                let editor = view.read(cx).theme_editor.clone().unwrap();
+                editor.update(cx, |editor, cx| {
+                    editor.navigate(Tab::Modules, Some("work"), cx)
+                });
+                window.refresh();
+            });
+            cx.run_until_parked();
+            for control in ["theme-edit-title", "theme-new-text", "theme-new-divider"] {
+                let bounds = cx.debug_bounds(control).expect(control);
+                assert!(
+                    bounds.origin.x >= content.origin.x && bounds.right() <= content.right(),
+                    "{control} must stay inside the inspector"
+                );
+            }
+            cx.update(|window, cx| view.update(cx, |app, cx| app.close_theme_editor(window, cx)));
+        }
+        crate::i18n::Preference::Chinese.apply();
+    }
 
     #[gpui::test]
     fn dirty_state_survives_history_truncation_and_recognizes_restored_values(

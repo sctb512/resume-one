@@ -16,6 +16,8 @@ use resume_one_core::{
 
 use crate::{ResumeOne, color, label};
 
+pub(super) const SOURCE_INSET: f32 = 66.;
+
 fn action_label(action: &SourceAction) -> String {
     if crate::i18n::is_english() {
         return match action {
@@ -188,7 +190,7 @@ impl ResumeOne {
                 .absolute()
                 .left_0()
                 .top_0()
-                .w(px(54.))
+                .w(px(SOURCE_INSET - 6.))
                 .h_full()
                 .on_scroll_wheel(move |event, window, cx| {
                     scroll_input
@@ -229,7 +231,7 @@ impl ResumeOne {
                     .id(gpui::SharedString::from(key.clone()))
                     .debug_selector(move || key.clone())
                     .absolute()
-                    .left(px(if adds { 8. } else { 30. }))
+                    .left(px(if adds { 8. } else { 36. }))
                     .top(y - bounds.top())
                     .w(px(20.))
                     .h(height.min(px(24.)))
@@ -252,8 +254,12 @@ impl ResumeOne {
                 if choices.len() == 1 {
                     let action = choices[0].action.clone();
                     let input = input.clone();
+                    let title = action_label(&action);
                     control = control
                         .child(symbol)
+                        .tooltip(move |window, cx| {
+                            gpui_component::tooltip::Tooltip::new(title.clone()).build(window, cx)
+                        })
                         .hover(|control| control.bg(color(style.colors.canvas)))
                         .on_mouse_down(gpui::MouseButton::Left, |_, _, cx| cx.stop_propagation())
                         .on_click(cx.listener(move |this, _, window, cx| {

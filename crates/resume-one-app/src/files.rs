@@ -7,13 +7,14 @@ use gpui::{
 };
 
 use crate::appearance_ui::ShowAppearance;
-use crate::editor_ui::{Save, SaveAs, ToggleSource};
+use crate::editor_ui::{FormatJson, Save, SaveAs, SearchJson, ToggleSource};
 use crate::export_ui::{ExportDocx, ExportMarkdown, ExportPdf, ExportText};
 use crate::theme_manager::ManageThemes;
 use crate::update_ui::CheckUpdates;
 use crate::workspace::OpenedFile;
 use crate::workspace::OpenedPath;
 use crate::{ResumeOne, color};
+use gpui_component::input::{Copy, Cut, Paste, Redo, SelectAll, Undo};
 
 actions!(
     resume_one,
@@ -78,6 +79,7 @@ pub(super) fn localize_menus(cx: &mut App) {
         Menu {
             name: "Resume One".into(),
             items: vec![
+                MenuItem::action(tr("设置…"), ManageThemes),
                 MenuItem::action(tr("检查更新…"), CheckUpdates),
                 MenuItem::separator(),
                 MenuItem::action(tr("退出 Resume One"), Quit),
@@ -100,6 +102,21 @@ pub(super) fn localize_menus(cx: &mut App) {
                 MenuItem::separator(),
                 MenuItem::action(tr("切换文件"), ToggleFiles),
                 MenuItem::action(tr("刷新目录"), RefreshFolder),
+            ],
+        },
+        Menu {
+            name: tr("编辑").into(),
+            items: vec![
+                MenuItem::action(tr("撤销"), Undo),
+                MenuItem::action(tr("重做"), Redo),
+                MenuItem::separator(),
+                MenuItem::action(tr("剪切"), Cut),
+                MenuItem::action(tr("复制"), Copy),
+                MenuItem::action(tr("粘贴"), Paste),
+                MenuItem::action(tr("全选"), SelectAll),
+                MenuItem::separator(),
+                MenuItem::action(tr("查找 JSON…"), SearchJson),
+                MenuItem::action(tr("格式化 JSON"), FormatJson),
             ],
         },
         Menu {

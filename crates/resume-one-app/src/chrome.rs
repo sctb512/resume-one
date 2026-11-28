@@ -1,7 +1,8 @@
 //! Desktop visual tokens taken from the approved v3 workspace, not print tokens.
 use crate::i18n::tr;
 use gpui::{
-    Context, FontWeight, IntoElement, MouseButton, PathBuilder, canvas, div, point, prelude::*, px,
+    Context, FontWeight, IntoElement, MouseButton, PathBuilder, Window, canvas, div, point,
+    prelude::*, px,
 };
 use resume_one_core::theme_style::{Colors, Rgb, ThemeStyle};
 use std::time::{Duration, Instant};
@@ -215,6 +216,28 @@ pub fn icon(kind: &'static str, ink: Rgb) -> impl IntoElement {
             &[(10., 14.), (10., 2.)],
             &[(6., 6.), (10., 2.), (14., 6.)],
         ],
+        "find" => &[
+            &[
+                (8., 3.),
+                (11., 4.),
+                (13., 7.),
+                (13., 10.),
+                (11., 13.),
+                (8., 14.),
+                (5., 13.),
+                (3., 10.),
+                (3., 7.),
+                (5., 4.),
+                (8., 3.),
+            ],
+            &[(12., 12.), (17., 17.)],
+        ],
+        "format" => &[
+            &[(3., 4.), (17., 4.)],
+            &[(7., 8.), (17., 8.)],
+            &[(7., 12.), (17., 12.)],
+            &[(3., 16.), (17., 16.)],
+        ],
         "chevron" => &[&[(6., 8.), (10., 12.), (14., 8.)]],
         "chevron-right" => &[&[(8., 6.), (12., 10.), (8., 14.)]],
         "volunteer" | "interests" => &[&[
@@ -269,6 +292,130 @@ pub fn icon(kind: &'static str, ink: Rgb) -> impl IntoElement {
 }
 
 impl ResumeOne {
+    fn view_switch(&self, palette: Palette, cx: &mut Context<Self>) -> impl IntoElement {
+        use gpui_component::tooltip::Tooltip;
+        let shortcut = if cfg!(target_os = "macos") {
+            "⌘/"
+        } else {
+            "Ctrl+/"
+        };
+        let mut switch = div()
+            .flex()
+            .flex_none()
+            .items_center()
+            .gap_1()
+            .p_1()
+            .rounded(px(6.))
+            .border_1()
+            .border_color(color(palette.line));
+        for (source, id, title) in [
+            (false, "view-paper", tr("纸面")),
+            (true, "view-json", "JSON"),
+        ] {
+            let selected = self.source_mode == source;
+            switch = switch.child(
+                div()
+                    .id(id)
+                    .debug_selector(move || id.into())
+                    .tab_index(0)
+                    .tab_stop(true)
+                    .h(px(24.))
+                    .px_2()
+                    .flex()
+                    .items_center()
+                    .rounded(px(4.))
+                    .text_size(px(12.))
+                    .text_color(color(palette.ink))
+                    .when(selected, |button| {
+                        button
+                            .bg(color(palette.soft))
+                            .font_weight(FontWeight::SEMIBOLD)
+                    })
+                    .when(!selected, |button| {
+                        button
+                            .cursor_pointer()
+                            .hover(|button| button.bg(color(palette.soft)))
+                    })
+                    .focus(|button| button.bg(color(palette.line)))
+                    .tooltip(move |window, cx| {
+                        Tooltip::new(format!("{title} · {shortcut}")).build(window, cx)
+                    })
+                    .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if this.source_mode != source {
+                            this.toggle_source(&crate::editor_ui::ToggleSource, window, cx);
+                        }
+                    }))
+                    .on_key_down(cx.listener(move |this, event, window, cx| {
+                        if activation_key(event) && this.source_mode != source {
+                            cx.stop_propagation();
+                            this.toggle_source(&crate::editor_ui::ToggleSource, window, cx);
+                        }
+                    }))
+                    .child(title),
+            );
+        }
+        switch
+    }
+
+    fn json_tools(&self, palette: Palette, cx: &mut Context<Self>) -> impl IntoElement {
+        use gpui_component::tooltip::Tooltip;
+        let find_key = if cfg!(target_os = "macos") {
+            "⌘F"
+        } else {
+            "Ctrl+F"
+        };
+        let format_key = if cfg!(target_os = "macos") {
+            "⌥⇧F"
+        } else {
+            "Alt+Shift+F"
+        };
+        let mut tools = div().flex().flex_none().items_center().gap_1();
+        for (id, glyph, title, key) in [
+            ("find-json", "find", tr("查找 JSON…"), find_key),
+            ("format-json", "format", tr("格式化 JSON"), format_key),
+        ] {
+            tools = tools.child(
+                div()
+                    .id(id)
+                    .debug_selector(move || id.into())
+                    .tab_index(0)
+                    .tab_stop(true)
+                    .size(px(26.))
+                    .flex()
+                    .items_center()
+                    .justify_center()
+                    .rounded(px(4.))
+                    .cursor_pointer()
+                    .hover(|button| button.bg(color(palette.soft)))
+                    .focus(|button| button.bg(color(palette.soft)))
+                    .tooltip(move |window, cx| {
+                        Tooltip::new(format!("{title} · {key}")).build(window, cx)
+                    })
+                    .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                    .on_click(
+                        cx.listener(move |this, _, window, cx| this.run_json_tool(id, window, cx)),
+                    )
+                    .on_key_down(cx.listener(move |this, event, window, cx| {
+                        if activation_key(event) {
+                            cx.stop_propagation();
+                            this.run_json_tool(id, window, cx);
+                        }
+                    }))
+                    .child(icon(glyph, palette.ink)),
+            );
+        }
+        tools
+    }
+
+    fn run_json_tool(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
+        if id == "find-json" {
+            self.search_json(&crate::editor_ui::SearchJson, window, cx);
+        } else {
+            self.format_json(&crate::editor_ui::FormatJson, window, cx);
+        }
+    }
+
     pub(super) fn toolbar(&self, cx: &mut Context<Self>) -> impl IntoElement {
         let style = self.shell_style();
         let p = Palette::new(style);
@@ -358,13 +505,15 @@ impl ResumeOne {
                                 .child("Resume One"),
                         )
                     })
-                    .child(
-                        div()
-                            .font_family(SERIF)
-                            .text_size(px(15.))
-                            .text_color(color(p.accent))
-                            .child("简里"),
-                    ),
+                    .when(!compact, |brand| {
+                        brand.child(
+                            div()
+                                .font_family(SERIF)
+                                .text_size(px(15.))
+                                .text_color(color(p.accent))
+                                .child("简里"),
+                        )
+                    }),
             )
             .when(!self.source_mode && !self.layout.theme_docked(), |v| {
                 v.child(self.drawer_button(crate::workspace_ui::Drawer::Themes, cx))
@@ -414,12 +563,16 @@ impl ResumeOne {
                             } else {
                                 style.colors.accent
                             })))
-                            .when(!compact || dirty, |v| v.child(status)),
+                            .when(!compact, |v| v.child(status)),
                     )
                     .child(div().flex_none().child(icon("chevron", p.muted))),
             )
             .when(!self.layout.modules_docked(), |v| {
                 v.child(self.drawer_button(crate::workspace_ui::Drawer::Modules, cx))
+            })
+            .child(self.view_switch(p, cx))
+            .when(self.source_mode && !self.recovery_pending, |toolbar| {
+                toolbar.child(self.json_tools(p, cx))
             })
             .child(
                 div()

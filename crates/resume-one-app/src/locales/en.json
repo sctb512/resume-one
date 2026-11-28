@@ -372,5 +372,22 @@
   "更新下载中断": "Update download interrupted",
   "重试": "Retry",
   "收紧条目留白": "Adjusted entry spacing",
-  "微调正文行距": "Adjusted body line spacing"
+  "微调正文行距": "Adjusted body line spacing",
+  "编辑": "Edit",
+  "撤销": "Undo",
+  "重做": "Redo",
+  "剪切": "Cut",
+  "复制": "Copy",
+  "粘贴": "Paste",
+  "全选": "Select All",
+  "设置…": "Settings…",
+  "查找 JSON…": "Find in JSON…",
+  "格式化 JSON": "Format JSON",
+  "已删除": "Deleted",
+  "进行中的经历可留空": "Leave blank if ongoing",
+  "请使用 2024、2024-06 或 2024-06-01 这样的日期格式": "Use a date such as 2024, 2024-06, or 2024-06-01.",
+  "请输入完整链接，例如 https://example.com": "Enter a complete URL, for example https://example.com.",
+  "请输入有效的邮箱地址，例如 name@example.com": "Enter an email address, for example name@example.com.",
+  "请输入两位国家或地区代码，例如 CN": "Enter a two-letter country or region code, for example CN.",
+  "请检查此字段的格式": "Check this field’s format."
 }

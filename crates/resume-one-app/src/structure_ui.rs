@@ -1,8 +1,8 @@
 use crate::i18n::tr;
-use gpui::{App, Context, KeyBinding, Window, actions};
+use gpui::{App, Context, EntityId, IntoElement, KeyBinding, Window, actions, div, prelude::*, px};
 use resume_one_core::structure::{StructureEdit, apply_structure};
 
-use crate::ResumeOne;
+use crate::{ResumeOne, chrome, color, label};
 
 /// A single UTF-16 replacement, trimmed at complete Unicode scalar boundaries.
 /// Keeping unaffected text out of history also keeps undo near the actual edit.
@@ -50,6 +50,13 @@ impl VisualEdit {
     }
 }
 
+#[derive(PartialEq, Eq)]
+pub(super) struct RemovalNotice {
+    input: EntityId,
+    generation: u64,
+    title: String,
+}
+
 pub(super) fn register(cx: &mut App) {
     let modifier = if cfg!(target_os = "macos") {
         "cmd"
@@ -81,6 +88,7 @@ impl ResumeOne {
             self.remember_applied_theme();
             return;
         }
+        self.removal_notice = None;
         self.visual_undo.push(VisualEdit::Theme {
             before: Box::new(before),
             after: Box::new(theme.clone()),
@@ -191,6 +199,33 @@ impl ResumeOne {
             );
             return;
         }
+        let removed = match &edit {
+            StructureEdit::RemoveSection { id } => self
+                .model
+                .document
+                .value
+                .get(id)
+                .filter(|value| {
+                    value.as_object().is_some_and(|object| !object.is_empty())
+                        || value.as_array().is_some_and(|items| !items.is_empty())
+                })
+                .map(|_| label(id).to_owned()),
+            StructureEdit::RemoveItem { id, index } => self
+                .model
+                .document
+                .value
+                .get(id)
+                .and_then(|items| items.get(*index))
+                .filter(|value| value.as_object().is_some_and(|object| !object.is_empty()))
+                .map(|_| {
+                    if crate::i18n::is_english() {
+                        format!("{} · Item {}", label(id), index + 1)
+                    } else {
+                        format!("{} · 第 {} 项", label(id), index + 1)
+                    }
+                }),
+            _ => None,
+        };
         let before = editor.buffer.source().to_owned();
         let open_after = if self.source_mode {
             None
@@ -229,7 +264,41 @@ impl ResumeOne {
             after: after.clone(),
         });
         self.visual_redo.clear();
+        self.removal_notice = None;
         self.replace_editor_source(&after, window, cx);
+        if let Some(title) = removed {
+            cx.defer_in(window, move |this, _, cx| {
+                // Record the revision after InputEvent::Change updates the buffer.
+                let Some(editor) = this.editor.as_ref().filter(|e| e.buffer.source() == after)
+                else {
+                    return;
+                };
+                let input = editor.input.entity_id();
+                let generation = editor.source_generation;
+                this.removal_notice = Some(RemovalNotice {
+                    input,
+                    generation,
+                    title,
+                });
+                let timer = cx
+                    .background_executor()
+                    .timer(std::time::Duration::from_secs(5));
+                cx.spawn(async move |this, cx| {
+                    timer.await;
+                    this.update(cx, |this, cx| {
+                        if this.removal_notice.as_ref().is_some_and(|notice| {
+                            notice.input == input && notice.generation == generation
+                        }) {
+                            this.removal_notice = None;
+                            cx.notify();
+                        }
+                    })
+                    .ok();
+                })
+                .detach();
+                cx.notify();
+            });
+        }
         self.insertion_before = None;
         self.selected_module = None;
         self.selected_item_module = retained_item_module;
@@ -246,6 +315,86 @@ impl ResumeOne {
             });
         }
         cx.notify();
+    }
+
+    fn current_removal(&self) -> Option<&RemovalNotice> {
+        let notice = self.removal_notice.as_ref()?;
+        let editor = self.editor.as_ref()?;
+        (editor.input.entity_id() == notice.input
+            && editor.source_generation == notice.generation
+            && self.theme_editor.is_none()
+            && !self.theme_editor_loading
+            && !self.recovery_pending)
+            .then_some(notice)
+    }
+
+    fn undo_removal(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.current_removal().is_none() || self.inline_composing(cx) {
+            return;
+        }
+        let Some(editor) = &self.editor else { return };
+        if editor.input.read(cx).is_composing() {
+            return;
+        }
+        self.removal_notice = None;
+        if self.source_mode {
+            editor.input.update(cx, |state, cx| state.focus(window, cx));
+            window.dispatch_action(Box::new(gpui_component::input::Undo), cx);
+        } else {
+            self.undo_visual_edit(&UndoVisualEdit, window, cx);
+        }
+        cx.notify();
+    }
+
+    pub(super) fn removal_toast(&self, cx: &mut Context<Self>) -> Option<impl IntoElement> {
+        let notice = self.current_removal()?;
+        let palette = chrome::Palette::new(self.shell_style());
+        Some(
+            div()
+                .id("structure-removal-notice")
+                .debug_selector(|| "structure-removal-notice".into())
+                .flex()
+                .items_center()
+                .gap_3()
+                .max_w(px(420.))
+                .px_3()
+                .py_1()
+                .rounded(px(7.))
+                .border_1()
+                .border_color(color(palette.line))
+                .bg(color(palette.panel))
+                .shadow_md()
+                .occlude()
+                .text_color(color(palette.ink))
+                .child(div().min_w_0().truncate().child(format!(
+                    "{} · {}",
+                    tr("已删除"),
+                    notice.title
+                )))
+                .child(
+                    div()
+                        .id("undo-structure-removal")
+                        .debug_selector(|| "undo-structure-removal".into())
+                        .tab_index(0)
+                        .tab_stop(true)
+                        .cursor_pointer()
+                        .flex_none()
+                        .rounded_sm()
+                        .px_2()
+                        .py_1()
+                        .text_color(color(palette.accent))
+                        .hover(|row| row.bg(color(palette.soft)))
+                        .focus(|row| row.bg(color(palette.soft)))
+                        .on_click(cx.listener(|this, _, window, cx| this.undo_removal(window, cx)))
+                        .on_key_down(cx.listener(|this, event, window, cx| {
+                            if chrome::activation_key(event) {
+                                cx.stop_propagation();
+                                this.undo_removal(window, cx);
+                            }
+                        }))
+                        .child(tr("撤销")),
+                ),
+        )
     }
 
     pub(super) fn replace_editor_source(
@@ -348,7 +497,6 @@ impl ResumeOne {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use gpui::AppContext as _;
 
     #[gpui::test]
     fn theme_clicks_undo_without_an_editor_and_hover_never_becomes_history(

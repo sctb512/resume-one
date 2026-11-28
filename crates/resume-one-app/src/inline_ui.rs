@@ -121,6 +121,65 @@ impl FormPalette {
     }
 }
 
+fn field_placeholder(key: &str) -> &'static str {
+    match key {
+        "startDate" | "date" | "releaseDate" => "2024-06",
+        "endDate" => tr("进行中的经历可留空"),
+        "url" | "profiles.url" => "https://example.com",
+        "email" => "name@example.com",
+        "location.countryCode" => "CN",
+        _ => "",
+    }
+}
+
+fn inline_issue_message(key: &str) -> &'static str {
+    match key {
+        "startDate" | "endDate" | "date" | "releaseDate" => {
+            tr("请使用 2024、2024-06 或 2024-06-01 这样的日期格式")
+        }
+        "url" | "profiles.url" => tr("请输入完整链接，例如 https://example.com"),
+        "email" => tr("请输入有效的邮箱地址，例如 name@example.com"),
+        "location.countryCode" => tr("请输入两位国家或地区代码，例如 CN"),
+        _ => tr("请检查此字段的格式"),
+    }
+}
+
+impl Field {
+    fn matches_issue(&self, section: &str, index: Option<usize>, path: &str) -> bool {
+        let Some(mut path) = path
+            .strip_prefix('/')
+            .and_then(|path| path.strip_prefix(section))
+            .and_then(|path| path.strip_prefix('/'))
+        else {
+            return false;
+        };
+        if let Some(index) = index {
+            let Some((row, rest)) = path.split_once('/') else {
+                return false;
+            };
+            if row.parse::<usize>().ok() != Some(index) {
+                return false;
+            }
+            path = rest;
+        }
+        match (self.key.strip_prefix("profiles."), self.list_index) {
+            (Some(key), Some(index)) => {
+                let Some((row, property)) = path
+                    .strip_prefix("profiles/")
+                    .and_then(|path| path.split_once('/'))
+                else {
+                    return false;
+                };
+                row.parse::<usize>().ok() == Some(index) && property == key
+            }
+            (_, Some(index)) => path.split_once('/').is_some_and(|(key, row)| {
+                key == self.key && row.parse::<usize>().ok() == Some(index)
+            }),
+            (_, None) => self.key.split('.').eq(path.split('/')),
+        }
+    }
+}
+
 pub(super) fn field_order(section: &str, key: &str) -> usize {
     let order: &[&str] = match section {
         "basics" => &[
@@ -477,11 +536,6 @@ impl ResumeOne {
         // the component palette used to be installed as an accidental side effect.
         crate::editor_ui::apply_editor_theme(&self.model.selected_style(), cx);
         let editor = self.editor.as_ref().unwrap();
-        let initial_error = editor
-            .buffer
-            .issues()
-            .first()
-            .map(|issue| format!("{} · {}", issue.path, issue.message));
         let Some(item) = editor
             .buffer
             .last_valid()
@@ -580,10 +634,11 @@ impl ResumeOne {
             profile_count: profiles.map_or(0, Vec::len),
             history_before: None,
             history_slot: self.visual_undo.len(),
-            error: initial_error,
+            error: None,
             pinned: false,
             show_optional: false,
         });
+        self.sync_inline_error();
         cx.notify();
     }
 
@@ -595,7 +650,9 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) -> Field {
         let input = cx.new(|cx| {
-            let state = InputState::new(window, cx).default_value(value);
+            let state = InputState::new(window, cx)
+                .placeholder(field_placeholder(key))
+                .default_value(value);
             if matches!(key, "summary" | "description" | "reference" | "highlights") {
                 state.auto_grow(2, 5).soft_wrap(true)
             } else {
@@ -850,15 +907,53 @@ impl ResumeOne {
         cx.notify();
     }
 
+    pub(super) fn focus_invalid_inline_field(
+        &mut self,
+        issue: &resume_one_core::Diagnostic,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        let Some(form) = &mut self.inline.form else {
+            return false;
+        };
+        let Some(field) = form
+            .fields
+            .iter()
+            .find(|field| field.matches_issue(&form.section, form.index, &issue.path))
+        else {
+            return false;
+        };
+        let input = field.input.clone();
+        form.pinned = true;
+        self.resume_inline(cx);
+        input.update(cx, |state, cx| state.focus(window, cx));
+        cx.notify();
+        true
+    }
+
     pub(super) fn sync_inline_error(&mut self) {
-        let error = self
+        let Some(form) = &mut self.inline.form else {
+            return;
+        };
+        form.error = self
             .editor
             .as_ref()
             .and_then(|editor| editor.buffer.issues().first())
-            .map(|issue| format!("{} · {}", issue.path, issue.message));
-        if let Some(form) = &mut self.inline.form {
-            form.error = error;
-        }
+            .map(|issue| {
+                if let Some(field) = form
+                    .fields
+                    .iter()
+                    .find(|field| field.matches_issue(&form.section, form.index, &issue.path))
+                {
+                    format!(
+                        "{} · {}",
+                        form_field_label(&form.section, field.key),
+                        inline_issue_message(field.key)
+                    )
+                } else {
+                    crate::editor_ui::diagnostic_message(issue)
+                }
+            });
     }
 
     pub(super) fn paper_hover_changed(
@@ -1749,7 +1844,18 @@ impl ResumeOne {
         cx: &App,
     ) -> impl IntoElement {
         let input = field.input.clone();
-        let palette = FormPalette::new(&self.active_style());
+        let style = self.active_style();
+        let palette = FormPalette::new(&style);
+        let invalid =
+            !retiring
+                && self.inline.form.as_ref().is_some_and(|form| {
+                    self.editor.as_ref().is_some_and(|editor| {
+                        editor.buffer.issues().iter().any(|issue| {
+                            field.matches_issue(&form.section, form.index, &issue.path)
+                        })
+                    })
+                });
+        let error_color = crate::chrome::readable_on(style.colors.seal, palette.field);
         let focus = input.read(cx).focus_handle(cx);
         div()
             .on_children_prepainted(move |children, window, cx| {
@@ -1778,13 +1884,13 @@ impl ResumeOne {
             .min_w_0()
             .rounded(px(6.))
             .border_1()
-            .border_color(color(palette.line))
+            .border_color(color(if invalid { error_color } else { palette.line }))
             .bg(color(palette.field))
             .text_color(color(palette.ink))
             .track_focus(&focus)
             .tab_stop(false)
             .focus(|v| {
-                v.border_color(color(palette.accent))
+                v.border_color(color(if invalid { error_color } else { palette.accent }))
                     .bg(color(palette.field))
             })
             .child(
@@ -2910,7 +3016,8 @@ mod tests {
         cx.update(|window, _| window.refresh());
         cx.update(|_, cx| assert!(view.read(cx).inline.form.is_none()));
         cx.update(|window, cx| window.focus(&view.read(cx).focus));
-        cx.simulate_keystrokes("tab tab tab tab tab enter");
+        // Tab through the toolbar, including both view choices, to the first form.
+        cx.simulate_keystrokes("tab tab tab tab tab tab tab enter");
         cx.update(|window, cx| assert!(view.read(cx).inline_focused(window, cx)));
         cx.simulate_keystrokes("escape");
         executor.advance_clock(INLINE_FADE_OUT);
@@ -2956,11 +3063,20 @@ mod tests {
                         .contains("unfinished")
                 );
                 assert!(!app.editor.as_ref().unwrap().buffer.issues().is_empty());
-                assert!(app.inline.form.as_ref().unwrap().error.is_some());
+                let message = app.inline.form.as_ref().unwrap().error.as_deref().unwrap();
+                assert!(message.contains("name@example.com") && !message.contains("/basics/"));
                 assert_eq!(app.model.document.value["basics"]["email"], "a@example.com");
                 assert!(app.inline.form.is_some());
             });
         });
+        cx.update(|window, cx| {
+            window.focus(&view.read(cx).focus);
+            view.update(cx, |app, cx| {
+                app.save_json(&crate::editor_ui::Save, window, cx)
+            });
+            assert!(input.read(cx).focus_handle(cx).is_focused(window));
+        });
+        assert!(!cx.has_pending_prompt());
         cx.update(|window, cx| {
             input.update(cx, |state, cx| {
                 let length = state.value().chars().map(char::len_utf16).sum();

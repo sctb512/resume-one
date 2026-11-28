@@ -20,7 +20,10 @@ use serde_json::json;
 
 use crate::{ResumeOne, color};
 
-actions!(resume_one, [ToggleSource, FormatJson, Save, SaveAs]);
+actions!(
+    resume_one,
+    [ToggleSource, FormatJson, SearchJson, Save, SaveAs]
+);
 
 pub(super) fn diagnostic_message(issue: &resume_one_core::Diagnostic) -> String {
     let hint = match issue.code {
@@ -95,13 +98,8 @@ pub(super) fn register(cx: &mut App) {
         KeyBinding::new(&format!("{modifier}-/"), ToggleSource, Some("ResumeOne")),
         KeyBinding::new(&format!("{modifier}-s"), Save, Some("ResumeOne")),
         KeyBinding::new(&format!("{modifier}-shift-s"), SaveAs, Some("ResumeOne")),
-        KeyBinding::new("ctrl-f", FormatJson, Some("Input")),
-        KeyBinding::new("cmd-f", FormatJson, Some("Input")),
-        KeyBinding::new(
-            &format!("shift-{modifier}-f"),
-            gpui_component::input::Search,
-            Some("Input"),
-        ),
+        KeyBinding::new("alt-shift-f", FormatJson, Some("ResumeJson")),
+        KeyBinding::new(&format!("{modifier}-f"), SearchJson, Some("ResumeOne")),
     ]);
 }
 
@@ -377,21 +375,36 @@ impl ResumeOne {
             }
         }
     }
+    pub(super) fn search_json(
+        &mut self,
+        _: &SearchJson,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if !self.source_mode || self.recovery_pending || self.theme_manager_open {
+            return;
+        }
+        if let Some(editor) = &self.editor
+            && !editor.input.read(cx).is_composing()
+        {
+            let focus = editor.input.read(cx).focus_handle(cx);
+            focus.dispatch_action(&gpui_component::input::Search, window, cx);
+        }
+    }
+
     pub(super) fn format_json(
         &mut self,
         _: &FormatJson,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if !self.source_mode || self.recovery_pending {
+        if !self.source_mode || self.recovery_pending || self.theme_manager_open {
             return;
         }
         let Some(editor) = &mut self.editor else {
             return;
         };
-        if editor.input.read(cx).is_composing()
-            || !editor.input.read(cx).focus_handle(cx).is_focused(window)
-        {
+        if editor.input.read(cx).is_composing() {
             return;
         }
         let formatted = match editor.buffer.formatted() {
@@ -440,7 +453,11 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning(tr("无法保存"), &diagnostic_message(&issues[0]), window, cx);
+                let issue = issues[0].clone();
+                if !close_after && self.focus_invalid_inline_field(&issue, window, cx) {
+                    return;
+                }
+                self.editor_warning(tr("无法保存"), &diagnostic_message(&issue), window, cx);
                 return;
             }
         };
@@ -469,12 +486,11 @@ impl ResumeOne {
         let snapshot = match editor.buffer.save_snapshot() {
             Ok(snapshot) => snapshot,
             Err(issues) => {
-                self.editor_warning(
-                    tr("无法另存为"),
-                    &diagnostic_message(&issues[0]),
-                    window,
-                    cx,
-                );
+                let issue = issues[0].clone();
+                if !close_after && self.focus_invalid_inline_field(&issue, window, cx) {
+                    return;
+                }
+                self.editor_warning(tr("无法另存为"), &diagnostic_message(&issue), window, cx);
                 return;
             }
         };
@@ -737,6 +753,8 @@ impl ResumeOne {
             })
             .or_else(|| self.preview_reading_target());
         self.files.open = false;
+        self.removal_notice = None;
+        self.export_menu_open = false;
         self.clear_inline();
         self.cancel_insertion();
         self.hovered_theme = None;
@@ -1141,6 +1159,7 @@ impl ResumeOne {
         let issue = editor.buffer.issues().first().cloned();
         div()
             .id("resume-json-editor")
+            .key_context("ResumeJson")
             .debug_selector(|| "resume-json-editor".into())
             .flex_1()
             .min_w_0()
@@ -1175,7 +1194,7 @@ impl ResumeOne {
                             .focus_bordered(false)
                             .h_full()
                             .w_full()
-                            .pl(px(60.0))
+                            .pl(px(crate::source_gutter::SOURCE_INSET))
                             .pt_3()
                             .pr_5()
                             .pb_2(),
@@ -1261,6 +1280,65 @@ mod tests {
             .unwrap_err()
             .remove(0);
         assert_eq!(diagnostic_position(invalid, &issue).unwrap().line, 1);
+    }
+
+    #[gpui::test]
+    fn toolbar_switch_and_find_keep_an_unmodified_file_clean(cx: &mut gpui::TestAppContext) {
+        use super::*;
+        use crate::model::AppModel;
+        cx.update(|cx| {
+            gpui_component::init(cx);
+            register(cx);
+        });
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("compact.json");
+        let original = r#"{"basics":{"name":"Lin"}}"#;
+        std::fs::write(&path, original).unwrap();
+        let child = std::rc::Rc::new(std::cell::RefCell::new(None));
+        let output = child.clone();
+        let (_, cx) = cx.add_window_view(|window, cx| {
+            let view = cx.new(|cx| {
+                let mut app = ResumeOne::new(AppModel::load(Some(&path)).unwrap(), cx);
+                app.reduce_motion = true;
+                app
+            });
+            *output.borrow_mut() = Some(view.clone());
+            gpui_component::Root::new(view, window, cx)
+        });
+        let view = child.borrow_mut().take().unwrap();
+        cx.simulate_resize(gpui::size(px(720.), px(480.)));
+        cx.update(|window, _| window.refresh());
+        let json = cx.debug_bounds("view-json").expect("visible JSON switch");
+        cx.simulate_click(json.center(), gpui::Modifiers::none());
+        cx.run_until_parked();
+        let modifier = if cfg!(target_os = "macos") {
+            "cmd"
+        } else {
+            "ctrl"
+        };
+        cx.simulate_keystrokes(&format!("{modifier}-f"));
+        cx.run_until_parked();
+        cx.update(|window, cx| {
+            let app = view.read(cx);
+            assert!(app.source_mode);
+            let editor = app.editor.as_ref().unwrap();
+            assert!(!editor.input.read(cx).focus_handle(cx).is_focused(window));
+            assert_eq!(editor.buffer.source(), original);
+            assert!(!editor.buffer.is_dirty());
+        });
+        cx.simulate_keystrokes("escape");
+        cx.simulate_keystrokes("alt-shift-f");
+        cx.run_until_parked();
+        cx.update(|_, cx| {
+            let editor = view.read(cx).editor.as_ref().unwrap();
+            assert!(editor.buffer.is_dirty());
+            assert!(editor.buffer.source().contains("\n  \"basics\""));
+        });
+        let paper = cx.debug_bounds("view-paper").expect("visible paper switch");
+        cx.simulate_click(paper.center(), gpui::Modifiers::none());
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(!view.read(cx).source_mode));
+        assert_eq!(std::fs::read_to_string(path).unwrap(), original);
     }
 
     #[gpui::test]

@@ -115,6 +115,7 @@ struct ResumeOne {
     insertion_before: Option<Option<String>>,
     selected_module: Option<String>,
     selected_item_module: Option<String>,
+    removal_notice: Option<structure_ui::RemovalNotice>,
     visual_undo: Vec<structure_ui::VisualEdit>,
     visual_redo: Vec<structure_ui::VisualEdit>,
     recovery_pending: bool,
@@ -184,6 +185,7 @@ impl ResumeOne {
             insertion_before: None,
             selected_module: None,
             selected_item_module: None,
+            removal_notice: None,
             visual_undo: Vec::new(),
             visual_redo: Vec::new(),
             recovery_pending: false,
@@ -1210,15 +1212,6 @@ impl ResumeOne {
                 div()
                     .text_color(color(p.muted))
                     .child(tr("试改示例，或开始自己的简历")),
-            )
-            .child(
-                div()
-                    .text_color(color(p.muted))
-                    .child(if cfg!(target_os = "macos") {
-                        tr("⌘/ 查看 JSON")
-                    } else {
-                        tr("Ctrl+/ 查看 JSON")
-                    }),
             );
         for (id, caption) in [
             ("sample-new", tr("新建简历")),
@@ -1428,6 +1421,17 @@ impl Render for ResumeOne {
             .on_action(cx.listener(Self::toggle_source))
             .on_action(cx.listener(Self::dismiss_inline))
             .on_action(cx.listener(Self::format_json))
+            .on_action(cx.listener(Self::search_json))
+            .on_action(
+                cx.listener(|this, _: &gpui_component::input::Undo, window, cx| {
+                    this.undo_visual_edit(&structure_ui::UndoVisualEdit, window, cx);
+                }),
+            )
+            .on_action(
+                cx.listener(|this, _: &gpui_component::input::Redo, window, cx| {
+                    this.redo_visual_edit(&structure_ui::RedoVisualEdit, window, cx);
+                }),
+            )
             .on_action(cx.listener(Self::undo_visual_edit))
             .on_action(cx.listener(Self::redo_visual_edit))
             .on_action(cx.listener(Self::save_json))
@@ -1531,8 +1535,30 @@ impl Render for ResumeOne {
                                                 .as_ref()
                                                 .is_none_or(|editor| !editor.buffer.is_dirty()),
                                         |surface| surface.child(self.sample_actions(cx)),
-                                    ),
-                            ),
+                                    )
+                                    .when(!show_original, |surface| {
+                                        surface.children(self.removal_toast(cx).map(|notice| {
+                                            div()
+                                                .absolute()
+                                                .left_3()
+                                                .right_3()
+                                                .bottom_3()
+                                                .flex()
+                                                .justify_center()
+                                                .child(notice)
+                                        }))
+                                    }),
+                            )
+                            .when(show_original, |surface| {
+                                surface.children(self.removal_toast(cx).map(|notice| {
+                                    div()
+                                        .flex_none()
+                                        .flex()
+                                        .justify_center()
+                                        .p_2()
+                                        .child(notice)
+                                }))
+                            }),
                     )
                     .when(modules > 0.0, |view| {
                         view.child(
@@ -1656,12 +1682,12 @@ fn main() {
         .flatten();
     Application::new().run(move |cx: &mut App| {
         gpui_component::init(cx);
-        files::register(cx);
         export_ui::register(cx);
         editor_ui::register(cx);
         structure_ui::register(cx);
         inline_ui::register(cx);
         theme_manager::register(cx);
+        files::register(cx);
         let quit_target = Rc::new(RefCell::new(None::<gpui::WeakEntity<ResumeOne>>));
         let quit_flush_target = quit_target.clone();
         cx.on_app_quit(move |cx| {
@@ -2128,7 +2154,10 @@ mod tests {
                 serde_json::json!([])
             )
         });
-        cx.simulate_keystrokes("cmd-z");
+        let undo = cx
+            .debug_bounds("undo-structure-removal")
+            .expect("visible undo");
+        cx.simulate_click(undo.center(), Modifiers::none());
         cx.run_until_parked();
         cx.update(|_, cx| {
             let app = view.read(cx);

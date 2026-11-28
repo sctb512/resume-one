@@ -1,5 +1,8 @@
 use crate::i18n::tr;
-use gpui::{App, Context, EntityId, IntoElement, KeyBinding, Window, actions, div, prelude::*, px};
+use gpui::{
+    App, Context, EntityId, Focusable as _, IntoElement, KeyBinding, Window, actions, div,
+    prelude::*, px,
+};
 use resume_one_core::structure::{StructureEdit, apply_structure};
 
 use crate::{ResumeOne, chrome, color, label};
@@ -432,6 +435,15 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.source_mode {
+            if self.recovery_pending || self.theme_manager_open {
+                return;
+            }
+            if let Some(editor) = &self.editor
+                && !editor.input.read(cx).is_composing()
+            {
+                let focus = editor.input.read(cx).focus_handle(cx);
+                focus.dispatch_action(&gpui_component::input::Undo, window, cx);
+            }
             return;
         }
         if let Some(editor) = self.theme_editor.clone() {
@@ -466,6 +478,15 @@ impl ResumeOne {
         cx: &mut Context<Self>,
     ) {
         if self.source_mode {
+            if self.recovery_pending || self.theme_manager_open {
+                return;
+            }
+            if let Some(editor) = &self.editor
+                && !editor.input.read(cx).is_composing()
+            {
+                let focus = editor.input.read(cx).focus_handle(cx);
+                focus.dispatch_action(&gpui_component::input::Redo, window, cx);
+            }
             return;
         }
         if let Some(editor) = self.theme_editor.clone() {

@@ -414,9 +414,13 @@ impl ResumeOne {
                 return;
             }
         };
-        editor.display_alias = None;
+        let original = editor.display_alias.take().map(|(_, original)| original);
         let input = editor.input.clone();
         input.update(cx, |state, cx| {
+            // Record the file bytes, including a compact source shown via a formatted alias.
+            if let Some(original) = original {
+                state.set_value(original, window, cx);
+            }
             let length = state.value().chars().map(char::len_utf16).sum();
             state.replace_text_transaction(0..length, &formatted, window, cx);
         });
@@ -1289,6 +1293,7 @@ mod tests {
         cx.update(|cx| {
             gpui_component::init(cx);
             register(cx);
+            crate::structure_ui::register(cx);
         });
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("compact.json");
@@ -1334,6 +1339,14 @@ mod tests {
             assert!(editor.buffer.is_dirty());
             assert!(editor.buffer.source().contains("\n  \"basics\""));
         });
+        cx.update(|window, cx| window.focus(&view.read(cx).focus));
+        cx.simulate_keystrokes(&format!("{modifier}-z"));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(!view.read(cx).editor.as_ref().unwrap().buffer.is_dirty()));
+        cx.update(|window, cx| window.focus(&view.read(cx).focus));
+        cx.simulate_keystrokes(&format!("{modifier}-shift-z"));
+        cx.run_until_parked();
+        cx.update(|_, cx| assert!(view.read(cx).editor.as_ref().unwrap().buffer.is_dirty()));
         let paper = cx.debug_bounds("view-paper").expect("visible paper switch");
         cx.simulate_click(paper.center(), gpui::Modifiers::none());
         cx.run_until_parked();

@@ -769,7 +769,8 @@ impl ResumeOne {
             .track_scroll(&self.preview_scroll)
             .on_scroll_wheel(cx.listener(|this, _, _, cx| this.preview_scrolled(cx)))
             .bg(color(self.shell_style().colors.canvas))
-            .when(!self.recovery_pending && !self.structure_enabled() && self.model.preview_ready, |view| {
+            .when(!self.recovery_pending && !self.structure_enabled() && self.model.preview_ready
+                && !self.can_fix_issues_in_inline_form(), |view| {
         let p = chrome::Palette::new(&style);
                 view.child(div().id("stale-preview").debug_selector(|| "stale-preview".into())
                     .mx_4().mt_3().px_4().py_2().rounded_md()

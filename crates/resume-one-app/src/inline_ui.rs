@@ -956,6 +956,19 @@ impl ResumeOne {
             });
     }
 
+    pub(super) fn can_fix_issues_in_inline_form(&self) -> bool {
+        let (Some(form), Some(editor)) = (&self.inline.form, &self.editor) else {
+            return false;
+        };
+        let issues = editor.buffer.issues();
+        !issues.is_empty()
+            && issues.iter().all(|issue| {
+                form.fields
+                    .iter()
+                    .any(|field| field.matches_issue(&form.section, form.index, &issue.path))
+            })
+    }
+
     pub(super) fn paper_hover_changed(
         &mut self,
         page: usize,
@@ -3052,6 +3065,8 @@ mod tests {
             })
         });
         cx.run_until_parked();
+        assert!(cx.debug_bounds("stale-preview").is_none());
+        assert_eq!(paper_before, cx.debug_bounds("resume-paper").unwrap());
         cx.update(|_, cx| {
             view.update(cx, |app, _| {
                 assert!(
